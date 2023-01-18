@@ -1,0 +1,17 @@
+.widget {
+  .header {
+    align-items: center;
+    display: flex;
+    justify-content: space-between;
+
+    .title {
+      font-weight: 600;
+    }
+
+    .action-btns-wrapper {
+      display: grid;
+      grid-template-columns: auto;
+      grid-gap: 1rem;
+    }
+  }
+}

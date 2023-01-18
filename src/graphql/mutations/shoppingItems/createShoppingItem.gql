@@ -1,0 +1,10 @@
+mutation CreateShoppingItem($input: CreateShoppingItemInput!) {
+  createShoppingItem(input: $input) {
+    item {
+      ...ShoppingItem
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

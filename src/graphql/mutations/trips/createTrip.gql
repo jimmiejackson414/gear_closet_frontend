@@ -1,0 +1,10 @@
+mutation CreateTrip($input: CreateTripInput!) {
+  createTrip(input:$input) {
+    data {
+      ...Trip
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

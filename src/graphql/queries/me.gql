@@ -1,0 +1,14 @@
+query Me {
+  me {
+    user {
+      ...BaseUser
+    }
+    notifications {
+      ...Notification
+    }
+    totalCount
+    errors {
+      ...BaseError
+    }
+  }
+}

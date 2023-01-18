@@ -1,0 +1,8 @@
+mutation DeleteTodo($input: DeleteTodoInput!) {
+  deleteTodo(input:$input) {
+    success
+    errors {
+      ...BaseError
+    }
+  }
+}

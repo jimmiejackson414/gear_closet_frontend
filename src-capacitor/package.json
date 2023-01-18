@@ -1,0 +1,12 @@
+{
+  "name": "gear-closet-frontend",
+  "version": "0.0.1",
+  "description": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!",
+  "author": "Jimmie Jackson",
+  "private": true,
+  "dependencies": {
+    "@capacitor/cli": "^2.0.0",
+    "@capacitor/core": "^2.0.0",
+    "@capacitor/ios": "2.5.0"
+  }
+}

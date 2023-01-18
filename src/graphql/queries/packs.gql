@@ -1,0 +1,10 @@
+query Packs {
+  packs {
+    packs {
+      ...Pack
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

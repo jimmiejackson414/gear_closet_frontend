@@ -1,0 +1,10 @@
+mutation CreateTripDetail($input: CreateTripDetailInput!) {
+  createTripDetail(input:$input) {
+    tripDetail {
+      ...TripDetail
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

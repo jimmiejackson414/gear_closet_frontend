@@ -1,0 +1,13 @@
+mutation AddFriend($input: InviteFriendsToTripInput!) {
+  inviteFriendsToTrip(input:$input) {
+    friends {
+      ...TripFriend
+      user {
+        ...BaseUser
+      }
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

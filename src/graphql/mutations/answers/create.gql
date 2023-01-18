@@ -1,0 +1,10 @@
+mutation CreateAnswer ($input: CreateAnswerInput!) {
+  createAnswer (input: $input) {
+    answer {
+      ...Answer
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

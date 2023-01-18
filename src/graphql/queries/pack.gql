@@ -1,0 +1,10 @@
+query Pack($input: PackInput!) {
+  pack(input: $input) {
+    pack {
+      ...Pack
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

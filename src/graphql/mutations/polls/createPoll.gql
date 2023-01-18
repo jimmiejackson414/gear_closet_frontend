@@ -1,0 +1,10 @@
+mutation CreatePoll($input: CreatePollInput!) {
+  createPoll(input: $input) {
+    poll {
+      ...Poll 
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

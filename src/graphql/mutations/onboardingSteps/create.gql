@@ -1,0 +1,10 @@
+mutation CreateOnboardingStep($input: CreateOnboardStepInput!) {
+  createOnboardStep(input:$input) {
+    onboardingStep {
+      ...OnboardingStep
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

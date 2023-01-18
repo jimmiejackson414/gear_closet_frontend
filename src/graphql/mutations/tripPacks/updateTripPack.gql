@@ -1,0 +1,10 @@
+mutation UpdateTripPack($input: UpdateTripPackInput!) {
+  updateTripPack(input: $input) {
+    pack {
+      ...Pack
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

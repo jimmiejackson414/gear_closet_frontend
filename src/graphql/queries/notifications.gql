@@ -1,0 +1,11 @@
+query Notifications($input: NotificationsInput!) {
+  notifications(input:$input) {
+    notifications {
+      ...Notification
+    }
+    totalCount
+    errors {
+      ...BaseError
+    }
+  }
+}

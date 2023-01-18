@@ -1,0 +1,17 @@
+overwrite: true
+schema: ${VITE_BACKEND_URL}
+documents: ./src/graphql/**/*.gql
+generates:
+  ./src/generated/types.ts:
+    plugins:
+      - typescript
+      - typescript-operations
+      - typescript-graphql-request
+    config:
+      withRefetchFn: true
+      preResolveTypes: true
+      fetcher: graphql-request
+      gqlImport: graphql-request#gql
+      pureMagicComment: true
+      experimentalFragmentVariables: true
+      dedupeFragments: true

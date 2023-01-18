@@ -1,0 +1,7 @@
+{
+  "appId": "com.tesolcraeg.gearcloset",
+  "appName": "Gear Closet",
+  "bundledWebRuntime": false,
+  "npmClient": "yarn",
+  "webDir": "www"
+}

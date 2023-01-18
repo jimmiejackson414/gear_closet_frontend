@@ -1,0 +1,8 @@
+mutation SetAuth {
+  setAuth {
+    success
+    errors {
+      ...BaseError
+    }
+  }
+}
