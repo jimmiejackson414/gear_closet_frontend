@@ -1,0 +1,33 @@
+/**
+ * This injects Tailwind's base styles and any base styles registered by
+ * plugins.
+ */
+@import 'tailwindcss/base';
+@import './base/_index.css';
+/* @import '_typography.css'; */
+
+/**
+  * This injects Tailwind's component classes and any component classes
+  * registered by plugins.
+  */
+@import 'tailwindcss/components';
+@import './components/_index.css';
+
+/**
+  * This injects Tailwind's utility classes and any utility classes registered
+  * by plugins.
+  */
+@import 'tailwindcss/utilities';
+@import './utilities/_index.css';
+
+
+/*
+* Tailwind default responsive breakpoints reference
+* 
+* Breakpoint prefix	  Minimum width	  CSS
+* sm	                640px	          @media (min-width: 640px) { ... }
+* md	                768px	          @media (min-width: 768px) { ... }
+* lg	                1024px	        @media (min-width: 1024px) { ... }
+* xl	                1280px	        @media (min-width: 1280px) { ... }
+* 2xl	                1536px	        @media (min-width: 1536px) { ... }
+*/

@@ -1,0 +1,58 @@
+@layer components {
+  /* Group hover styles for links */
+  .group {
+    @apply inline-flex items-center capitalize outline-none transition-all whitespace-nowrap text-center justify-center font-bold rounded-sm ring-0;
+
+    /* Handles NuxtLink disabled state */
+    &.disabled {
+      @apply opacity-50 cursor-not-allowed;
+
+      a {
+        @apply cursor-not-allowed;
+      }
+    }
+
+    &.btn-primary:not(.disabled):hover {
+      @apply bg-white text-dark-gray border-dark-gray border;
+    }
+
+    &.btn-primary-outline:not(.disabled):hover {
+      @apply bg-dark-gray text-white border-transparent;
+    }
+
+    &.btn-secondary:not(.disabled):hover {
+      @apply bg-yellow-300 text-dark-gray border-yellow-300 border;
+    }
+  }
+
+  .btn {
+    @apply inline-flex items-center capitalize focus:outline-none focus:ring-0 whitespace-nowrap text-center justify-center font-bold cursor-pointer enabled:transition-all rounded-sm;
+
+    /* Color Variants */
+    &-primary {
+      @apply btn bg-dark-gray border border-transparent text-white enabled:hover:bg-white enabled:hover:text-dark-gray enabled:hover:border-dark-gray enabled:hover:border disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-dark-gray disabled:hover:text-white disabled:hover:border-transparent;
+    }
+
+    &-primary-outline {
+      @apply btn bg-transparent border-dark-gray border text-dark-gray enabled:hover:text-white enabled:hover:bg-dark-gray disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-dark-gray disabled:hover:border-dark-gray;
+    }
+
+    &-secondary {
+      @apply btn bg-primary-yellow border border-transparent text-primary-black enabled:hover:bg-yellow-300 enabled:hover:border-yellow-300 enabled:hover:border disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary-yellow disabled:hover:border-transparent;
+    }
+
+    /* Size Variants */
+    &-sm {
+      @apply btn text-sm px-6 py-[11px];
+    }
+
+    &-md {
+      @apply btn text-base px-10 py-[14px];
+    }
+
+    &-lg {
+      @apply btn text-lg px-14 py-[18px];
+    }
+
+  }
+}
