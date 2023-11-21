@@ -45,7 +45,6 @@
     "tsc-alias": "^1.8.8",
     "tscpaths": "^0.0.9",
     "v-onboarding": "^2.6.0",
-    "vee-validate": "^4.11.8",
     "vue": "^3.3.4",
     "vue-filepond": "^7.0.4",
     "vue-gtag": "^2.0.1",

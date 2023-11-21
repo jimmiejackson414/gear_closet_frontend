@@ -14,7 +14,7 @@
 
 <template>
   <div class="flex justify-center items-center flex-col h-[initial] md:h-screen">
-    <div class="bg-white flex flex-col max-w-sm overflow-hidden relative rounded-2xl shadow-md w-full">
+    <div class="bg-white flex flex-col max-w-sm overflow-hidden relative rounded-2xl shadow-lg w-full">
       <div class="flex justify-center flex-col px-4 w-full">
         <div class="absolute -top-[100px] -left-[70px] bg-primary flex flex-col h-[250px] rounded-[50%] w-[150%]" />
         <div class="flex flex-col mx-auto pb-12 pt-4 px-0 text-center w-full">

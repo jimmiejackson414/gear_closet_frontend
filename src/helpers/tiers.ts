@@ -1,7 +1,6 @@
 import dinero from 'dinero.js';
 import { SubscriptionLevel } from '@/generated/types';
 import tailwind from '@/helpers/tailwind';
-console.log({ tailwind });
 
 export interface Tier {
   title: string;

@@ -1,5 +1,7 @@
 <script lang='ts' setup>
   import { ref } from 'vue';
+  import { useValidate } from '@/composables';
+  import { isValidEmail } from '@/helpers/functions';
   import supabase from '@/lib/supabase';
   import GcInput from '@/components/common/GcInput.vue';
   import GcButton from '@/components/common/GcButton.vue';
@@ -17,9 +19,36 @@
     passwordConfirm: '',
   });
 
+  const rules = {
+    email: [
+      (val: string): boolean | string => (val && val.length > 0) || 'Email is required',
+      (val: string): boolean | string => isValidEmail(val) || 'Not a valid email',
+    ],
+    firstName: [
+      (val: string) => (val && val.length > 0) || 'First Name is required',
+    ],
+    lastName: [
+      (val: string) => (val && val.length > 0) || 'Last Name is required',
+    ],
+    password: [
+      (val: string) => (val && val.length > 0) || 'Password is required',
+    ],
+    passwordConfirm: [
+      (val: string) => (val && val.length > 0) || 'Confirm Password is required',
+      (val: string) => (form.password === val) || 'Must match password',
+    ],
+  };
+
+  const { fieldErrors, validateForm, validateFieldOnBlur } = useValidate(form, rules);
+
   const handleSubmit = async () => {
     try {
       submitting.value = true;
+
+      if (!validateForm()) {
+        return;
+      }
+
       const { data, error } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
@@ -97,42 +126,52 @@
         label="Email"
         placeholder="Email"
         :disabled="submitting"
-        required />
+        :error="fieldErrors.email"
+        required
+        @blur="validateFieldOnBlur('email')" />
       <gc-input
         v-model="form.firstName"
         autocomplete="given-name"
         label="First Name"
         placeholder="Tom"
         :disabled="submitting"
-        required />
+        :error="fieldErrors.firstName"
+        required
+        @blur="validateFieldOnBlur('firstName')" />
       <gc-input
         v-model="form.lastName"
         autocomplete="family-name"
         label="Last Name"
         placeholder="Jones"
         :disabled="submitting"
-        required />
+        :error="fieldErrors.lastName"
+        required
+        @blur="validateFieldOnBlur('lastName')" />
       <gc-input
         v-model="form.password"
         autocomplete="current-password"
         label="Password"
         placeholder="Password"
         :disabled="submitting"
+        :error="fieldErrors.password"
         type="password"
-        required />
+        required
+        @blur="validateFieldOnBlur('password')" />
       <gc-input
         v-model="form.passwordConfirm"
         autocomplete="confirm-password"
         label="Confirm Password"
         placeholder="Confirm password"
         :disabled="submitting"
+        :error="fieldErrors.passwordConfirm"
         type="password"
-        required />
+        required
+        @blur="validateFieldOnBlur('passwordConfirm')" />
       <Alert
         v-if="submitError"
         message="There was an error logging in.<br> Please try again." />
       <gc-button
-        label="Sign In"
+        label="Create Account"
         type="submit"
         :disabled="submitting" />
     </div>
@@ -142,7 +181,7 @@
         <router-link
           :to="{ name: 'login' }"
           class="no-underline text-primary">
-          Signin
+          Login
         </router-link>
       </p>
       <p class="mt-8 text-center text-grey text-xs">
