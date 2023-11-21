@@ -4,7 +4,7 @@ import type { RouteLocation } from 'vue-router';
 import type { User } from '@supabase/supabase-js';
 
 type State = {
-  currentUser: User | null;
+  session: User | null;
   redirectRoute: Partial<RouteLocation> | null;
 }
 
@@ -25,7 +25,7 @@ export const useAuthStore = defineStore<'auth', State, Getters, Actions>(
   {
     state () {
       return {
-        currentUser: null,
+        session: null,
         redirectRoute: null,
         loading: false,
       };
@@ -33,7 +33,7 @@ export const useAuthStore = defineStore<'auth', State, Getters, Actions>(
 
     getters: {
       isAuthenticated () {
-        return !!this.currentUser;
+        return !!this.session;
       },
     },
 
@@ -42,15 +42,15 @@ export const useAuthStore = defineStore<'auth', State, Getters, Actions>(
         try {
           const { data: { user } } = await supabase.auth.getUser();
           
-          this.currentUser = user;
+          this.session = user;
         } catch (error) {
           console.error('Error loading user');
-          this.currentUser = null;
+          this.session = null;
         }
       },
 
       async clearUser () {
-        this.currentUser = null;
+        this.session = null;
         await supabase.auth.signOut();
       },
 

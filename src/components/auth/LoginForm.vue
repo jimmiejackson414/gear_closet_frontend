@@ -12,22 +12,23 @@
   });
   const submitting = ref(false);
   const $router = useRouter();
-  const loginError = ref(false);
+  const loginError = ref<string | undefined>(undefined);
 
   const handleSubmit = async () => {
     try {
       submitting.value = true;
       const { error } = await supabase.auth.signInWithPassword({...form});
+      console.log({ error });
 
       if (error) {
-        loginError.value = true;
+        loginError.value = error.message;
         return;
       }
 
       $router.push({ name: 'dashboard' });
     } catch (error) {
       if (error instanceof Error) {
-        loginError.value = true;
+        loginError.value = error.message;
       }
     } finally {
       submitting.value = false;
@@ -41,14 +42,14 @@
       const { error } = await supabase.auth.signInWithOAuth({ provider });
 
       if (error) {
-        loginError.value = true;
+        loginError.value = error.message;
         return;
       }
 
       $router.push({ name: 'dashboard' });
     } catch (error) {
       if (error instanceof Error) {
-        loginError.value = true;
+        loginError.value = error.message;
       }
     } finally {
       submitting.value = false;
@@ -95,7 +96,7 @@
         required />
       <Alert
         v-if="loginError"
-        message="There was an error logging in.<br> Please try again." />
+        :message="loginError" />
       <gc-button
         label="Sign In"
         type="submit"

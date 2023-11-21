@@ -1,0 +1,1152 @@
+
+SET statement_timeout = 0;
+SET lock_timeout = 0;
+SET idle_in_transaction_session_timeout = 0;
+SET client_encoding = 'UTF8';
+SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
+SET check_function_bodies = false;
+SET xmloption = content;
+SET client_min_messages = warning;
+SET row_security = off;
+
+CREATE EXTENSION IF NOT EXISTS "pgsodium" WITH SCHEMA "pgsodium";
+
+ALTER SCHEMA "public" OWNER TO "postgres";
+
+CREATE EXTENSION IF NOT EXISTS "address_standardizer" WITH SCHEMA "extensions";
+
+CREATE EXTENSION IF NOT EXISTS "moddatetime" WITH SCHEMA "extensions";
+
+CREATE EXTENSION IF NOT EXISTS "pg_graphql" WITH SCHEMA "graphql";
+
+CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
+
+CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
+
+CREATE EXTENSION IF NOT EXISTS "pgjwt" WITH SCHEMA "extensions";
+
+CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
+
+CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
+
+CREATE TYPE "public"."measuring_system" AS ENUM (
+    'IMPERIAL',
+    'METRIC'
+);
+
+ALTER TYPE "public"."measuring_system" OWNER TO "postgres";
+
+CREATE TYPE "public"."pricing_plan_interval" AS ENUM (
+    'day',
+    'week',
+    'month',
+    'year'
+);
+
+ALTER TYPE "public"."pricing_plan_interval" OWNER TO "postgres";
+
+CREATE TYPE "public"."pricing_type" AS ENUM (
+    'one_time',
+    'recurring'
+);
+
+ALTER TYPE "public"."pricing_type" OWNER TO "postgres";
+
+CREATE TYPE "public"."resource_type" AS ENUM (
+    'USER',
+    'GROUP'
+);
+
+ALTER TYPE "public"."resource_type" OWNER TO "postgres";
+
+CREATE TYPE "public"."subscription_level" AS ENUM (
+    'FREE',
+    'MONTHLY',
+    'ANNUAL',
+    'LIFE'
+);
+
+ALTER TYPE "public"."subscription_level" OWNER TO "postgres";
+
+CREATE TYPE "public"."subscription_status" AS ENUM (
+    'trialing',
+    'active',
+    'canceled',
+    'incomplete',
+    'incomplete_expired',
+    'past_due',
+    'unpaid'
+);
+
+ALTER TYPE "public"."subscription_status" OWNER TO "postgres";
+
+CREATE TYPE "public"."theme" AS ENUM (
+    'BLUE6',
+    'BLUEGREEN6',
+    'BREEZE6',
+    'CELESTIAL6',
+    'CIRCUIT6',
+    'DAMASK6',
+    'DEPTH6',
+    'FLOW6',
+    'FORTE6',
+    'GENESIS6',
+    'GRAYSCALE6',
+    'IONBOARDROOM6',
+    'KILTER6',
+    'TABLEAU10',
+    'COLORBLIND10',
+    'JEWELBRIGHT9',
+    'HUECIRCLE19'
+);
+
+ALTER TYPE "public"."theme" OWNER TO "postgres";
+
+CREATE TYPE "public"."trip_friend_status" AS ENUM (
+    'ACCEPTED',
+    'DECLINED',
+    'PENDING'
+);
+
+ALTER TYPE "public"."trip_friend_status" OWNER TO "postgres";
+
+CREATE TYPE "public"."trip_invitation_status" AS ENUM (
+    'ACCEPTED',
+    'DECLINED',
+    'PENDING'
+);
+
+ALTER TYPE "public"."trip_invitation_status" OWNER TO "postgres";
+
+CREATE TYPE "public"."user_role" AS ENUM (
+    'ADMIN',
+    'USER'
+);
+
+ALTER TYPE "public"."user_role" OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."create_default_notification_after_signup"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+  BEGIN
+    INSERT INTO public.notifications (title, content, read_on_date, user_id)
+    VALUES("Welcome!", "Welcome to GearCloset! This is where you will receive all of your important updates.", null, new.id);
+  
+    RETURN NEW;
+  END;
+$$;
+
+ALTER FUNCTION "public"."create_default_notification_after_signup"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."create_default_trip_after_signup"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+  BEGIN
+    INSERT INTO public.trips (name, description, starting_point, ending_point, starting_date, ending_date, coordinates, slug, user_id)
+    VALUES("My First Trip!", "This is my first trip to plan.", "Starting Point", "Ending Point", null, null, null, null, new.id);
+  
+    RETURN NEW;
+  END;
+$$;
+
+ALTER FUNCTION "public"."create_default_trip_after_signup"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."generate_slug"() RETURNS "trigger"
+    LANGUAGE "plpgsql"
+    AS $$
+BEGIN
+	NEW.slug := gen_random_uuid();
+	RETURN NEW;
+END;
+$$;
+
+ALTER FUNCTION "public"."generate_slug"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."handle_new_user"() RETURNS "trigger"
+    LANGUAGE "plpgsql" SECURITY DEFINER
+    AS $$
+begin
+  INSERT INTO public.users (id, email, first_name, last_name, image, role, subscription_level, measuring_system)
+  values (new.id, new.email, new.raw_user_meta_data ->> "first_name", new.raw_user_meta_data ->> "last_name", null, "USER", "ANNUAL", "IMPERIAL")
+  ON CONFLICT (id) 
+  DO 
+    UPDATE SET email = new.email;
+  return new;
+end;
+$$;
+
+ALTER FUNCTION "public"."handle_new_user"() OWNER TO "postgres";
+
+SET default_tablespace = '';
+
+SET default_table_access_method = "heap";
+
+CREATE TABLE IF NOT EXISTS "public"."answers" (
+    "id" bigint NOT NULL,
+    "content" "text",
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "user_id" "uuid",
+    "question_id" bigint
+);
+
+ALTER TABLE "public"."answers" OWNER TO "postgres";
+
+ALTER TABLE "public"."answers" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."answers_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."categories" (
+    "id" bigint NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "name" character varying,
+    "unit" character varying DEFAULT 'g'::character varying,
+    "slug" character varying NOT NULL,
+    "pack_id" bigint,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+);
+
+ALTER TABLE "public"."categories" OWNER TO "postgres";
+
+ALTER TABLE "public"."categories" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."categories_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."category_items" (
+    "id" bigint NOT NULL,
+    "category_id" bigint,
+    "item_id" bigint,
+    "position" bigint,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"()
+);
+
+ALTER TABLE "public"."category_items" OWNER TO "postgres";
+
+ALTER TABLE "public"."category_items" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."category_items_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."comments" (
+    "id" bigint NOT NULL,
+    "text" "text",
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "user_id" "uuid" NOT NULL,
+    "pack_id" bigint NOT NULL
+);
+
+ALTER TABLE "public"."comments" OWNER TO "postgres";
+
+ALTER TABLE "public"."comments" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."comments_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."customers" (
+    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
+    "stripe_customer_id" "text",
+    "user_id" "uuid" NOT NULL
+);
+
+ALTER TABLE "public"."customers" OWNER TO "postgres";
+
+CREATE TABLE IF NOT EXISTS "public"."friends" (
+    "id" bigint NOT NULL,
+    "invite_sent_on" timestamp with time zone,
+    "invite_accepted_on" timestamp with time zone,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "user_id" "uuid",
+    "friend_id" "uuid"
+);
+
+ALTER TABLE "public"."friends" OWNER TO "postgres";
+
+ALTER TABLE "public"."friends" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."friends_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."items" (
+    "id" bigint NOT NULL,
+    "name" character varying,
+    "generic_type" character varying,
+    "price" bigint DEFAULT '0'::bigint,
+    "consumable" boolean DEFAULT false,
+    "worn" boolean DEFAULT false,
+    "quantity" bigint DEFAULT '0'::bigint,
+    "unit" character varying DEFAULT 'g'::character varying,
+    "weight" "text",
+    "url" "text",
+    "slug" character varying NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "user_id" "uuid"
+);
+
+ALTER TABLE "public"."items" OWNER TO "postgres";
+
+ALTER TABLE "public"."items" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."items_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."notifications" (
+    "id" bigint NOT NULL,
+    "title" character varying,
+    "content" "text",
+    "read_on_date" timestamp with time zone,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "user_id" "uuid"
+);
+
+ALTER TABLE "public"."notifications" OWNER TO "postgres";
+
+ALTER TABLE "public"."notifications" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."notifications_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."onboarding_steps" (
+    "user_id" "uuid" NOT NULL,
+    "page" "text" NOT NULL,
+    "completion_date" timestamp with time zone,
+    "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+);
+
+ALTER TABLE "public"."onboarding_steps" OWNER TO "postgres";
+
+CREATE TABLE IF NOT EXISTS "public"."packs" (
+    "id" bigint NOT NULL,
+    "name" character varying,
+    "slug" character varying NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "user_id" "uuid" NOT NULL,
+    "theme" "public"."theme" DEFAULT 'BLUE6'::"public"."theme",
+    "private" boolean DEFAULT false NOT NULL,
+    "allow_comments" boolean DEFAULT false NOT NULL
+);
+
+ALTER TABLE "public"."packs" OWNER TO "postgres";
+
+ALTER TABLE "public"."packs" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."packs_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."polls" (
+    "id" bigint NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "user_id" "uuid",
+    "trip_id" bigint
+);
+
+ALTER TABLE "public"."polls" OWNER TO "postgres";
+
+ALTER TABLE "public"."polls" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."polls_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."prices" (
+    "id" "text" NOT NULL,
+    "product_id" "text",
+    "active" boolean,
+    "description" "text",
+    "unit_amount" bigint,
+    "currency" "text",
+    "type" "public"."pricing_type",
+    "interval" "public"."pricing_plan_interval",
+    "interval_count" integer,
+    "trial_period_days" integer,
+    "metadata" "jsonb",
+    "identifier" "public"."subscription_level" DEFAULT 'FREE'::"public"."subscription_level",
+    "environment" "text" DEFAULT 'development'::"text",
+    CONSTRAINT "prices_currency_check" CHECK (("char_length"("currency") = 3))
+);
+
+ALTER TABLE "public"."prices" OWNER TO "postgres";
+
+CREATE TABLE IF NOT EXISTS "public"."products" (
+    "id" "text" NOT NULL,
+    "active" boolean DEFAULT true NOT NULL,
+    "name" "public"."subscription_level",
+    "description" "text",
+    "image" "text",
+    "metadata" "jsonb",
+    "environment" "text"
+);
+
+ALTER TABLE "public"."products" OWNER TO "postgres";
+
+CREATE TABLE IF NOT EXISTS "public"."questions" (
+    "id" bigint NOT NULL,
+    "title" "text",
+    "poll_id" bigint,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "user_id" "uuid"
+);
+
+ALTER TABLE "public"."questions" OWNER TO "postgres";
+
+ALTER TABLE "public"."questions" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."questions_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."replies" (
+    "id" bigint NOT NULL,
+    "comment_id" bigint NOT NULL,
+    "user_id" "uuid" NOT NULL,
+    "created_at" timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text"),
+    "updated_at" timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text"),
+    "text" "text"
+);
+
+ALTER TABLE "public"."replies" OWNER TO "postgres";
+
+ALTER TABLE "public"."replies" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."replies_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."shopping_list_items" (
+    "id" bigint NOT NULL,
+    "title" character varying,
+    "completed" boolean DEFAULT false NOT NULL,
+    "quantity" bigint DEFAULT '0'::bigint,
+    "trip_id" bigint,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "resource_type" "public"."resource_type" DEFAULT 'USER'::"public"."resource_type" NOT NULL,
+    "user_id" "uuid"
+);
+
+ALTER TABLE "public"."shopping_list_items" OWNER TO "postgres";
+
+ALTER TABLE "public"."shopping_list_items" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."shopping_list_items_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."subscriptions" (
+    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
+    "user_id" "uuid" NOT NULL,
+    "status" "public"."subscription_status",
+    "metadata" "jsonb",
+    "price_id" "text",
+    "quantity" integer,
+    "cancel_at_period_end" boolean,
+    "created_at" timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text") NOT NULL,
+    "current_period_start" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
+    "current_period_end" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
+    "ended_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()),
+    "cancel_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()),
+    "canceled_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()),
+    "trial_start" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()),
+    "trial_end" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()),
+    "stripe_subscription_id" "text"
+);
+
+ALTER TABLE "public"."subscriptions" OWNER TO "postgres";
+
+CREATE TABLE IF NOT EXISTS "public"."todos" (
+    "id" bigint NOT NULL,
+    "title" character varying,
+    "completed" boolean DEFAULT false NOT NULL,
+    "trip_id" bigint,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "resource_type" "public"."resource_type" DEFAULT 'USER'::"public"."resource_type" NOT NULL,
+    "user_id" "uuid"
+);
+
+ALTER TABLE "public"."todos" OWNER TO "postgres";
+
+ALTER TABLE "public"."todos" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."todos_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."trip_details" (
+    "id" bigint NOT NULL,
+    "title" character varying,
+    "url" character varying,
+    "value" character varying,
+    "type" character varying,
+    "trip_id" bigint,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+);
+
+ALTER TABLE "public"."trip_details" OWNER TO "postgres";
+
+ALTER TABLE "public"."trip_details" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."trip_details_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."trip_friends" (
+    "id" bigint NOT NULL,
+    "trip_id" bigint,
+    "accepted_invite_on" timestamp with time zone,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "status" "public"."trip_friend_status" DEFAULT 'PENDING'::"public"."trip_friend_status" NOT NULL,
+    "user_id" "uuid",
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+);
+
+ALTER TABLE "public"."trip_friends" OWNER TO "postgres";
+
+ALTER TABLE "public"."trip_friends" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."trip_friends_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."trip_packs" (
+    "id" bigint NOT NULL,
+    "trip_id" bigint,
+    "pack_id" bigint,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "user_id" "uuid"
+);
+
+ALTER TABLE "public"."trip_packs" OWNER TO "postgres";
+
+ALTER TABLE "public"."trip_packs" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."trip_packs_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."trips" (
+    "id" bigint NOT NULL,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "name" character varying,
+    "description" "text",
+    "starting_point" character varying,
+    "ending_point" character varying,
+    "starting_date" timestamp with time zone,
+    "ending_date" timestamp with time zone,
+    "coordinates" "json",
+    "slug" character varying NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "user_id" "uuid" NOT NULL
+);
+
+ALTER TABLE "public"."trips" OWNER TO "postgres";
+
+ALTER TABLE "public"."trips" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."trips_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."user_answers" (
+    "id" bigint NOT NULL,
+    "answer_id" bigint,
+    "user_id" "uuid",
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "poll_id" bigint
+);
+
+ALTER TABLE "public"."user_answers" OWNER TO "postgres";
+
+ALTER TABLE "public"."user_answers" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."user_answers_id_seq"
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1
+);
+
+CREATE TABLE IF NOT EXISTS "public"."users" (
+    "id" "uuid" NOT NULL,
+    "email" "text" NOT NULL,
+    "first_name" "text",
+    "last_name" "text",
+    "trail_name" "text",
+    "image" "text",
+    "role" "public"."user_role" DEFAULT 'USER'::"public"."user_role",
+    "subscription_level" "public"."subscription_level" DEFAULT 'FREE'::"public"."subscription_level",
+    "measuring_system" "public"."measuring_system" DEFAULT 'IMPERIAL'::"public"."measuring_system",
+    "onboard_date" timestamp with time zone,
+    "address_1" "text",
+    "address_2" "text",
+    "city" "text",
+    "state" "text",
+    "country" "text",
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"(),
+    "location" "jsonb"
+);
+
+ALTER TABLE "public"."users" OWNER TO "postgres";
+
+ALTER TABLE ONLY "public"."answers"
+    ADD CONSTRAINT "answers_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."categories"
+    ADD CONSTRAINT "categories_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."categories"
+    ADD CONSTRAINT "categories_slug_key" UNIQUE ("slug");
+
+ALTER TABLE ONLY "public"."category_items"
+    ADD CONSTRAINT "category_items_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."comments"
+    ADD CONSTRAINT "comments_id_key" UNIQUE ("id");
+
+ALTER TABLE ONLY "public"."comments"
+    ADD CONSTRAINT "comments_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."customers"
+    ADD CONSTRAINT "customers_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."friends"
+    ADD CONSTRAINT "friends_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."items"
+    ADD CONSTRAINT "items_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."items"
+    ADD CONSTRAINT "items_slug_key" UNIQUE ("slug");
+
+ALTER TABLE ONLY "public"."notifications"
+    ADD CONSTRAINT "notifications_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."onboarding_steps"
+    ADD CONSTRAINT "onboarding_completion_pkey" PRIMARY KEY ("user_id", "page");
+
+ALTER TABLE ONLY "public"."packs"
+    ADD CONSTRAINT "packs_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."packs"
+    ADD CONSTRAINT "packs_slug_key" UNIQUE ("slug");
+
+ALTER TABLE ONLY "public"."polls"
+    ADD CONSTRAINT "polls_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."prices"
+    ADD CONSTRAINT "prices_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."products"
+    ADD CONSTRAINT "products_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."questions"
+    ADD CONSTRAINT "questions_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."replies"
+    ADD CONSTRAINT "replies_id_key" UNIQUE ("id");
+
+ALTER TABLE ONLY "public"."replies"
+    ADD CONSTRAINT "replies_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."shopping_list_items"
+    ADD CONSTRAINT "shopping_list_items_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."subscriptions"
+    ADD CONSTRAINT "subscriptions_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."todos"
+    ADD CONSTRAINT "todos_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."trip_details"
+    ADD CONSTRAINT "trip_details_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."trip_friends"
+    ADD CONSTRAINT "trip_friends_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."trip_packs"
+    ADD CONSTRAINT "trip_packs_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."trips"
+    ADD CONSTRAINT "trips_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."trips"
+    ADD CONSTRAINT "trips_slug_key" UNIQUE ("slug");
+
+ALTER TABLE ONLY "public"."user_answers"
+    ADD CONSTRAINT "user_answers_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE ONLY "public"."users"
+    ADD CONSTRAINT "users_pkey" PRIMARY KEY ("id");
+
+CREATE OR REPLACE TRIGGER "generate_slug_for_categories" BEFORE INSERT ON "public"."categories" FOR EACH ROW EXECUTE FUNCTION "public"."generate_slug"();
+
+CREATE OR REPLACE TRIGGER "generate_slug_for_items" BEFORE INSERT ON "public"."items" FOR EACH ROW EXECUTE FUNCTION "public"."generate_slug"();
+
+CREATE OR REPLACE TRIGGER "generate_slug_for_packs" BEFORE INSERT ON "public"."packs" FOR EACH ROW EXECUTE FUNCTION "public"."generate_slug"();
+
+CREATE OR REPLACE TRIGGER "generate_slug_for_trips" BEFORE INSERT ON "public"."trips" FOR EACH ROW EXECUTE FUNCTION "public"."generate_slug"();
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."answers" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."categories" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."category_items" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."comments" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."friends" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."items" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."notifications" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."onboarding_steps" FOR EACH ROW EXECUTE FUNCTION "storage"."update_updated_at_column"();
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."packs" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."polls" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."questions" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."replies" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."shopping_list_items" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."todos" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."trip_details" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."trip_friends" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."trip_packs" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."trips" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."user_answers" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."users" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+CREATE OR REPLACE TRIGGER "signup_create_trip" AFTER INSERT ON "public"."users" FOR EACH ROW EXECUTE FUNCTION "public"."create_default_trip_after_signup"();
+
+ALTER TABLE ONLY "public"."answers"
+    ADD CONSTRAINT "answers_question_id_fkey" FOREIGN KEY ("question_id") REFERENCES "public"."questions"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."answers"
+    ADD CONSTRAINT "answers_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."categories"
+    ADD CONSTRAINT "categories_pack_id_fkey" FOREIGN KEY ("pack_id") REFERENCES "public"."packs"("id");
+
+ALTER TABLE ONLY "public"."category_items"
+    ADD CONSTRAINT "category_items_category_id_fkey" FOREIGN KEY ("category_id") REFERENCES "public"."categories"("id");
+
+ALTER TABLE ONLY "public"."category_items"
+    ADD CONSTRAINT "category_items_item_id_fkey" FOREIGN KEY ("item_id") REFERENCES "public"."items"("id");
+
+ALTER TABLE ONLY "public"."comments"
+    ADD CONSTRAINT "comments_pack_id_fkey" FOREIGN KEY ("pack_id") REFERENCES "public"."packs"("id");
+
+ALTER TABLE ONLY "public"."comments"
+    ADD CONSTRAINT "comments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."customers"
+    ADD CONSTRAINT "customers_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."friends"
+    ADD CONSTRAINT "friends_friend_id_fkey" FOREIGN KEY ("friend_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."friends"
+    ADD CONSTRAINT "friends_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."items"
+    ADD CONSTRAINT "items_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."notifications"
+    ADD CONSTRAINT "notifications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."onboarding_steps"
+    ADD CONSTRAINT "onboarding_steps_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."packs"
+    ADD CONSTRAINT "packs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."polls"
+    ADD CONSTRAINT "polls_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id");
+
+ALTER TABLE ONLY "public"."polls"
+    ADD CONSTRAINT "polls_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."prices"
+    ADD CONSTRAINT "prices_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id");
+
+ALTER TABLE ONLY "public"."questions"
+    ADD CONSTRAINT "questions_poll_id_fkey" FOREIGN KEY ("poll_id") REFERENCES "public"."polls"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."questions"
+    ADD CONSTRAINT "questions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."replies"
+    ADD CONSTRAINT "replies_comment_id_fkey" FOREIGN KEY ("comment_id") REFERENCES "public"."comments"("id");
+
+ALTER TABLE ONLY "public"."replies"
+    ADD CONSTRAINT "replies_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."shopping_list_items"
+    ADD CONSTRAINT "shopping_list_items_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id");
+
+ALTER TABLE ONLY "public"."shopping_list_items"
+    ADD CONSTRAINT "shopping_list_items_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."subscriptions"
+    ADD CONSTRAINT "subscriptions_price_id_fkey" FOREIGN KEY ("price_id") REFERENCES "public"."prices"("id");
+
+ALTER TABLE ONLY "public"."subscriptions"
+    ADD CONSTRAINT "subscriptions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."todos"
+    ADD CONSTRAINT "todos_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id");
+
+ALTER TABLE ONLY "public"."todos"
+    ADD CONSTRAINT "todos_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."trip_details"
+    ADD CONSTRAINT "trip_details_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id");
+
+ALTER TABLE ONLY "public"."trip_friends"
+    ADD CONSTRAINT "trip_friends_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id");
+
+ALTER TABLE ONLY "public"."trip_friends"
+    ADD CONSTRAINT "trip_friends_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."trip_packs"
+    ADD CONSTRAINT "trip_packs_pack_id_fkey" FOREIGN KEY ("pack_id") REFERENCES "public"."packs"("id");
+
+ALTER TABLE ONLY "public"."trip_packs"
+    ADD CONSTRAINT "trip_packs_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id");
+
+ALTER TABLE ONLY "public"."trip_packs"
+    ADD CONSTRAINT "trip_packs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."trips"
+    ADD CONSTRAINT "trips_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."user_answers"
+    ADD CONSTRAINT "user_answers_answer_id_fkey" FOREIGN KEY ("answer_id") REFERENCES "public"."answers"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."user_answers"
+    ADD CONSTRAINT "user_answers_poll_id_fkey" FOREIGN KEY ("poll_id") REFERENCES "public"."polls"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."user_answers"
+    ADD CONSTRAINT "user_answers_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+
+ALTER TABLE ONLY "public"."users"
+    ADD CONSTRAINT "users_id_fkey" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+
+CREATE POLICY "Allow public read-only access." ON "public"."prices" FOR SELECT USING (true);
+
+CREATE POLICY "Allow public read-only access." ON "public"."products" FOR SELECT USING (true);
+
+CREATE POLICY "Can only view own subs data." ON "public"."subscriptions" FOR SELECT USING (("auth"."uid"() = "user_id"));
+
+CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."categories" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."category_items" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."customers" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."friends" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."items" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."notifications" USING (("auth"."uid"() = "user_id")) WITH CHECK (("auth"."uid"() = "user_id"));
+
+CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."packs" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."shopping_list_items" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."todos" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."trip_details" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."trip_friends" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."trip_packs" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."trips" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+
+REVOKE USAGE ON SCHEMA "public" FROM PUBLIC;
+GRANT USAGE ON SCHEMA "public" TO "anon";
+GRANT USAGE ON SCHEMA "public" TO "authenticated";
+GRANT USAGE ON SCHEMA "public" TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."create_default_notification_after_signup"() TO "anon";
+GRANT ALL ON FUNCTION "public"."create_default_notification_after_signup"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."create_default_notification_after_signup"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."create_default_trip_after_signup"() TO "anon";
+GRANT ALL ON FUNCTION "public"."create_default_trip_after_signup"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."create_default_trip_after_signup"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."generate_slug"() TO "anon";
+GRANT ALL ON FUNCTION "public"."generate_slug"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."generate_slug"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "anon";
+GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "authenticated";
+GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "service_role";
+
+GRANT ALL ON TABLE "public"."answers" TO "anon";
+GRANT ALL ON TABLE "public"."answers" TO "authenticated";
+GRANT ALL ON TABLE "public"."answers" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."answers_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."answers_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."answers_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."categories" TO "anon";
+GRANT ALL ON TABLE "public"."categories" TO "authenticated";
+GRANT ALL ON TABLE "public"."categories" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."categories_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."categories_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."categories_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."category_items" TO "anon";
+GRANT ALL ON TABLE "public"."category_items" TO "authenticated";
+GRANT ALL ON TABLE "public"."category_items" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."category_items_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."category_items_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."category_items_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."comments" TO "anon";
+GRANT ALL ON TABLE "public"."comments" TO "authenticated";
+GRANT ALL ON TABLE "public"."comments" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."comments_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."comments_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."comments_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."customers" TO "anon";
+GRANT ALL ON TABLE "public"."customers" TO "authenticated";
+GRANT ALL ON TABLE "public"."customers" TO "service_role";
+
+GRANT ALL ON TABLE "public"."friends" TO "anon";
+GRANT ALL ON TABLE "public"."friends" TO "authenticated";
+GRANT ALL ON TABLE "public"."friends" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."friends_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."friends_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."friends_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."items" TO "anon";
+GRANT ALL ON TABLE "public"."items" TO "authenticated";
+GRANT ALL ON TABLE "public"."items" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."items_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."items_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."items_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."notifications" TO "anon";
+GRANT ALL ON TABLE "public"."notifications" TO "authenticated";
+GRANT ALL ON TABLE "public"."notifications" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."notifications_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."notifications_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."notifications_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."onboarding_steps" TO "anon";
+GRANT ALL ON TABLE "public"."onboarding_steps" TO "authenticated";
+GRANT ALL ON TABLE "public"."onboarding_steps" TO "service_role";
+
+GRANT ALL ON TABLE "public"."packs" TO "anon";
+GRANT ALL ON TABLE "public"."packs" TO "authenticated";
+GRANT ALL ON TABLE "public"."packs" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."packs_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."packs_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."packs_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."polls" TO "anon";
+GRANT ALL ON TABLE "public"."polls" TO "authenticated";
+GRANT ALL ON TABLE "public"."polls" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."polls_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."polls_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."polls_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."prices" TO "anon";
+GRANT ALL ON TABLE "public"."prices" TO "authenticated";
+GRANT ALL ON TABLE "public"."prices" TO "service_role";
+
+GRANT ALL ON TABLE "public"."products" TO "anon";
+GRANT ALL ON TABLE "public"."products" TO "authenticated";
+GRANT ALL ON TABLE "public"."products" TO "service_role";
+
+GRANT ALL ON TABLE "public"."questions" TO "anon";
+GRANT ALL ON TABLE "public"."questions" TO "authenticated";
+GRANT ALL ON TABLE "public"."questions" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."questions_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."questions_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."questions_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."replies" TO "anon";
+GRANT ALL ON TABLE "public"."replies" TO "authenticated";
+GRANT ALL ON TABLE "public"."replies" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."replies_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."replies_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."replies_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."shopping_list_items" TO "anon";
+GRANT ALL ON TABLE "public"."shopping_list_items" TO "authenticated";
+GRANT ALL ON TABLE "public"."shopping_list_items" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."shopping_list_items_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."shopping_list_items_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."shopping_list_items_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."subscriptions" TO "anon";
+GRANT ALL ON TABLE "public"."subscriptions" TO "authenticated";
+GRANT ALL ON TABLE "public"."subscriptions" TO "service_role";
+
+GRANT ALL ON TABLE "public"."todos" TO "anon";
+GRANT ALL ON TABLE "public"."todos" TO "authenticated";
+GRANT ALL ON TABLE "public"."todos" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."todos_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."todos_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."todos_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."trip_details" TO "anon";
+GRANT ALL ON TABLE "public"."trip_details" TO "authenticated";
+GRANT ALL ON TABLE "public"."trip_details" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."trip_details_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."trip_details_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."trip_details_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."trip_friends" TO "anon";
+GRANT ALL ON TABLE "public"."trip_friends" TO "authenticated";
+GRANT ALL ON TABLE "public"."trip_friends" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."trip_friends_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."trip_friends_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."trip_friends_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."trip_packs" TO "anon";
+GRANT ALL ON TABLE "public"."trip_packs" TO "authenticated";
+GRANT ALL ON TABLE "public"."trip_packs" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."trip_packs_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."trip_packs_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."trip_packs_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."trips" TO "anon";
+GRANT ALL ON TABLE "public"."trips" TO "authenticated";
+GRANT ALL ON TABLE "public"."trips" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."trips_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."trips_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."trips_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."user_answers" TO "anon";
+GRANT ALL ON TABLE "public"."user_answers" TO "authenticated";
+GRANT ALL ON TABLE "public"."user_answers" TO "service_role";
+
+GRANT ALL ON SEQUENCE "public"."user_answers_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."user_answers_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."user_answers_id_seq" TO "service_role";
+
+GRANT ALL ON TABLE "public"."users" TO "anon";
+GRANT ALL ON TABLE "public"."users" TO "authenticated";
+GRANT ALL ON TABLE "public"."users" TO "service_role";
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "service_role";
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON FUNCTIONS  TO "service_role";
+
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "anon";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "authenticated";
+ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES  TO "service_role";
+
+RESET ALL;
