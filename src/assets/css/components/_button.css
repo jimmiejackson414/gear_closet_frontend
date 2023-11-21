@@ -1,9 +1,87 @@
 @layer components {
-  /* Group hover styles for links */
+  .btn {
+    @apply inline-flex items-center capitalize focus:outline-none focus:ring-0 text-center justify-center font-semibold cursor-pointer enabled:transition-all rounded-lg disabled:opacity-50 tracking-wide;
+
+    /* Size Variants */
+    &-sm {
+      @apply text-sm px-6 py-[6px];
+    }
+
+    &-md {
+      @apply text-base px-10 py-[11px];
+    }
+
+    &-lg {
+      @apply text-lg px-14 py-[16px];
+    }
+
+    /* Outlined Style */
+    &-outlined {
+      @apply border;
+    }
+
+    /* Disabled State */
+    &-disabled {
+      @apply opacity-50 cursor-not-allowed;
+
+      &:hover {
+        @apply cursor-not-allowed;
+      }
+    }
+
+    /* Color Variants */
+    &-primary {
+      @apply bg-primary text-white hover:bg-primary-dark border border-transparent;
+    }
+
+    &-primary-outline {
+      @apply bg-transparent border text-primary border-primary hover:bg-gray-100;
+    }
+
+    &-positive {
+      @apply bg-positive text-white hover:bg-positive-dark border border-transparent;
+    }
+
+    &-positive-outline {
+      @apply bg-transparent border text-positive border-positive hover:bg-gray-100;
+    }
+
+    &-danger {
+      @apply bg-danger text-white hover:bg-danger-dark border border-transparent;
+    }
+
+    &-danger-outline {
+      @apply bg-transparent border text-danger border-danger hover:bg-gray-100;
+    }
+    /* &-primary {
+      @apply bg-primary border border-transparent text-white enabled:hover:bg-white enabled:hover:text-primary enabled:hover:border-primary enabled:transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary disabled:hover:text-white disabled:hover:border-transparent;
+    }
+
+    &-primary-outline {
+      @apply bg-transparent border-primary border text-black enabled:hover:text-white enabled:hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-black disabled:hover:border-;
+    }
+
+    &-secondary {
+      @apply bg-primary-yellow border border-transparent text-primary-black enabled:hover:bg-yellow-300 enabled:hover:border-yellow-300 enabled:hover:border disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary-yellow disabled:hover:border-transparent;
+    }
+
+    &-secondary-outline {
+      @apply bg-transparent border-primary-yellow border text-primary-black enabled:hover:text-white enabled:hover:bg-primary-yellow disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-primary-black disabled:hover:border-dark-gray;
+    }
+
+    &-danger {
+      @apply bg-red-500 border border-transparent text-white enabled:hover:bg-white enabled:hover:text-red-500 enabled:hover:border-red-500 enabled:transition-all disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-red-500 disabled:hover:text-white disabled:hover:border-transparent;
+    }
+
+    &-danger-outline {
+      @apply bg-transparent border-red-500 border text-red-500 enabled:hover:text-white enabled:hover:bg-red-500 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-red-500 disabled:hover:border-dark-gray;
+    } */
+  }
+}
+/* @layer components {
   .group {
     @apply inline-flex items-center capitalize outline-none transition-all whitespace-nowrap text-center justify-center font-bold rounded-sm ring-0;
 
-    /* Handles NuxtLink disabled state */
     &.disabled {
       @apply opacity-50 cursor-not-allowed;
 
@@ -13,35 +91,33 @@
     }
 
     &.btn-primary:not(.disabled):hover {
-      @apply bg-white text-dark-gray border-dark-gray border;
+      @apply bg-white text-black border-black border;
     }
 
     &.btn-primary-outline:not(.disabled):hover {
-      @apply bg-dark-gray text-white border-transparent;
+      @apply bg-black text-white border-transparent;
     }
 
     &.btn-secondary:not(.disabled):hover {
-      @apply bg-yellow-300 text-dark-gray border-yellow-300 border;
+      @apply bg-yellow-300 text-black border-yellow-300 border;
     }
   }
 
   .btn {
     @apply inline-flex items-center capitalize focus:outline-none focus:ring-0 whitespace-nowrap text-center justify-center font-bold cursor-pointer enabled:transition-all rounded-sm;
 
-    /* Color Variants */
     &-primary {
-      @apply btn bg-dark-gray border border-transparent text-white enabled:hover:bg-white enabled:hover:text-dark-gray enabled:hover:border-dark-gray enabled:hover:border disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-dark-gray disabled:hover:text-white disabled:hover:border-transparent;
+      @apply btn bg-primary border border-transparent text-white enabled:hover:bg-white enabled:hover:text-black enabled:hover:border-black enabled:hover:border disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-black disabled:hover:text-white disabled:hover:border-transparent;
     }
 
     &-primary-outline {
-      @apply btn bg-transparent border-dark-gray border text-dark-gray enabled:hover:text-white enabled:hover:bg-dark-gray disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-dark-gray disabled:hover:border-dark-gray;
+      @apply btn bg-transparent border-black border text-black enabled:hover:text-white enabled:hover:bg-black disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-transparent disabled:hover:text-black disabled:hover:border-dark-gray;
     }
 
     &-secondary {
       @apply btn bg-primary-yellow border border-transparent text-primary-black enabled:hover:bg-yellow-300 enabled:hover:border-yellow-300 enabled:hover:border disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary-yellow disabled:hover:border-transparent;
     }
 
-    /* Size Variants */
     &-sm {
       @apply btn text-sm px-6 py-[11px];
     }
@@ -55,4 +131,4 @@
     }
 
   }
-}
+} */

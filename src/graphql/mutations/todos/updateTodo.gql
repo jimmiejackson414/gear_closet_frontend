@@ -1,0 +1,10 @@
+mutation UpdateTodo($input: UpdateTodoInput!) {
+  updateTodo(input: $input) {
+    todo {
+      ...Todo
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

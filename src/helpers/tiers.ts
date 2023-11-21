@@ -1,6 +1,7 @@
 import dinero from 'dinero.js';
 import { SubscriptionLevel } from '@/generated/types';
-import { colors } from 'quasar';
+import tailwind from '@/helpers/tailwind';
+console.log({ tailwind });
 
 export interface Tier {
   title: string;
@@ -45,7 +46,7 @@ const tiers: Tier[] = [
       'Email Support',
       '20% discount',
     ],
-    borderColor: colors.getPaletteColor('primary'),
+    borderColor: tailwind.theme.colors.primary,
     buttonText: 'Coming soon!',
     buttonVariant: 'unelevated',
     buttonDisabled: true,
@@ -62,7 +63,7 @@ const tiers: Tier[] = [
       'Forum Access',
       'Email Support',
     ],
-    borderColor: colors.getPaletteColor('secondary'),
+    borderColor: tailwind.theme.colors.positive,
     buttonText: 'Coming soon!',
     buttonVariant: 'outlined',
     buttonDisabled: true,

@@ -1,8 +1,9 @@
-import { defineConfig } from 'vite'
-import vue from '@vitejs/plugin-vue'
-import { fileURLToPath, URL } from 'node:url'
+import { defineConfig } from 'vite';
+import vue from '@vitejs/plugin-vue';
+import { fileURLToPath, URL } from 'node:url';
 import fs from 'fs';
 import AutoImport from 'unplugin-auto-import/vite';
+import { unheadVueComposablesImports } from '@unhead/vue';
 
 const readPemFiles = (): any => {
   if (process.env.NODE_ENV === 'production') return undefined;
@@ -21,6 +22,7 @@ const readPemFiles = (): any => {
 export default defineConfig({
   ...readPemFiles(),
   plugins: [
+    vue(),
     AutoImport({
       include: [
         /\.[tj]sx?$/, // .ts, .tsx, .js, .jsx
@@ -32,19 +34,25 @@ export default defineConfig({
         'vue-router',
         '@vueuse/core',
         'pinia',
+        unheadVueComposablesImports,
       ],
       eslintrc: {
         enabled: true,
         filepath: './.eslintrc-auto-import.json',
       },
-      dts: true,
+      dts: './auto-imports.d.ts',
       vueTemplate: true,
     }),
-    vue(),
   ],
   resolve: {
     alias: {
-      '@': fileURLToPath(new URL('./src', import.meta.url))
-    }
-  }
-})
+      '@': fileURLToPath(new URL('./src', import.meta.url)),
+      'tailwind.config': fileURLToPath(new URL('./tailwind.config.ts', import.meta.url)),
+    },
+  },
+  optimizeDeps: {
+    include: [
+      'tailwind.config.ts',
+    ],
+  },
+});

@@ -1,0 +1,10 @@
+mutation CreateFreeSubscription($input: CreateFreeSubscriptionInput!) {
+  createFreeSubscription (input: $input) {
+    subscription {
+      ...Subscription
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

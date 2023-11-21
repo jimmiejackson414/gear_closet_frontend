@@ -1,0 +1,10 @@
+mutation CreateTodo($input: CreateTodoInput!) {
+  createTodo(input: $input) {
+    todo {
+      ...Todo
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

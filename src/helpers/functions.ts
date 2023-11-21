@@ -1,8 +1,10 @@
-import Dinero, { Currency } from 'dinero.js';
-import convert, { Mass } from 'convert';
-import {
-  Category, CategoryItem, Pack, User,
-} from '@/generated/types';
+import Dinero from 'dinero.js';
+import convert from 'convert';
+// import {
+//   Category, CategoryItem, Pack, User,
+// } from '@/generated/types';
+import type { Currency } from 'dinero.js';
+import type { Mass } from 'convert';
 
 interface PackData {
   total: number;

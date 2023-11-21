@@ -1,0 +1,8 @@
+mutation DeleteShoppingItem($input: DeleteShoppingItemInput!) {
+  deleteShoppingItem(input:$input) {
+    success
+    errors {
+      ...BaseError
+    }
+  }
+}

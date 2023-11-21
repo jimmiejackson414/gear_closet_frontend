@@ -1,20 +1,20 @@
 @layer base {
-  html, #__nuxt {
+  html, #app {
     @apply h-full
   }
 
   body {
-    @apply font-sans text-base text-gc-black bg-white antialiased h-full;
+    @apply font-sans text-base text-dark-grey bg-white antialiased h-full;
   }
 
   .hyperlink {
     @apply font-sans;
     font-size: 1rem;
-    color: theme(colors.gc-primary);
+    color: theme(colors.primary);
     transition: color 0.2s ease-in-out;
 
     &:hover {
-      color: theme(colors.gc-primary / 75%);
+      color: theme(colors.primary / 75%);
     }
   }
 }

@@ -1,0 +1,10 @@
+mutation CreateCategoryItem($input: CreateCategoryItemInput!) {
+  createCategoryItem(input: $input) {
+    category_item {
+      ...CategoryItem
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

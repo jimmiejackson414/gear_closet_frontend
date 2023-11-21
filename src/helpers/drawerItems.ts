@@ -8,7 +8,7 @@ interface Item {
 
 const items = [
   {
-    href: '/',
+    href: '/dashboard',
     title: 'Dashboard',
     icon: 'bi-house',
     disabled: false,
