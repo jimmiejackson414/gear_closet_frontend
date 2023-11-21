@@ -7,10 +7,11 @@
   import GcButton from '@/components/common/GcButton.vue';
   import Alert from '@/components/common/Alert.vue';
   import type { Provider } from '@supabase/supabase-js';
+  import type { Severity } from '@/components/common/Alert.vue';
 
   const $router = useRouter();
   const submitting = ref(false);
-  const submitError = ref(false);
+  const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
   const form = reactive({
     firstName: '',
     lastName: '',
@@ -49,7 +50,7 @@
         return;
       }
 
-      const { data, error } = await supabase.auth.signUp({
+      const { error } = await supabase.auth.signUp({
         email: form.email,
         password: form.password,
         options: {
@@ -61,15 +62,15 @@
         },
       });
 
-      if (error || !data) {
-        submitError.value = true;
+      if (error) {
+        submitAction.value = { message: error?.message, severity: 'error' };
         return;
       }
 
-      $router.push({ name: 'login' });
+      submitAction.value = { message: 'Account created successfully!<br/>Please check your email for next steps.', severity: 'positive' };
     } catch (error) {
       if (error instanceof Error) {
-        submitError.value = true;
+        submitAction.value = { message: error?.message, severity: 'error' };
       }
     } finally {
       submitting.value = false;
@@ -83,14 +84,17 @@
       const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: `${window.location.origin}/onboarding` } });
 
       if (error) {
-        submitError.value = true;
+        submitAction.value = { message: error?.message, severity: 'error' };
         return;
       }
 
-      $router.push({ name: 'dashboard' });
+      submitAction.value = { message: 'Account created successfully!', severity: 'positive' };
+      setTimeout(() => {
+        $router.push({ name: 'dashboard' });
+      }, 1500);
     } catch (error) {
       if (error instanceof Error) {
-        submitError.value = true;
+        submitAction.value = { message: error?.message, severity: 'error' };
       }
     } finally {
       submitting.value = false;
@@ -168,8 +172,9 @@
         required
         @blur="validateFieldOnBlur('passwordConfirm')" />
       <Alert
-        v-if="submitError"
-        message="There was an error logging in.<br> Please try again." />
+        v-if="submitAction"
+        :severity="submitAction.severity"
+        :message="submitAction.message" />
       <gc-button
         label="Create Account"
         type="submit"
