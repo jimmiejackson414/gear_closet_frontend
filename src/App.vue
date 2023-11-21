@@ -9,7 +9,10 @@
   const $store = useAuthStore();
   supabase.auth.onAuthStateChange(event => {
     console.log('authStateChange', event);
-    if (event === 'SIGNED_OUT') {
+    if (event === 'SIGNED_IN') {
+      $store.loadUser();
+      $store.loadRedirectRoute();
+    } else if (event === 'SIGNED_OUT') {
       $store.clearUser();
     }
   });
