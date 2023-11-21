@@ -42,6 +42,14 @@
 
   const { fieldErrors, validateForm, validateFieldOnBlur } = useValidate(form, rules);
 
+  const resetForm = () => {
+    form.firstName = '';
+    form.lastName = '';
+    form.email = '';
+    form.password = '';
+    form.passwordConfirm = '';
+  };
+
   const handleSubmit = async () => {
     try {
       submitting.value = true;
@@ -67,7 +75,13 @@
         return;
       }
 
-      submitAction.value = { message: 'Account created successfully!<br/>Please check your email for next steps.', severity: 'positive' };
+      // reset form
+      resetForm();
+
+      submitAction.value = {
+        message: 'Account created successfully!<br/>Please check your email for next steps.',
+        severity: 'positive',
+      };
     } catch (error) {
       if (error instanceof Error) {
         submitAction.value = { message: error?.message, severity: 'error' };

@@ -18,7 +18,6 @@
     try {
       submitting.value = true;
       const { error } = await supabase.auth.signInWithPassword({...form});
-      console.log({ error });
 
       if (error) {
         loginError.value = error.message;
