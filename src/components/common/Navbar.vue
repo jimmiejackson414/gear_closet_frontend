@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { BellAlertIcon } from '@heroicons/vue/24/outline';
+  import { Bars3Icon, BellAlertIcon } from '@heroicons/vue/24/outline';
   import { useAppStore } from '@/stores/app';
   import { useUserStore } from '@/stores/user';
   import NotificationItem from '@/components/common/NotificationItem.vue';
@@ -107,69 +107,11 @@
         </div>
       </div>
     </div>
-    <!-- <button
-      type="button"
-      round
-      class="box-shadow"
-      icon="bi-bell">
-      <q-badge
-        v-if="shouldShowBadge"
-        color="red"
-        rounded
-        floating>
-        {{ $userStore.totalUnread }}
-      </q-badge>
-      <q-menu
-        :offset="[0, 20]"
-        max-width="500px">
-        <q-list padding>
-          <q-item class="items-center justify-between">
-            <q-item-label class="text-uppercase text-grey-7 title">
-              Notifications
-            </q-item-label>
-            <q-btn
-              flat
-              :ripple="false"
-              class="mark-as-read text-primary text-no-wrap pointer"
-              @click="markAllAsRead">
-              Mark all as read
-            </q-btn>
-          </q-item>
-          <q-separator inset />
-          <span
-            v-if="notifications?.length"
-            class="notifications-wrapper">
-            <NotificationItem
-              v-for="notification in notifications.slice(0, 5)"
-              :key="notification.id"
-              :notification="notification"
-              placement="navbar"
-              @mark-as-read="markAsRead"
-              @mark-as-unread="markAsUnread" />
-          </span>
-          <q-item v-else>
-            No notifications
-          </q-item>
-          <div class="view-all-wrapper q-py-sm">
-            <q-btn
-              to="/notifications"
-              flat
-              :ripple="false"
-              class="text-primary">
-              View all notifications
-            </q-btn>
-          </div>
-        </q-list>
-      </q-menu>
+    <button
+      class="ml-6 p-3"
+      @click="$appStore.toggleDrawer()">
+      <Bars3Icon class="h-6 w-6" />
     </button>
-    <q-btn
-      flat
-      round
-      dense
-      :ripple="false"
-      icon="bi-list"
-      class="q-ml-md lt-sm"
-      @click="$appStore.toggleDrawer()" /> -->
   </nav>
 </template>
 

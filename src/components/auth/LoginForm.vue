@@ -92,7 +92,8 @@
         placeholder="Password"
         :disabled="submitting"
         type="password"
-        required />
+        required
+        password-toggle />
       <Alert
         v-if="loginError"
         :message="loginError" />

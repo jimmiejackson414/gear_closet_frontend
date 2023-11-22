@@ -173,6 +173,7 @@
         :disabled="submitting"
         :error="fieldErrors.password"
         type="password"
+        password-toggle
         required
         @blur="validateFieldOnBlur('password')" />
       <gc-input
@@ -183,6 +184,7 @@
         :disabled="submitting"
         :error="fieldErrors.passwordConfirm"
         type="password"
+        password-toggle
         required
         @blur="validateFieldOnBlur('passwordConfirm')" />
       <Alert
