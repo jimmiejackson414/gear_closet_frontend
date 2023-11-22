@@ -83,6 +83,7 @@
         autocomplete="email"
         label="Email"
         placeholder="Email"
+        name="email"
         :disabled="submitting"
         required />
       <gc-input
@@ -92,6 +93,7 @@
         placeholder="Password"
         :disabled="submitting"
         type="password"
+        name="password"
         required
         password-toggle />
       <Alert

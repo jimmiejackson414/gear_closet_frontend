@@ -5,7 +5,8 @@
     error?: string;
     label: string;
     modelValue: string | null;
-    passwordToggle: boolean;
+    name: string;
+    passwordToggle?: boolean;
     placeholder?: string;
     required?: boolean;
     type?: string;
@@ -47,7 +48,7 @@
   <div>
     <div class="relative">
       <input
-        id="hs-toggle-password"
+        :id="`hs-toggle-${name}`"
         :type="type"
         class="bg-white block border focus:border-primary duration-100 ease-in-out peer px-4 py-3 rounded-lg text-sm transition-all w-full disabled:opacity-50 disabled:pointer-events-none focus:ring-primary"
         :class="[
@@ -65,9 +66,9 @@
       <button
         v-if="passwordToggle"
         type="button"
-        data-hs-toggle-password='{
-        "target": "#hs-toggle-password"
-      }'
+        :data-hs-toggle-password='{
+          "target": `#hs-toggle-${name}`
+        }'
         class="absolute top-0 end-0 p-3.5 rounded-e-md">
         <svg
           class="flex-shrink-0 h-3.5 text-gray-400 w-3.5"

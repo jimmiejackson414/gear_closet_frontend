@@ -143,6 +143,7 @@
         autocomplete="email"
         label="Email"
         placeholder="Email"
+        name="email"
         :disabled="submitting"
         :error="fieldErrors.email"
         required
@@ -152,6 +153,7 @@
         autocomplete="given-name"
         label="First Name"
         placeholder="Tom"
+        name="firstName"
         :disabled="submitting"
         :error="fieldErrors.firstName"
         required
@@ -161,6 +163,7 @@
         autocomplete="family-name"
         label="Last Name"
         placeholder="Jones"
+        name="lastName"
         :disabled="submitting"
         :error="fieldErrors.lastName"
         required
@@ -172,6 +175,7 @@
         placeholder="Password"
         :disabled="submitting"
         :error="fieldErrors.password"
+        name="password"
         type="password"
         password-toggle
         required
@@ -181,6 +185,7 @@
         autocomplete="confirm-password"
         label="Confirm Password"
         placeholder="Confirm password"
+        name="passwordConfirm"
         :disabled="submitting"
         :error="fieldErrors.passwordConfirm"
         type="password"
