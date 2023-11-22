@@ -31,7 +31,7 @@
 </script>
 
 <template>
-  <PageLayout
+  <page-layout
     minimal-layout
     align-logo="center">
     <div class="flex justify-center mt-14">
@@ -720,7 +720,7 @@
         </section>
       </div>
     </div>
-    <ScrollToTop />
-  </PageLayout>
+    <scroll-to-top />
+  </page-layout>
 </template>
 

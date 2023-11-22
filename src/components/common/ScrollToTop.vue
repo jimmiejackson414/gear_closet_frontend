@@ -46,7 +46,7 @@
         class="bg-primary hover:bg-primary-dark border border-transparent flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-[3rem] rounded-full text-sm text-white transition-all w-[3rem]"
         @click="scrollTop"
         @keydown="scrollTop">
-        <ChevronUpIcon />
+        <chevron-up-icon />
       </button>
     </div>
   </transition>

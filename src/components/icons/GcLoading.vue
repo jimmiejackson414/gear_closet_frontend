@@ -1,21 +1,19 @@
-<template>
-  <div class="loading-styles">
-    <LogoIcon :width="props.width" />
-    <q-spinner
-      color="primary"
-      size="3em"
-      class="q-my-lg" />
-  </div>
-</template>
-
 <script lang='ts' setup>
-  import LogoIcon from './LogoIcon.vue';
+  import GcLogoIcon from './GcLogoIcon.vue';
+  import GcSpinner from '@/components/common/GcSpinner.vue';
 
   const props = defineProps({
     width: { type: Number, required: false, default: 150 },
   });
 
 </script>
+
+<template>
+  <div class="loading-styles">
+    <gc-logo-icon :width="props.width" />
+    <gc-spinner variant="primary" />
+  </div>
+</template>
 
 <style lang='scss' scoped>
   .loading-styles {

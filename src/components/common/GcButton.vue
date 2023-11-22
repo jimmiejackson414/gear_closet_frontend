@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import Spinner from '@/components/common/Spinner.vue';
+  import GcSpinner from '@/components/common/GcSpinner.vue';
 
   interface Props {
     disabled?: boolean;
@@ -54,7 +54,7 @@
     :class="classList"
     :disabled="disabled"
     :type="type">
-    <spinner
+    <gc-spinner
       v-if="loading"
       fill />
     <span v-else-if="$slots.default">

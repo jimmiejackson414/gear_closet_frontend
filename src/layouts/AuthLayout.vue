@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import Logo from '@/components/icons/Logo.vue';
+  import GcLogo from '@/components/icons/GcLogo.vue';
 
   interface Props {
     fill: string;
@@ -25,7 +25,7 @@
         :style="computedImage"
         class="bg-cover bg-left bg-no-repeat" />
       <div class="absolute top-0 right-0 left-0 max-w-3xl mx-8 my-4">
-        <Logo
+        <gc-logo
           :width="500"
           :fill="props.fill" />
       </div>

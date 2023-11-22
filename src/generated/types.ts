@@ -4032,203 +4032,203 @@ export type SdkFunctionWrapper = <T>(action: (requestHeaders?:Record<string, str
 
 const defaultWrapper: SdkFunctionWrapper = (action, _operationName, _operationType) => action();
 
-export function getSdk(client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
+export function getSdk (client: GraphQLClient, withWrapper: SdkFunctionWrapper = defaultWrapper) {
   return {
-    CreateAnswer(variables: CreateAnswerMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateAnswerMutation> {
+    CreateAnswer (variables: CreateAnswerMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateAnswerMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateAnswerMutation>(CreateAnswerDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateAnswer', 'mutation');
     },
-    CreateCategory(variables: CreateCategoryMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateCategoryMutation> {
+    CreateCategory (variables: CreateCategoryMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateCategoryMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateCategoryMutation>(CreateCategoryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateCategory', 'mutation');
     },
-    DeleteCategory(variables: DeleteCategoryMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteCategoryMutation> {
+    DeleteCategory (variables: DeleteCategoryMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteCategoryMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteCategoryMutation>(DeleteCategoryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DeleteCategory', 'mutation');
     },
-    UpdateCategory(variables: UpdateCategoryMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateCategoryMutation> {
+    UpdateCategory (variables: UpdateCategoryMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateCategoryMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateCategoryMutation>(UpdateCategoryDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateCategory', 'mutation');
     },
-    CreateCategoryItem(variables: CreateCategoryItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateCategoryItemMutation> {
+    CreateCategoryItem (variables: CreateCategoryItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateCategoryItemMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateCategoryItemMutation>(CreateCategoryItemDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateCategoryItem', 'mutation');
     },
-    DeleteCategoryItem(variables: DeleteCategoryItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteCategoryItemMutation> {
+    DeleteCategoryItem (variables: DeleteCategoryItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteCategoryItemMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteCategoryItemMutation>(DeleteCategoryItemDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DeleteCategoryItem', 'mutation');
     },
-    CreateComment(variables: CreateCommentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateCommentMutation> {
+    CreateComment (variables: CreateCommentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateCommentMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateCommentMutation>(CreateCommentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateComment', 'mutation');
     },
-    DeleteComment(variables: DeleteCommentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteCommentMutation> {
+    DeleteComment (variables: DeleteCommentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteCommentMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteCommentMutation>(DeleteCommentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DeleteComment', 'mutation');
     },
-    UpdateComment(variables: UpdateCommentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateCommentMutation> {
+    UpdateComment (variables: UpdateCommentMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateCommentMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateCommentMutation>(UpdateCommentDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateComment', 'mutation');
     },
-    InviteFriend(variables: InviteFriendMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<InviteFriendMutation> {
+    InviteFriend (variables: InviteFriendMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<InviteFriendMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<InviteFriendMutation>(InviteFriendDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'InviteFriend', 'mutation');
     },
-    RemoveFriend(variables: RemoveFriendMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<RemoveFriendMutation> {
+    RemoveFriend (variables: RemoveFriendMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<RemoveFriendMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<RemoveFriendMutation>(RemoveFriendDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'RemoveFriend', 'mutation');
     },
-    RemoveInvitation(variables: RemoveInvitationMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<RemoveInvitationMutation> {
+    RemoveInvitation (variables: RemoveInvitationMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<RemoveInvitationMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<RemoveInvitationMutation>(RemoveInvitationDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'RemoveInvitation', 'mutation');
     },
-    CreateItem(variables: CreateItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateItemMutation> {
+    CreateItem (variables: CreateItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateItemMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateItemMutation>(CreateItemDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateItem', 'mutation');
     },
-    CsvImport(variables: CsvImportMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CsvImportMutation> {
+    CsvImport (variables: CsvImportMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CsvImportMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CsvImportMutation>(CsvImportDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CsvImport', 'mutation');
     },
-    DeleteItem(variables: DeleteItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteItemMutation> {
+    DeleteItem (variables: DeleteItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteItemMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteItemMutation>(DeleteItemDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DeleteItem', 'mutation');
     },
-    UpdateItem(variables: UpdateItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateItemMutation> {
+    UpdateItem (variables: UpdateItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateItemMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateItemMutation>(UpdateItemDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateItem', 'mutation');
     },
-    MarkAllAsRead(variables: MarkAllAsReadMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<MarkAllAsReadMutation> {
+    MarkAllAsRead (variables: MarkAllAsReadMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<MarkAllAsReadMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<MarkAllAsReadMutation>(MarkAllAsReadDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'MarkAllAsRead', 'mutation');
     },
-    UpdateNotification(variables: UpdateNotificationMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateNotificationMutation> {
+    UpdateNotification (variables: UpdateNotificationMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateNotificationMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateNotificationMutation>(UpdateNotificationDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateNotification', 'mutation');
     },
-    CreateOnboardingStep(variables: CreateOnboardingStepMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateOnboardingStepMutation> {
+    CreateOnboardingStep (variables: CreateOnboardingStepMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateOnboardingStepMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateOnboardingStepMutation>(CreateOnboardingStepDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateOnboardingStep', 'mutation');
     },
-    CreatePack(variables: CreatePackMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreatePackMutation> {
+    CreatePack (variables: CreatePackMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreatePackMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreatePackMutation>(CreatePackDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreatePack', 'mutation');
     },
-    UpdatePack(variables: UpdatePackMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdatePackMutation> {
+    UpdatePack (variables: UpdatePackMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdatePackMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdatePackMutation>(UpdatePackDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdatePack', 'mutation');
     },
-    CreatePoll(variables: CreatePollMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreatePollMutation> {
+    CreatePoll (variables: CreatePollMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreatePollMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreatePollMutation>(CreatePollDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreatePoll', 'mutation');
     },
-    RemovePoll(variables: RemovePollMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<RemovePollMutation> {
+    RemovePoll (variables: RemovePollMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<RemovePollMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<RemovePollMutation>(RemovePollDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'RemovePoll', 'mutation');
     },
-    CreateReply(variables: CreateReplyMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateReplyMutation> {
+    CreateReply (variables: CreateReplyMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateReplyMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateReplyMutation>(CreateReplyDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateReply', 'mutation');
     },
-    DeleteReply(variables: DeleteReplyMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteReplyMutation> {
+    DeleteReply (variables: DeleteReplyMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteReplyMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteReplyMutation>(DeleteReplyDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DeleteReply', 'mutation');
     },
-    UpdateReply(variables: UpdateReplyMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateReplyMutation> {
+    UpdateReply (variables: UpdateReplyMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateReplyMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateReplyMutation>(UpdateReplyDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateReply', 'mutation');
     },
-    CreateShoppingItem(variables: CreateShoppingItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateShoppingItemMutation> {
+    CreateShoppingItem (variables: CreateShoppingItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateShoppingItemMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateShoppingItemMutation>(CreateShoppingItemDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateShoppingItem', 'mutation');
     },
-    DeleteShoppingItem(variables: DeleteShoppingItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteShoppingItemMutation> {
+    DeleteShoppingItem (variables: DeleteShoppingItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteShoppingItemMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteShoppingItemMutation>(DeleteShoppingItemDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DeleteShoppingItem', 'mutation');
     },
-    UpdateShoppingItem(variables: UpdateShoppingItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateShoppingItemMutation> {
+    UpdateShoppingItem (variables: UpdateShoppingItemMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateShoppingItemMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateShoppingItemMutation>(UpdateShoppingItemDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateShoppingItem', 'mutation');
     },
-    CreateTodo(variables: CreateTodoMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateTodoMutation> {
+    CreateTodo (variables: CreateTodoMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateTodoMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateTodoMutation>(CreateTodoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateTodo', 'mutation');
     },
-    DeleteTodo(variables: DeleteTodoMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteTodoMutation> {
+    DeleteTodo (variables: DeleteTodoMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteTodoMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteTodoMutation>(DeleteTodoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DeleteTodo', 'mutation');
     },
-    UpdateTodo(variables: UpdateTodoMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateTodoMutation> {
+    UpdateTodo (variables: UpdateTodoMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateTodoMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateTodoMutation>(UpdateTodoDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateTodo', 'mutation');
     },
-    CreateTripDetail(variables: CreateTripDetailMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateTripDetailMutation> {
+    CreateTripDetail (variables: CreateTripDetailMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateTripDetailMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateTripDetailMutation>(CreateTripDetailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateTripDetail', 'mutation');
     },
-    DeleteTripDetail(variables: DeleteTripDetailMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteTripDetailMutation> {
+    DeleteTripDetail (variables: DeleteTripDetailMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<DeleteTripDetailMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<DeleteTripDetailMutation>(DeleteTripDetailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'DeleteTripDetail', 'mutation');
     },
-    UpdateTripDetail(variables: UpdateTripDetailMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateTripDetailMutation> {
+    UpdateTripDetail (variables: UpdateTripDetailMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateTripDetailMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateTripDetailMutation>(UpdateTripDetailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateTripDetail', 'mutation');
     },
-    UpdateTripDetails(variables: UpdateTripDetailsMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateTripDetailsMutation> {
+    UpdateTripDetails (variables: UpdateTripDetailsMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateTripDetailsMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateTripDetailsMutation>(UpdateTripDetailsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateTripDetails', 'mutation');
     },
-    AddFriend(variables: AddFriendMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<AddFriendMutation> {
+    AddFriend (variables: AddFriendMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<AddFriendMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<AddFriendMutation>(AddFriendDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'AddFriend', 'mutation');
     },
-    RemoveFromTrip(variables: RemoveFromTripMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<RemoveFromTripMutation> {
+    RemoveFromTrip (variables: RemoveFromTripMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<RemoveFromTripMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<RemoveFromTripMutation>(RemoveFromTripDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'RemoveFromTrip', 'mutation');
     },
-    UpdateTripFriend(variables: UpdateTripFriendMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateTripFriendMutation> {
+    UpdateTripFriend (variables: UpdateTripFriendMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateTripFriendMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateTripFriendMutation>(UpdateTripFriendDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateTripFriend', 'mutation');
     },
-    UpdateTripPack(variables: UpdateTripPackMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateTripPackMutation> {
+    UpdateTripPack (variables: UpdateTripPackMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateTripPackMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateTripPackMutation>(UpdateTripPackDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateTripPack', 'mutation');
     },
-    CreateTrip(variables: CreateTripMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateTripMutation> {
+    CreateTrip (variables: CreateTripMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateTripMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateTripMutation>(CreateTripDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateTrip', 'mutation');
     },
-    UpdateTrip(variables: UpdateTripMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateTripMutation> {
+    UpdateTrip (variables: UpdateTripMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateTripMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateTripMutation>(UpdateTripDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateTrip', 'mutation');
     },
-    CreateUserAnswer(variables: CreateUserAnswerMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateUserAnswerMutation> {
+    CreateUserAnswer (variables: CreateUserAnswerMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateUserAnswerMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateUserAnswerMutation>(CreateUserAnswerDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateUserAnswer', 'mutation');
     },
-    CreateCheckoutSession(variables: CreateCheckoutSessionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateCheckoutSessionMutation> {
+    CreateCheckoutSession (variables: CreateCheckoutSessionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateCheckoutSessionMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateCheckoutSessionMutation>(CreateCheckoutSessionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateCheckoutSession', 'mutation');
     },
-    CreateFreeSubscription(variables: CreateFreeSubscriptionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateFreeSubscriptionMutation> {
+    CreateFreeSubscription (variables: CreateFreeSubscriptionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<CreateFreeSubscriptionMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<CreateFreeSubscriptionMutation>(CreateFreeSubscriptionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'CreateFreeSubscription', 'mutation');
     },
-    LoginToForums(variables: LoginToForumsMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<LoginToForumsMutation> {
+    LoginToForums (variables: LoginToForumsMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<LoginToForumsMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<LoginToForumsMutation>(LoginToForumsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'LoginToForums', 'mutation');
     },
-    ManageSubscription(variables?: ManageSubscriptionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ManageSubscriptionMutation> {
+    ManageSubscription (variables?: ManageSubscriptionMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ManageSubscriptionMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<ManageSubscriptionMutation>(ManageSubscriptionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'ManageSubscription', 'mutation');
     },
-    SendWelcomeEmail(variables?: SendWelcomeEmailMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SendWelcomeEmailMutation> {
+    SendWelcomeEmail (variables?: SendWelcomeEmailMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SendWelcomeEmailMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<SendWelcomeEmailMutation>(SendWelcomeEmailDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'SendWelcomeEmail', 'mutation');
     },
-    SetAuth(variables: SetAuthMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SetAuthMutation> {
+    SetAuth (variables: SetAuthMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SetAuthMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<SetAuthMutation>(SetAuthDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'SetAuth', 'mutation');
     },
-    UpdateAvatar(variables: UpdateAvatarMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateAvatarMutation> {
+    UpdateAvatar (variables: UpdateAvatarMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateAvatarMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateAvatarMutation>(UpdateAvatarDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateAvatar', 'mutation');
     },
-    UpdatePassword(variables: UpdatePasswordMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdatePasswordMutation> {
+    UpdatePassword (variables: UpdatePasswordMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdatePasswordMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdatePasswordMutation>(UpdatePasswordDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdatePassword', 'mutation');
     },
-    UpdateUser(variables: UpdateUserMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateUserMutation> {
+    UpdateUser (variables: UpdateUserMutationVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<UpdateUserMutation> {
       return withWrapper((wrappedRequestHeaders) => client.request<UpdateUserMutation>(UpdateUserDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'UpdateUser', 'mutation');
     },
-    AllItems(variables?: AllItemsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<AllItemsQuery> {
+    AllItems (variables?: AllItemsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<AllItemsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<AllItemsQuery>(AllItemsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'AllItems', 'query');
     },
-    ClosetPage(variables?: ClosetPageQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ClosetPageQuery> {
+    ClosetPage (variables?: ClosetPageQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<ClosetPageQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<ClosetPageQuery>(ClosetPageDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'ClosetPage', 'query');
     },
-    FetchDashboard(variables?: FetchDashboardQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<FetchDashboardQuery> {
+    FetchDashboard (variables?: FetchDashboardQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<FetchDashboardQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<FetchDashboardQuery>(FetchDashboardDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'FetchDashboard', 'query');
     },
-    Friends(variables?: FriendsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<FriendsQuery> {
+    Friends (variables?: FriendsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<FriendsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<FriendsQuery>(FriendsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Friends', 'query');
     },
-    Me(variables?: MeQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<MeQuery> {
+    Me (variables?: MeQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<MeQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<MeQuery>(MeDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Me', 'query');
     },
-    Notifications(variables: NotificationsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<NotificationsQuery> {
+    Notifications (variables: NotificationsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<NotificationsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<NotificationsQuery>(NotificationsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Notifications', 'query');
     },
-    Pack(variables: PackQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<PackQuery> {
+    Pack (variables: PackQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<PackQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<PackQuery>(PackDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Pack', 'query');
     },
-    Packs(variables?: PacksQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<PacksQuery> {
+    Packs (variables?: PacksQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<PacksQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<PacksQuery>(PacksDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Packs', 'query');
     },
-    PlanningPage(variables?: PlanningPageQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<PlanningPageQuery> {
+    PlanningPage (variables?: PlanningPageQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<PlanningPageQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<PlanningPageQuery>(PlanningPageDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'PlanningPage', 'query');
     },
-    PublicPack(variables: PublicPackQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<PublicPackQuery> {
+    PublicPack (variables: PublicPackQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<PublicPackQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<PublicPackQuery>(PublicPackDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'PublicPack', 'query');
     },
-    Search(variables?: SearchQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SearchQuery> {
+    Search (variables?: SearchQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SearchQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<SearchQuery>(SearchDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Search', 'query');
     },
-    Subscription(variables?: SubscriptionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SubscriptionQuery> {
+    Subscription (variables?: SubscriptionQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<SubscriptionQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<SubscriptionQuery>(SubscriptionDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Subscription', 'query');
     },
-    Trips(variables?: TripsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<TripsQuery> {
+    Trips (variables?: TripsQueryVariables, requestHeaders?: GraphQLClientRequestHeaders): Promise<TripsQuery> {
       return withWrapper((wrappedRequestHeaders) => client.request<TripsQuery>(TripsDocument, variables, {...requestHeaders, ...wrappedRequestHeaders}), 'Trips', 'query');
-    }
+    },
   };
 }
 export type Sdk = ReturnType<typeof getSdk>;

@@ -3,7 +3,7 @@
 </script>
 
 <template>
-  <PageLayout>
+  <page-layout>
     Logged in Dashboard   
-  </PageLayout>
+  </page-layout>
 </template>

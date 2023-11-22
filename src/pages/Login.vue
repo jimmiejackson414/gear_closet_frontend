@@ -3,23 +3,12 @@
   import AuthLayout from '@/layouts/AuthLayout.vue';
   import AuthFormContainer from '@/components/auth/AuthFormContainer.vue';
   import LoginForm from '@/components/auth/LoginForm.vue';
-  import cld from '@/lib/cloudinary';
-  import { logoColor } from '@/helpers';
+  import { useAuthLayout } from '@/composables';
 
-  const fetchImage = async () => {
-    const rand = Math.round(Math.random() * (14 - 1) + 1);
-    const newImage = cld.image(`${import.meta.env.VITE_CLOUDINARY_AUTH_PAGES_PATH}/background${rand}`);
-    return {
-      image: newImage.format('auto')
-        .toURL(),
-      fill: logoColor(newImage),
-    };
-  };
-
-  const backgroundImage = reactive(await fetchImage());
+  const { backgroundImage } = await useAuthLayout();
 
   useHead({
-    title: 'Login',
+    title: 'Login | Gear Closet',
     meta: [
       {
         name: 'description',

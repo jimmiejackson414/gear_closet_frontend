@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { RouterLink } from 'vue-router';
-  import Logo from '@/components/icons/Logo.vue';
+  import GcLogo from '@/components/icons/GcLogo.vue';
 
   interface Props {
     alignLogo?: 'start' | 'center' | 'end';
@@ -22,7 +22,7 @@
 <template>
   <nav :class="classList">
     <router-link :to="{ name: 'login' }">
-      <Logo :width="250" />
+      <gc-logo :width="250" />
     </router-link>
   </nav>
 </template>

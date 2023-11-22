@@ -36,11 +36,11 @@
   <Suspense>
     <div class="bg-white h-full">
       <router-view v-slot="{ Component, route }">
-        <FadeTransition>
+        <fade-transition>
           <component
             :is="Component"
             :key="route.fullPath" />
-        </FadeTransition>
+        </fade-transition>
       </router-view>
     </div>
   </Suspense>

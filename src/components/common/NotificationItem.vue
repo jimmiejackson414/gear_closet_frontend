@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
-  import { Notification } from '@/generated/types';
+  import type { Notification } from '@/generated/types';
   import type { PropType } from 'vue';
 
   dayjs.extend(relativeTime);
@@ -11,10 +11,10 @@
     placement: { type: String as PropType<'navbar' | 'page'>, required: false, default: 'navbar' },
   });
 
-  const padding = computed(() => {
-    if (props.placement === 'navbar') return 'q-my-sm';
-    return 'q-my-md';
-  });
+  // const padding = computed(() => {
+  //   if (props.placement === 'navbar') return 'q-my-sm';
+  //   return 'q-my-md';
+  // });
 
   const emit = defineEmits(['markAsRead', 'markAsUnread']);
 

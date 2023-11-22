@@ -4,7 +4,7 @@ require('@rushstack/eslint-patch/modern-module-resolution');
 module.exports = {
   root: true,
   'extends': [
-    'plugin:vue/vue3-essential',
+    'plugin:vue/vue3-strongly-recommended',
     'eslint:recommended',
     '@vue/eslint-config-typescript',
     './.eslintrc-auto-import.json',
@@ -17,15 +17,21 @@ module.exports = {
 
   plugins: ['@kalimahapps/eslint-plugin-tailwind', '@stylistic/js'],
 
-  // overrides: [
-  //   {
-  //     files: ['**/*.vue'],
-  //     rules: {
-  //       indent: 'off',
-  //       '@typescript-eslint/indent': 'off',
-  //     },
-  //   },
-  // ],
+  overrides: [
+    // {
+    //   files: ['**/*.vue'],
+    //   rules: {
+    //     indent: 'off',
+    //     '@typescript-eslint/indent': 'off',
+    //   },
+    // },
+    {
+      files: ['src/pages/**/*.vue'],
+      rules: { 
+        'vue/multi-word-component-names': 'off',
+      },
+    },
+  ],
 
   parser: 'vue-eslint-parser',
 
@@ -43,6 +49,7 @@ module.exports = {
     '@stylistic/js/space-before-function-paren': ['error', 'always'],
 
     // Vue specific tweaks
+    'vue/component-name-in-template-casing': ['error', 'kebab-case'],
     'vue/no-v-html': 'off',
     'vue/html-closing-bracket-spacing': [
       'error',
@@ -57,7 +64,6 @@ module.exports = {
         multiline: 'never',
       },
     ],
-    'vue/multi-word-component-names': 'off',
     'vue/html-indent': ['error'],
     'vue/script-indent': [
       'error',
@@ -74,13 +80,6 @@ module.exports = {
       },
     ],
     'vue/padding-line-between-blocks': [1, 'always'],
-    'vue/max-attributes-per-line': [
-      'error',
-      {
-        singleline: 1,
-        multiline: 1,
-      },
-    ],
     'vue/first-attribute-linebreak': [
       'error',
       {
@@ -88,12 +87,6 @@ module.exports = {
         multiline: 'below',
       },
     ],
-    'vue/singleline-html-element-content-newline': [
-      'error',
-      {
-        ignoreWhenNoAttributes: true,
-        ignoreWhenEmpty: true,
-      },
-    ],
+    'vue/component-api-style': ['error', ['script-setup']],
   },
 };

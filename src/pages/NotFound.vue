@@ -1,9 +1,19 @@
 <script lang='ts' setup>
   import PublicLayout from '@/layouts/PublicLayout.vue';
+
+  useHead({
+    title: '404 Not Found | Gear Closet',
+    meta: [
+      {
+        name: 'description',
+        content: '404 Not Found',
+      },
+    ],
+  });
 </script>
 
 <template>
-  <PublicLayout align-logo="center">
+  <public-layout align-logo="center">
     <div class="flex justify-center items-center flex-col h-full">
       <h1 class="font-bold mb-4 text-5xl">
         Not Found!
@@ -15,5 +25,5 @@
         The page you were looking for doesn't exist. Please make sure you've typed the URL correctly.
       </p>
     </div>
-  </PublicLayout>
+  </public-layout>
 </template>

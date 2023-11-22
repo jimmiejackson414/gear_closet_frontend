@@ -1,9 +1,9 @@
 <script lang='ts' setup>
   // import { useQuasar } from 'quasar';
-  import Navbar from '@/components/common/Navbar.vue';
-  import NavbarAlt from '@/components/common/NavbarAlt.vue';
+  import GcNavbar from '@/components/common/GcNavbar.vue';
+  import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
   // import Drawer from '@/components/common/Drawer.vue';
-  import Footer from '@/components/common/Footer.vue';
+  import GcFooter from '@/components/common/GcFooter.vue';
   // import LoadingPage from '@/components/common/LoadingPage.vue';
   import { useUserStore } from '@/stores/user';
   import { capitalize } from '@/helpers/functions';
@@ -63,34 +63,15 @@
         :style="pageStyles"
         class="min-h-screen">
         <div class="p-4 md:px-9 md:py-14">
-          <Navbar
+          <gc-navbar
             v-if="shouldDisplay"
             :page-title="props.pageTitle || capitalize($route.name as string)" />
-          <NavbarAlt
+          <gc-navbar-alt
             v-else
             :align-logo="alignLogo" />
-          <div class="container">
-            <NavbarAlt :align-logo="alignLogo" />
-            <slot />
-          </div>
         </div>
       </div>
-      <Footer />
+      <gc-footer />
     </div>
   </div>
 </template>
-
-<!-- <style lang="scss" scoped>
-  .q-page-container {
-    min-height: 100vh;
-  }
-
-  .content-wrapper {
-    padding: 1rem;
-    margin-left: 0;
-
-    @media (min-width: $breakpoint-md-min) {
-      padding: 36px 56px;
-    }
-  }
-</style> -->

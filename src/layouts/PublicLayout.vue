@@ -1,18 +1,18 @@
 <script lang='ts' setup>
-  import NavbarAlt from '@/components/common/NavbarAlt.vue';
-  import Footer from '@/components/common/Footer.vue';
+  import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
+  import GcFooter from '@/components/common/GcFooter.vue';
 </script>
 
 <template>
   <div class="bg-grey-1">
     <div class="bg-gray-100 min-h-screen">
       <div class="p-4">
-        <NavbarAlt />
+        <gc-navbar-alt />
         <div class="container h-[calc(100vh-9.25rem)]">
           <slot />
         </div>
       </div>
-      <Footer />
+      <gc-footer />
     </div>
   </div>
 </template>

@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import LogoIcon from '@/components/icons/LogoIcon.vue';
+  import GcLogoIcon from '@/components/icons/GcLogoIcon.vue';
 
   interface Props {
     title: string;
@@ -18,16 +18,16 @@
       <div class="flex justify-center flex-col px-4 w-full">
         <div class="absolute -top-[100px] -left-[70px] bg-primary flex flex-col h-[250px] rounded-[50%] w-[150%]" />
         <div class="flex flex-col mx-auto pb-12 pt-4 px-0 text-center w-full">
-          <LogoIcon
+          <gc-logo-icon
             :width="50"
             fill="#fff"
             wrapper-class="mx-auto z-50" />
           <h4 class="m-0 text-2xl text-white z-10">
             {{ title }}
           </h4>
-          <p class="font-bold m-0 text-sm text-white z-10">
-            {{ subtitle }}
-          </p>
+          <p
+            class="font-bold m-0 text-sm text-white z-10"
+            v-html="subtitle" />
         </div>
       </div>
       <div class="flex flex-col pb-4 pt-0 px-4 w-full">

@@ -64,7 +64,7 @@
         id="hs-dropdown-default"
         type="button"
         class="duration-200 hs-dropdown-toggle p-3 relative rounded-full shadow-light hover:shadow-default transition-all">
-        <BellAlertIcon class="h-6 w-6" />
+        <bell-alert-icon class="h-6 w-6" />
         <span
           v-if="shouldShowBadge"
           class="-translate-y-1/2 absolute top-0 bg-danger end-0 font-medium inline-flex items-center px-1.5 py-0.5 rounded-full text-white text-xs transform translate-x-1/2">
@@ -89,7 +89,7 @@
           <span
             v-if="notifications?.length"
             class="notifications-wrapper">
-            <NotificationItem
+            <notification-item
               v-for="notification in notifications.slice(0, 5)"
               :key="notification.id"
               :notification="notification"
@@ -110,7 +110,7 @@
     <button
       class="ml-6 p-3"
       @click="$appStore.toggleDrawer()">
-      <Bars3Icon class="h-6 w-6" />
+      <bars-3-icon class="h-6 w-6" />
     </button>
   </nav>
 </template>

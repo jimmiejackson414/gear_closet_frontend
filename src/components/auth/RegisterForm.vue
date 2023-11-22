@@ -5,9 +5,8 @@
   import supabase from '@/lib/supabase';
   import GcInput from '@/components/common/GcInput.vue';
   import GcButton from '@/components/common/GcButton.vue';
-  import Alert from '@/components/common/Alert.vue';
+  import GcAlert, { type Severity} from '@/components/common/GcAlert.vue';
   import type { Provider } from '@supabase/supabase-js';
-  import type { Severity } from '@/components/common/Alert.vue';
 
   const $router = useRouter();
   const submitting = ref(false);
@@ -123,13 +122,13 @@
         type="button"
         class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
         @click="handleOAuthSignUp('facebook')">
-        <img src="/images/facebook.png" />
+        <img src="/images/facebook.png">
       </button>
       <button
         type="button"
         class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
         @click="handleOAuthSignUp('google')">
-        <img src="/images/google.png" />
+        <img src="/images/google.png">
       </button>
     </div> 
     <div clas="flex justify-center">
@@ -192,7 +191,7 @@
         password-toggle
         required
         @blur="validateFieldOnBlur('passwordConfirm')" />
-      <Alert
+      <gc-alert
         v-if="submitAction"
         :severity="submitAction.severity"
         :message="submitAction.message" />

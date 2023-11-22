@@ -3,7 +3,9 @@
   import supabase from '@/lib/supabase';
   import GcInput from '@/components/common/GcInput.vue';
   import GcButton from '@/components/common/GcButton.vue';
-  import Alert from '@/components/common/Alert.vue';
+  import GcAlert from '@/components/common/GcAlert.vue';
+  import { isValidEmail } from '@/helpers/functions';
+  import { useValidate } from '@/composables';
   import type { Provider } from '@supabase/supabase-js';
 
   const form = reactive({
@@ -14,9 +16,26 @@
   const $router = useRouter();
   const loginError = ref<string | undefined>(undefined);
 
+  const rules = {
+    email: [
+      (val: string): boolean | string => (val && val.length > 0) || 'Email is required',
+      (val: string): boolean | string => isValidEmail(val) || 'Not a valid email',
+    ],
+    password: [
+      (val: string) => (val && val.length > 0) || 'Password is required',
+    ],
+  };
+
+  const { fieldErrors, validateForm, validateFieldOnBlur } = useValidate(form, rules);
+
   const handleSubmit = async () => {
     try {
       submitting.value = true;
+
+      if (!validateForm()) {
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithPassword({...form});
 
       if (error) {
@@ -63,13 +82,13 @@
         type="button"
         class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
         @click="handleOAuthSignin('facebook')">
-        <img src="/images/facebook.png" />
+        <img src="/images/facebook.png">
       </button>
       <button
         type="button"
         class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
         @click="handleOAuthSignin('google')">
-        <img src="/images/google.png" />
+        <img src="/images/google.png">
       </button>
     </div>
     <div clas="flex justify-center">
@@ -84,19 +103,23 @@
         label="Email"
         placeholder="Email"
         name="email"
+        :error="fieldErrors.email"
         :disabled="submitting"
-        required />
+        required
+        @blur="validateFieldOnBlur('email')" />
       <gc-input
         v-model="form.password"
         autocomplete="current-password"
         label="Password"
         placeholder="Password"
         :disabled="submitting"
+        :error="fieldErrors.password"
         type="password"
         name="password"
         required
-        password-toggle />
-      <Alert
+        password-toggle
+        @blur="validateFieldOnBlur('password')" />
+      <gc-alert
         v-if="loginError"
         :message="loginError" />
       <gc-button
