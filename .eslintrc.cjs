@@ -1,5 +1,5 @@
 /* eslint-env node */
-require('@rushstack/eslint-patch/modern-module-resolution')
+require('@rushstack/eslint-patch/modern-module-resolution');
 
 module.exports = {
   root: true,
@@ -12,10 +12,10 @@ module.exports = {
 
   parserOptions: {
     parser: '@typescript-eslint/parser',
-    ecmaVersion: 'latest'
+    ecmaVersion: 'latest',
   },
 
-  plugins: ['@kalimahapps/eslint-plugin-tailwind'],
+  plugins: ['@kalimahapps/eslint-plugin-tailwind', '@stylistic/js'],
 
   // overrides: [
   //   {
@@ -31,16 +31,16 @@ module.exports = {
 
   rules: {
     '@kalimahapps/tailwind/sort': 'warn',
-    'comma-dangle': ['error', 'always-multiline'],
+    '@stylistic/js/comma-dangle': ['error', 'always-multiline'],
     'no-console': process.env.NODE_ENV === 'production' ? 2 : 0,
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     curly: ['off', 'multi'],
-    indent: 'off',
-    'linebreak-style': 'off',
-    'newline-per-chained-call': [2, { ignoreChainWithDepth: 1 }],
+    '@stylistic/js/indent': 'off',
+    '@stylistic/js/linebreak-style': 'off',
+    '@stylistic/js/newline-per-chained-call': [2, { ignoreChainWithDepth: 1 }],
     'object-shorthand': ['error', 'always'],
-    semi: [2, 'always'],
-    'space-before-function-paren': ['error', 'always'],
+    '@stylistic/js/semi': [2, 'always'],
+    '@stylistic/js/space-before-function-paren': ['error', 'always'],
 
     // Vue specific tweaks
     'vue/no-v-html': 'off',
@@ -67,7 +67,7 @@ module.exports = {
         switchCase: 0,
       },
     ],
-    'vue/component-tags-order': [
+    'vue/block-order': [
       'error',
       {
         order: ['script', 'template', 'style'],
@@ -96,4 +96,4 @@ module.exports = {
       },
     ],
   },
-}
+};

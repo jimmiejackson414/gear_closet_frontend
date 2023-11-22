@@ -1,10 +1,9 @@
 <script lang='ts' setup>
-  import { ref } from 'vue';
-  
+  import PageLayout from '@/layouts/PageLayout.vue';
 </script>
 
 <template>
-  <div>
+  <PageLayout>
     Logged in Dashboard   
-  </div>
+  </PageLayout>
 </template>
