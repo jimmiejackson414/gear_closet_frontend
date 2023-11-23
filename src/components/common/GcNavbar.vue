@@ -1,6 +1,5 @@
 <script lang='ts' setup>
-  import { MenuIcon, BellRingIcon } from 'lucide-vue-next';
-  import { useAppStore } from '@/stores/app';
+  import { BellRingIcon } from 'lucide-vue-next';
   import { useUserStore } from '@/stores/user';
   import NotificationItem from '@/components/common/NotificationItem.vue';
   import type { Notification } from '@/generated/types';
@@ -9,12 +8,11 @@
     pageTitle: string;
   }
   
-  const props = withDefaults(defineProps<Props>(), {
+  withDefaults(defineProps<Props>(), {
     pageTitle: '',
   });
 
   // instantiate store and libs
-  const $appStore = useAppStore();
   const $userStore = useUserStore();
 
   const { notifications, currentUser } = storeToRefs($userStore);
@@ -30,9 +28,9 @@
     return 'Welcome!';
   });
 
-  const markAllAsRead = (): void => { $userStore.markAllAsRead(); };
+  const markAllAsRead = () => { $userStore.markAllAsRead(); };
 
-  const markAsRead = (notification: Notification): void => {
+  const markAsRead = (notification: Notification) => {
     const payload = {
       id: notification.id,
       read_on_date: new Date()
@@ -41,7 +39,7 @@
     $userStore.updateNotification(payload);
   };
 
-  const markAsUnread = (notification: Notification): void => {
+  const markAsUnread = (notification: Notification) => {
     const payload = { id: notification.id, read_on_date: null };
     $userStore.updateNotification(payload);
   };
@@ -63,7 +61,7 @@
       <button
         id="hs-dropdown-default"
         type="button"
-        class="duration-200 hs-dropdown-toggle p-3 relative rounded-full shadow-light hover:shadow-default transition-all">
+        class="bg-white duration-200 hs-dropdown-toggle p-3 relative rounded-full shadow-light hover:shadow-default transition-all">
         <bell-ring-icon class="h-6 w-6" />
         <span
           v-if="shouldShowBadge"
@@ -107,42 +105,5 @@
         </div>
       </div>
     </div>
-    <button
-      class="ml-6 p-3"
-      @click="$appStore.toggleDrawer()">
-      <menu-icon class="h-6 w-6" />
-    </button>
   </nav>
 </template>
-
-<!-- <style lang="scss" scoped>
-  .header {
-    z-index: 2000;
-    padding: 0;
-    display: flex;
-
-    .page-title {
-      .emoji {
-        margin-right: 0.5rem;
-      }
-    }
-  }
-
-  .q-list {
-    .title {
-      margin-right: 4rem;
-    }
-
-    .notifications-wrapper {
-      background: red;
-
-      .q-item {
-        margin: 0;
-
-        .q-btn {
-          padding: 4px;
-        }
-      }
-    }
-  }
-</style> -->

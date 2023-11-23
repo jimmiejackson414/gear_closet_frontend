@@ -11,6 +11,9 @@ export default {
   ],
   theme: {
     extend: {
+      borderRadius: {
+        '4xl': '2.5rem',
+      },
       boxShadow: {
         'default': '0 48px 75px 0 rgb(17 12 46 / 15%), 0 12px 17px 2px rgb(0 0 0 / 8%), 0 5px 22px 4px rgb(0 0 0 / 12%)',
         'light': '0 48px 75px 0 rgb(17 12 46 / 3%), 0 12px 17px 2px rgb(0 0 0 / 3%), 0 5px 22px 4px rgb(0 0 0 / 3%)',

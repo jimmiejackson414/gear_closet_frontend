@@ -9,7 +9,6 @@
 
   const iconColor = (link: LinkItem) => {
     if (link.disabled) return tailwind.theme.colors['light-grey'];
-    console.log(`route path: ${$route.path}`);
     return isActiveRoute(link) ? tailwind.theme.colors.primary : tailwind.theme.colors['grey'];
   };
 </script>

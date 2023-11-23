@@ -24,19 +24,19 @@
   // $store.fetchCurrentUser();
 
   const { loading } = storeToRefs($store);
-  const pageStyles = ref({});
 </script>
 
 <template>
-  <div class="bg-gray-100">
+  <div>
     <gc-loading-wrapper v-if="loading" />
     <div v-else>
       <gc-drawer />
-      <div
-        :style="pageStyles"
-        class="min-h-screen">
-        <div class="p-4 md:px-9 md:py-14">
+      <div class="min-h-screen">
+        <div class="p-4 pl-[72px] pr-9">
           <gc-navbar :page-title="props.pageTitle || capitalize($route.name as string)" />
+          <div class="p-6">
+            <slot />
+          </div>
         </div>
       </div>
       <gc-footer />
