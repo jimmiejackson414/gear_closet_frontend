@@ -9,16 +9,8 @@
 </script>
 
 <template>
-  <div class="loading-styles">
+  <div class="flex items-center flex-col">
     <gc-logo-icon :width="props.width" />
     <gc-spinner variant="primary" />
   </div>
 </template>
-
-<style lang='scss' scoped>
-  .loading-styles {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-</style>

@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { Bars3Icon, BellAlertIcon } from '@heroicons/vue/24/outline';
+  import { MenuIcon, BellRingIcon } from 'lucide-vue-next';
   import { useAppStore } from '@/stores/app';
   import { useUserStore } from '@/stores/user';
   import NotificationItem from '@/components/common/NotificationItem.vue';
@@ -64,7 +64,7 @@
         id="hs-dropdown-default"
         type="button"
         class="duration-200 hs-dropdown-toggle p-3 relative rounded-full shadow-light hover:shadow-default transition-all">
-        <bell-alert-icon class="h-6 w-6" />
+        <bell-ring-icon class="h-6 w-6" />
         <span
           v-if="shouldShowBadge"
           class="-translate-y-1/2 absolute top-0 bg-danger end-0 font-medium inline-flex items-center px-1.5 py-0.5 rounded-full text-white text-xs transform translate-x-1/2">
@@ -110,7 +110,7 @@
     <button
       class="ml-6 p-3"
       @click="$appStore.toggleDrawer()">
-      <bars-3-icon class="h-6 w-6" />
+      <menu-icon class="h-6 w-6" />
     </button>
   </nav>
 </template>

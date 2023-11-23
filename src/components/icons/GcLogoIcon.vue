@@ -9,8 +9,8 @@
 
 <template>
   <div
-    :class="[wrapperClass, 'svg-wrapper']"
-    :style="{ width: `${width}px`, height, fill }">
+    :class="wrapperClass"
+    :style="{ fill }">
     <svg
       id="Layer_1"
       version="1.1"

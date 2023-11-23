@@ -1,10 +1,8 @@
 <script lang='ts' setup>
-  // import { useQuasar } from 'quasar';
   import GcNavbar from '@/components/common/GcNavbar.vue';
-  import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
-  // import Drawer from '@/components/common/Drawer.vue';
+  import GcDrawer from '@/components/common/GcDrawer.vue';
   import GcFooter from '@/components/common/GcFooter.vue';
-  // import LoadingPage from '@/components/common/LoadingPage.vue';
+  import GcLoadingWrapper from '@/components/common/GcLoadingWrapper.vue';
   import { useUserStore } from '@/stores/user';
   import { capitalize } from '@/helpers/functions';
 
@@ -21,54 +19,24 @@
   });
 
   const $route = useRoute();
-  const userStore = useUserStore();
-  // const $q = useQuasar();
+  const $store = useUserStore();
 
-  // userStore.fetchCurrentUser();
+  // $store.fetchCurrentUser();
 
-  const { currentUser, loading } = storeToRefs(userStore);
+  const { loading } = storeToRefs($store);
   const pageStyles = ref({});
-
-  const shouldDisplay = computed(() => {
-    if (props.minimalLayout) {
-      // takes care of case where user is logged in but on public page (e.g. Public Pack page)
-      if (!$route.meta.authRequired && currentUser.value) {
-        return true;
-      }
-      return false;
-    }
-
-    return true;
-  });
-
-  // watchEffect(() => {
-  //   if ($q.screen.xs || props.minimalLayout) {
-  //     pageStyles.value = {
-  //       paddingLeft: '0',
-  //     };
-  //   } else {
-  //     pageStyles.value = {
-  //       paddingLeft: '57px',
-  //     };
-  //   }
-  // });
 </script>
 
 <template>
   <div class="bg-gray-100">
-    <!-- <LoadingPage v-if="loading" /> -->
-    <div>
-      <!-- <Drawer v-if="shouldDisplay" /> -->
+    <gc-loading-wrapper v-if="loading" />
+    <div v-else>
+      <gc-drawer />
       <div
         :style="pageStyles"
         class="min-h-screen">
         <div class="p-4 md:px-9 md:py-14">
-          <gc-navbar
-            v-if="shouldDisplay"
-            :page-title="props.pageTitle || capitalize($route.name as string)" />
-          <gc-navbar-alt
-            v-else
-            :align-logo="alignLogo" />
+          <gc-navbar :page-title="props.pageTitle || capitalize($route.name as string)" />
         </div>
       </div>
       <gc-footer />

@@ -1,47 +1,50 @@
-interface Item {
-  href: string;
+import { DoorOpen,  Home, ListTodo, MessagesSquare, Users } from 'lucide-vue-next';
+import type { Icon } from 'lucide-vue-next';
+
+export type LinkItem = {
+  to: string;
   title: string;
-  icon: string;
+  icon: Icon;
   disabled: boolean;
   requiresSubscription: boolean;
 }
 
 const items = [
   {
-    href: '/dashboard',
+    to: 'dashboard',
     title: 'Dashboard',
-    icon: 'bi-house',
+    icon: Home,
     disabled: false,
     requiresSubscription: false,
   },
   {
-    href: '/closet',
+    to: 'closet',
     title: 'Closet',
-    icon: 'bi-door-open',
+    icon: DoorOpen,
     disabled: false,
     requiresSubscription: false,
   },
   {
-    href: '/planning',
+    to: 'planning',
     title: 'Planning',
-    icon: 'bi-journal-check',
+    icon: ListTodo,
     disabled: false,
     requiresSubscription: false,
   },
   {
-    href: '/friends',
+    to: 'friends',
     title: 'Friends',
-    icon: 'bi-people',
+    icon: Users,
     disabled: false,
     requiresSubscription: false,
   },
   {
-    href: import.meta.env.VITE_FORUMS_URL,
+    to: import.meta.env.VITE_FORUMS_URL,
     title: 'Forums',
-    icon: 'bi-chat-right',
+    icon: MessagesSquare,
     disabled: false,
     requiresSubscription: true,
   },
-] as Item[];
+] as LinkItem[];
 
 export default items;

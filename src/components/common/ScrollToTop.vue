@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { ChevronUpIcon } from '@heroicons/vue/24/solid';
+  import { ChevronUpIcon } from 'lucide-vue-next';
   // define props
   const props = defineProps({
     color: { type: String, required: false, default: 'blue-6' },

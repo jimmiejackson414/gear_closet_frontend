@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { useHead } from '@unhead/vue';
-  import PageLayout from '@/layouts/PageLayout.vue';
+  import PublicLayout from '@/layouts/PublicLayout.vue';
   import ScrollToTop from '@/components/common/ScrollToTop.vue';
 
   useHead({
@@ -31,9 +31,7 @@
 </script>
 
 <template>
-  <page-layout
-    minimal-layout
-    align-logo="center">
+  <public-layout>
     <div class="flex justify-center mt-14">
       <div class="w-full md:max-w-4xl md:mx-auto">
         <h5 class="mb-4 text-2xl text-center">
@@ -721,6 +719,6 @@
       </div>
     </div>
     <scroll-to-top />
-  </page-layout>
+  </public-layout>
 </template>
 
