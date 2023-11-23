@@ -1,19 +1,14 @@
 import { GraphQLClient } from 'graphql-request';
+// import supabase from '@/lib/supabase';
 
 const endpoint = import.meta.env.VITE_BACKEND_URL as string;
 
 export const useClient = (): GraphQLClient => {
-  const key = import.meta.env.VITE_SUPABASE_LOCALSTORAGE_KEY as string;
-  const storage = localStorage.getItem(key) as string;
-  const session = JSON.parse(storage);
-  let token = '';
-  if (session) token = session.access_token;
-
   return new GraphQLClient(endpoint, {
     headers: {
       'Access-Control-Allow-Origin': '*',
-      Authorization: `Bearer ${token}`,
+      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+      'apiKey': import.meta.env.VITE_SUPABASE_PUBLIC_KEY,
     },
-    credentials: 'include',
   });
 };

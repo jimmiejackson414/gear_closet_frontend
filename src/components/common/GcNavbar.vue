@@ -2,7 +2,7 @@
   import { BellRingIcon } from 'lucide-vue-next';
   import { useUserStore } from '@/stores/user';
   import NotificationItem from '@/components/common/NotificationItem.vue';
-  import type { Notification } from '@/generated/types';
+  // import type { Notification } from '@/generated/types';
 
   interface Props {
     pageTitle: string;

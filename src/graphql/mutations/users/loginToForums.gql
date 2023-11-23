@@ -1,9 +1,0 @@
-mutation LoginToForums($input: DiscourseInput!) {
-  loginToForums(input: $input) {
-    success
-    redirect
-    errors {
-      ...BaseError
-    }
-  }
-}

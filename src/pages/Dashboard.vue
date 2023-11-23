@@ -17,7 +17,7 @@
               <div class="bg-white px-4 py-8 rounded-4xl shadow-light">
                 <gc-skeleton
                   avatar
-                  lines="3"
+                  :lines="3"
                   v-if="loading" />
                 <p v-else>
                   First widget
@@ -28,7 +28,7 @@
               <div class="bg-white px-4 py-8 rounded-4xl shadow-light">
                 <gc-skeleton
                   avatar
-                  lines="3"
+                  :lines="3"
                   v-if="loading" />
                 <p v-else>
                   Second widget
@@ -39,7 +39,7 @@
         </div>
         <div class="bg-white col-span-12 md:col-span-3 px-4 py-8 rounded-4xl shadow-light">
           <gc-skeleton
-            lines="2"
+            :lines="2"
             v-if="loading" /> 
           <p v-else>
             Side
