@@ -3,6 +3,7 @@
   import GcLogoIcon from '@/components/icons/GcLogoIcon.vue';
   import { drawerLinks } from '@/helpers/drawerLinks';
   import { tailwind } from '@/helpers';
+  import { useAuthStore } from '@/stores/auth';
   import type { LinkItem } from '@/helpers/drawerLinks';
 
   const $route = useRoute();
@@ -12,6 +13,13 @@
   const iconColor = (link: LinkItem) => {
     if (link.disabled) return tailwind.theme.colors['light-grey'];
     return isActiveRoute(link) ? tailwind.theme.colors.primary : tailwind.theme.colors['grey'];
+  };
+
+  const $store = useAuthStore();
+  const $router = useRouter();
+  const handleLogout = async () => {
+    await $store.clearUser();
+    $router.push({ name: 'login' });
   };
 </script>
 
@@ -39,22 +47,24 @@
             :color="iconColor(link)"
             :size="24" />
           <span
-            class="absolute bg-gray-900 font-medium hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible inline-block invisible opacity-0 px-2 py-1 rounded shadow-sm text-white text-xs transition-opacity z-10"
-            role="tooltip">>
+            class="absolute bg-gray-900 font-medium hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible inline-block invisible opacity-0 px-2 py-1 rounded shadow-sm text-sm text-white transition-opacity z-10"
+            role="tooltip">
             {{ link.title }}
           </span>
         </router-link>
       </li>
       <li class="grow" />
       <li class="hs-tooltip inline-block [--placement:right]">
-        <span class="block cursor-pointer hs-tooltip-toggle px-4 py-2 rounded-lg hover:bg-gray-100">
+        <span
+          class="block cursor-pointer hs-tooltip-toggle px-4 py-2 rounded-lg hover:bg-gray-100"
+          @click="handleLogout">
           <component
             :is="LogOutIcon"
             :color="tailwind.theme.colors['grey']"
             :size="24" />
           <span
-            class="absolute bg-gray-900 font-medium hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible inline-block invisible opacity-0 px-2 py-1 rounded shadow-sm text-white text-xs transition-opacity z-10"
-            role="tooltip">>
+            class="absolute bg-gray-900 font-medium hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible inline-block invisible opacity-0 px-2 py-1 rounded shadow-sm text-sm text-white transition-opacity z-10"
+            role="tooltip">
             Logout
           </span>
         </span>

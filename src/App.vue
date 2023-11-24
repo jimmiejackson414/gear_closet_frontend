@@ -12,9 +12,18 @@
     if (event === 'SIGNED_IN') {
       $store.loadUser();
       $store.loadRedirectRoute();
-    } else if (event === 'SIGNED_OUT') {
-      $store.clearUser();
     }
+    // } else if (event === 'SIGNED_OUT') {
+    //   console.log('SIGNED_OUT');
+    // } else if (event === 'INITIAL_SESSION') {
+    //   console.log('INITIAL_SESSION');
+    // } else if (event === 'TOKEN_REFRESHED') {
+    //   console.log('TOKEN_REFRESHED');
+    // } else if (event === 'USER_UPDATED') {
+    //   console.log('USER_UPDATED');
+    // } else if (event === 'PASSWORD_RECOVERY') {
+    //   console.log('PASSWORD_RECOVERY');
+    // }
   });
 
   $store.$onAction(({ name, store, after }) => {

@@ -1,17 +1,19 @@
 import { defineStore } from 'pinia';
-import type { User } from '@/generated/types';
 import supabase from '@/lib/supabase';
 import { useAppStore } from '@/stores/app';
+import type { Notification, User, UpdateNotification } from '@/generated/types';
 
 type State = {
   currentUser: User | null;
   loading: boolean;
-  // notifications: Notification[];
-  // totalCount: number;
+  notifications: {
+    items: Notification[];
+    totalCount: number;
+  };
 };
 
 type Getters = {
-  // totalUnread(): number;
+  totalUnread(): number;
 };
 
 type Actions = {
@@ -22,10 +24,10 @@ type Actions = {
   // handleDeclineInvite(inviteId: number): Promise<UpdateTripFriendResponse>;
   // handleUndoInvite(invite: TripFriend): Promise<UpdateTripFriendResponse>;
   // loginToForums(input: DiscourseInput): Promise<DiscoursePayload>;
-  // markAllAsRead(): void;
+  markAllAsRead(): void;
   // sendWelcomeEmail(): void;
   // updateAvatar(input: UpdateAvatarInput): void;
-  // updateNotification(input: UpdateNotificationInput): void;
+  updateNotification(input: UpdateNotification): void;
   // updatePassword(input: UpdatePasswordInput): Promise<UpdatePasswordPayload>;
   // updateUser(input: UpdateUserInput): void;
 };
@@ -37,21 +39,23 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
       return {
         currentUser: null,
         loading: false,
-        notifications: [],
-        totalCount: 0,
+        notifications: {
+          items: [],
+          totalCount: 0,
+        },
       };
     },
 
     getters: {
-      // totalUnread () {
-      //   return this.notifications.reduce((acc, notification) => {
-      //     if (!notification.read_on_date) {
-      //       return acc + 1;
-      //     }
+      totalUnread () {
+        return this.notifications.items.reduce((acc, notification) => {
+          if (!notification.read_on_date) {
+            return acc + 1;
+          }
 
-      //     return acc;
-      //   }, 0);
-      // },
+          return acc;
+        }, 0);
+      },
     },
 
     actions: {
@@ -80,19 +84,20 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
           const { id } = sessionData.user;
           const { data: user, error } = await supabase.from('users')
-            .select('*, onboarding_steps(*)')
+            .select('*, onboarding_steps(*), notifications(*)')
             .eq('id', id)
             .single();
-            console.log({ user });
 
           if (!user || error) {
             this.currentUser = null;
+            this.notifications = { items: [], totalCount: 0 };
             this.loading = false;
             $store.notifyNegative('An error occurred while loading your account.');
             return;
           }
 
           this.currentUser = user;
+          this.notifications = { items: user.notifications, totalCount: user.notifications.length };
           this.loading = false;
         } catch (err) {
           console.log({ err });
@@ -152,14 +157,6 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
       //   return loginToForums;
       // },
 
-      // async markAllAsRead () {
-      //   const client = useClient();
-      //   const sdk = getSdk(client);
-
-      //   const { markAllAsRead } = await sdk.MarkAllAsRead({ user_id: this.currentUser?.id as string });
-      //   if (!markAllAsRead.errors) this.notifications = markAllAsRead.notifications as Notification[];
-      // },
-
       // sendWelcomeEmail () {
       //   const client = useClient();
       //   const sdk = getSdk(client);
@@ -177,16 +174,40 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
       //   }
       // },
 
-      // async updateNotification (input: UpdateNotificationInput) {
-      //   const client = useClient();
-      //   const sdk = getSdk(client);
+      async markAllAsRead () {
+        const $store = useAppStore();
+        const { data, error } = await supabase.from('notifications')
+          .update({ read_on_date: new Date() })
+          .eq('user_id', this.currentUser?.id)
+          .select();
 
-      //   const { updateNotification } = await sdk.UpdateNotification({ input: { ...input } });
-      //   if (!updateNotification.errors) {
-      //     const i = this.notifications.findIndex(n => n.id === updateNotification.notification?.id);
-      //     this.notifications[i] = updateNotification.notification as Notification;
-      //   }
-      // },
+        if (error) {
+          $store.notifyNegative('An error occurred while marking notifications as read.');
+        }
+
+        if (data) {
+          this.notifications = { items: data, totalCount: data.length };
+        }
+      },
+
+      async updateNotification (input: UpdateNotification) {
+        const $store = useAppStore();
+        const { data, error } = await supabase.from('notifications')
+          .update({ read_on_date: new Date()
+            .toISOString() })
+          .eq('id', input.id)
+          .select()
+          .single();
+
+        if (error) {
+          $store.notifyNegative('An error occurred while marking notifications as read.');
+        }
+
+        if (data) {
+          const i = this.notifications.items.findIndex(n => n.id === data.id);
+          this.notifications.items[i] = data;
+        }
+      },
 
       // async updatePassword (input: UpdatePasswordInput) {
       //   const client = useClient();

@@ -50,8 +50,8 @@ export const useAuthStore = defineStore<'auth', State, Getters, Actions>(
       },
 
       async clearUser () {
-        this.session = null;
         await supabase.auth.signOut();
+        this.session = null;
       },
 
       saveRedirectRoute (route: Partial<RouteLocation>) {
