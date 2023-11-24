@@ -13,7 +13,8 @@ type State = {
 };
 
 type Getters = {
-  totalUnread(): number;
+  // totalUnread(): number;
+  unreadNotifications(): Notification[];
 };
 
 type Actions = {
@@ -47,14 +48,17 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
     },
 
     getters: {
-      totalUnread () {
-        return this.notifications.items.reduce((acc, notification) => {
-          if (!notification.read_on_date) {
-            return acc + 1;
-          }
+      // totalUnread () {
+      //   return this.notifications.items.reduce((acc, notification) => {
+      //     if (!notification.read_on_date) {
+      //       return acc + 1;
+      //     }
 
-          return acc;
-        }, 0);
+      //     return acc;
+      //   }, 0);
+      // },
+      unreadNotifications () {
+        return this.notifications.items.filter(n => !n.read_on_date);
       },
     },
 
