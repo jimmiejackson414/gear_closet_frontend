@@ -4995,10 +4995,10 @@ prebuild-install@^7.1.0:
     tar-fs "^2.0.0"
     tunnel-agent "^0.6.0"
 
-preline@^2.0.0:
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/preline/-/preline-2.0.0.tgz#e81f785372e77d403bb763265920ec3a40072a25"
-  integrity sha512-zVStaGooj2iruZgklAOTBvkJK1MR8P7/zn14EwFk+icpbaRxQBKsFMB9Qrc+3+CcaJZS6sFYvdvUvTtu1MWQuQ==
+preline@1.9.0:
+  version "1.9.0"
+  resolved "https://registry.yarnpkg.com/preline/-/preline-1.9.0.tgz#b872c9e0d472242cb6f019c329f1edaa0511596e"
+  integrity sha512-zvOexsDBood9gBAQYSwz7iY8TaomtRD0/qxvCnJl3caq5pif6frl8Oe4b4DsxHHD3Clzl4I5RmVKTq9XjMvNJA==
   dependencies:
     "@popperjs/core" "^2.11.2"
 

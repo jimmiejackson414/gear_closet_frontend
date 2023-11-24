@@ -1,8 +1,7 @@
 import { defineStore } from 'pinia';
-import type { Database } from '@/generated/types';
+import type { User } from '@/generated/types';
 import supabase from '@/lib/supabase';
-
-export type User = Database['public']['Tables']['users']['Row']
+import { useAppStore } from '@/stores/app';
 
 type State = {
   currentUser: User | null;
@@ -66,33 +65,35 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
       // },
 
       async fetchCurrentUser () {
+        const $store = useAppStore();
         this.loading = true;
 
         try {
+          const { data: sessionData, error: sessionError } = await supabase.auth.getUser();
+
+          if (sessionError || !sessionData) {
+            this.currentUser = null;
+            this.loading = false;
+            $store.notifyNegative('An error occurred while loading your account.');
+            return;
+          }
+
+          const { id } = sessionData.user;
           const { data: user, error } = await supabase.from('users')
-            .select('*')
+            .select('*, onboarding_steps(*)')
+            .eq('id', id)
             .single();
+            console.log({ user });
 
           if (!user || error) {
             this.currentUser = null;
             this.loading = false;
+            $store.notifyNegative('An error occurred while loading your account.');
             return;
           }
 
           this.currentUser = user;
           this.loading = false;
-
-          // if (!me?.user || me?.errors) {
-          //   this.currentUser = null;
-          //   this.loading = false;
-          //   console.error('Error loading user');
-          //   return;
-          // }
-
-          // this.currentUser = me.user as User;
-          // this.notifications = me.notifications as Notification[];
-          // this.totalCount = me.totalCount || 0;
-          // this.loading = false;
         } catch (err) {
           console.log({ err });
           this.loading = false;

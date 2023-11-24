@@ -45,12 +45,11 @@ export const drawerLinks = [
     disabled: false,
     requiresSubscription: true,
   },
+  {
+    to: 'profile',
+    title: 'Profile',
+    icon: UserCircle2,
+    disabled: false,
+    requiresSubscription: false,
+  },
 ] as LinkItem[];
-
-export const profileLink = {
-  to: 'profile',
-  title: 'Profile',
-  icon: UserCircle2,
-  disabled: false,
-  requiresSubscription: false,
-} as LinkItem;

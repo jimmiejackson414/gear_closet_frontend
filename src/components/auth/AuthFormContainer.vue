@@ -29,7 +29,7 @@
             v-html="subtitle" />
         </div>
       </div>
-      <div class="flex flex-col pb-4 pt-12 px-4 w-full">
+      <div class="flex flex-col pb-4 pt-6 px-4 w-full">
         <slot />
       </div>
     </div>

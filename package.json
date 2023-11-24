@@ -12,7 +12,7 @@
     "build-only": "vite build",
     "type-check": "vue-tsc --noEmit -p tsconfig.vitest.json --composite false",
     "lint": "eslint . --ext .vue,.js,.jsx,.cjs,.mjs,.ts,.tsx,.cts,.mts --fix --ignore-path .gitignore",
-    "typegen": "npx supabase gen types typescript --project-id 'vvspomwuycubcrrksgvk' --schema public > src/generated/types.ts",
+    "typegen": "npx supabase gen types typescript --project-id 'vvspomwuycubcrrksgvk' --schema public > src/generated/types.ts && npx better-supabase-types -i ./src/generated/types.ts -f -s",
     "cert": "mkcert -key-file ./localhost-key.pem -cert-file ./localhost.pem localhost",
     "snaplet": "npx snaplet generate --sql > supabase/seed.sql"
   },
@@ -41,7 +41,7 @@
     "lucide-vue-next": "^0.292.0",
     "papaparse": "^5.4.1",
     "pinia": "^2.1.7",
-    "preline": "^2.0.0",
+    "preline": "1.9.0",
     "tsc-alias": "^1.8.8",
     "tscpaths": "^0.0.9",
     "v-onboarding": "^2.6.0",

@@ -1,6 +1,7 @@
 <script lang='ts' setup>
+  import { LogOutIcon } from 'lucide-vue-next';
   import GcLogoIcon from '@/components/icons/GcLogoIcon.vue';
-  import { drawerLinks, profileLink } from '@/helpers/drawerLinks';
+  import { drawerLinks } from '@/helpers/drawerLinks';
   import { tailwind } from '@/helpers';
   import type { LinkItem } from '@/helpers/drawerLinks';
 
@@ -46,20 +47,17 @@
       </li>
       <li class="grow" />
       <li class="hs-tooltip inline-block [--placement:right]">
-        <router-link
-          :to="profileLink.to"
-          :class="isActiveRoute(profileLink) ? 'bg-gray-100' : ''"
-          class="block hs-tooltip-toggle px-4 py-2 rounded-lg hover:bg-gray-100">
+        <span class="block cursor-pointer hs-tooltip-toggle px-4 py-2 rounded-lg hover:bg-gray-100">
           <component
-            :is="profileLink.icon"
-            :color="iconColor(profileLink)"
+            :is="LogOutIcon"
+            :color="tailwind.theme.colors['grey']"
             :size="24" />
           <span
             class="absolute bg-gray-900 font-medium hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible inline-block invisible opacity-0 px-2 py-1 rounded shadow-sm text-white text-xs transition-opacity z-10"
             role="tooltip">>
-            {{ profileLink.title }}
+            Logout
           </span>
-        </router-link>
+        </span>
       </li>
     </ul>
   </div>

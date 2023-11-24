@@ -8,7 +8,7 @@
 
 <template>
   <dashboard-layout>
-    <div class="container-full mx-auto p-6">
+    <div class="container-full mx-auto px-12 py-6">
       <div class="grid grid-cols-12 gap-8">
         <div class="bg-gray-100 col-span-12 md:col-span-9 grow px-6 py-8 rounded-4xl shadow-light">
           <gc-navbar page-title="Dashboard" />
