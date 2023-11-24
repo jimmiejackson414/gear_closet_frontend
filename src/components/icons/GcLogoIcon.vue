@@ -1,16 +1,23 @@
 <script lang='ts' setup>
-  defineProps({
-    wrapperClass: { type: String, required: false, default: '' },
-    width: { type: Number, required: false, default: 40 },
-    height: { type: [Number, String], required: false, default: 'auto' },
-    fill: { type: String, required: false, default: '#4a4a4a' },
+  interface Props {
+    wrapperClass?: string;
+    width?: number;
+    height?: number | string;
+    fill?: string;
+  }
+
+  withDefaults(defineProps<Props>(), {
+    wrapperClass: '',
+    width: 40,
+    height: 'auto',
+    fill: '#4a4a4a',
   });
 </script>
 
 <template>
   <div
     :class="wrapperClass"
-    :style="{ fill }">
+    :style="{ fill, width: `${width}px`, height }">
     <svg
       id="Layer_1"
       version="1.1"
