@@ -1,29 +1,12 @@
 import { defineStore } from 'pinia';
-import { useClient } from '@/lib/graphqlRequest';
-import {
-  getSdk,
-  // TripFriendStatus,
-} from '@/generated/types';
-// import type {
-//   CreateOnboardStepInput,
-//   CreateOnboardStepResponse,
-//   DiscourseInput,
-//   DiscoursePayload,
-//   Notification,
-//   NotificationsInput,
-//   TripFriend,
-//   UpdateAvatarInput,
-//   UpdateNotificationInput,
-//   UpdatePasswordInput,
-//   UpdatePasswordPayload,
-//   UpdateTripFriendResponse,
-//   UpdateUserInput,
-//   User,
-//  } from '@/generated/types';
+import type { Database } from '@/generated/types';
+import supabase from '@/lib/supabase';
+
+export type User = Database['public']['Tables']['users']['Row']
 
 type State = {
-  // currentUser: User | null;
-  // loading: boolean;
+  currentUser: User | null;
+  loading: boolean;
   // notifications: Notification[];
   // totalCount: number;
 };
@@ -34,7 +17,7 @@ type Getters = {
 
 type Actions = {
   // createOnboardingStep(input: CreateOnboardStepInput): Promise<CreateOnboardStepResponse>;
-  // fetchCurrentUser(): void;
+  fetchCurrentUser(): void;
   // fetchNotifications(input: NotificationsInput): void;
   // handleAcceptInvite(inviteId: number): Promise<UpdateTripFriendResponse>;
   // handleDeclineInvite(inviteId: number): Promise<UpdateTripFriendResponse>;
@@ -82,31 +65,39 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
       //   return createOnboardStep as CreateOnboardStepResponse;
       // },
 
-      // async fetchCurrentUser () {
-      //   const client = useClient();
-      //   const sdk = getSdk(client);
+      async fetchCurrentUser () {
+        this.loading = true;
 
-      //   this.loading = true;
+        try {
+          const { data: user, error } = await supabase.from('users')
+            .select('*')
+            .single();
 
-      //   try {
-      //     const { me } = await sdk.Me();
+          if (!user || error) {
+            this.currentUser = null;
+            this.loading = false;
+            return;
+          }
 
-      //     if (!me?.user || me?.errors) {
-      //       this.currentUser = null;
-      //       this.loading = false;
-      //       console.error('Error loading user');
-      //       return;
-      //     }
+          this.currentUser = user;
+          this.loading = false;
 
-      //     this.currentUser = me.user as User;
-      //     this.notifications = me.notifications as Notification[];
-      //     this.totalCount = me.totalCount || 0;
-      //     this.loading = false;
-      //   } catch (err) {
-      //     console.log({ err });
-      //     this.loading = false;
-      //   }
-      // },
+          // if (!me?.user || me?.errors) {
+          //   this.currentUser = null;
+          //   this.loading = false;
+          //   console.error('Error loading user');
+          //   return;
+          // }
+
+          // this.currentUser = me.user as User;
+          // this.notifications = me.notifications as Notification[];
+          // this.totalCount = me.totalCount || 0;
+          // this.loading = false;
+        } catch (err) {
+          console.log({ err });
+          this.loading = false;
+        }
+      },
 
       // async fetchNotifications (input: NotificationsInput) {
       //   const client = useClient();

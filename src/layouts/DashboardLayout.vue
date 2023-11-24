@@ -3,19 +3,11 @@
   import GcDrawer from '@/components/common/GcDrawer.vue';
   import GcFooter from '@/components/common/GcFooter.vue';
   import { useUserStore } from '@/stores/user';
-  import { useClient } from '@/lib/graphqlRequest';
-  import { getSdk } from '@/generated/types';
 
   const $store = useUserStore();
   const { loading } = storeToRefs($store);
 
-  const client = useClient();
-  const sdk = getSdk(client);
-
-  sdk.CurrentUserQuery()
-    .then((res) => {
-      console.log(res);
-    });
+  await $store.fetchCurrentUser();
 </script>
 
 <template>

@@ -1,6 +1,7 @@
 <script lang='ts' setup>
   import GcLogoIcon from '@/components/icons/GcLogoIcon.vue';
-  import { drawerLinks, tailwind } from '@/helpers';
+  import { drawerLinks, profileLink } from '@/helpers/drawerLinks';
+  import { tailwind } from '@/helpers';
   import type { LinkItem } from '@/helpers/drawerLinks';
 
   const $route = useRoute();
@@ -14,8 +15,8 @@
 </script>
 
 <template>
-  <div class="bg-white fixed h-screen px-2 py-12">
-    <ul class="flex items-center flex-col gap-4">
+  <div class="bg-white fixed h-screen pb-4 pt-12 px-2 z-50">
+    <ul class="flex items-center flex-col gap-4 h-full">
       <li class="border-b border-light-grey">
         <span class="block mb-4 px-4 py-2">
           <gc-logo-icon
@@ -25,16 +26,39 @@
       </li>
       <li
         v-for="link in drawerLinks"
-        :key="link.to">
+        :key="link.to"
+        class="hs-tooltip inline-block [--placement:right]">
         <router-link
           :to="link.to"
           :disabled="link.disabled"
           :class="isActiveRoute(link) ? 'bg-gray-100' : ''"
-          class="block mb-4 px-4 py-2 rounded-lg hover:bg-gray-100">
+          class="block hs-tooltip-toggle inflex-flex items-center justify-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100">
           <component
             :is="link.icon"
             :color="iconColor(link)"
             :size="24" />
+          <span
+            class="absolute bg-gray-900 font-medium hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible inline-block invisible opacity-0 px-2 py-1 rounded shadow-sm text-white text-xs transition-opacity z-10"
+            role="tooltip">>
+            {{ link.title }}
+          </span>
+        </router-link>
+      </li>
+      <li class="grow" />
+      <li class="hs-tooltip inline-block [--placement:right]">
+        <router-link
+          :to="profileLink.to"
+          :class="isActiveRoute(profileLink) ? 'bg-gray-100' : ''"
+          class="block hs-tooltip-toggle px-4 py-2 rounded-lg hover:bg-gray-100">
+          <component
+            :is="profileLink.icon"
+            :color="iconColor(profileLink)"
+            :size="24" />
+          <span
+            class="absolute bg-gray-900 font-medium hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible inline-block invisible opacity-0 px-2 py-1 rounded shadow-sm text-white text-xs transition-opacity z-10"
+            role="tooltip">>
+            {{ profileLink.title }}
+          </span>
         </router-link>
       </li>
     </ul>

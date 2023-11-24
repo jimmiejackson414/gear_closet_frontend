@@ -1,4 +1,4 @@
-import { DoorOpen,  Home, ListTodo, MessagesSquare, Users } from 'lucide-vue-next';
+import { DoorOpen,  Home, ListTodo, MessagesSquare, Users, UserCircle2 } from 'lucide-vue-next';
 import type { Icon } from 'lucide-vue-next';
 
 export type LinkItem = {
@@ -9,7 +9,7 @@ export type LinkItem = {
   requiresSubscription: boolean;
 }
 
-const items = [
+export const drawerLinks = [
   {
     to: 'dashboard',
     title: 'Dashboard',
@@ -47,4 +47,10 @@ const items = [
   },
 ] as LinkItem[];
 
-export default items;
+export const profileLink = {
+  to: 'profile',
+  title: 'Profile',
+  icon: UserCircle2,
+  disabled: false,
+  requiresSubscription: false,
+} as LinkItem;
