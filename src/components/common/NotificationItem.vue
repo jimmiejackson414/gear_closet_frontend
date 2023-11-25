@@ -40,8 +40,8 @@
     </span>
     <button
       v-show="!props.notification.read_on_date"
-      type="button"
       class="ml-2"
+      type="button"
       @click="emit('markAsRead', notification)">
       <check-circle-icon class="duration-200 group-hover:opacity-100 h-5 opacity-0 text-dark-grey hover:text-positive transition-all w-5" />
     </button>

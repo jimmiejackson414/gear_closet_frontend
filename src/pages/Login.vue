@@ -20,11 +20,11 @@
 
 <template>
   <auth-layout
-    :image="backgroundImage.image"
-    :fill="backgroundImage.fill">
+    :fill="backgroundImage.fill"
+    :image="backgroundImage.image">
     <auth-form-container
-      title="Welcome Back!"
-      subtitle="Please sign in to continue">
+      subtitle="Please sign in to continue"
+      title="Welcome Back!">
       <login-form />
     </auth-form-container>
   </auth-layout>

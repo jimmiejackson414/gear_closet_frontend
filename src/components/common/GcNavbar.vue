@@ -49,8 +49,8 @@
     <div class="hs-dropdown inline-flex relative">
       <button
         id="hs-dropdown-default"
-        type="button"
-        class="bg-white duration-200 focus-visible:outline-none hs-dropdown-toggle p-3 relative rounded-full shadow-light hover:shadow-default transition-all">
+        class="bg-white duration-200 focus-visible:outline-none hs-dropdown-toggle p-3 relative rounded-full shadow-light hover:shadow-default transition-all"
+        type="button">
         <bell-ring-icon class="h-6 w-6" />
         <span
           v-if="shouldShowBadge"
@@ -59,8 +59,8 @@
         </span>
       </button>
       <div
-        class="bg-white duration hidden hs-dropdown-menu hs-dropdown-open:opacity-100 max-w-[30rem] min-w-[20rem] mt-2 opacity-0 p-4 rounded-lg shadow-default transition-[opacity,margin] z-50 after:-bottom-4 after:absolute after:h-4 after:start-0 after:w-full before:-top-4 before:absolute before:h-4 before:start-0 before:w-full"
-        aria-labelledby="hs-dropdown-default">
+        aria-labelledby="hs-dropdown-default"
+        class="bg-white duration hidden hs-dropdown-menu hs-dropdown-open:opacity-100 max-w-[30rem] min-w-[20rem] mt-2 opacity-0 p-4 rounded-lg shadow-default transition-[opacity,margin] z-50 after:-bottom-4 after:absolute after:h-4 after:start-0 after:w-full before:-top-4 before:absolute before:h-4 before:start-0 before:w-full">
         <div class="flex justify-between items-center">
           <h3 class="font-semibold text-base">
             Notifications
@@ -86,8 +86,8 @@
           </div>
           <div class="pt-2 view-all-wrapper">
             <router-link
-              to="/notifications"
-              class="font-medium text-primary text-sm">
+              class="font-medium text-primary text-sm"
+              to="/notifications">
               View all
             </router-link>
           </div>

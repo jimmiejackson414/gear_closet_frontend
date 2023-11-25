@@ -1,7 +1,21 @@
 import { defineStore } from 'pinia';
 import supabase from '@/lib/supabase';
+import { getUserId } from '@/helpers/functions';
 import { useAppStore } from '@/stores/app';
-import type { Notification, User, UpdateNotification } from '@/generated/types';
+import type {
+  Friend,
+  Notification,
+  Trip,
+  TripFriend,
+  UpdateNotification,
+  User,
+} from '@/generated/types';
+
+interface DashboardData {
+  friends: Friend[];
+  trips: Trip[];
+  trip_friends: TripFriend[];
+}
 
 type State = {
   currentUser: User | null;
@@ -13,13 +27,13 @@ type State = {
 };
 
 type Getters = {
-  // totalUnread(): number;
   unreadNotifications(): Notification[];
 };
 
 type Actions = {
   // createOnboardingStep(input: CreateOnboardStepInput): Promise<CreateOnboardStepResponse>;
   fetchCurrentUser(): void;
+  fetchDashboard(): Promise<DashboardData>;
   // fetchNotifications(input: NotificationsInput): void;
   // handleAcceptInvite(inviteId: number): Promise<UpdateTripFriendResponse>;
   // handleDeclineInvite(inviteId: number): Promise<UpdateTripFriendResponse>;
@@ -48,15 +62,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
     },
 
     getters: {
-      // totalUnread () {
-      //   return this.notifications.items.reduce((acc, notification) => {
-      //     if (!notification.read_on_date) {
-      //       return acc + 1;
-      //     }
 
-      //     return acc;
-      //   }, 0);
-      // },
       unreadNotifications () {
         return this.notifications.items.filter(n => !n.read_on_date);
       },
@@ -77,16 +83,17 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         this.loading = true;
 
         try {
-          const { data: sessionData, error: sessionError } = await supabase.auth.getUser();
+          // const { data: sessionData, error: sessionError } = await supabase.auth.getUser();
+          // const { id, error: sessionError } = await getUserId();
+          const { id, error: sessionError } = await getUserId();
 
-          if (sessionError || !sessionData) {
+          if (sessionError || !id) {
             this.currentUser = null;
             this.loading = false;
             $store.notifyNegative('An error occurred while loading your account.');
             return;
           }
 
-          const { id } = sessionData.user;
           const { data: user, error } = await supabase.from('users')
             .select('*, onboarding_steps(*), notifications(*)')
             .eq('id', id)
@@ -104,7 +111,43 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           this.notifications = { items: user.notifications, totalCount: user.notifications.length };
           this.loading = false;
         } catch (err) {
-          console.log({ err });
+          console.error({ err });
+        } finally {
+          this.loading = false;
+        }
+      },
+
+      async fetchDashboard () {
+        this.loading = true;
+        const $store = useAppStore();
+
+        try {
+          const { id, error: sessionError } = await getUserId();
+
+          if (sessionError || !id) {
+            $store.notifyNegative('An error occurred while loading your account.');
+            this.loading = false;
+            return { trip_friends: [], friends: [], trips: [] } as DashboardData;
+          }
+
+          const { data, error } = await supabase.from('users')
+            .select('trip_friends(*), friends!friends_friend_id_fkey(*), trips(*)')
+            .eq('id', id)
+            .single();
+          console.log({ data });
+          console.log({ error });
+
+          if (!data || error) {
+            $store.notifyNegative('An error occurred while loading your account.');
+            this.loading = false;
+            return { trip_friends: [], friends: [], trips: [] } as DashboardData;
+          }
+
+          return data as DashboardData;
+        } catch (err) {
+          console.error({ err });
+          return { trip_friends: [], friends: [], trips: [] } as DashboardData;
+        } finally {
           this.loading = false;
         }
       },

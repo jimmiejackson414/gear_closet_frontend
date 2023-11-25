@@ -29,8 +29,8 @@
       <li class="border-b border-light-grey">
         <span class="block mb-4 px-4 py-2">
           <gc-logo-icon
-            wrapper-class="w-6 h-6"
-            :fill="tailwind.theme.colors.primary" />
+            :fill="tailwind.theme.colors.primary"
+            wrapper-class="w-6 h-6" />
         </span>
       </li>
       <li
@@ -38,10 +38,10 @@
         :key="link.to"
         class="hs-tooltip inline-block [--placement:right]">
         <router-link
-          :to="link.to"
-          :disabled="link.disabled"
+          class="block hs-tooltip-toggle inflex-flex items-center justify-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
           :class="isActiveRoute(link) ? 'bg-gray-100' : ''"
-          class="block hs-tooltip-toggle inflex-flex items-center justify-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100">
+          :disabled="link.disabled"
+          :to="link.to">
           <component
             :is="link.icon"
             :color="iconColor(link)"

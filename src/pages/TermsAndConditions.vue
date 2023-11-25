@@ -49,10 +49,10 @@
               :key="content.id">
               <p class="mb-2 text-base">
                 <a
-                  href="#"
                   class="text-primary hover:underline"
-                  @keydown.prevent="scrollToSection(content.id)"
-                  @click.prevent="scrollToSection(content.id)">
+                  href="#"
+                  @click.prevent="scrollToSection(content.id)"
+                  @keydown.prevent="scrollToSection(content.id)">
                   {{ content.copy }}
                 </a>
               </p>

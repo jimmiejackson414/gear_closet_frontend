@@ -1,5 +1,6 @@
 import Dinero from 'dinero.js';
 import convert from 'convert';
+import supabase from '@/lib/supabase';
 // import {
 //   Category, CategoryItem, Pack, User,
 // } from '@/generated/types';
@@ -151,6 +152,11 @@ export const getPagination = (page: number, pageSize: number): { from: number, t
   const from = page ? page * limit : 0;
   const to = page ? from + pageSize - 1 : pageSize - 1;
   return { from, to };
+};
+
+export const getUserId = async () => {
+  const { data, error } = await supabase.auth.getUser();
+  return { id: data.user?.id, error };
 };
 
 export const initials = (user: User | null | undefined): string => {

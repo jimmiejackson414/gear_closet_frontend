@@ -59,29 +59,29 @@
       <gc-input
         v-model="form.password"
         :error="fieldErrors.password"
-        @blur="validateFieldOnBlur('password')"
-        type="password"
         label="Password"
         name="password"
-        placeholder="Enter your password" />
+        placeholder="Enter your password"
+        type="password"
+        @blur="validateFieldOnBlur('password')" />
       <gc-input
         v-model="form.passwordConfirm"
         :error="fieldErrors.passwordConfirm"
-        @blur="validateFieldOnBlur('passwordConfirm')"
-        type="password"
-        name="passwordConfirm"
         label="Confirm Password"
-        placeholder="Confirm your password" />
+        name="passwordConfirm"
+        placeholder="Confirm your password"
+        type="password"
+        @blur="validateFieldOnBlur('passwordConfirm')" />
       <gc-alert
         v-if="submitAction"
+        class="w-full"
         :message="submitAction.message"
-        :severity="submitAction.severity"
-        class="w-full" />
+        :severity="submitAction.severity" />
       <gc-button
-        :loading="submitting"
-        type="submit"
+        class="w-full"
         color="primary"
-        class="w-full">
+        :loading="submitting"
+        type="submit">
         Reset Password
       </gc-button>
     </div> 

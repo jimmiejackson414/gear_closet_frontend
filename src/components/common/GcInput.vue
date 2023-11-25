@@ -49,37 +49,37 @@
     <div class="relative">
       <input
         :id="`hs-toggle-${name}`"
-        :type="type"
+        :autocomplete="autocomplete"
         class="bg-white block border focus:border-primary duration-100 ease-in-out peer px-4 py-3 rounded-lg text-sm transition-all w-full disabled:opacity-50 disabled:pointer-events-none focus:ring-primary"
         :class="[
           hasPrependSlot ? 'ps-11' : 'ps-4',
           hasError ? 'border-danger' : 'border-gray-200',
           disabled ? 'bg-gray-100 pointer-events-none' : 'bg-white pointer-events-auto',
         ]"
-        :autocomplete="autocomplete"
-        :required="required"
+        :disabled="disabled"
         :model-value="modelValue"
         :placeholder="placeholder"
-        :disabled="disabled"
+        :required="required"
+        :type="type"
         @blur="handleBlur(($event.target as HTMLInputElement).value)"
         @input="handleInput(($event.target as HTMLInputElement).value)">
       <button
         v-if="passwordToggle"
-        type="button"
-        :data-hs-toggle-password='{
-          "target": `#hs-toggle-${name}`
-        }'
-        class="absolute top-0 end-0 p-3.5 rounded-e-md">
+        class="absolute top-0 end-0 p-3.5 rounded-e-md"
+        :data-hs-toggle-password="{
+          &quot;target&quot;: `#hs-toggle-${name}`
+        }"
+        type="button">
         <svg
           class="flex-shrink-0 h-3.5 text-gray-400 w-3.5"
-          width="24"
-          height="24"
-          viewBox="0 0 24 24"
           fill="none"
+          height="24"
           stroke="currentColor"
-          stroke-width="2"
           stroke-linecap="round"
-          stroke-linejoin="round">
+          stroke-linejoin="round"
+          stroke-width="2"
+          viewBox="0 0 24 24"
+          width="24">
           <path
             class="hs-password-active:hidden"
             d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
@@ -110,8 +110,8 @@
       </div>
     </div>
     <p
-      class="mt-1 text-danger text-sm"
-      v-if="hasError">
+      v-if="hasError"
+      class="mt-1 text-danger text-sm">
       {{ error }}
     </p>
   </div>

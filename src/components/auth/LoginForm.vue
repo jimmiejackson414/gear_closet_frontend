@@ -79,14 +79,14 @@
   <form @submit.prevent.stop="handleSubmit">
     <div class="grid grid-cols-[50px,50px] gap-4 justify-center text-center">
       <button
-        type="button"
         class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
+        type="button"
         @click="handleOAuthSignin('facebook')">
         <img src="/images/facebook.png">
       </button>
       <button
-        type="button"
         class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
+        type="button"
         @click="handleOAuthSignin('google')">
         <img src="/images/google.png">
       </button>
@@ -100,54 +100,54 @@
       <gc-input
         v-model="form.email"
         autocomplete="email"
-        label="Email"
-        placeholder="Email"
-        name="email"
-        :error="fieldErrors.email"
         :disabled="submitting"
+        :error="fieldErrors.email"
+        label="Email"
+        name="email"
+        placeholder="Email"
         required
         @blur="validateFieldOnBlur('email')" />
       <gc-input
         v-model="form.password"
         autocomplete="current-password"
-        label="Password"
-        placeholder="Password"
         :disabled="submitting"
         :error="fieldErrors.password"
-        type="password"
+        label="Password"
         name="password"
-        required
         password-toggle
+        placeholder="Password"
+        required
+        type="password"
         @blur="validateFieldOnBlur('password')" />
       <gc-alert
         v-if="loginError"
         :message="loginError" />
       <gc-button
+        :disabled="submitting"
         label="Sign In"
-        type="submit"
-        :disabled="submitting" />
+        type="submit" />
     </div>
     <div class="flex items-center flex-col mt-4">
       <p class="text-base">
         Don't have an account?
         <router-link
-          :to="{ name: 'register' }"
-          class="no-underline text-primary">
+          class="no-underline text-primary"
+          :to="{ name: 'register' }">
           Signup
         </router-link>
       </p>
       <p class="q-mb-none">
         <router-link
-          :to="{ name: 'forgot-password' }"
-          class="no-underline text-base text-primary">
+          class="no-underline text-base text-primary"
+          :to="{ name: 'forgot-password' }">
           Forgot your password?
         </router-link>
       </p>
       <p class="mt-8 text-center text-grey text-xs">
         By continuing to use GearCloset, you agree to our{{ ' ' }}
         <router-link
-          :to="{ name: 'terms-and-conditions' }"
-          class="no-underline text-primary text-xs">
+          class="no-underline text-primary text-xs"
+          :to="{ name: 'terms-and-conditions' }">
           Terms and Conditions.
         </router-link>
       </p>
