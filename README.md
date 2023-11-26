@@ -5,7 +5,7 @@
 * [Vite](https://vitejs.dev)
 * [Typescript](https://v3.vuejs.org/guide/typescript-support.html)
 * [Vue Router](https://next.router.vuejs.org/guide/)
-* [Preline](https://preline.co/index.html)
+* [Flowbite](https://flowbite.com/docs/getting-started/introduction/)
 * [Pinia](https://pinia.vuejs.org)
 * [Eslint](https://eslint.vuejs.org)
 

@@ -1,13 +1,13 @@
 import defaultTheme from 'tailwindcss/defaultTheme';
 import tailwindForms from '@tailwindcss/forms';
-import preline from 'preline/plugin';
+import flowbite from 'flowbite/plugin';
 import type { Config } from 'tailwindcss';
 
 export default {
   content: [
     './index.html',
     './src/**/*.{vue,js,ts,jsx,tsx}',
-    'node_modules/preline/dist/*.js',
+    './node_modules/flowbite/**/*.js',
   ],
   theme: {
     extend: {
@@ -49,7 +49,7 @@ export default {
     },
   },
   plugins: [
+    flowbite,
     tailwindForms,
-    preline,
   ],
 } satisfies Config;

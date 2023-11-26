@@ -1,5 +1,6 @@
 <script lang='ts' setup>
   import GcNavbar from '@/components/common/GcNavbar.vue';
+  import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
   import GcDrawer from '@/components/common/GcDrawer.vue';
   import GcFooter from '@/components/common/GcFooter.vue';
   import GcLoadingWrapper from '@/components/common/GcLoadingWrapper.vue';
@@ -8,20 +9,18 @@
 
   interface Props {
     alignLogo?: 'start' | 'center' | 'end';
-    minimalLayout?: boolean;
+    minimal?: boolean;
     pageTitle?: string;
   }
 
   const props = withDefaults(defineProps<Props>(), {
     alignLogo: 'start',
-    minimalLayout: false,
+    minimal: false,
     pageTitle: '',
   });
 
   const $route = useRoute();
   const $store = useUserStore();
-
-  // $store.fetchCurrentUser();
 
   const { loading } = storeToRefs($store);
 </script>
@@ -30,10 +29,15 @@
   <div>
     <gc-loading-wrapper v-if="loading" />
     <div v-else>
-      <gc-drawer />
+      <gc-drawer v-if="!minimal" />
       <div class="min-h-screen">
         <div class="p-4 pl-[72px] pr-9">
-          <gc-navbar :page-title="props.pageTitle || capitalize($route.name as string)" />
+          <gc-navbar
+            v-if="!minimal"
+            :page-title="props.pageTitle || capitalize($route.name as string)" />
+          <gc-navbar-alt
+            v-else
+            :align-logo="alignLogo" />
           <div class="p-6">
             <slot />
           </div>

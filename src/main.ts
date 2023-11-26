@@ -8,8 +8,6 @@ import type { PluginOptions } from 'vue-toastification';
 import { X } from 'lucide-vue-next';
 import 'vue-toastification/dist/index.css';
 
-import('preline');
-
 import App from './App.vue';
 import router from './router';
 
