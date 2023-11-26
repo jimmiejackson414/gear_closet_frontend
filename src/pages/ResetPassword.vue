@@ -19,11 +19,11 @@
 
 <template>
   <auth-layout
-    :image="backgroundImage.image"
-    :fill="backgroundImage.fill">
+    :fill="backgroundImage.fill"
+    :image="backgroundImage.image">
     <auth-form-container
-      title="Reset Password"
-      subtitle="Please create a new password">
+      subtitle="Please create a new password"
+      title="Reset Password">
       <reset-password-form />
     </auth-form-container>
   </auth-layout>

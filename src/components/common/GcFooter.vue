@@ -9,8 +9,8 @@
     <div class="flex justify-center">
       <p class="text-base">
         <span
-          role="img"
-          aria-label="copyright">
+          aria-label="copyright"
+          role="img">
           &#169;
         </span>
         {{ ' ' }}Gear Closet {{ copyrightYear() }}

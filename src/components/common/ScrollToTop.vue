@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { ChevronUpIcon } from '@heroicons/vue/24/solid';
+  import { ChevronUpIcon } from 'lucide-vue-next';
   // define props
   const props = defineProps({
     color: { type: String, required: false, default: 'blue-6' },
@@ -33,17 +33,17 @@
 <template>
   <transition
     v-show="visible"
+    appear
+    :duration="300"
     enter-active-class="transition ease-in-out duration-200 scale-100"
     enter-from-class="opacity-0 scale-50"
     leave-active-class="transition ease-in-out duration-200 scale-50"
     leave-to-class="opacity-0 scale-50"
-    mode="out-in"
-    :duration="300"
-    appear>
+    mode="out-in">
     <div class="cursor-pointer fixed right-[3%] bottom-[5%] z-50">
       <button
-        type="button"
         class="bg-primary hover:bg-primary-dark border border-transparent flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-[3rem] rounded-full text-sm text-white transition-all w-[3rem]"
+        type="button"
         @click="scrollTop"
         @keydown="scrollTop">
         <chevron-up-icon />

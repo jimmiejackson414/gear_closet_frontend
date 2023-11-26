@@ -126,32 +126,6 @@ CREATE TYPE "public"."user_role" AS ENUM (
 
 ALTER TYPE "public"."user_role" OWNER TO "postgres";
 
-CREATE OR REPLACE FUNCTION "public"."create_default_notification_after_signup"() RETURNS "trigger"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    AS $$
-  BEGIN
-    INSERT INTO public.notifications (title, content, read_on_date, user_id)
-    VALUES("Welcome!", "Welcome to GearCloset! This is where you will receive all of your important updates.", null, new.id);
-  
-    RETURN NEW;
-  END;
-$$;
-
-ALTER FUNCTION "public"."create_default_notification_after_signup"() OWNER TO "postgres";
-
-CREATE OR REPLACE FUNCTION "public"."create_default_trip_after_signup"() RETURNS "trigger"
-    LANGUAGE "plpgsql" SECURITY DEFINER
-    AS $$
-  BEGIN
-    INSERT INTO public.trips (name, description, starting_point, ending_point, starting_date, ending_date, coordinates, slug, user_id)
-    VALUES("My First Trip!", "This is my first trip to plan.", "Starting Point", "Ending Point", null, null, null, null, new.id);
-  
-    RETURN NEW;
-  END;
-$$;
-
-ALTER FUNCTION "public"."create_default_trip_after_signup"() OWNER TO "postgres";
-
 CREATE OR REPLACE FUNCTION "public"."generate_slug"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$
@@ -168,10 +142,12 @@ CREATE OR REPLACE FUNCTION "public"."handle_new_user"() RETURNS "trigger"
     AS $$
 begin
   INSERT INTO public.users (id, email, first_name, last_name, image, role, subscription_level, measuring_system)
-  values (new.id, new.email, new.raw_user_meta_data ->> "first_name", new.raw_user_meta_data ->> "last_name", null, "USER", "ANNUAL", "IMPERIAL")
-  ON CONFLICT (id) 
-  DO 
-    UPDATE SET email = new.email;
+  values (new.id, new.email, new.raw_user_meta_data ->> 'first_name', new.raw_user_meta_data ->> 'last_name', null, 'USER', 'ANNUAL', 'IMPERIAL')
+  ON CONFLICT (id) DO UPDATE SET email = new.email;
+  INSERT INTO public.notifications (title, content, read_on_date, user_id)
+  values ('Welcome!', 'Welcome to Gear Closet! This is where you will receive all of your important updates.', null, new.id);
+  INSERT INTO public.trips (name, description, starting_point, ending_point, starting_date, ending_date, coordinates, slug, user_id)
+  values ('My first trip!', 'This is my first trip to plan.', 'Starting point', 'Ending point', null, null, null, null, new.id);
   return new;
 end;
 $$;
@@ -800,7 +776,7 @@ CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."user_an
 
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."users" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
-CREATE OR REPLACE TRIGGER "signup_create_trip" AFTER INSERT ON "public"."users" FOR EACH ROW EXECUTE FUNCTION "public"."create_default_trip_after_signup"();
+CREATE OR REPLACE TRIGGER "handle_new_user" AFTER INSERT ON "auth"."users" FOR EACH ROW EXECUTE PROCEDURE "public"."handle_new_user"();
 
 ALTER TABLE ONLY "public"."answers"
     ADD CONSTRAINT "answers_question_id_fkey" FOREIGN KEY ("question_id") REFERENCES "public"."questions"("id") ON DELETE CASCADE;
@@ -952,14 +928,6 @@ REVOKE USAGE ON SCHEMA "public" FROM PUBLIC;
 GRANT USAGE ON SCHEMA "public" TO "anon";
 GRANT USAGE ON SCHEMA "public" TO "authenticated";
 GRANT USAGE ON SCHEMA "public" TO "service_role";
-
-GRANT ALL ON FUNCTION "public"."create_default_notification_after_signup"() TO "anon";
-GRANT ALL ON FUNCTION "public"."create_default_notification_after_signup"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."create_default_notification_after_signup"() TO "service_role";
-
-GRANT ALL ON FUNCTION "public"."create_default_trip_after_signup"() TO "anon";
-GRANT ALL ON FUNCTION "public"."create_default_trip_after_signup"() TO "authenticated";
-GRANT ALL ON FUNCTION "public"."create_default_trip_after_signup"() TO "service_role";
 
 GRANT ALL ON FUNCTION "public"."generate_slug"() TO "anon";
 GRANT ALL ON FUNCTION "public"."generate_slug"() TO "authenticated";

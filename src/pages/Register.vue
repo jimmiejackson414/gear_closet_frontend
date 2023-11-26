@@ -20,11 +20,11 @@
 
 <template>
   <auth-layout
-    :image="backgroundImage.image"
-    :fill="backgroundImage.fill">
+    :fill="backgroundImage.fill"
+    :image="backgroundImage.image">
     <auth-form-container
-      title="Create an Account"
-      subtitle="Please sign up to continue">
+      subtitle="Please sign up to continue"
+      title="Create an Account">
       <register-form />
     </auth-form-container>
   </auth-layout>

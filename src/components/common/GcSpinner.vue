@@ -15,10 +15,10 @@
 
 <template>
   <div
+    aria-label="loading"
     class="animate-spin border-[3px] border-current border-t-transparent h-8 inline-block rounded-full w-8"
     :class="fillClass"
-    role="status"
-    aria-label="loading">
+    role="status">
     <span class="sr-only">Loading...</span>
   </div>
 </template>

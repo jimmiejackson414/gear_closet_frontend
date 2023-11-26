@@ -5,7 +5,7 @@ import { createPinia } from 'pinia';
 import { createHead } from '@unhead/vue';
 import Toast, { POSITION } from 'vue-toastification';
 import type { PluginOptions } from 'vue-toastification';
-import { XMarkIcon } from '@heroicons/vue/24/solid';
+import { X } from 'lucide-vue-next';
 import 'vue-toastification/dist/index.css';
 
 import('preline');
@@ -22,7 +22,7 @@ app.use(head);
 
 const toastOptions = {
   bodyClassName: 'flex content-center flex-wrap',
-  closeButton: XMarkIcon,
+  closeButton: X,
   closeButtonClassName: 'w-12 h-12 text-white fill-white',
   position: POSITION.BOTTOM_RIGHT,
   showCloseButtonOnHover: true,

@@ -8,21 +8,16 @@ copycat.setHashKey("P+h/R5/UzWNWPGi8");
 export default defineConfig({
   generate: {
     async run (snaplet) {
-      await snaplet.$pipe([
-        // 10 random users
-        snaplet.public_users((x) => x(8)),
-        snaplet.trips((x) => x(10)),
-      ]);
       await snaplet.public_users([
         // new user
-        // {
-        //   email: 'jimmiejackson414+new@gmail.com',
-        //   first_name: 'Gob',
-        //   last_name: 'Bluth',
-        //   role: 'USER',
-        //   subscription_level: 'FREE',
-        //   measuring_system: 'IMPERIAL',
-        // },
+        {
+          email: 'jimmiejackson414+new@gmail.com',
+          first_name: 'Gob',
+          last_name: 'Bluth',
+          role: 'USER',
+          subscription_level: 'FREE',
+          measuring_system: 'IMPERIAL',
+        },
         // established user
         // {
         //   email: 'jimmiejackson414@gmail.com',
@@ -58,6 +53,10 @@ export default defineConfig({
         //   categories: (x) => x(3),
         //   answers: (x) => x(3),
         // },
+      ]);
+      await snaplet.$pipe([
+        // 10 random users
+        snaplet.public_users((x) => x(8)),
       ]);
     },
   },

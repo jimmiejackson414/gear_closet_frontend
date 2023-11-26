@@ -57,22 +57,22 @@
       <gc-input
         v-model="form.email"
         :error="fieldErrors.email"
-        @blur="validateFieldOnBlur('email')"
         label="Email"
-        type="email"
         name="email"
         placeholder="Enter your email address"
-        required />
+        required
+        type="email"
+        @blur="validateFieldOnBlur('email')" />
       <gc-alert
         v-if="submitAction"
+        class="w-full"
         :message="submitAction.message"
-        :severity="submitAction.severity"
-        class="w-full" />
+        :severity="submitAction.severity" />
       <gc-button
-        type="submit"
-        :loading="submitting"
+        class="w-full"
         :disabled="submitting"
-        class="w-full">
+        :loading="submitting"
+        type="submit">
         Send Reset Link
       </gc-button>
     </div> 
@@ -80,8 +80,8 @@
       <p class="text-base">
         Remembered your password?
         <router-link
-          :to="{ name: 'login' }"
-          class="no-underline text-primary">
+          class="no-underline text-primary"
+          :to="{ name: 'login' }">
           Login
         </router-link>
       </p>
