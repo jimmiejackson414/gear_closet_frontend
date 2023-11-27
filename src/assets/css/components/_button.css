@@ -4,15 +4,15 @@
 
     /* Size Variants */
     &-sm {
-      @apply text-sm px-6 py-[6px];
+      @apply text-sm px-3 py-2;
     }
 
     &-md {
-      @apply text-base px-10 py-[11px];
+      @apply text-base px-5 py-2.5;
     }
 
     &-lg {
-      @apply text-lg px-14 py-[16px];
+      @apply text-lg px-5 py-3;
     }
 
     /* Outlined Style */

@@ -31,7 +31,9 @@
     <div v-else>
       <gc-drawer v-if="!minimal" />
       <div class="min-h-screen">
-        <div class="p-4 pl-[72px] pr-9">
+        <div
+          class="py-4"
+          :class="$route.name === 'onboarding' ? 'px-4' : 'pl-[72px] pr-9'">
           <gc-navbar
             v-if="!minimal"
             :page-title="props.pageTitle || capitalize($route.name as string)" />
