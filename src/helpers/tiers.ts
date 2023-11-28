@@ -1,5 +1,5 @@
 import dinero from 'dinero.js';
-// import { SubscriptionLevel } from '@/generated/types';
+import { SubscriptionLevel } from '@/generated/types';
 import tailwind from '@/helpers/tailwind';
 
 export interface Tier {
@@ -12,8 +12,7 @@ export interface Tier {
   buttonText: string;
   buttonVariant: string;
   buttonDisabled: boolean;
-  // value: SubscriptionLevel;
-  // value: string;
+  value: SubscriptionLevel;
 }
 
 const tiers: Tier[] = [
@@ -27,11 +26,11 @@ const tiers: Tier[] = [
       '1 Trip',
       'Email Support',
     ],
-    borderColor: '#e0e0e0',
-    buttonText: 'Continue for free',
+    borderColor: tailwind.theme.colors.warning,
+    buttonText: 'Select',
     buttonVariant: 'outlined',
     buttonDisabled: false,
-    // value: SubscriptionLevel.Free,
+    value: SubscriptionLevel.FREE,
   },
   {
     title: 'Annual',
@@ -49,8 +48,8 @@ const tiers: Tier[] = [
     borderColor: tailwind.theme.colors.primary,
     buttonText: 'Coming soon!',
     buttonVariant: 'unelevated',
-    buttonDisabled: true,
-    // value: SubscriptionLevel.Annual,
+    buttonDisabled: false,
+    value: SubscriptionLevel.ANNUAL,
   },
   {
     title: 'Monthly',
@@ -66,8 +65,8 @@ const tiers: Tier[] = [
     borderColor: tailwind.theme.colors.positive,
     buttonText: 'Coming soon!',
     buttonVariant: 'outlined',
-    buttonDisabled: true,
-    // value: SubscriptionLevel.Monthly,
+    buttonDisabled: false,
+    value: SubscriptionLevel.MONTHLY,
   },
 ];
 

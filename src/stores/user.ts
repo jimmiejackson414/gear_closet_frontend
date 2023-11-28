@@ -40,7 +40,7 @@ type Actions = {
   // handleUndoInvite(invite: TripFriend): Promise<UpdateTripFriendResponse>;
   // loginToForums(input: DiscourseInput): Promise<DiscoursePayload>;
   markAllAsRead(): void;
-  // sendWelcomeEmail(): void;
+  sendWelcomeEmail(): void;
   // updateAvatar(input: UpdateAvatarInput): void;
   updateNotification(input: UpdateNotification): void;
   // updatePassword(input: UpdatePasswordInput): Promise<UpdatePasswordPayload>;
@@ -204,12 +204,12 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
       //   return loginToForums;
       // },
 
-      // sendWelcomeEmail () {
-      //   const client = useClient();
-      //   const sdk = getSdk(client);
+      sendWelcomeEmail () {
+        const client = useClient();
+        const sdk = getSdk(client);
 
-      //   sdk.SendWelcomeEmail();
-      // },
+        sdk.SendWelcomeEmail();
+      },
 
       // async updateAvatar (input: UpdateAvatarInput) {
       //   const client = useClient();
