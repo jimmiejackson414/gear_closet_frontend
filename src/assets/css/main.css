@@ -4,7 +4,6 @@
  */
 @import 'tailwindcss/base';
 @import './base/_index.css';
-/* @import '_typography.css'; */
 
 /**
   * This injects Tailwind's component classes and any component classes

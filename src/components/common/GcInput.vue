@@ -1,4 +1,6 @@
 <script lang='ts' setup>
+  import type { Icon } from 'lucide-vue-next';
+
   interface Props {
     autocomplete?: string;
     disabled?: boolean;
@@ -7,7 +9,7 @@
     modelValue: string | null;
     name: string;
     passwordToggle?: boolean;
-    placeholder?: string;
+    prependIcon?: Icon;
     required?: boolean;
     type?: string;
   }
@@ -18,11 +20,21 @@
     error: undefined,
     label: '',
     modelValue: null,
+    name: '',
     passwordToggle: false,
-    placeholder: undefined,
+    prependIcon: undefined,
     required: false,
     type: 'text',
   });
+
+  const showPassword = ref(false);
+  const computedType = computed(() => {
+    return showPassword.value ? 'text' : props.type;
+  });
+
+  const togglePasswordVisibility = () => {
+    showPassword.value = !showPassword.value;
+  };
 
   const emit = defineEmits(['update:model-value', 'blur']);
 
@@ -37,39 +49,42 @@
   const hasError = computed(() => {
     return !!props.error;
   });
-
-  const slots = useSlots();
-  const hasPrependSlot = computed(() => {
-    return !!slots['prepend'];
-  });
 </script>
 
 <template>
   <div>
     <div class="relative">
+      <div class="absolute inset-y-0 flex items-center pointer-events-none ps-3.5 start-0">
+        <component
+          :is="prependIcon"
+          class="h-5 text-grey w-5" />
+      </div>
       <input
-        :id="`hs-toggle-${name}`"
+        :id="name"
         :autocomplete="autocomplete"
-        class="bg-white block border focus:border-primary duration-100 ease-in-out peer px-4 py-3 rounded-lg text-sm transition-all w-full disabled:opacity-50 disabled:pointer-events-none focus:ring-primary"
+        class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 pb-2.5 peer pt-4 px-2.5 rounded-lg text-dark-grey text-sm w-full focus:outline-none focus:ring-0"
         :class="[
-          hasPrependSlot ? 'ps-11' : 'ps-4',
-          hasError ? 'border-danger' : 'border-gray-200',
+          Boolean(prependIcon) ? 'ps-11' : '',
+          hasError ? 'border-danger' : 'border-gray-300',
           disabled ? 'bg-gray-100 pointer-events-none' : 'bg-white pointer-events-auto',
         ]"
         :disabled="disabled"
-        :model-value="modelValue"
-        :placeholder="placeholder"
+        placeholder=""
         :required="required"
-        :type="type"
+        :type="computedType"
+        :value="modelValue"
         @blur="handleBlur(($event.target as HTMLInputElement).value)"
         @input="handleInput(($event.target as HTMLInputElement).value)">
+      <label
+        class="-translate-y-4 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 absolute top-2 bg-white duration-300 origin-[0] peer-focus:-translate-y-4 peer-focus:px-2 peer-focus:scale-75 peer-focus:text-primary peer-focus:top-2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-1/2 px-2 scale-75 start-1 text-gray-500 text-sm transform z-10"
+        :for="name">
+        {{ label }}
+      </label>
       <button
         v-if="passwordToggle"
         class="absolute top-0 end-0 p-3.5 rounded-e-md"
-        :data-hs-toggle-password="{
-          &quot;target&quot;: `#hs-toggle-${name}`
-        }"
-        type="button">
+        type="button"
+        @click="togglePasswordVisibility">
         <svg
           class="flex-shrink-0 h-3.5 text-gray-400 w-3.5"
           fill="none"
@@ -105,9 +120,6 @@
             r="3" />
         </svg>
       </button>
-      <div class="absolute inset-y-0 flex items-center peer-disabled:opacity-50 peer-disabled:pointer-events-none pointer-events-none ps-4 start-0">
-        <slot name="prepend" />
-      </div>
     </div>
     <p
       v-if="hasError"

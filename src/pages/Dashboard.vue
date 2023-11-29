@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  import { useHead } from '@unhead/vue';
   import { storeToRefs } from 'pinia';
   import DashboardLayout from '@/layouts/DashboardLayout.vue';
   import InvitationsWidget from '@/components/dashboard/InvitationsWidget.vue';
@@ -10,6 +11,16 @@
   const { loading } = storeToRefs($store);
 
   const data = await $store.fetchDashboard();
+
+  useHead({
+    title: 'Dashboard | Gear Closet',
+    meta: [
+      {
+        name: 'description',
+        content: 'Welcome to your dashboard',
+      },
+    ],
+  });
 </script>
 
 <template>

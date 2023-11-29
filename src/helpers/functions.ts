@@ -1,9 +1,12 @@
 import Dinero from 'dinero.js';
 import convert from 'convert';
 import supabase from '@/lib/supabase';
-// import {
-//   Category, CategoryItem, Pack, User,
-// } from '@/generated/types';
+import type {
+  Category,
+  CategoryItem,
+  Pack,
+  User,
+} from '@/generated/types';
 import type { Currency } from 'dinero.js';
 import type { Mass } from 'convert';
 
