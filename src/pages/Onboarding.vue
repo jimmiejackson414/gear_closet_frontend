@@ -12,6 +12,7 @@
   import FadeTransition from '@/components/transitions/FadeTransition.vue';
   import UpgradeCard from '@/components/onboarding/UpgradeCard.vue';
   import { getStripe } from '@/lib/stripe';
+  import supabase from '@/lib/supabase';
   import { tailwind, tiers } from '@/helpers';
   import { useValidate } from '@/composables';
   import { SubscriptionLevel } from '@/generated/types';
@@ -20,8 +21,10 @@
   import type { Tier } from '@/helpers/tiers';
   
   // global
-  const step = ref(3);
+  const step = ref(1);
   const submitting = ref(false);
+  const $store = useUserStore();
+  const { currentUser } = storeToRefs($store);
 
   // 1. avatar
   const avatarFile = ref<any>(null);
@@ -37,6 +40,13 @@
   const handleAvatarError = () => {
     uploadError.value = true;
   };
+  const handleUploadAvatar = () => {
+    if (uploadedAvatar.value) {
+      console.log(`handleUploadAvatar`);
+    } else {
+      step.value = 2;
+    }
+  };
 
   // 2. account
   const account = reactive({
@@ -47,6 +57,7 @@
     state: '',
     country: '',
   });
+
   const rules = {
     first_name: [
       (val: string): boolean | string => (val && val.length > 0) || 'Required field',
@@ -55,10 +66,45 @@
       (val: string): boolean | string => (val && val.length > 0) || 'Required field',
     ],
   };
+
   const { fieldErrors, validateForm, validateFieldOnBlur } = useValidate(account, rules);
-  const handleSubmitStepTwo = () => {
-    console.log(`handleSubmitStepTwo`);
+  const handleSubmitStepTwo = async () => {
+    try {
+      submitting.value = true;
+
+      if (!validateForm()) return;
+
+      const { error } = await supabase.from('users')
+        .update({
+          first_name: account.first_name,
+          last_name: account.last_name,
+          trail_name: account.trail_name,
+          city: account.city,
+          state: account.state,
+          country: account.country,
+        })
+        .eq('id', currentUser.value?.id);
+
+      if (error) {
+        console.error({ error });
+        return;
+      }
+
+      step.value = 3;
+    } catch (error) {
+      console.error({ error });
+    } finally {
+      submitting.value = false;
+    }
   };
+
+  // prefill account info if exists
+  watch(currentUser, () => {
+    if (currentUser.value) {
+      account.first_name = currentUser.value.first_name || '';
+      account.last_name = currentUser.value.last_name || '';
+    }
+  }, { deep: true, immediate: true });
 
   // 3. plans
   const selectedPlan = ref<Tier | null>(null);
@@ -78,8 +124,6 @@
   const $subscriptionStore = useSubscriptionStore();
   const $router = useRouter();
   const submitError = ref(false);
-  const $store = useUserStore();
-  const { currentUser } = storeToRefs($store);
   const handleFinishOnboarding = async (subscriptionLevel: SubscriptionLevel) => {
     submitting.value = true;
 
@@ -247,7 +291,7 @@
               :disabled="submitting"
               :label="uploadedAvatar ? 'Next' : 'Skip'"
               :loading="submitting"
-              @click="step++" />
+              @click="handleUploadAvatar" />
           </div>
         </div>
 

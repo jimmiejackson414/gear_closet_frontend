@@ -69,10 +69,10 @@
           disabled ? 'bg-gray-100 pointer-events-none' : 'bg-white pointer-events-auto',
         ]"
         :disabled="disabled"
-        :model-value="modelValue"
         placeholder=""
         :required="required"
         :type="computedType"
+        :value="modelValue"
         @blur="handleBlur(($event.target as HTMLInputElement).value)"
         @input="handleInput(($event.target as HTMLInputElement).value)">
       <label

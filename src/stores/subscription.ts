@@ -11,8 +11,8 @@ import {
 } from '@/generated/types';
 
 type State = {
-  subscription: SubscriptionResponseData | null;
-  subscriptionError: BaseError | null;
+  subscription: any | null;
+  subscriptionError: any | null;
 }
 
 type Getters = {
@@ -20,10 +20,10 @@ type Getters = {
 }
 
 type Actions = {
-  createCheckoutSession: (subscriptionLevel: SubscriptionLevel) => Promise<CreateCheckoutSessionResponse>;
-  createFreeSubscription: (tier: SubscriptionLevel, email: string) => Promise<CreateFreeSubscriptionResponse>;
+  createCheckoutSession: (subscriptionLevel: SubscriptionLevel) => Promise<any>;
+  createFreeSubscription: (tier: SubscriptionLevel, email: string) => Promise<any>;
   fetchSubscription: () => void;
-  manageSubscription: () => Promise<ManageSubscriptionResponse>;
+  manageSubscription: () => Promise<any>;
 }
 
 export const useSubscriptionStore = defineStore<'subscription', State, Getters, Actions>('subscription', {
@@ -69,12 +69,12 @@ export const useSubscriptionStore = defineStore<'subscription', State, Getters, 
     },
 
     async manageSubscription () {
-      const client = useClient();
-      const sdk = getSdk(client);
+      // const client = useClient();
+      // const sdk = getSdk(client);
 
-      const { manageSubscription } = await sdk.ManageSubscription();
+      // const { manageSubscription } = await sdk.ManageSubscription();
 
-      return manageSubscription as ManageSubscriptionResponse;
+      // return manageSubscription as ManageSubscriptionResponse;
     },
   },
 });

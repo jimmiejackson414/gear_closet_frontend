@@ -22,6 +22,8 @@
   const $route = useRoute();
   const $store = useUserStore();
 
+  await $store.fetchCurrentUser();
+
   const { loading } = storeToRefs($store);
 </script>
 

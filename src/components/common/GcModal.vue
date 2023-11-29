@@ -71,7 +71,7 @@
           <slot name="content" />
         </div>
         <!-- Modal footer -->
-        <div class="border-gray-200 border-t flex justify-end items-center p-4 md:p-5 rounded-b">
+        <div class="flex justify-end items-center p-4 md:p-5 rounded-b">
           <gc-button
             v-if="cancelButton"
             data-modal-hide="static-modal"
