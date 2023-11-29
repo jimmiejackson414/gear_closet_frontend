@@ -1,4 +1,7 @@
 import { defineStore } from 'pinia';
+// import { parse } from 'rss-to-json';
+// import he from 'he';
+// import sanitizeHtml from 'sanitize-html';
 import supabase from '@/lib/supabase';
 import { getUserId } from '@/helpers/functions';
 import { useAppStore } from '@/stores/app';
@@ -11,10 +14,22 @@ import type {
   User,
 } from '@/generated/types';
 
+interface News {
+  author?: string;
+  created?: string;
+  description?: string;
+  image?: string;
+  link?: string;
+  published?: string;
+  source?: string;
+  title?: string;
+}
+
 interface DashboardData {
   friends: Friend[];
-  trips: Trip[];
-  trip_friends: TripFriend[];
+  upcomingTrips: Trip[];
+  invitations: TripFriend[];
+  news: News[];
 }
 
 type State = {
@@ -118,6 +133,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
       async fetchDashboard () {
         this.loading = true;
         const $store = useAppStore();
+        const data: DashboardData = { invitations: [], friends: [], news: [], upcomingTrips: [] };
 
         try {
           const { id, error: sessionError } = await getUserId();
@@ -125,26 +141,97 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           if (sessionError || !id) {
             $store.notifyNegative('An error occurred while loading your account.');
             this.loading = false;
-            return { trip_friends: [], friends: [], trips: [] } as DashboardData;
+            return data;
           }
 
-          const { data, error } = await supabase.from('users')
-            .select('trip_friends(*), friends!friends_friend_id_fkey(*), trips(*)')
-            .eq('id', id)
-            .single();
-          console.log({ data });
-          console.log({ error });
+          // fetch upcoming trips
+          const { data: tripsData, error } = await supabase
+            .from('trips')
+            .select('*')
+            .eq('user_id', id)
+            .gte('starting_date', new Date()
+.toISOString())
+            .order('created_at', { ascending: false });
 
-          if (!data || error) {
-            $store.notifyNegative('An error occurred while loading your account.');
+          if (error) {
+            $store.notifyNegative('An error occurred while loading your dashboard.');
             this.loading = false;
-            return { trip_friends: [], friends: [], trips: [] } as DashboardData;
+            return data;
           }
+
+          data.upcomingTrips = tripsData;
+
+          // fetch friends
+          const { data: friendsData, error: friendsError } = await supabase
+            .from('friends')
+            .select('*, user:friend_id!inner(*)')
+            .eq('user_id', id)
+            .order('created_at', { ascending: false });
+
+          if (friendsError) {
+            $store.notifyNegative('An error occurred while loading your dashboard.');
+            this.loading = false;
+            return data;
+          }
+
+          data.friends = friendsData;
+
+          // fetch invitations
+          const { data: invitationsData, error: invitationsError } = await supabase
+            .from('trip_friends')
+            .select('*, trip:trip_id(*, user:user_id(*)), user:user_id(*)')
+            .eq('user_id', id)
+            .eq('status', 'PENDING')
+            .order('created_at', { ascending: false });
+
+          if (invitationsError) {
+            $store.notifyNegative('An error occurred while loading your dashboard.');
+            this.loading = false;
+            return data;
+          }
+
+          data.invitations = invitationsData;
+
+          // fetch news
+//           const feeds = [] as any[];
+//           const sources = [
+//             'https://zpacks.com/blogs/news.atom',
+//             'http://feeds.feedburner.com/sectionhiker/tEPT?format=xml',
+//             'https://www.cleverhiker.com/blog?format=rss',
+//             'https://gearjunkie.com/feed',
+//             'http://www.outsideonline.com/rss/all/rss.xml',
+//           ];
+
+//           await Promise.allSettled(
+//             sources.map(async source => {
+//               const rss = await parse(source, {});
+//               feeds.push(rss);
+//             }),
+//           );
+
+//           const transformed = feeds.map(feed => {
+//             feed.items.forEach(async (item: any) => {
+//               item.title = he.decode(item.title);
+//               item.source = feed.title;
+//               item.image = item.enclosure.url;
+//               item.description = sanitizeHtml(item.description, {
+//                 allowedTags: [],
+//                 allowedAttributes: {},
+//               });
+//             });
+//             return [...feed.items];
+//           });
+
+//           const sorted = transformed.flat()
+// .sort((a, b) => b.created - a.created)
+//           .slice(0, 12);
+
+//           data.news = sorted;
 
           return data as DashboardData;
         } catch (err) {
           console.error({ err });
-          return { trip_friends: [], friends: [], trips: [] } as DashboardData;
+          return data;
         } finally {
           this.loading = false;
         }

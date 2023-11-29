@@ -32,7 +32,7 @@
           <div class="grid grid-cols-12 gap-8 mt-8">
             <div class="col-span-12 md:col-span-8">
               <invitations-widget
-                :data="data.trip_friends"
+                :data="data.invitations"
                 :loading="loading" />
             </div>
             <div class="col-span-12 md:col-span-4">
