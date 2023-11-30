@@ -1,6 +1,6 @@
 import { Cloudinary } from '@cloudinary/url-gen';
 import supabase from './supabase';
-import type { User } from '@/generated/types';
+import type { User } from '@/generated/backendTypes';
 
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string;
 

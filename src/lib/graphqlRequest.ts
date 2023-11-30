@@ -1,13 +1,15 @@
 import { GraphQLClient } from 'graphql-request';
+import supabase from '@/lib/supabase';
 
 const endpoint = import.meta.env.VITE_BACKEND_URL as string;
 
-export const useClient = (): GraphQLClient => {
-  const key = import.meta.env.VITE_SUPABASE_LOCALSTORAGE_KEY as string;
-  const storage = localStorage.getItem(key) as string;
-  const session = JSON.parse(storage);
+export const useClient = async (): Promise<GraphQLClient> => {
   let token = '';
-  if (session) token = session.access_token;
+  const { data } = await supabase.auth.getSession();
+
+  if (data?.session) {
+    token = data.session.access_token;
+  }
 
   return new GraphQLClient(endpoint, {
     headers: {

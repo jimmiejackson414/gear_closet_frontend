@@ -4,7 +4,7 @@
   import { useUserStore } from '@/stores/user';
   import NotificationItem from '@/components/common/NotificationItem.vue';
   import { tailwind } from '@/helpers';
-  import type { Notification, UpdateNotification } from '@/generated/types';
+  import type { Notification, UpdateNotificationInput } from '@/generated/backendTypes';
 
   interface Props {
     pageTitle: string;
@@ -31,7 +31,7 @@
   });
 
   const markAsRead = (notification: Notification) => {
-    const payload: UpdateNotification = { id: notification.id };
+    const payload: UpdateNotificationInput = { id: notification.id };
     $userStore.updateNotification(payload);
   };
 

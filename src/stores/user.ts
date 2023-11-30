@@ -5,14 +5,16 @@ import { defineStore } from 'pinia';
 import supabase from '@/lib/supabase';
 import { getUserId } from '@/helpers/functions';
 import { useAppStore } from '@/stores/app';
-import type {
-  Friend,
-  Notification,
-  Trip,
-  TripFriend,
-  UpdateNotification,
-  User,
-} from '@/generated/types';
+import {
+  getSdk,
+  type Friend,
+  type Notification,
+  type Trip,
+  type TripFriend,
+  type UpdateNotificationInput,
+  type User,
+} from '@/generated/backendTypes';
+import { useClient } from '@/lib/graphqlRequest';
 
 interface News {
   author?: string;
@@ -57,7 +59,7 @@ type Actions = {
   markAllAsRead(): void;
   sendWelcomeEmail(): void;
   // updateAvatar(input: UpdateAvatarInput): void;
-  updateNotification(input: UpdateNotification): void;
+  updateNotification(input: UpdateNotificationInput): void;
   // updatePassword(input: UpdatePasswordInput): Promise<UpdatePasswordPayload>;
   // updateUser(input: UpdateUserInput): void;
 };
@@ -94,35 +96,51 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
       // },
 
       async fetchCurrentUser () {
+        const client = await useClient();
+        const sdk = getSdk(client);
         const $store = useAppStore();
         this.loading = true;
 
         try {
-          const { id, error: sessionError } = await getUserId();
+          const { me } = await sdk.Me();
+          console.log({ me });
 
-          if (sessionError || !id) {
+          if (!me?.user || me.errors) {
             this.currentUser = null;
             this.loading = false;
             $store.notifyNegative('An error occurred while loading your account.');
             return;
           }
 
-          const { data: user, error } = await supabase.from('users')
-            .select('*, onboarding_steps(*), notifications(*)')
-            .eq('id', id)
-            .single();
-
-          if (!user || error) {
-            this.currentUser = null;
-            this.notifications = { items: [], totalCount: 0 };
-            this.loading = false;
-            $store.notifyNegative('An error occurred while loading your account.');
-            return;
-          }
-
-          this.currentUser = user;
-          this.notifications = { items: user.notifications, totalCount: user.notifications.length };
+          this.currentUser = me.user as User;
           this.loading = false;
+          // this.notifications = { items: me.user.notifications, totalCount: me.user.notifications.length };
+
+          // const { id, error: sessionError } = await getUserId();
+
+          // if (sessionError || !id) {
+          //   this.currentUser = null;
+          //   this.loading = false;
+          //   $store.notifyNegative('An error occurred while loading your account.');
+          //   return;
+          // }
+
+          // const { data: user, error } = await supabase.from('users')
+          //   .select('*, onboarding_steps(*), notifications(*)')
+          //   .eq('id', id)
+          //   .single();
+
+          // if (!user || error) {
+          //   this.currentUser = null;
+          //   this.notifications = { items: [], totalCount: 0 };
+          //   this.loading = false;
+          //   $store.notifyNegative('An error occurred while loading your account.');
+          //   return;
+          // }
+
+          // this.currentUser = user;
+          // this.notifications = { items: user.notifications, totalCount: user.notifications.length };
+          // this.loading = false;
         } catch (err) {
           console.error({ err });
         } finally {
@@ -322,7 +340,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         }
       },
 
-      async updateNotification (input: UpdateNotification) {
+      async updateNotification (input) {
         const $store = useAppStore();
         const { data, error } = await supabase.from('notifications')
           .update({ read_on_date: new Date()

@@ -2,7 +2,7 @@
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import { CheckCircleIcon } from 'lucide-vue-next';
-  import type { Notification } from '@/generated/types';
+  import type { Notification } from '@/generated/backendTypes';
 
   dayjs.extend(relativeTime);
 
@@ -16,8 +16,8 @@
 
   const emit = defineEmits(['markAsRead']);
 
-  const relativeDate = ((notification: Notification) => dayjs()
-    .to(notification.created_at as string));
+  const relativeDate = computed(() => dayjs()
+    .to(props.notification.created_at as string));
 </script>
 
 <template>
@@ -43,8 +43,8 @@
       <div class="mb-1.5 text-gray-500 text-sm">
         New message from <span class="font-semibold text-gray-900">Jese Leos</span>: "Hey, what's up? All set for the presentation?"
       </div>
-      <div class="text-blue-600 text-xs">
-        a few moments ago
+      <div class="text-primary text-xs">
+        {{ relativeDate }}
       </div>
     </div>
   </li>
