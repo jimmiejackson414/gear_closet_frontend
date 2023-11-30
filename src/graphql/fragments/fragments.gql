@@ -1,0 +1,465 @@
+fragment BaseError on BaseError {
+  path
+  message
+}
+
+fragment BaseUser on User {
+  id
+  first_name
+  last_name
+  email
+  trail_name
+  role
+  image
+  subscription_level
+  measuring_system
+  onboard_date
+  onboarding_steps {
+    ...OnboardingStep
+  }
+  address_1
+  address_2
+  city
+  state
+  country
+  location
+  created_at
+  updated_at
+}
+
+fragment Category on Category {
+  id
+  name
+  pack_id
+  unit
+  slug
+  created_at
+  updated_at
+
+  category_items {
+    ...CategoryItem
+  }
+}
+
+fragment CategoryItem on CategoryItem {
+  id
+  category_id
+  item_id
+  position
+  created_at
+  updated_at
+
+  item {
+    ...Item
+  }
+}
+
+fragment Customer on Customer {
+  id
+  stripe_customer_id
+  user_id
+  user {
+    ...BaseUser
+  }
+}
+
+fragment Comment on Comment {
+  id
+  text
+  user_id
+  pack_id
+  created_at
+  updated_at
+}
+
+fragment Friend on Friend {
+  id
+  user_id
+  friend_id
+  invite_sent_on
+  invite_accepted_on
+  created_at
+  updated_at
+
+  user {
+    ...BaseUser
+  }
+}
+
+fragment Item on Item {
+  id
+  name
+  weight
+  price
+  generic_type
+  consumable
+  worn
+  quantity
+  unit
+  slug
+  url
+  user_id
+  created_at
+  updated_at
+}
+
+fragment News on News {
+  title
+  link
+  description
+  author
+  published
+  created
+  source
+  image
+}
+
+fragment Notification on Notification {
+  id
+  title
+  content
+  user_id
+  read_on_date
+  created_at
+  updated_at
+}
+
+fragment OnboardingStep on OnboardingStep {
+  user_id
+  page
+  completion_date
+  created_at
+  updated_at
+}
+
+fragment Pack on Pack {
+  id
+  name
+  user_id
+  theme
+  slug
+  private
+  allow_comments
+  created_at
+  updated_at
+
+  categories {
+    ...Category
+  }
+}
+
+fragment Poll on Poll {
+  id
+  user_id
+  trip_id
+  created_at
+  updated_at
+
+  question {
+    ...Question
+  }
+  
+  user_answers {
+    ...UserAnswer
+  }
+}
+
+fragment Question on Question {
+  id
+  title
+  poll_id
+  user_id
+  created_at
+  updated_at
+
+  answers {
+    ...Answer
+  }
+}
+
+fragment Answer on Answer {
+  id
+  content
+  question_id
+  user_id
+  created_at
+  updated_at
+}
+
+fragment UserAnswer on UserAnswer {
+  id
+  answer_id
+  user_id
+  poll_id
+  created_at
+  updated_at
+}
+
+fragment Price on Price {
+  id
+  product_id
+  identifier
+  active
+  description
+  unit_amount
+  currency
+  type
+  interval
+  interval_count
+  trial_period_days
+  metadata
+
+  product {
+    ...Product
+  }
+}
+
+fragment Product on Product {
+  id
+  active
+  name
+  description
+  image
+  metadata
+}
+
+fragment Reply on Reply {
+  id
+  user_id
+  comment_id
+  text
+  updated_at
+  created_at
+}
+
+fragment ShoppingItem on ShoppingItem {
+  id
+  title
+  completed
+  trip_id
+  resource_type
+  quantity
+  created_at
+  updated_at
+}
+
+fragment StripeSubscription on StripeSubscription {
+  id
+  current_period_end
+  current_period_start
+  default_payment_method {
+    ...StripePaymentMethodDetails
+  }
+  default_source
+  status
+  latest_invoice {
+    ...StripeInvoice
+  }
+  items {
+    ...StripeSubscriptionItemsData
+  }
+}
+
+fragment StripeInvoice on StripeInvoice {
+  id
+  description
+  total
+  created
+  currency
+  amount_due
+  amount_paid
+  amount_remaining
+  hosted_invoice_url
+  invoice_pdf
+  charge {
+    ...StripeCharge
+  }
+  lines {
+    ...StripeInvoiceLineItemData
+  }
+}
+
+fragment StripeInvoiceLineItemData on StripeInvoiceLineItemData {
+  data {
+    ...StripeInvoiceLineItem
+  }
+}
+
+fragment StripeCharge on StripeCharge {
+  id
+  amount
+  created
+  payment_method_details {
+    ...StripePaymentMethodDetails
+  }
+}
+
+fragment StripePaymentMethodDetails on StripePaymentMethodDetails {
+  card {
+    ...StripeCard
+  }
+}
+
+fragment StripeCard on StripeCard {
+  brand
+  last4
+  exp_month
+  exp_year
+}
+
+fragment StripeInvoiceLineItem on StripeInvoiceLineItem {
+  id
+  amount
+  description
+  price {
+    ...StripePrice
+  }
+}
+
+fragment StripeSubscriptionItemsData on StripeSubscriptionItemsData  {
+  data {
+    ...StripeSubscriptionItem
+  }
+}
+
+fragment StripeSubscriptionItem on StripeSubscriptionItem {
+  id
+  created
+  metadata
+  price {
+    ...StripePrice
+  }
+  quantity
+  subscription
+}
+
+fragment StripePrice on StripePrice {
+  id
+  created
+  product {
+    ...StripeProduct
+  }
+  unit_amount
+}
+
+fragment StripeProduct on StripeProduct {
+  id
+  active
+  description
+  name
+  created
+}
+
+fragment StripeSession on StripeSession {
+  id
+  created
+  url
+  return_url
+}
+
+fragment StripeCustomer on StripeCustomer {
+  id
+  address {
+    ...StripeCustomerAddress
+  }
+  email
+  subscriptions {
+    ...StripeSubscriptionData
+  }
+}
+
+fragment StripeCustomerAddress on StripeCustomerAddress {
+  city
+  country
+  line1
+  line2
+  postal_code
+  state
+}
+
+fragment StripeSubscriptionData on StripeSubscriptionData {
+  data {
+    ...StripeSubscription
+  }
+}
+
+fragment Subscription on Subscription {
+  id
+  user_id
+  stripe_subscription_id
+  status
+  metadata
+  price_id
+  quantity
+  cancel_at_period_end
+  created_at
+  current_period_start
+  current_period_end
+  ended_at
+  cancel_at
+  canceled_at
+  trial_start
+  trial_end
+
+  user {
+    ...BaseUser
+  }
+  price {
+    ...Price
+  }
+}
+
+fragment Trip on Trip {
+  id
+  name
+  description
+  user_id
+  starting_point
+  ending_point
+  slug
+  coordinates
+  starting_date
+  ending_date
+  created_at
+  updated_at
+}
+
+fragment TripDetail on TripDetail {
+  id
+  title
+  url
+  value
+  type
+  trip_id
+  created_at
+  updated_at
+}
+
+fragment TripFriend on TripFriend {
+  id
+  trip_id
+  user_id
+  accepted_invite_on
+  status
+  created_at
+  updated_at
+  pack {
+    ...Pack
+  }
+  user {
+    ...BaseUser
+  }
+  trip {
+    ...Trip
+  }
+}
+
+fragment Todo on Todo {
+  id
+  title
+  completed
+  trip_id
+  resource_type
+  created_at
+  updated_at
+}

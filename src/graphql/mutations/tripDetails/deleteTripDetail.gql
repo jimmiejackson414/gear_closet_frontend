@@ -1,0 +1,8 @@
+mutation DeleteTripDetail($input: DeleteTripDetailInput!) {
+  deleteTripDetail(input:$input) {
+    success
+    errors {
+      ...BaseError
+    }
+  }
+}

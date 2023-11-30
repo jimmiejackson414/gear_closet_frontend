@@ -1,0 +1,10 @@
+mutation UpdateNotification($input: UpdateNotificationInput!) {
+  updateNotification(input: $input) {
+    notification {
+      ...Notification
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

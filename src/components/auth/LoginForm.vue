@@ -1,7 +1,6 @@
 <script lang='ts' setup>
   import { ref } from 'vue';
   import supabase from '@/lib/supabase';
-  import { AtSignIcon, LockIcon } from 'lucide-vue-next';
   import GcInput from '@/components/common/GcInput.vue';
   import GcButton from '@/components/common/GcButton.vue';
   import GcAlert from '@/components/common/GcAlert.vue';
@@ -103,8 +102,8 @@
         autocomplete="email"
         :disabled="submitting"
         :error="fieldErrors.email"
-        placeholder="Email"
-        :prepend-icon="AtSignIcon"
+        label="Email"
+        name="email"
         required
         type="email"
         @blur="validateFieldOnBlur('email')" />
@@ -113,9 +112,9 @@
         autocomplete="current-password"
         :disabled="submitting"
         :error="fieldErrors.password"
+        label="Password"
+        name="password"
         password-toggle
-        placeholder="Password"
-        :prepend-icon="LockIcon"
         required
         type="password"
         @blur="validateFieldOnBlur('password')" />

@@ -1,0 +1,10 @@
+mutation UpdateTripDetail($input: UpdateTripDetailInput!) {
+  updateTripDetail(input: $input) {
+    tripDetail {
+      ...TripDetail
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

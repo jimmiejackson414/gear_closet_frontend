@@ -1,0 +1,10 @@
+mutation CreateCheckoutSession($input: CreateCheckoutSessionInput!) {
+  createCheckoutSession(input: $input) {
+    session {
+      ...StripeSession
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

@@ -1,0 +1,14 @@
+mutation CreateReply ($input: CreateReplyInput!) {
+    createReply(input: $input) {
+      reply {
+        ...Reply
+
+        user {
+          ...BaseUser
+        }
+      }
+      errors {
+        ...BaseError
+      }
+    }
+  }

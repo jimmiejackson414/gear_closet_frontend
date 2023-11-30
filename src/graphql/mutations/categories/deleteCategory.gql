@@ -1,0 +1,10 @@
+mutation DeleteCategory($id: Int!) {
+  deleteCategory(id: $id) {
+    category {
+      id
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

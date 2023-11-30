@@ -1,4 +1,4 @@
-import cld from '@/lib/cloudinary';
+import { cld } from '@/lib/cloudinary';
 import { logoColor } from '@/helpers';
 
 const useAuthLayout = async  () => {

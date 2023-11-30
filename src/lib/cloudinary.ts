@@ -4,7 +4,7 @@ import type { User } from '@/generated/types';
 
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string;
 
-const cld = new Cloudinary({
+export const cld = new Cloudinary({
   cloud: { cloudName },
   url: { secure: true },
 });
@@ -97,5 +97,3 @@ export const upload = async (input: UploadInterface) => {
   //   },
   // );
 };
-
-export default { buildImageSrc, searchExistingImages, destroyExisting, fetchAuthImages, upload };

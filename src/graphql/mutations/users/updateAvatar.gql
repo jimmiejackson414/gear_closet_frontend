@@ -1,0 +1,10 @@
+mutation UpdateAvatar($input: UpdateAvatarInput!) {
+  updateAvatar(input: $input) {
+    user {
+      ...BaseUser
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

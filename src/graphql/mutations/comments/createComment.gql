@@ -1,0 +1,18 @@
+mutation CreateComment($input: CreateCommentInput!) {
+  createComment(input: $input) {
+    comment {
+      ...Comment
+
+      user {
+        ...BaseUser
+      }
+
+      replies {
+        ...Reply
+      }
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

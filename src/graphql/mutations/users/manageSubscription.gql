@@ -1,0 +1,10 @@
+mutation ManageSubscription {
+  manageSubscription {
+    session {
+      ...StripeSession
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

@@ -1,0 +1,10 @@
+mutation UpdateShoppingItem($input: UpdateShoppingItemInput!) {
+  updateShoppingItem(input: $input) {
+    item {
+      ...ShoppingItem
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

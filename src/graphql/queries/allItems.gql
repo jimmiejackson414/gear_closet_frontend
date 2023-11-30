@@ -1,0 +1,10 @@
+query AllItems {
+  allItems {
+    items {
+      ...Item
+    }
+    errors {
+      ...BaseError
+    }
+  }
+}

@@ -1,0 +1,8 @@
+mutation DeleteReply ($id: Int!) {
+  deleteReply(id: $id) {
+    success
+    errors {
+      ...BaseError
+    }
+  }
+}

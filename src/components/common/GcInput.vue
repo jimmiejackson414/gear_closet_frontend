@@ -1,6 +1,4 @@
 <script lang='ts' setup>
-  import type { Icon } from 'lucide-vue-next';
-
   interface Props {
     autocomplete?: string;
     disabled?: boolean;
@@ -9,7 +7,6 @@
     modelValue: string | null;
     name: string;
     passwordToggle?: boolean;
-    prependIcon?: Icon;
     required?: boolean;
     type?: string;
   }
@@ -54,17 +51,11 @@
 <template>
   <div>
     <div class="relative">
-      <div class="absolute inset-y-0 flex items-center pointer-events-none ps-3.5 start-0">
-        <component
-          :is="prependIcon"
-          class="h-5 text-grey w-5" />
-      </div>
       <input
         :id="name"
         :autocomplete="autocomplete"
         class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 pb-2.5 peer pt-4 px-2.5 rounded-lg text-dark-grey text-sm w-full focus:outline-none focus:ring-0"
         :class="[
-          Boolean(prependIcon) ? 'ps-11' : '',
           hasError ? 'border-danger' : 'border-gray-300',
           disabled ? 'bg-gray-100 pointer-events-none' : 'bg-white pointer-events-auto',
         ]"

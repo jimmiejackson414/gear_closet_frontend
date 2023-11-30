@@ -303,7 +303,8 @@ CREATE TABLE IF NOT EXISTS "public"."notifications" (
     "read_on_date" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "user_id" "uuid"
+    "user_id" "uuid",
+    "sender_id" "uuid"
 );
 
 ALTER TABLE "public"."notifications" OWNER TO "postgres";

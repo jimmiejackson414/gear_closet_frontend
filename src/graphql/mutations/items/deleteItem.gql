@@ -1,0 +1,10 @@
+mutation DeleteItem($input: DeleteItemInput!) {
+    deleteItem(input: $input) {
+      item {
+        ...Item
+      }
+      errors {
+        ...BaseError
+      }
+    }
+}

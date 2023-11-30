@@ -1,0 +1,15 @@
+query Subscription {
+  subscription {
+    errors {
+      ...BaseError
+    }
+    data {
+      subscription {
+        ...StripeSubscription
+      }
+      billingHistory {
+        ...StripeInvoice
+      }
+    }
+  }
+}

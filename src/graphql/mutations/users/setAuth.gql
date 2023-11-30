@@ -1,0 +1,8 @@
+mutation SetAuth($input: SetAuthInput!) {
+  setAuth(input: $input) {
+    success
+    errors {
+      ...BaseError
+    }
+  }
+}
