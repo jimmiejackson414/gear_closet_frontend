@@ -1,28 +1,22 @@
+
 import type { CodegenConfig } from '@graphql-codegen/cli';
- 
+
 const config: CodegenConfig = {
+  overwrite: true,
   schema: process.env.VITE_BACKEND_URL,
-  documents: ['./src/graphql/**/*.gql'],
-  ignoreNoDocuments: true, // for better experience with the watcher
+  documents: "src/graphql/**/*.ts",
   generates: {
-    './src/generated/backendTypes.ts': {
-      plugins: [ 
-        'typescript',
-        'typescript-operations',
-        'typescript-graphql-request',
-       ],
-       config: {
-        withRefetchFn: true,
-        preResolveTypes: true,
-        fetcher: 'graphql-request',
-        gqlImport: 'graphql-request#gql',
-        pureMagicComment: true,
-        experimentalFragmentVariables: true,
-        dedupeFragments: true,
+    "src/generated/": {
+      preset: "client",
+      plugins: [],
+      config: {
         useTypeImports: true,
-       },
+      },
+    },
+    "./graphql.schema.json": {
+      plugins: ["introspection"],
     },
   },
 };
- 
+
 export default config;

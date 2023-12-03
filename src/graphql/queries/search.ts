@@ -1,0 +1,20 @@
+import { graphql } from '@/generated';
+
+export const searchDocument = graphql(`
+  query Search($input: SearchInput) {
+    search(input: $input) {
+      count
+      results {
+        ...BaseUser
+        friend {
+          ...Friend
+        }
+        tripsCount
+        packsCount
+      }
+      errors {
+        ...BaseError
+      }
+    }
+  }
+`);

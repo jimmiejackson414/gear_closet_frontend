@@ -1,5 +1,5 @@
 import dinero from 'dinero.js';
-import { SubscriptionLevel } from '@/generated/backendTypes';
+import { SubscriptionLevel } from '@/generated/graphql';
 import tailwind from '@/helpers/tailwind';
 
 export interface Tier {

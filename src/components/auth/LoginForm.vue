@@ -6,6 +6,9 @@
   import GcAlert from '@/components/common/GcAlert.vue';
   import { isValidEmail } from '@/helpers/functions';
   import { useValidate } from '@/composables';
+  import { useClient } from '@/lib/graphqlRequest';
+  import { setSessionDocument } from '@/graphql/mutations/users/setSession';
+  import type { MutationSetSessionArgs  } from '@/generated/graphql';
   import type { Provider } from '@supabase/supabase-js';
 
   const form = reactive({
@@ -36,10 +39,24 @@
         return;
       }
 
-      const { error } = await supabase.auth.signInWithPassword({...form});
+      const { data, error } = await supabase.auth.signInWithPassword({...form});
 
       if (error) {
         loginError.value = error.message;
+        return;
+      }
+
+      const client = await useClient();
+      const variables: MutationSetSessionArgs = {
+        input: {
+          access_token: data?.session.access_token,
+          refresh_token: data?.session.refresh_token,
+        },
+      };
+      const { setSession: { success, errors } } = await client.request(setSessionDocument, variables);
+
+      if (!success || errors) {
+        loginError.value = 'Something went wrong';
         return;
       }
 

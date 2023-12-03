@@ -6,14 +6,14 @@ import supabase from '@/lib/supabase';
 import { getUserId } from '@/helpers/functions';
 import { useAppStore } from '@/stores/app';
 import {
-  getSdk,
   type Friend,
   type Notification,
   type Trip,
   type TripFriend,
   type UpdateNotificationInput,
   type User,
-} from '@/generated/backendTypes';
+} from '@/generated/graphql';
+import { meDocument } from '@/graphql/queries/me';
 import { useClient } from '@/lib/graphqlRequest';
 
 interface News {
@@ -35,12 +35,8 @@ interface DashboardData {
 }
 
 type State = {
-  currentUser: User | null;
+  currentUser?: User;
   loading: boolean;
-  notifications: {
-    items: Notification[];
-    totalCount: number;
-  };
 };
 
 type Getters = {
@@ -69,19 +65,14 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
   {
     state () {
       return {
-        currentUser: null,
+        currentUser: undefined,
         loading: false,
-        notifications: {
-          items: [],
-          totalCount: 0,
-        },
       };
     },
 
     getters: {
-
       unreadNotifications () {
-        return this.notifications.items.filter(n => !n.read_on_date);
+        return this.currentUser?.notifications.filter(n => !n.read_on_date) || [];
       },
     },
 
@@ -97,16 +88,17 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
       async fetchCurrentUser () {
         const client = await useClient();
-        const sdk = getSdk(client);
+        // const sdk = getSdk(client);
         const $store = useAppStore();
         this.loading = true;
 
         try {
-          const { me } = await sdk.Me();
+          // const { me } = await sdk.Me();
+          const { me } = await client.request(meDocument);
           console.log({ me });
 
           if (!me?.user || me.errors) {
-            this.currentUser = null;
+            this.currentUser = undefined;
             this.loading = false;
             $store.notifyNegative('An error occurred while loading your account.');
             return;
@@ -114,7 +106,6 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
           this.currentUser = me.user as User;
           this.loading = false;
-          // this.notifications = { items: me.user.notifications, totalCount: me.user.notifications.length };
 
           // const { id, error: sessionError } = await getUserId();
 
@@ -336,7 +327,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         }
 
         if (data) {
-          this.notifications = { items: data, totalCount: data.length };
+          this.currentUser!.notifications = data;
         }
       },
 
@@ -354,8 +345,8 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         }
 
         if (data) {
-          const i = this.notifications.items.findIndex(n => n.id === data.id);
-          this.notifications.items[i] = data;
+          const i = this.currentUser!.notifications.findIndex(n => n.id === data.id);
+          this.currentUser!.notifications[i] = data;
         }
       },
 
