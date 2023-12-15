@@ -5,9 +5,12 @@ import type { Config } from 'tailwindcss';
 
 export default {
   content: [
-    './index.html',
-    './src/**/*.{vue,js,ts,jsx,tsx}',
-    './node_modules/flowbite/**/*.js',
+    "./components/**/*.{js,vue,ts}",
+    "./layouts/**/*.vue",
+    "./pages/**/*.vue",
+    "./plugins/**/*.{js,ts}",
+    "./nuxt.config.{js,ts}",
+    "./node_modules/flowbite/**/*.{js,ts}",
   ],
   theme: {
     extend: {
