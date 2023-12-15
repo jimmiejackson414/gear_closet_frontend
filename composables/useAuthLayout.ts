@@ -1,10 +1,18 @@
-import cld from '@/lib/cloudinary';
+import { Cloudinary } from '@cloudinary/url-gen';
 import { logoColor } from '@/helpers';
 
 const useAuthLayout = async  () => {
+  const runtimeConfig = useRuntimeConfig();
+  const cloudName = runtimeConfig.public.cloudinaryCloudName;
+
+  const cld = new Cloudinary({
+    cloud: { cloudName },
+    url: { secure: true },
+  });
+
   const fetchImage = async () => {
     const rand = Math.round(Math.random() * (14 - 1) + 1);
-    const newImage = cld.image(`${import.meta.env.VITE_CLOUDINARY_AUTH_PAGES_PATH}/background${rand}`);
+    const newImage = cld.image(`${runtimeConfig.public.cloudinaryAuthPagesPath}/background${rand}`);
     return {
       image: newImage.format('auto')
         .toURL(),

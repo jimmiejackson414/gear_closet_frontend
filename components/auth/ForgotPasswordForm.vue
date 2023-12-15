@@ -1,12 +1,9 @@
 <script lang='ts' setup>
   import { ref } from 'vue';
-  import supabase from '@/lib/supabase'; 
-  import { useValidate } from '@/composables';
   import { isValidEmail } from '@/helpers/functions';
-  import GcInput from '@/components/common/GcInput.vue';
-  import GcButton from '@/components/common/GcButton.vue';
-  import GcAlert, { type Severity } from '@/components/common/GcAlert.vue';
+  import { type Severity } from '@/components/common/GcAlert.vue';
 
+  const supabase = useSupabaseClient();
   const form = reactive({ email: '' });
   const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
   const submitting = ref(false);
@@ -79,11 +76,11 @@
     <div class="flex items-center flex-col mt-4">
       <p class="text-base">
         Remembered your password?
-        <router-link
+        <nuxt-link
           class="no-underline text-primary"
           :to="{ name: 'login' }">
           Login
-        </router-link>
+        </nuxt-link>
       </p>
     </div>
   </form>

@@ -1,6 +1,7 @@
 <script lang='ts' setup>
-  import { ref } from 'vue';
-  
+  definePageMeta({
+    layout: 'dashboard-layout',
+  });
 </script>
 
 <template>

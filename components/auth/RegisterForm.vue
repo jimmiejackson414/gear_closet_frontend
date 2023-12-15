@@ -1,13 +1,9 @@
 <script lang='ts' setup>
-  import { ref } from 'vue';
-  import { useValidate } from '@/composables';
   import { isValidEmail } from '@/helpers/functions';
-  import supabase from '@/lib/supabase';
-  import GcInput from '@/components/common/GcInput.vue';
-  import GcButton from '@/components/common/GcButton.vue';
-  import GcAlert, { type Severity} from '@/components/common/GcAlert.vue';
+  import { type Severity} from '@/components/common/GcAlert.vue';
   import type { Provider } from '@supabase/supabase-js';
 
+  const supabase = useSupabaseClient();
   const $router = useRouter();
   const submitting = ref(false);
   const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
@@ -203,19 +199,19 @@
     <div class="flex items-center flex-col mt-4">
       <p class="text-base">
         Already have an account?
-        <router-link
+        <nuxt-link
           class="no-underline text-primary"
           :to="{ name: 'login' }">
           Login
-        </router-link>
+        </nuxt-link>
       </p>
       <p class="mt-8 text-center text-grey text-xs">
         By continuing to use GearCloset, you agree to our{{ ' ' }}
-        <router-link
+        <nuxt-link
           class="no-underline text-primary text-xs"
           :to="{ name: 'terms-and-conditions' }">
           Terms and Conditions.
-        </router-link>
+        </nuxt-link>
       </p>
     </div>
   </form>

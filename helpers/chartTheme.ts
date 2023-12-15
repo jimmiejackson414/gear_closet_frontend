@@ -1,4 +1,4 @@
-import { Maybe, Theme } from '@/types';
+import { Theme } from '@/types';
 
 export interface Option {
   text: string;
@@ -183,41 +183,41 @@ export const HueCircle19 = [
   '#4f7cba',
 ];
 
-export const findTheme = (theme: Maybe<string> | undefined): Array<string> => {
+export const findTheme = (theme: string | undefined): Array<string> => {
   switch (theme) {
-    case Theme.Blue6:
+    case Theme.BLUE6:
       return Blue6;
-    case Theme.Bluegreen6:
+    case Theme.BLUEGREEN6:
       return BlueGreen6;
-    case Theme.Breeze6:
+    case Theme.BREEZE6:
       return Breeze6;
-    case Theme.Celestial6:
+    case Theme.CELESTIAL6:
       return Celestial6;
-    case Theme.Circuit6:
+    case Theme.CIRCUIT6:
       return Circuit6;
-    case Theme.Damask6:
+    case Theme.DAMASK6:
       return Damask6;
-    case Theme.Depth6:
+    case Theme.DEPTH6:
       return Depth6;
-    case Theme.Flow6:
+    case Theme.FLOW6:
       return Flow6;
-    case Theme.Forte6:
+    case Theme.FORTE6:
       return Forte6;
-    case Theme.Genesis6:
+    case Theme.GENESIS6:
       return Genesis6;
-    case Theme.Grayscale6:
+    case Theme.GRAYSCALE6:
       return Grayscale6;
-    case Theme.Ionboardroom6:
+    case Theme.IONBOARDROOM6:
       return IonBoardroom6;
-    case Theme.Kilter6:
+    case Theme.KILTER6:
       return Kilter6;
-    case Theme.Tableau10:
+    case Theme.TABLEAU10:
       return Tableau10;
-    case Theme.Colorblind10:
+    case Theme.COLORBLIND10:
       return ColorBlind10;
-    case Theme.Jewelbright9:
+    case Theme.JEWELBRIGHT9:
       return JewelBright9;
-    case Theme.Huecircle19:
+    case Theme.HUECIRCLE19:
       return HueCircle19;
     default:
       return Blue6;
@@ -226,25 +226,25 @@ export const findTheme = (theme: Maybe<string> | undefined): Array<string> => {
 
 const generateThemeOptions = (): Array<Option> => {
   const office = [
-    { text: Theme.Blue6, value: Theme.Blue6, colors: Blue6 },
-    { text: Theme.Bluegreen6, value: Theme.Bluegreen6, colors: BlueGreen6 },
-    { text: Theme.Breeze6, value: Theme.Breeze6, colors: Breeze6 },
-    { text: Theme.Celestial6, value: Theme.Celestial6, colors: Celestial6 },
-    { text: Theme.Circuit6, value: Theme.Circuit6, colors: Circuit6 },
-    { text: Theme.Damask6, value: Theme.Damask6, colors: Damask6 },
-    { text: Theme.Depth6, value: Theme.Depth6, colors: Depth6 },
-    { text: Theme.Flow6, value: Theme.Flow6, colors: Flow6 },
-    { text: Theme.Forte6, value: Theme.Forte6, colors: Forte6 },
-    { text: Theme.Genesis6, value: Theme.Genesis6, colors: Genesis6 },
-    { text: Theme.Ionboardroom6, value: Theme.Ionboardroom6, colors: IonBoardroom6 },
-    { text: Theme.Kilter6, value: Theme.Kilter6, colors: Kilter6 },
+    { text: Theme.BLUE6, value: Theme.BLUE6, colors: Blue6 },
+    { text: Theme.BLUEGREEN6, value: Theme.BLUEGREEN6, colors: BlueGreen6 },
+    { text: Theme.BREEZE6, value: Theme.BREEZE6, colors: Breeze6 },
+    { text: Theme.CELESTIAL6, value: Theme.CELESTIAL6, colors: Celestial6 },
+    { text: Theme.CIRCUIT6, value: Theme.CIRCUIT6, colors: Circuit6 },
+    { text: Theme.DAMASK6, value: Theme.DAMASK6, colors: Damask6 },
+    { text: Theme.DEPTH6, value: Theme.DEPTH6, colors: Depth6 },
+    { text: Theme.FLOW6, value: Theme.FLOW6, colors: Flow6 },
+    { text: Theme.FORTE6, value: Theme.FORTE6, colors: Forte6 },
+    { text: Theme.GENESIS6, value: Theme.GENESIS6, colors: Genesis6 },
+    { text: Theme.IONBOARDROOM6, value: Theme.IONBOARDROOM6, colors: IonBoardroom6 },
+    { text: Theme.KILTER6, value: Theme.KILTER6, colors: Kilter6 },
   ];
 
   const tableau = [
-    { text: Theme.Tableau10, value: Theme.Tableau10, colors: Tableau10 },
-    { text: Theme.Colorblind10, value: Theme.Colorblind10, colors: ColorBlind10 },
-    { text: Theme.Jewelbright9, value: Theme.Jewelbright9, colors: JewelBright9 },
-    { text: Theme.Huecircle19, value: Theme.Huecircle19, colors: HueCircle19 },
+    { text: Theme.TABLEAU10, value: Theme.TABLEAU10, colors: Tableau10 },
+    { text: Theme.COLORBLIND10, value: Theme.COLORBLIND10, colors: ColorBlind10 },
+    { text: Theme.JEWELBRIGHT9, value: Theme.JEWELBRIGHT9, colors: JewelBright9 },
+    { text: Theme.HUECIRCLE19, value: Theme.HUECIRCLE19, colors: HueCircle19 },
   ];
 
   return [office, tableau].flat();

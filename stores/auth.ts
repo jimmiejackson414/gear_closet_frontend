@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import supabase from '@/lib/supabase';
 import type { RouteLocation } from 'vue-router';
 import type { User } from '@supabase/supabase-js';
 
@@ -40,6 +39,7 @@ export const useAuthStore = defineStore<'auth', State, Getters, Actions>(
     actions: {
       async loadUser () {
         try {
+          const supabase = useSupabaseClient();
           const { data: { user } } = await supabase.auth.getUser();
           
           this.session = user;
@@ -50,6 +50,7 @@ export const useAuthStore = defineStore<'auth', State, Getters, Actions>(
       },
 
       async clearUser () {
+        const supabase = useSupabaseClient();
         await supabase.auth.signOut();
         this.session = null;
       },
@@ -88,7 +89,7 @@ export const useAuthStore = defineStore<'auth', State, Getters, Actions>(
     //       const client = useClient();
     //       const sdk = getSdk(client);
 
-    //       const key = import.meta.env.VITE_SUPABASE_LOCALSTORAGE_KEY as string;
+    //       const key = import.meta.env.NUXT_SUPABASE_LOCALSTORAGE_KEY as string;
     //       const storage = localStorage.getItem(key) as string;
     //       const refreshToken = JSON.parse(storage).refresh_token;
     //       const payload = {

@@ -1,14 +1,9 @@
 <script lang='ts' setup>
-  import { ref } from 'vue';
   import { AtSignIcon, LockIcon } from 'lucide-vue-next';
-  import supabase from '@/lib/supabase';
-  import GcInput from '@/components/common/GcInput.vue';
-  import GcButton from '@/components/common/GcButton.vue';
-  import GcAlert from '@/components/common/GcAlert.vue';
   import { isValidEmail } from '@/helpers/functions';
-  import { useValidate } from '@/composables';
   import type { Provider } from '@supabase/supabase-js';
 
+  const supabase = useSupabaseClient();
   const form = reactive({
     email: '',
     password: '',
@@ -103,7 +98,8 @@
         autocomplete="email"
         :disabled="submitting"
         :error="fieldErrors.email"
-        placeholder="Email"
+        label="Email"
+        name="email"
         :prepend-icon="AtSignIcon"
         required
         type="email"
@@ -113,8 +109,9 @@
         autocomplete="current-password"
         :disabled="submitting"
         :error="fieldErrors.password"
+        label="Password"
+        name="password"
         password-toggle
-        placeholder="Password"
         :prepend-icon="LockIcon"
         required
         type="password"
@@ -130,26 +127,26 @@
     <div class="flex items-center flex-col mt-4">
       <p class="text-base">
         Don't have an account?
-        <router-link
+        <nuxt-link
           class="no-underline text-primary"
-          :to="{ name: 'register' }">
+          to="/register">
           Signup
-        </router-link>
+        </nuxt-link>
       </p>
       <p class="q-mb-none">
-        <router-link
+        <nuxt-link
           class="no-underline text-base text-primary"
           :to="{ name: 'forgot-password' }">
           Forgot your password?
-        </router-link>
+        </nuxt-link>
       </p>
       <p class="mt-8 text-center text-grey text-xs">
         By continuing to use GearCloset, you agree to our{{ ' ' }}
-        <router-link
+        <nuxt-link
           class="no-underline text-primary text-xs"
           :to="{ name: 'terms-and-conditions' }">
           Terms and Conditions.
-        </router-link>
+        </nuxt-link>
       </p>
     </div>
   </form>

@@ -39,7 +39,7 @@ export const drawerLinks = [
     requiresSubscription: false,
   },
   {
-    to: import.meta.env.VITE_FORUMS_URL,
+    to: import.meta.env.NUXT_FORUMS_URL,
     title: 'Forums',
     icon: MessagesSquare,
     disabled: false,

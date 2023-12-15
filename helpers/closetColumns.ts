@@ -1,5 +1,3 @@
-import { QTableProps } from 'quasar';
-
 export const columns = [
   {
     name: 'drag', label: '', field: 'drag', align: 'left', sortable: false, style: 'width: 40px',
@@ -28,7 +26,7 @@ export const columns = [
   {
     name: 'actions', label: 'Actions', field: 'actions', align: 'right', sortable: false,
   },
-] as QTableProps['columns'];
+];
 
 export const publicColumns = [
   {
@@ -52,4 +50,4 @@ export const publicColumns = [
   {
     name: 'quantity', label: 'Quantity', field: 'quantity', align: 'center',
   },
-] as QTableProps['columns'];
+];

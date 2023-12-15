@@ -1,10 +1,18 @@
-<script lang='ts' setup>
-  import { ref } from 'vue';
-  
+<script setup lang="ts">
+  definePageMeta({
+    layout: 'auth-layout',
+  });
+
+  const user = useSupabaseUser();
+
+  watch(user, () => {
+    if (user.value) {
+      return navigateTo('/dashboard');
+    }
+  }, { immediate: true });
+
 </script>
 
 <template>
-  <div>
-    Confirm Page
-  </div>
+  <div>Waiting for login...</div>
 </template>

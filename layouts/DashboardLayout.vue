@@ -1,7 +1,5 @@
 <script lang='ts' setup>
-  import GcLoadingWrapper from '@/components/common/GcLoadingWrapper.vue';
-  import GcDrawer from '@/components/common/GcDrawer.vue';
-  import GcFooter from '@/components/common/GcFooter.vue';
+  import { storeToRefs } from 'pinia';
   import { useUserStore } from '@/stores/user';
 
   const $store = useUserStore();

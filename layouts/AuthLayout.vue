@@ -1,19 +1,19 @@
 <script lang='ts' setup>
-  import GcLogo from '@/components/icons/GcLogo.vue';
+  const { backgroundImage } = await useAuthLayout();
 
-  interface Props {
-    fill: string;
-    image: string;
-  }
+  // interface Props {
+  //   fill: string;
+  //   image: string;
+  // }
 
-  const props = withDefaults(defineProps<Props>(), {
-    fill: '#4a4a4a',
-    image: '',
-  });
+  // const props = withDefaults(defineProps<Props>(), {
+  //   fill: '#4a4a4a',
+  //   image: '',
+  // });
 
   const computedImage = computed(() => {
     return {
-      backgroundImage: `url(${props.image})`,
+      backgroundImage: `url(${backgroundImage.image})`,
     };
   });
 </script>
@@ -26,7 +26,7 @@
         :style="computedImage" />
       <div class="absolute top-0 right-0 left-0 max-w-3xl mx-8 my-4">
         <gc-logo
-          :fill="props.fill"
+          :fill="backgroundImage.fill"
           :width="500" />
       </div>
       <div class="absolute right-0 bg-white grid grid-cols-1 justify-center h-full items-center max-w-lg px-12 py-8 rounded-s-3xl w-full">

@@ -1,13 +1,14 @@
-import { Cloudinary } from '@cloudinary/url-gen';
-import supabase from './supabase';
+// import { Cloudinary } from '@cloudinary/url-gen';
 import type { User } from '@/types';
 
-const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME as string;
+// const runtimeConfig = useRuntimeConfig();
+// const cloudName = runtimeConfig.public.CLOUDINARY_CLOUD_NAME as string;
+// console.log({ cloudName });
 
-const cld = new Cloudinary({
-  cloud: { cloudName },
-  url: { secure: true },
-});
+// export const cld = new Cloudinary({
+//   cloud: { cloudName: runtimeConfig.public.CLOUDINARY_CLOUD_NAME as string },
+//   url: { secure: true },
+// });
 
 export const buildImageSrc = (url: string) => {
   if (!url) return undefined;
@@ -21,6 +22,7 @@ export const searchExistingImages = async (image: string) => {
 };
 
 export const destroyExisting = async (user: User) => {
+  const supabase = useSupabaseClient();
   // destroy in cloudinary
   if (user.image) {
     // await cloudinary.v2.uploader.destroy(
@@ -35,7 +37,8 @@ export const destroyExisting = async (user: User) => {
     // );
   }
 
-  return await supabase.from('users')
+  return await supabase
+    .from('users')
     .update({ image: null })
     .eq('id', user.id)
     .select()
@@ -73,7 +76,7 @@ export const upload = async (input: UploadInterface) => {
   //   input.file as string,
   //   {
   //     resource_type: 'auto',
-  //     folder: import.meta.env.VITE_CLOUDINARY_AVATARS_PATH,
+  //     folder: import.meta.env.NUXT_CLOUDINARY_AVATARS_PATH,
   //     context: `user_id=${input.id}`,
   //   },
   //   async (uploadError: UploadApiErrorResponse | undefined, uploadResult: UploadApiResponse | undefined) => {
@@ -97,5 +100,3 @@ export const upload = async (input: UploadInterface) => {
   //   },
   // );
 };
-
-export default { buildImageSrc, searchExistingImages, destroyExisting, fetchAuthImages, upload };

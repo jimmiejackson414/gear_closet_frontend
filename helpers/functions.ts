@@ -1,6 +1,5 @@
 import Dinero from 'dinero.js';
 import convert from 'convert';
-import supabase from '@/lib/supabase';
 import type {
   Category,
   CategoryItem,
@@ -23,7 +22,7 @@ interface FriendlyUsernameOptions {
 
 export const buildImageSrc = (url: string | undefined | null): string | undefined => {
   if (!url) return undefined;
-  return `https://res.cloudinary.com/${import.meta.env.VITE_CLOUDINARY_CLOUD_NAME}/image/upload/${url}`;
+  return `https://res.cloudinary.com/${import.meta.env.NUXT_CLOUDINARY_CLOUD_NAME}/image/upload/${url}`;
 };
 
 export const calculateCategoryWeight = (category: Category): number => {
@@ -155,11 +154,6 @@ export const getPagination = (page: number, pageSize: number): { from: number, t
   const from = page ? page * limit : 0;
   const to = page ? from + pageSize - 1 : pageSize - 1;
   return { from, to };
-};
-
-export const getUserId = async () => {
-  const { data, error } = await supabase.auth.getUser();
-  return { id: data.user?.id, error };
 };
 
 export const initials = (user: User | null | undefined): string => {

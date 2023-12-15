@@ -1,11 +1,8 @@
 <script lang='ts' setup>
   import { ref } from 'vue';
-  import supabase from '@/lib/supabase';
-  import { useValidate } from '@/composables';
-  import GcInput from '@/components/common/GcInput.vue';
-  import GcButton from '@/components/common/GcButton.vue';
-  import GcAlert, { type Severity } from '@/components/common/GcAlert.vue';
+  import { type Severity } from '@/components/common/GcAlert.vue';
 
+  const supabase = useSupabaseClient();
   const form = reactive({ password: '', passwordConfirm: '' });
   const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
   const submitting = ref(false);

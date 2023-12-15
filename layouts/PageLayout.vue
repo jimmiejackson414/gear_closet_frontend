@@ -1,9 +1,5 @@
 <script lang='ts' setup>
-  import GcNavbar from '@/components/common/GcNavbar.vue';
-  import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
-  import GcDrawer from '@/components/common/GcDrawer.vue';
-  import GcFooter from '@/components/common/GcFooter.vue';
-  import GcLoadingWrapper from '@/components/common/GcLoadingWrapper.vue';
+  import { storeToRefs } from 'pinia';
   import { useUserStore } from '@/stores/user';
   import { capitalize } from '@/helpers/functions';
 
@@ -22,7 +18,7 @@
   const $route = useRoute();
   const $store = useUserStore();
 
-  await $store.fetchCurrentUser();
+  // await $store.fetchCurrentUser();
 
   const { loading } = storeToRefs($store);
 </script>

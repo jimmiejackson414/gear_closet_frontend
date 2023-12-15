@@ -37,7 +37,7 @@
         v-for="link in drawerLinks"
         :key="link.to"
         class="hs-tooltip inline-block [--placement:right]">
-        <router-link
+        <nuxt-link
           class="block hs-tooltip-toggle inflex-flex items-center justify-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
           :class="isActiveRoute(link) ? 'bg-gray-100' : ''"
           :disabled="link.disabled"
@@ -51,7 +51,7 @@
             role="tooltip">
             {{ link.title }}
           </span>
-        </router-link>
+        </nuxt-link>
       </li>
       <li class="grow" />
       <li class="hs-tooltip inline-block [--placement:right]">

@@ -21,8 +21,8 @@
 
 <template>
   <nav :class="classList">
-    <router-link :to="{ name: 'login' }">
+    <nuxt-link :to="{ name: 'login' }">
       <gc-logo :width="250" />
-    </router-link>
+    </nuxt-link>
   </nav>
 </template>

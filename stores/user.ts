@@ -1,6 +1,4 @@
 import { defineStore } from 'pinia';
-import supabase from '@/lib/supabase';
-import { getUserId } from '@/helpers/functions';
 import { useAppStore } from '@/stores/app';
 import type {
   Friend,
@@ -32,7 +30,7 @@ type Getters = {
 
 type Actions = {
   // createOnboardingStep(input: CreateOnboardStepInput): Promise<CreateOnboardStepResponse>;
-  fetchCurrentUser(): void;
+  // fetchCurrentUser(): void;
   fetchDashboard(): Promise<DashboardData>;
   // fetchNotifications(input: NotificationsInput): void;
   // handleAcceptInvite(inviteId: number): Promise<UpdateTripFriendResponse>;
@@ -78,62 +76,55 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
       //   return createOnboardStep as CreateOnboardStepResponse;
       // },
 
-      async fetchCurrentUser () {
-        const $store = useAppStore();
-        this.loading = true;
+      // async fetchCurrentUser () {
+      //   const $store = useAppStore();
+      //   this.loading = true;
 
-        try {
-          const { id, error: sessionError } = await getUserId();
+      //   try {
+      //     const { id, error: sessionError } = await getUserId();
 
-          if (sessionError || !id) {
-            this.currentUser = null;
-            this.loading = false;
-            $store.notifyNegative('An error occurred while loading your account.');
-            return;
-          }
+      //     if (sessionError || !id) {
+      //       this.currentUser = null;
+      //       this.loading = false;
+      //       $store.notifyNegative('An error occurred while loading your account.');
+      //       return;
+      //     }
 
-          const { data: user, error } = await supabase.from('users')
-            .select('*, onboarding_steps(*), notifications(*)')
-            .eq('id', id)
-            .single();
+      //     const { data: user, error } = await supabase.from('users')
+      //       .select('*, onboarding_steps(*), notifications(*)')
+      //       .eq('id', id)
+      //       .single();
 
-          if (!user || error) {
-            this.currentUser = null;
-            this.notifications = { items: [], totalCount: 0 };
-            this.loading = false;
-            $store.notifyNegative('An error occurred while loading your account.');
-            return;
-          }
+      //     if (!user || error) {
+      //       this.currentUser = null;
+      //       this.notifications = { items: [], totalCount: 0 };
+      //       this.loading = false;
+      //       $store.notifyNegative('An error occurred while loading your account.');
+      //       return;
+      //     }
 
-          this.currentUser = user;
-          this.notifications = { items: user.notifications, totalCount: user.notifications.length };
-          this.loading = false;
-        } catch (err) {
-          console.error({ err });
-        } finally {
-          this.loading = false;
-        }
-      },
+      //     this.currentUser = user;
+      //     this.notifications = { items: user.notifications, totalCount: user.notifications.length };
+      //     this.loading = false;
+      //   } catch (err) {
+      //     console.error({ err });
+      //   } finally {
+      //     this.loading = false;
+      //   }
+      // },
 
       async fetchDashboard () {
         this.loading = true;
+        const supabase = useSupabaseClient();
         const $store = useAppStore();
 
         try {
-          const { id, error: sessionError } = await getUserId();
-
-          if (sessionError || !id) {
-            $store.notifyNegative('An error occurred while loading your account.');
-            this.loading = false;
-            return { trip_friends: [], friends: [], trips: [] } as DashboardData;
-          }
+          const user = useSupabaseUser();
 
           const { data, error } = await supabase.from('users')
             .select('trip_friends(*), friends!friends_friend_id_fkey(*), trips(*)')
-            .eq('id', id)
+            .eq('id', user.value!.id)
             .single();
-          console.log({ data });
-          console.log({ error });
 
           if (!data || error) {
             $store.notifyNegative('An error occurred while loading your account.');
@@ -220,6 +211,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
       // },
 
       async markAllAsRead () {
+        const supabase = useSupabaseClient();
         const $store = useAppStore();
         const { data, error } = await supabase.from('notifications')
           .update({ read_on_date: new Date() })
@@ -236,6 +228,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
       },
 
       async updateNotification (input: UpdateNotification) {
+        const supabase = useSupabaseClient();
         const $store = useAppStore();
         const { data, error } = await supabase.from('notifications')
           .update({ read_on_date: new Date()

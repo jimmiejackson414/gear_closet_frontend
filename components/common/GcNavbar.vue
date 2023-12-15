@@ -85,11 +85,11 @@
             </p>
           </div>
           <div class="pt-2 view-all-wrapper">
-            <router-link
+            <nuxt-link
               class="font-medium text-primary text-sm"
               to="/notifications">
               View all
-            </router-link>
+            </nuxt-link>
           </div>
         </div>
       </div>
