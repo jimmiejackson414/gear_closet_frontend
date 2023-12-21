@@ -3,6 +3,7 @@
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import type { Trip } from '@/types';
+  import { encrypt } from '~/helpers/encryption';
 
   dayjs.extend(relativeTime);
   
@@ -18,17 +19,25 @@
 
   const formattedRelativeDate = (date: string | null) => {
     if (!date) return '--';
-    const d = dayjs(date);
-    return d.fromNow();
+    return dayjs(date)
+      .fromNow();
   };
 
   const calculatedProgress = (trip: Trip) => {
     const tripDurationInDays = dayjs(trip.starting_date)
       .diff(trip.created_at, 'day');
-    const currentTime = dayjs();
-    const elapsedTimeInDays = currentTime.diff(trip.created_at, 'day');
+    const elapsedTimeInDays = dayjs()
+      .diff(trip.created_at, 'day');
     const percentage = (elapsedTimeInDays / tripDurationInDays) * 100;
     return { width: `${percentage}%` };
+  };
+
+  const $router = useRouter();
+  const handleRouteClick = (trip: Trip) => {
+    $router.push({
+      name: 'planning',
+      query: { trip: encrypt(trip.id) },
+    });
   };
 </script>
 
@@ -39,7 +48,7 @@
       avatar
       :lines="3" />
     <div v-else>
-      <div class="flex justify-between items-center py-4">
+      <div class="flex justify-start items-center py-4">
         <footprints-icon class="h-6 mr-6 text-primary w-6" />
         <p class="font-bold text-base">
           Upcoming Trips <span class="font-normal text-grey">({{ data.length || 0 }})</span>
@@ -47,11 +56,11 @@
       </div>
       <div v-if="data.length">
         <ul class="divide-gray-200 divide-y">
-          <nuxt-link
+          <div
             v-for="trip in data"
             :key="trip.id"
             class="cursor-pointer"
-            :to="{ name: 'planning', query: { slug: trip.slug } }">
+            @click="handleRouteClick(trip)">
             <div class="duration-150 ease-in-out flex items-stretch p-3 rounded-md space-x-4 hover:bg-gray-100">
               <div class="flex-1 min-w-0">
                 <p class="font-semibold text-base text-dark-grey truncate">
@@ -72,7 +81,7 @@
                 </div>
               </div>
             </div>
-          </nuxt-link>
+          </div>
         </ul>
       </div>
       <div

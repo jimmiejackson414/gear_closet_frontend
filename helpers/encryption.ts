@@ -1,9 +1,13 @@
 import CryptoJS from 'crypto-js';
 
-export const encrypt = (value: any): string => CryptoJS.AES.encrypt(JSON.stringify(value), import.meta.env.NUXT_COOKIE_KEY as string)
+export const encrypt = (value: any): string => {
+  const runtimeConfig = useRuntimeConfig();
+  return CryptoJS.AES.encrypt(JSON.stringify(value), runtimeConfig.public.cookieKey)
   .toString();
+};
 
 export const decrypt = (value: any): string => {
-  const bytes = CryptoJS.AES.decrypt(value, import.meta.env.NUXT_COOKIE_KEY as string);
+  const runtimeConfig = useRuntimeConfig();
+  const bytes = CryptoJS.AES.decrypt(value, runtimeConfig.public.cookieKey);
   return bytes.toString(CryptoJS.enc.Utf8);
 };

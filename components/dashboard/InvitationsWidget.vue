@@ -15,13 +15,13 @@
 </script>
 
 <template>
-  <div class="bg-white p-4 rounded-4xl shadow-light">
+  <div class="bg-white h-full p-4 rounded-4xl shadow-light">
     <gc-skeleton
       v-if="loading"
       avatar
       :lines="3" />
     <div v-else>
-      <div class="flex justify-between items-center mb-4 py-4">
+      <div class="flex justify-start items-center mb-4 py-4">
         <calendar-check-icon class="h-6 mr-6 text-primary w-6" />
         <p class="font-bold text-base">
           Invitations <span class="font-normal text-grey">({{ data.length || 0 }})</span>

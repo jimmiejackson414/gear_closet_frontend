@@ -19,3 +19,19 @@ export type ExtendedPack = Database['public']['Tables']['packs']['Row'] & {
 export type ExtendedUser = Database['public']['Tables']['profiles']['Row'] & {
   onboarding_steps: Database['public']['Tables']['onboarding_steps']['Row'][];
 };
+
+export type ForumPost = {
+  id: number;
+  name: string;
+  username: string;
+  created_at: string;
+  updated_at: string;
+  reply_count: number;
+  topic_title: string;
+  topic_slug: string;
+  display_username: string;
+}
+
+export type ForumLatestPosts = {
+  latest_posts: ForumPost[];
+}
