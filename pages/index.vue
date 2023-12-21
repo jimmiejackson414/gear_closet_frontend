@@ -67,30 +67,21 @@
         <gc-navbar page-title="Dashboard" />
         <div class="grid grid-cols-12 gap-8 mt-8">
           <div class="col-span-12 md:col-span-8">
-            <invitations-widget
-              :data="data.trip_friends"
+            <upcoming-trips-widget
+              :data="data.trips"
               :loading="loading" />
           </div>
           <div class="col-span-12 md:col-span-4">
-            <div class="bg-white px-4 py-8 rounded-4xl shadow-light">
-              <gc-skeleton
-                v-if="loading"
-                avatar
-                :lines="3" />
-              <p v-else>
-                Second widget
-              </p>
-            </div>
+            <friends-widget
+              :data="data.friends"
+              :loading="loading" />
           </div>
         </div>
       </div>
-      <div class="bg-white col-span-12 md:col-span-3 px-4 py-8 rounded-4xl shadow-light">
-        <gc-skeleton
-          v-if="loading"
-          :lines="2" /> 
-        <p v-else>
-          Side
-        </p>
+      <div class="col-span-12 md:col-span-3">
+        <invitations-widget
+          :data="data.trip_friends"
+          :loading="loading" />
       </div>
     </div>
   </div>

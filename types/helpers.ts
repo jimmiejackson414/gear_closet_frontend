@@ -1,6 +1,5 @@
 import type { Database } from '@/types';
 
-// notifications including sender object
 export type ExtendedNotification = Database['public']['Tables']['notifications']['Row'] & {
   sender: Database['public']['Tables']['profiles']['Row'];
 };

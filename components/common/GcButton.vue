@@ -1,5 +1,6 @@
 <script lang='ts' setup>
   import GcSpinner from '@/components/common/GcSpinner.vue';
+  import type { RouteLocationRaw } from 'vue-router';
 
   interface Props {
     disabled?: boolean;
@@ -8,6 +9,7 @@
     outlined?: boolean;
     ghost?: boolean;
     size?: 'sm' | 'md' | 'lg';
+    to?: RouteLocationRaw;
     type?: 'button' | 'submit' | 'reset';
     variant?: 'primary' | 'positive' | 'danger';
   }
@@ -18,6 +20,7 @@
     loading: false,
     outlined: false,
     ghost: false,
+    to: undefined,
     size: 'md',
     type: 'button',
     variant: 'primary',
@@ -56,7 +59,13 @@
 </script>
 
 <template>
+  <nuxt-link
+    v-if="to"
+    :class="classList">
+    {{ label }}
+  </nuxt-link>
   <button
+    v-else
     :class="classList"
     :disabled="disabled"
     :type="type">

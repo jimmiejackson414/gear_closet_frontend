@@ -9,13 +9,13 @@
   }
 
   withDefaults(defineProps<Props>(), {
-    data: undefined,
+    data: () => [],
     loading: true,
   });
 </script>
 
 <template>
-  <div class="bg-white p-4 rounded-2xl shadow-light">
+  <div class="bg-white p-4 rounded-4xl shadow-light">
     <gc-skeleton
       v-if="loading"
       avatar
@@ -24,12 +24,12 @@
       <div class="flex justify-between items-center mb-4 py-4">
         <calendar-check-icon class="h-6 mr-6 text-primary w-6" />
         <p class="font-bold text-base">
-          Invitations <span class="font-normal text-grey">({{ data?.length || 0 }})</span>
+          Invitations <span class="font-normal text-grey">({{ data.length || 0 }})</span>
         </p>
       </div>
       <div>
         <ul
-          v-if="data?.length"
+          v-if="data.length"
           class="divide-grey divide-y">
           <li
             v-for="invite in data"

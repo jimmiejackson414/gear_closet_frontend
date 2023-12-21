@@ -1,15 +1,10 @@
 <script lang='ts' setup>
-  import { initFlowbite } from 'flowbite';
   import { LogOutIcon } from 'lucide-vue-next';
   import GcLogoIcon from '@/components/icons/GcLogoIcon.vue';
   import { drawerLinks } from '@/helpers/drawerLinks';
   import { tailwind } from '@/helpers';
   import { useAuthStore } from '@/stores/auth';
   import type { LinkItem } from '@/helpers/drawerLinks';
-
-  onMounted(() => {
-    initFlowbite();
-  });
 
   const $route = useRoute();
 
