@@ -39,7 +39,7 @@
         return;
       }
 
-      $router.push({ name: 'dashboard' });
+      $router.push({ name: 'index' });
     } catch (error) {
       if (error instanceof Error) {
         loginError.value = error.message;
@@ -60,7 +60,7 @@
         return;
       }
 
-      $router.push({ name: 'dashboard' });
+      $router.push({ name: 'index' });
     } catch (error) {
       if (error instanceof Error) {
         loginError.value = error.message;

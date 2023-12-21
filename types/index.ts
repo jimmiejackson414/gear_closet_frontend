@@ -39,39 +39,39 @@ export interface Database {
           content: string | null;
           created_at: string | null;
           id: number;
+          profile_id: string | null;
           question_id: number | null;
           updated_at: string;
-          user_id: string | null;
         };
         Insert: {
           content?: string | null;
           created_at?: string | null;
           id?: number;
+          profile_id?: string | null;
           question_id?: number | null;
           updated_at?: string;
-          user_id?: string | null;
         };
         Update: {
           content?: string | null;
           created_at?: string | null;
           id?: number;
+          profile_id?: string | null;
           question_id?: number | null;
           updated_at?: string;
-          user_id?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "answers_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "answers_question_id_fkey";
             columns: ["question_id"];
             isOneToOne: false;
             referencedRelation: "questions";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "answers_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
             referencedColumns: ["id"];
           },
         ];
@@ -161,25 +161,25 @@ export interface Database {
           created_at: string | null;
           id: number;
           pack_id: number;
+          profile_id: string;
           text: string | null;
           updated_at: string | null;
-          user_id: string;
         };
         Insert: {
           created_at?: string | null;
           id?: number;
           pack_id: number;
+          profile_id: string;
           text?: string | null;
           updated_at?: string | null;
-          user_id: string;
         };
         Update: {
           created_at?: string | null;
           id?: number;
           pack_id?: number;
+          profile_id?: string;
           text?: string | null;
           updated_at?: string | null;
-          user_id?: string;
         };
         Relationships: [
           {
@@ -190,10 +190,10 @@ export interface Database {
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "comments_user_id_fkey";
-            columns: ["user_id"];
+            foreignKeyName: "comments_profile_id_fkey";
+            columns: ["profile_id"];
             isOneToOne: false;
-            referencedRelation: "users";
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -201,25 +201,25 @@ export interface Database {
       customers: {
         Row: {
           id: string;
+          profile_id: string;
           stripe_customer_id: string | null;
-          user_id: string;
         };
         Insert: {
           id?: string;
+          profile_id: string;
           stripe_customer_id?: string | null;
-          user_id: string;
         };
         Update: {
           id?: string;
+          profile_id?: string;
           stripe_customer_id?: string | null;
-          user_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: "customers_user_id_fkey";
-            columns: ["user_id"];
+            foreignKeyName: "customers_profile_id_fkey";
+            columns: ["profile_id"];
             isOneToOne: false;
-            referencedRelation: "users";
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -231,8 +231,8 @@ export interface Database {
           id: number;
           invite_accepted_on: string | null;
           invite_sent_on: string | null;
+          profile_id: string | null;
           updated_at: string | null;
-          user_id: string | null;
         };
         Insert: {
           created_at?: string | null;
@@ -240,8 +240,8 @@ export interface Database {
           id?: number;
           invite_accepted_on?: string | null;
           invite_sent_on?: string | null;
+          profile_id?: string | null;
           updated_at?: string | null;
-          user_id?: string | null;
         };
         Update: {
           created_at?: string | null;
@@ -249,22 +249,22 @@ export interface Database {
           id?: number;
           invite_accepted_on?: string | null;
           invite_sent_on?: string | null;
+          profile_id?: string | null;
           updated_at?: string | null;
-          user_id?: string | null;
         };
         Relationships: [
           {
             foreignKeyName: "friends_friend_id_fkey";
             columns: ["friend_id"];
             isOneToOne: false;
-            referencedRelation: "users";
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "friends_user_id_fkey";
-            columns: ["user_id"];
+            foreignKeyName: "friends_profile_id_fkey";
+            columns: ["profile_id"];
             isOneToOne: false;
-            referencedRelation: "users";
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -277,12 +277,12 @@ export interface Database {
           id: number;
           name: string | null;
           price: number | null;
+          profile_id: string | null;
           quantity: number | null;
           slug: string;
           unit: string | null;
           updated_at: string | null;
           url: string | null;
-          user_id: string | null;
           weight: string | null;
           worn: boolean | null;
         };
@@ -293,12 +293,12 @@ export interface Database {
           id?: number;
           name?: string | null;
           price?: number | null;
+          profile_id?: string | null;
           quantity?: number | null;
           slug: string;
           unit?: string | null;
           updated_at?: string | null;
           url?: string | null;
-          user_id?: string | null;
           weight?: string | null;
           worn?: boolean | null;
         };
@@ -309,21 +309,21 @@ export interface Database {
           id?: number;
           name?: string | null;
           price?: number | null;
+          profile_id?: string | null;
           quantity?: number | null;
           slug?: string;
           unit?: string | null;
           updated_at?: string | null;
           url?: string | null;
-          user_id?: string | null;
           weight?: string | null;
           worn?: boolean | null;
         };
         Relationships: [
           {
-            foreignKeyName: "items_user_id_fkey";
-            columns: ["user_id"];
+            foreignKeyName: "items_profile_id_fkey";
+            columns: ["profile_id"];
             isOneToOne: false;
-            referencedRelation: "users";
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -333,38 +333,38 @@ export interface Database {
           content: string | null;
           created_at: string | null;
           id: number;
+          profile_id: string | null;
           read_on_date: string | null;
           sender_id: string | null;
           title: string | null;
           updated_at: string;
-          user_id: string | null;
         };
         Insert: {
           content?: string | null;
           created_at?: string | null;
           id?: number;
+          profile_id?: string | null;
           read_on_date?: string | null;
           sender_id?: string | null;
           title?: string | null;
           updated_at?: string;
-          user_id?: string | null;
         };
         Update: {
           content?: string | null;
           created_at?: string | null;
           id?: number;
+          profile_id?: string | null;
           read_on_date?: string | null;
           sender_id?: string | null;
           title?: string | null;
           updated_at?: string;
-          user_id?: string | null;
         };
         Relationships: [
           {
-            foreignKeyName: "notifications_user_id_fkey";
-            columns: ["user_id"];
+            foreignKeyName: "notifications_profile_id_fkey";
+            columns: ["profile_id"];
             isOneToOne: false;
-            referencedRelation: "users";
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -374,29 +374,29 @@ export interface Database {
           completion_date: string | null;
           created_at: string;
           page: string;
+          profile_id: string;
           updated_at: string;
-          user_id: string;
         };
         Insert: {
           completion_date?: string | null;
           created_at?: string;
           page: string;
+          profile_id: string;
           updated_at?: string;
-          user_id: string;
         };
         Update: {
           completion_date?: string | null;
           created_at?: string;
           page?: string;
+          profile_id?: string;
           updated_at?: string;
-          user_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: "onboarding_steps_user_id_fkey";
-            columns: ["user_id"];
+            foreignKeyName: "onboarding_steps_profile_id_fkey";
+            columns: ["profile_id"];
             isOneToOne: false;
-            referencedRelation: "users";
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -408,10 +408,10 @@ export interface Database {
           id: number;
           name: string | null;
           private: boolean;
+          profile_id: string;
           slug: string;
           theme: Database["public"]["Enums"]["theme"] | null;
           updated_at: string | null;
-          user_id: string;
         };
         Insert: {
           allow_comments?: boolean;
@@ -419,10 +419,10 @@ export interface Database {
           id?: number;
           name?: string | null;
           private?: boolean;
+          profile_id: string;
           slug: string;
           theme?: Database["public"]["Enums"]["theme"] | null;
           updated_at?: string | null;
-          user_id: string;
         };
         Update: {
           allow_comments?: boolean;
@@ -430,17 +430,17 @@ export interface Database {
           id?: number;
           name?: string | null;
           private?: boolean;
+          profile_id?: string;
           slug?: string;
           theme?: Database["public"]["Enums"]["theme"] | null;
           updated_at?: string | null;
-          user_id?: string;
         };
         Relationships: [
           {
-            foreignKeyName: "packs_user_id_fkey";
-            columns: ["user_id"];
+            foreignKeyName: "packs_profile_id_fkey";
+            columns: ["profile_id"];
             isOneToOne: false;
-            referencedRelation: "users";
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -449,37 +449,37 @@ export interface Database {
         Row: {
           created_at: string | null;
           id: number;
+          profile_id: string | null;
           trip_id: number | null;
           updated_at: string;
-          user_id: string | null;
         };
         Insert: {
           created_at?: string | null;
           id?: number;
+          profile_id?: string | null;
           trip_id?: number | null;
           updated_at?: string;
-          user_id?: string | null;
         };
         Update: {
           created_at?: string | null;
           id?: number;
+          profile_id?: string | null;
           trip_id?: number | null;
           updated_at?: string;
-          user_id?: string | null;
         };
         Relationships: [
+          {
+            foreignKeyName: "polls_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
           {
             foreignKeyName: "polls_trip_id_fkey";
             columns: ["trip_id"];
             isOneToOne: false;
             referencedRelation: "trips";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "polls_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
             referencedColumns: ["id"];
           },
         ];
@@ -574,499 +574,56 @@ export interface Database {
         };
         Relationships: [];
       };
-      questions: {
-        Row: {
-          created_at: string | null;
-          id: number;
-          poll_id: number | null;
-          title: string | null;
-          updated_at: string;
-          user_id: string | null;
-        };
-        Insert: {
-          created_at?: string | null;
-          id?: number;
-          poll_id?: number | null;
-          title?: string | null;
-          updated_at?: string;
-          user_id?: string | null;
-        };
-        Update: {
-          created_at?: string | null;
-          id?: number;
-          poll_id?: number | null;
-          title?: string | null;
-          updated_at?: string;
-          user_id?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "questions_poll_id_fkey";
-            columns: ["poll_id"];
-            isOneToOne: false;
-            referencedRelation: "polls";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "questions_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      replies: {
-        Row: {
-          comment_id: number;
-          created_at: string | null;
-          id: number;
-          text: string | null;
-          updated_at: string | null;
-          user_id: string;
-        };
-        Insert: {
-          comment_id: number;
-          created_at?: string | null;
-          id?: number;
-          text?: string | null;
-          updated_at?: string | null;
-          user_id: string;
-        };
-        Update: {
-          comment_id?: number;
-          created_at?: string | null;
-          id?: number;
-          text?: string | null;
-          updated_at?: string | null;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "replies_comment_id_fkey";
-            columns: ["comment_id"];
-            isOneToOne: false;
-            referencedRelation: "comments";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "replies_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      shopping_list_items: {
-        Row: {
-          completed: boolean;
-          created_at: string | null;
-          id: number;
-          quantity: number | null;
-          resource_type: Database["public"]["Enums"]["resource_type"];
-          title: string | null;
-          trip_id: number | null;
-          updated_at: string | null;
-          user_id: string | null;
-        };
-        Insert: {
-          completed?: boolean;
-          created_at?: string | null;
-          id?: number;
-          quantity?: number | null;
-          resource_type?: Database["public"]["Enums"]["resource_type"];
-          title?: string | null;
-          trip_id?: number | null;
-          updated_at?: string | null;
-          user_id?: string | null;
-        };
-        Update: {
-          completed?: boolean;
-          created_at?: string | null;
-          id?: number;
-          quantity?: number | null;
-          resource_type?: Database["public"]["Enums"]["resource_type"];
-          title?: string | null;
-          trip_id?: number | null;
-          updated_at?: string | null;
-          user_id?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "shopping_list_items_trip_id_fkey";
-            columns: ["trip_id"];
-            isOneToOne: false;
-            referencedRelation: "trips";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "shopping_list_items_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      subscriptions: {
-        Row: {
-          cancel_at: string | null;
-          cancel_at_period_end: boolean | null;
-          canceled_at: string | null;
-          created_at: string;
-          current_period_end: string;
-          current_period_start: string;
-          ended_at: string | null;
-          id: string;
-          metadata: Json | null;
-          price_id: string | null;
-          quantity: number | null;
-          status: Database["public"]["Enums"]["subscription_status"] | null;
-          stripe_subscription_id: string | null;
-          trial_end: string | null;
-          trial_start: string | null;
-          user_id: string;
-        };
-        Insert: {
-          cancel_at?: string | null;
-          cancel_at_period_end?: boolean | null;
-          canceled_at?: string | null;
-          created_at?: string;
-          current_period_end?: string;
-          current_period_start?: string;
-          ended_at?: string | null;
-          id?: string;
-          metadata?: Json | null;
-          price_id?: string | null;
-          quantity?: number | null;
-          status?: Database["public"]["Enums"]["subscription_status"] | null;
-          stripe_subscription_id?: string | null;
-          trial_end?: string | null;
-          trial_start?: string | null;
-          user_id: string;
-        };
-        Update: {
-          cancel_at?: string | null;
-          cancel_at_period_end?: boolean | null;
-          canceled_at?: string | null;
-          created_at?: string;
-          current_period_end?: string;
-          current_period_start?: string;
-          ended_at?: string | null;
-          id?: string;
-          metadata?: Json | null;
-          price_id?: string | null;
-          quantity?: number | null;
-          status?: Database["public"]["Enums"]["subscription_status"] | null;
-          stripe_subscription_id?: string | null;
-          trial_end?: string | null;
-          trial_start?: string | null;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "subscriptions_price_id_fkey";
-            columns: ["price_id"];
-            isOneToOne: false;
-            referencedRelation: "prices";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "subscriptions_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      todos: {
-        Row: {
-          completed: boolean;
-          created_at: string | null;
-          id: number;
-          resource_type: Database["public"]["Enums"]["resource_type"];
-          title: string | null;
-          trip_id: number | null;
-          updated_at: string | null;
-          user_id: string | null;
-        };
-        Insert: {
-          completed?: boolean;
-          created_at?: string | null;
-          id?: number;
-          resource_type?: Database["public"]["Enums"]["resource_type"];
-          title?: string | null;
-          trip_id?: number | null;
-          updated_at?: string | null;
-          user_id?: string | null;
-        };
-        Update: {
-          completed?: boolean;
-          created_at?: string | null;
-          id?: number;
-          resource_type?: Database["public"]["Enums"]["resource_type"];
-          title?: string | null;
-          trip_id?: number | null;
-          updated_at?: string | null;
-          user_id?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "todos_trip_id_fkey";
-            columns: ["trip_id"];
-            isOneToOne: false;
-            referencedRelation: "trips";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "todos_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      trip_details: {
-        Row: {
-          created_at: string | null;
-          id: number;
-          title: string | null;
-          trip_id: number | null;
-          type: string | null;
-          updated_at: string;
-          url: string | null;
-          value: string | null;
-        };
-        Insert: {
-          created_at?: string | null;
-          id?: number;
-          title?: string | null;
-          trip_id?: number | null;
-          type?: string | null;
-          updated_at?: string;
-          url?: string | null;
-          value?: string | null;
-        };
-        Update: {
-          created_at?: string | null;
-          id?: number;
-          title?: string | null;
-          trip_id?: number | null;
-          type?: string | null;
-          updated_at?: string;
-          url?: string | null;
-          value?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "trip_details_trip_id_fkey";
-            columns: ["trip_id"];
-            isOneToOne: false;
-            referencedRelation: "trips";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      trip_friends: {
-        Row: {
-          accepted_invite_on: string | null;
-          created_at: string | null;
-          id: number;
-          status: Database["public"]["Enums"]["trip_friend_status"];
-          trip_id: number | null;
-          updated_at: string;
-          user_id: string | null;
-        };
-        Insert: {
-          accepted_invite_on?: string | null;
-          created_at?: string | null;
-          id?: number;
-          status?: Database["public"]["Enums"]["trip_friend_status"];
-          trip_id?: number | null;
-          updated_at?: string;
-          user_id?: string | null;
-        };
-        Update: {
-          accepted_invite_on?: string | null;
-          created_at?: string | null;
-          id?: number;
-          status?: Database["public"]["Enums"]["trip_friend_status"];
-          trip_id?: number | null;
-          updated_at?: string;
-          user_id?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "trip_friends_trip_id_fkey";
-            columns: ["trip_id"];
-            isOneToOne: false;
-            referencedRelation: "trips";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "trip_friends_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      trip_packs: {
-        Row: {
-          created_at: string | null;
-          id: number;
-          pack_id: number | null;
-          trip_id: number | null;
-          updated_at: string | null;
-          user_id: string | null;
-        };
-        Insert: {
-          created_at?: string | null;
-          id?: number;
-          pack_id?: number | null;
-          trip_id?: number | null;
-          updated_at?: string | null;
-          user_id?: string | null;
-        };
-        Update: {
-          created_at?: string | null;
-          id?: number;
-          pack_id?: number | null;
-          trip_id?: number | null;
-          updated_at?: string | null;
-          user_id?: string | null;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "trip_packs_pack_id_fkey";
-            columns: ["pack_id"];
-            isOneToOne: false;
-            referencedRelation: "packs";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "trip_packs_trip_id_fkey";
-            columns: ["trip_id"];
-            isOneToOne: false;
-            referencedRelation: "trips";
-            referencedColumns: ["id"];
-          },
-          {
-            foreignKeyName: "trip_packs_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      trips: {
-        Row: {
-          coordinates: Json | null;
-          created_at: string | null;
-          description: string | null;
-          ending_date: string | null;
-          ending_point: string | null;
-          id: number;
-          name: string | null;
-          slug: string;
-          starting_date: string | null;
-          starting_point: string | null;
-          updated_at: string;
-          user_id: string;
-        };
-        Insert: {
-          coordinates?: Json | null;
-          created_at?: string | null;
-          description?: string | null;
-          ending_date?: string | null;
-          ending_point?: string | null;
-          id?: number;
-          name?: string | null;
-          slug: string;
-          starting_date?: string | null;
-          starting_point?: string | null;
-          updated_at?: string;
-          user_id: string;
-        };
-        Update: {
-          coordinates?: Json | null;
-          created_at?: string | null;
-          description?: string | null;
-          ending_date?: string | null;
-          ending_point?: string | null;
-          id?: number;
-          name?: string | null;
-          slug?: string;
-          starting_date?: string | null;
-          starting_point?: string | null;
-          updated_at?: string;
-          user_id?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "trips_user_id_fkey";
-            columns: ["user_id"];
-            isOneToOne: false;
-            referencedRelation: "users";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      user_answers: {
+      profile_answers: {
         Row: {
           answer_id: number | null;
           created_at: string | null;
           id: number;
           poll_id: number | null;
+          profile_id: string | null;
           updated_at: string;
-          user_id: string | null;
         };
         Insert: {
           answer_id?: number | null;
           created_at?: string | null;
           id?: number;
           poll_id?: number | null;
+          profile_id?: string | null;
           updated_at?: string;
-          user_id?: string | null;
         };
         Update: {
           answer_id?: number | null;
           created_at?: string | null;
           id?: number;
           poll_id?: number | null;
+          profile_id?: string | null;
           updated_at?: string;
-          user_id?: string | null;
         };
         Relationships: [
           {
-            foreignKeyName: "user_answers_answer_id_fkey";
+            foreignKeyName: "profile_answers_answer_id_fkey";
             columns: ["answer_id"];
             isOneToOne: false;
             referencedRelation: "answers";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "user_answers_poll_id_fkey";
+            foreignKeyName: "profile_answers_poll_id_fkey";
             columns: ["poll_id"];
             isOneToOne: false;
             referencedRelation: "polls";
             referencedColumns: ["id"];
           },
           {
-            foreignKeyName: "user_answers_user_id_fkey";
-            columns: ["user_id"];
+            foreignKeyName: "profile_answers_profile_id_fkey";
+            columns: ["profile_id"];
             isOneToOne: false;
-            referencedRelation: "users";
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
       };
-      users: {
+      profiles: {
         Row: {
           address_1: string | null;
           address_2: string | null;
@@ -1141,10 +698,453 @@ export interface Database {
         };
         Relationships: [
           {
-            foreignKeyName: "users_id_fkey";
+            foreignKeyName: "profiles_id_fkey";
             columns: ["id"];
             isOneToOne: true;
             referencedRelation: "users";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      questions: {
+        Row: {
+          created_at: string | null;
+          id: number;
+          poll_id: number | null;
+          profile_id: string | null;
+          title: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: number;
+          poll_id?: number | null;
+          profile_id?: string | null;
+          title?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: number;
+          poll_id?: number | null;
+          profile_id?: string | null;
+          title?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "questions_poll_id_fkey";
+            columns: ["poll_id"];
+            isOneToOne: false;
+            referencedRelation: "polls";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "questions_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      replies: {
+        Row: {
+          comment_id: number;
+          created_at: string | null;
+          id: number;
+          profile_id: string;
+          text: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          comment_id: number;
+          created_at?: string | null;
+          id?: number;
+          profile_id: string;
+          text?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          comment_id?: number;
+          created_at?: string | null;
+          id?: number;
+          profile_id?: string;
+          text?: string | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "replies_comment_id_fkey";
+            columns: ["comment_id"];
+            isOneToOne: false;
+            referencedRelation: "comments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "replies_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      shopping_list_items: {
+        Row: {
+          completed: boolean;
+          created_at: string | null;
+          id: number;
+          profile_id: string | null;
+          quantity: number | null;
+          resource_type: Database["public"]["Enums"]["resource_type"];
+          title: string | null;
+          trip_id: number | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          completed?: boolean;
+          created_at?: string | null;
+          id?: number;
+          profile_id?: string | null;
+          quantity?: number | null;
+          resource_type?: Database["public"]["Enums"]["resource_type"];
+          title?: string | null;
+          trip_id?: number | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          completed?: boolean;
+          created_at?: string | null;
+          id?: number;
+          profile_id?: string | null;
+          quantity?: number | null;
+          resource_type?: Database["public"]["Enums"]["resource_type"];
+          title?: string | null;
+          trip_id?: number | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "shopping_list_items_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "shopping_list_items_trip_id_fkey";
+            columns: ["trip_id"];
+            isOneToOne: false;
+            referencedRelation: "trips";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      subscriptions: {
+        Row: {
+          cancel_at: string | null;
+          cancel_at_period_end: boolean | null;
+          canceled_at: string | null;
+          created_at: string;
+          current_period_end: string;
+          current_period_start: string;
+          ended_at: string | null;
+          id: string;
+          metadata: Json | null;
+          price_id: string | null;
+          profile_id: string;
+          quantity: number | null;
+          status: Database["public"]["Enums"]["subscription_status"] | null;
+          stripe_subscription_id: string | null;
+          trial_end: string | null;
+          trial_start: string | null;
+        };
+        Insert: {
+          cancel_at?: string | null;
+          cancel_at_period_end?: boolean | null;
+          canceled_at?: string | null;
+          created_at?: string;
+          current_period_end?: string;
+          current_period_start?: string;
+          ended_at?: string | null;
+          id?: string;
+          metadata?: Json | null;
+          price_id?: string | null;
+          profile_id: string;
+          quantity?: number | null;
+          status?: Database["public"]["Enums"]["subscription_status"] | null;
+          stripe_subscription_id?: string | null;
+          trial_end?: string | null;
+          trial_start?: string | null;
+        };
+        Update: {
+          cancel_at?: string | null;
+          cancel_at_period_end?: boolean | null;
+          canceled_at?: string | null;
+          created_at?: string;
+          current_period_end?: string;
+          current_period_start?: string;
+          ended_at?: string | null;
+          id?: string;
+          metadata?: Json | null;
+          price_id?: string | null;
+          profile_id?: string;
+          quantity?: number | null;
+          status?: Database["public"]["Enums"]["subscription_status"] | null;
+          stripe_subscription_id?: string | null;
+          trial_end?: string | null;
+          trial_start?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_price_id_fkey";
+            columns: ["price_id"];
+            isOneToOne: false;
+            referencedRelation: "prices";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "subscriptions_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      todos: {
+        Row: {
+          completed: boolean;
+          created_at: string | null;
+          id: number;
+          profile_id: string | null;
+          resource_type: Database["public"]["Enums"]["resource_type"];
+          title: string | null;
+          trip_id: number | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          completed?: boolean;
+          created_at?: string | null;
+          id?: number;
+          profile_id?: string | null;
+          resource_type?: Database["public"]["Enums"]["resource_type"];
+          title?: string | null;
+          trip_id?: number | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          completed?: boolean;
+          created_at?: string | null;
+          id?: number;
+          profile_id?: string | null;
+          resource_type?: Database["public"]["Enums"]["resource_type"];
+          title?: string | null;
+          trip_id?: number | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "todos_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "todos_trip_id_fkey";
+            columns: ["trip_id"];
+            isOneToOne: false;
+            referencedRelation: "trips";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      trip_details: {
+        Row: {
+          created_at: string | null;
+          id: number;
+          title: string | null;
+          trip_id: number | null;
+          type: string | null;
+          updated_at: string;
+          url: string | null;
+          value: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: number;
+          title?: string | null;
+          trip_id?: number | null;
+          type?: string | null;
+          updated_at?: string;
+          url?: string | null;
+          value?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: number;
+          title?: string | null;
+          trip_id?: number | null;
+          type?: string | null;
+          updated_at?: string;
+          url?: string | null;
+          value?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "trip_details_trip_id_fkey";
+            columns: ["trip_id"];
+            isOneToOne: false;
+            referencedRelation: "trips";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      trip_friends: {
+        Row: {
+          accepted_invite_on: string | null;
+          created_at: string | null;
+          id: number;
+          profile_id: string | null;
+          status: Database["public"]["Enums"]["trip_friend_status"];
+          trip_id: number | null;
+          updated_at: string;
+        };
+        Insert: {
+          accepted_invite_on?: string | null;
+          created_at?: string | null;
+          id?: number;
+          profile_id?: string | null;
+          status?: Database["public"]["Enums"]["trip_friend_status"];
+          trip_id?: number | null;
+          updated_at?: string;
+        };
+        Update: {
+          accepted_invite_on?: string | null;
+          created_at?: string | null;
+          id?: number;
+          profile_id?: string | null;
+          status?: Database["public"]["Enums"]["trip_friend_status"];
+          trip_id?: number | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "trip_friends_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "trip_friends_trip_id_fkey";
+            columns: ["trip_id"];
+            isOneToOne: false;
+            referencedRelation: "trips";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      trip_packs: {
+        Row: {
+          created_at: string | null;
+          id: number;
+          pack_id: number | null;
+          profile_id: string | null;
+          trip_id: number | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: number;
+          pack_id?: number | null;
+          profile_id?: string | null;
+          trip_id?: number | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: number;
+          pack_id?: number | null;
+          profile_id?: string | null;
+          trip_id?: number | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "trip_packs_pack_id_fkey";
+            columns: ["pack_id"];
+            isOneToOne: false;
+            referencedRelation: "packs";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "trip_packs_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "trip_packs_trip_id_fkey";
+            columns: ["trip_id"];
+            isOneToOne: false;
+            referencedRelation: "trips";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      trips: {
+        Row: {
+          coordinates: Json | null;
+          created_at: string | null;
+          description: string | null;
+          ending_date: string | null;
+          ending_point: string | null;
+          id: number;
+          name: string | null;
+          profile_id: string;
+          slug: string;
+          starting_date: string | null;
+          starting_point: string | null;
+          updated_at: string;
+        };
+        Insert: {
+          coordinates?: Json | null;
+          created_at?: string | null;
+          description?: string | null;
+          ending_date?: string | null;
+          ending_point?: string | null;
+          id?: number;
+          name?: string | null;
+          profile_id: string;
+          slug: string;
+          starting_date?: string | null;
+          starting_point?: string | null;
+          updated_at?: string;
+        };
+        Update: {
+          coordinates?: Json | null;
+          created_at?: string | null;
+          description?: string | null;
+          ending_date?: string | null;
+          ending_point?: string | null;
+          id?: number;
+          name?: string | null;
+          profile_id?: string;
+          slug?: string;
+          starting_date?: string | null;
+          starting_point?: string | null;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "trips_profile_id_fkey";
+            columns: ["profile_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
         ];
@@ -1607,6 +1607,17 @@ export type Product = Database["public"]["Tables"]["products"]["Row"];
 export type InsertProduct = Database["public"]["Tables"]["products"]["Insert"];
 export type UpdateProduct = Database["public"]["Tables"]["products"]["Update"];
 
+export type ProfileAnswer =
+  Database["public"]["Tables"]["profile_answers"]["Row"];
+export type InsertProfileAnswer =
+  Database["public"]["Tables"]["profile_answers"]["Insert"];
+export type UpdateProfileAnswer =
+  Database["public"]["Tables"]["profile_answers"]["Update"];
+
+export type Profile = Database["public"]["Tables"]["profiles"]["Row"];
+export type InsertProfile = Database["public"]["Tables"]["profiles"]["Insert"];
+export type UpdateProfile = Database["public"]["Tables"]["profiles"]["Update"];
+
 export type Question = Database["public"]["Tables"]["questions"]["Row"];
 export type InsertQuestion =
   Database["public"]["Tables"]["questions"]["Insert"];
@@ -1655,16 +1666,6 @@ export type UpdateTripPack =
 export type Trip = Database["public"]["Tables"]["trips"]["Row"];
 export type InsertTrip = Database["public"]["Tables"]["trips"]["Insert"];
 export type UpdateTrip = Database["public"]["Tables"]["trips"]["Update"];
-
-export type UserAnswer = Database["public"]["Tables"]["user_answers"]["Row"];
-export type InsertUserAnswer =
-  Database["public"]["Tables"]["user_answers"]["Insert"];
-export type UpdateUserAnswer =
-  Database["public"]["Tables"]["user_answers"]["Update"];
-
-export type User = Database["public"]["Tables"]["users"]["Row"];
-export type InsertUser = Database["public"]["Tables"]["users"]["Insert"];
-export type UpdateUser = Database["public"]["Tables"]["users"]["Update"];
 
 // Schema: storage
 // Tables

@@ -11,7 +11,7 @@ export type LinkItem = {
 
 export const drawerLinks = [
   {
-    to: 'dashboard',
+    to: '/',
     title: 'Dashboard',
     icon: Home,
     disabled: false,

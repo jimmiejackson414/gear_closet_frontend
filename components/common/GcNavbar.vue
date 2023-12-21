@@ -2,7 +2,11 @@
   import { storeToRefs } from 'pinia';
   import { BellRingIcon } from 'lucide-vue-next';
   import { useUserStore } from '@/stores/user';
-  import type { Notification, UpdateNotification } from '@/types/index';
+  import type { Notification, Profile } from '@/types';
+
+  type ExtendedNotification = Notification & {
+    sender: Profile;
+  };
 
   interface Props {
     pageTitle: string;
@@ -12,26 +16,27 @@
     pageTitle: '',
   });
 
-  // instantiate store and libs
   const $userStore = useUserStore();
+  const { profile, unreadNotifications } = storeToRefs($userStore);
 
-  const { unreadNotifications, currentUser } = storeToRefs($userStore);
+  onMounted(() => {
+    $userStore.subscribeToNotifications();
+  });
 
   const shouldShowBadge = computed(() => $userStore.unreadNotifications.length > 0);
-
   const welcomeMessage = computed(() => {
-    if (currentUser.value?.first_name) {
+    if (profile.value?.first_name) {
       const arr = ['Hello', 'Welcome', 'Hey'];
       const rand = Math.floor(Math.random() * arr.length);
-      return `${arr[rand]}, ${currentUser.value.first_name}!`;
+      return `${arr[rand]}, ${profile.value.first_name}!`;
     }
     return 'Welcome!';
   });
 
-  const markAsRead = (notification: Notification) => {
-    const payload: UpdateNotification = { id: notification.id };
-    $userStore.updateNotification(payload);
-  };
+  const isDropdownOpen = ref(false);
+  const notificationDropdown = ref<any | null>(null);
+
+  onClickOutside(notificationDropdown, () => isDropdownOpen.value = false);
 </script>
 
 <template>
@@ -39,60 +44,65 @@
     <div class="page-title">
       <p class="text-base-lg">
         <span class="mr-2">&#128075;</span>
-        {{ welcomeMessage }}
+        <client-only>
+          {{ welcomeMessage }}
+        </client-only>
       </p>
       <h1 class="mt-4 text-3xl">
         {{ pageTitle }}
       </h1>
     </div>
     <div class="grow" />
-    <div class="hs-dropdown inline-flex relative">
+
+    <div class="relative">
       <button
-        id="hs-dropdown-default"
-        class="bg-white duration-200 focus-visible:outline-none hs-dropdown-toggle p-3 relative rounded-full shadow-light hover:shadow-default transition-all"
-        type="button">
+        class="duration-150 ease-in-out font-medium inline-flex items-center relative text-center hover:text-dark-grey text-gray-500 text-sm focus:outline-none"
+        type="button"
+        @click="isDropdownOpen = !isDropdownOpen">
         <bell-ring-icon class="h-6 w-6" />
-        <span
+        <div
           v-if="shouldShowBadge"
-          class="-translate-y-1/2 absolute top-2 bg-danger end-1 font-medium inline-flex items-center px-1.5 py-0.5 rounded-full text-white text-xs transform translate-x-1/2">
-          {{ $userStore.unreadNotifications.length }}
-        </span>
+          class="absolute -top-1 bg-danger block border-2 border-white h-3 rounded-full start-3.5 w-3" />
       </button>
-      <div
-        aria-labelledby="hs-dropdown-default"
-        class="bg-white duration hidden hs-dropdown-menu hs-dropdown-open:opacity-100 max-w-[30rem] min-w-[20rem] mt-2 opacity-0 p-4 rounded-lg shadow-default transition-[opacity,margin] z-50 after:-bottom-4 after:absolute after:h-4 after:start-0 after:w-full before:-top-4 before:absolute before:h-4 before:start-0 before:w-full">
-        <div class="flex justify-between items-center">
-          <h3 class="font-semibold text-base">
-            Notifications
-          </h3>
-        </div>
-        <div class="divide-gray-200 divide-y">
-          <ul
-            v-if="unreadNotifications.length"
-            class="divide-light-grey divide-y flex flex-col">
-            <notification-item
-              v-for="notification in unreadNotifications.slice(0, 5)"
-              :key="notification.id"
-              :notification="notification"
-              placement="navbar"
-              @mark-as-read="markAsRead" />
-          </ul>
+      <transition
+        enter-active-class="transition ease duration-100"
+        enter-from-class="transform opacity-0"
+        enter-to-class="transform opacity-100"
+        leave-active-class="transition ease-in duration-75"
+        leave-from-class="transform opacity-100"
+        leave-to-class="transform opacity-0"
+        mode="out-in">
+        <div
+          v-if="isDropdownOpen"
+          ref="notificationDropdown"
+          class="absolute top-full right-0 bg-white border divide-gray-100 duration-300 max-w-sm min-w-[300px] mt-2 rounded-lg shadow transition-all w-max z-20">
+          <div class="bg-gray-50 block font-medium px-4 py-2 rounded-t-lg text-center text-dark-grey">
+            Notifications ({{ unreadNotifications.length }})
+          </div>
+          <span v-if="unreadNotifications.length">
+            <ul class="divide-gray-100 divide-y">
+              <notification-item
+                v-for="notification in unreadNotifications"
+                :key="notification.id"
+                :notification="(notification as ExtendedNotification)" />
+            </ul>
+            <div class="bg-gray-50 block px-4 py-2 rounded-b-lg text-center text-dark-grey">
+              <gc-button
+                ghost
+                label="Mark all as read"
+                size="sm"
+                @click="$userStore.markAllAsRead()" />
+            </div>
+          </span>
           <div
             v-else
             class="py-3">
-            <p class="font-medium text-dark-grey text-left text-sm ">
+            <p class="font-medium text-center text-dark-grey text-sm">
               No new notifications
             </p>
           </div>
-          <div class="pt-2 view-all-wrapper">
-            <nuxt-link
-              class="font-medium text-primary text-sm"
-              to="/notifications">
-              View all
-            </nuxt-link>
-          </div>
         </div>
-      </div>
+      </transition>
     </div>
   </nav>
 </template>

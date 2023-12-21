@@ -99,7 +99,7 @@
 
       submitAction.value = { message: 'Account created successfully!', severity: 'positive' };
       setTimeout(() => {
-        $router.push({ name: 'dashboard' });
+        $router.push({ name: 'index' });
       }, 1500);
     } catch (error) {
       if (error instanceof Error) {

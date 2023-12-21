@@ -1,16 +1,6 @@
 <script lang='ts' setup>
   const { backgroundImage } = await useAuthLayout();
 
-  // interface Props {
-  //   fill: string;
-  //   image: string;
-  // }
-
-  // const props = withDefaults(defineProps<Props>(), {
-  //   fill: '#4a4a4a',
-  //   image: '',
-  // });
-
   const computedImage = computed(() => {
     return {
       backgroundImage: `url(${backgroundImage.image})`,

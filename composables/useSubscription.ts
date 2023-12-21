@@ -26,8 +26,8 @@ const useSubscription = (): ReturnType => {
 
   const handleGoBack = (): void => router.go(-1);
 
-  watch(() => user.currentUser, () => {
-    if (user.currentUser) checkSubscription();
+  watch(() => user.profile, () => {
+    if (user.profile) checkSubscription();
   });
 
   return { alertIsOpen, handleGoBack };

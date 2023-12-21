@@ -1,0 +1,17 @@
+@layer components {
+  .nav-link {
+    @apply font-bold text-base text-light-gray inline-flex items-center gap-x-2 whitespace-nowrap transition-all duration-200 ease-in-out cursor-pointer;
+
+    &:hover {
+      @apply hover:text-primary-yellow;
+    }
+
+    &-active {
+      @apply text-primary-yellow;
+    }
+  }
+
+  .nav-sublink {
+    @apply flex items-center gap-x-3.5 p-2 pl-0 first:mt-4 rounded-sm text-base text-light-gray font-normal md:text-primary-black md:font-bold md:hover:bg-gray-100 focus:ring-0;
+  }
+}

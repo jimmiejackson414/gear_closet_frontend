@@ -1,10 +1,15 @@
 <script lang='ts' setup>
+  import { initFlowbite } from 'flowbite';
   import { LogOutIcon } from 'lucide-vue-next';
   import GcLogoIcon from '@/components/icons/GcLogoIcon.vue';
   import { drawerLinks } from '@/helpers/drawerLinks';
   import { tailwind } from '@/helpers';
   import { useAuthStore } from '@/stores/auth';
   import type { LinkItem } from '@/helpers/drawerLinks';
+
+  onMounted(() => {
+    initFlowbite();
+  });
 
   const $route = useRoute();
 
@@ -30,44 +35,52 @@
         <span class="block mb-4 px-4 py-2">
           <gc-logo-icon
             :fill="tailwind.theme.colors.primary"
-            wrapper-class="w-6 h-6" />
+            wrapper-class="w-8 h-8" />
         </span>
       </li>
       <li
         v-for="link in drawerLinks"
         :key="link.to"
-        class="hs-tooltip inline-block [--placement:right]">
+        class="cursor-pointer">
         <nuxt-link
-          class="block hs-tooltip-toggle inflex-flex items-center justify-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
+          class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
           :class="isActiveRoute(link) ? 'bg-gray-100' : ''"
+          data-tooltip-placement="right"
+          :data-tooltip-target="`tooltip-${link.title.toLowerCase()}`"
           :disabled="link.disabled"
           :to="link.to">
           <component
             :is="link.icon"
             :color="iconColor(link)"
             :size="24" />
-          <span
-            class="absolute bg-gray-900 font-medium hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible inline-block invisible opacity-0 px-2 py-1 rounded shadow-sm text-sm text-white transition-opacity z-10"
-            role="tooltip">
-            {{ link.title }}
-          </span>
         </nuxt-link>
+        <div
+          :id="`tooltip-${link.title.toLowerCase()}`"
+          class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
+          role="tooltip">
+          {{ link.title }}
+        </div>
       </li>
+
       <li class="grow" />
-      <li class="hs-tooltip inline-block [--placement:right]">
+
+      <li class="cursor-pointer">
         <span
-          class="block cursor-pointer hs-tooltip-toggle px-4 py-2 rounded-lg hover:bg-gray-100"
+          class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
+          data-tooltip-placement="right"
+          data-tooltip-target="tooltip-logout"
           @click="handleLogout">
           <component
             :is="LogOutIcon"
             :color="tailwind.theme.colors['grey']"
             :size="24" />
-          <span
-            class="absolute bg-gray-900 font-medium hs-tooltip-content hs-tooltip-shown:opacity-100 hs-tooltip-shown:visible inline-block invisible opacity-0 px-2 py-1 rounded shadow-sm text-sm text-white transition-opacity z-10"
-            role="tooltip">
-            Logout
-          </span>
         </span>
+        <div
+          id="tooltip-logout"
+          class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
+          role="tooltip">
+          Logout
+        </div>
       </li>
     </ul>
   </div>

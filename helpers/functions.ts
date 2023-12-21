@@ -1,20 +1,9 @@
 import Dinero from 'dinero.js';
 import convert from 'convert';
-import type {
-  Category,
-  CategoryItem,
-  Pack,
-  User,
-} from '@/types';
+import type { Profile } from '@/types';
+import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '~/types/helpers';
 import type { Currency } from 'dinero.js';
 import type { Mass } from 'convert';
-
-interface PackData {
-  total: number;
-  base: number;
-  worn: number;
-  consumable: number;
-}
 
 interface FriendlyUsernameOptions {
   includeTrailName?: boolean;
@@ -22,14 +11,16 @@ interface FriendlyUsernameOptions {
 
 export const buildImageSrc = (url: string | undefined | null): string | undefined => {
   if (!url) return undefined;
-  return `https://res.cloudinary.com/${import.meta.env.NUXT_CLOUDINARY_CLOUD_NAME}/image/upload/${url}`;
+  const runtimeConfig = useRuntimeConfig();
+  const cloudName = runtimeConfig.public.CLOUDINARY_CLOUD_NAME as string;
+  return `https://res.cloudinary.com/${cloudName}/image/upload/${url}`;
 };
 
-export const calculateCategoryWeight = (category: Category): number => {
+export const calculateCategoryWeight = (category: ExtendedCategory): number => {
   if (!category || !category.category_items?.length) return 0;
 
-  return (category.category_items as CategoryItem[]).reduce(
-    (sum: number, elem: CategoryItem) => {
+  return (category.category_items).reduce(
+    (sum: number, elem: ExtendedCategoryItem) => {
       const converted = convert(parseFloat(elem.item!.weight || '0'), elem.item!.unit as Mass)
         .to('mg');
       return sum + (converted * (elem.item!.quantity || 0) as number);
@@ -38,7 +29,7 @@ export const calculateCategoryWeight = (category: Category): number => {
   );
 };
 
-export const calculateCategoryPrice = (category: Category): number => {
+export const calculateCategoryPrice = (category: ExtendedCategory) => {
   if (!category || !category.category_items.length) return 0;
   return category.category_items.reduce((allTotal: number, elem: any) => {
     const sum = elem.item.price * elem.item.quantity;
@@ -46,7 +37,7 @@ export const calculateCategoryPrice = (category: Category): number => {
   }, 0);
 };
 
-export const calculateCategoryQuantity = (category: Category): number => {
+export const calculateCategoryQuantity = (category: ExtendedCategory) => {
   if (!category || !category.category_items.length) return 0;
   return category.category_items.reduce((allTotal: number, elem: any) => {
     const sum = elem.item.quantity;
@@ -54,7 +45,7 @@ export const calculateCategoryQuantity = (category: Category): number => {
   }, 0);
 };
 
-export const calculatePackPrices = (pack: Pack): PackData => {
+export const calculatePackPrices = (pack: ExtendedPack) => {
   const data = {
     total: 0, base: 0, worn: 0, consumable: 0,
   };
@@ -64,27 +55,27 @@ export const calculatePackPrices = (pack: Pack): PackData => {
   pack.categories.forEach(cat => {
     cat?.category_items.forEach(catItem => {
       if (catItem?.item && !catItem.item.consumable && !catItem.item.worn) {
-        data.base += catItem.item.price;
+        data.base += catItem.item.price || 0;
       } else if (
         catItem?.item
         && catItem.item.consumable
         && catItem.item.worn
       ) {
-        data.worn += catItem.item.price;
-        data.consumable += catItem.item.price;
+        data.worn += catItem.item.price || 0;
+        data.consumable += catItem.item.price || 0;
       } else if (catItem?.item && catItem.item.worn) {
-        data.worn += catItem.item.price;
+        data.worn += catItem.item.price || 0;
       } else if (catItem?.item && catItem.item.consumable) {
-        data.consumable += catItem.item.price;
+        data.consumable += catItem.item.price || 0;
       }
 
-      data.total += catItem?.item ? catItem.item.price : 0;
+      data.total += catItem.item.price || 0;
     });
   });
   return data;
 };
 
-export const calculatePackWeights = (pack: Pack): PackData => {
+export const calculatePackWeights = (pack: ExtendedPack) => {
   const data = {
     total: 0, base: 0, worn: 0, consumable: 0,
   };
@@ -138,7 +129,7 @@ export const capitalize = (text: string | undefined | null): string => {
   return splitStr.join(' ');
 };
 
-export const completedOnboarding = (user: User | null | undefined, page: string): boolean => {
+export const completedOnboarding = (user: ExtendedUser | null | undefined, page: string): boolean => {
   if (!user || !user.onboarding_steps) return false;
   return user.onboarding_steps.some(step => step?.page === page);
 };
@@ -156,7 +147,7 @@ export const getPagination = (page: number, pageSize: number): { from: number, t
   return { from, to };
 };
 
-export const initials = (user: User | null | undefined): string => {
+export const initials = (user: Profile | null | undefined): string => {
   const base = 'GC';
   if (!user) return base;
   const firstInitial = user.first_name?.charAt(0);
@@ -164,7 +155,7 @@ export const initials = (user: User | null | undefined): string => {
   return firstInitial && lastInitial ? `${firstInitial}${lastInitial}` : base;
 };
 
-export const friendlyUsername = (user: User | null | undefined, options?: FriendlyUsernameOptions): string => {
+export const friendlyUsername = (user: Profile | null | undefined, options?: FriendlyUsernameOptions): string => {
   if (!user) return initials(user);
   if (options?.includeTrailName && user.trail_name) {
     return `${user.first_name} "${user.trail_name}" ${user.last_name}`;

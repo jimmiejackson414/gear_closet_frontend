@@ -6,6 +6,7 @@
     label?: string;
     loading?: boolean;
     outlined?: boolean;
+    ghost?: boolean;
     size?: 'sm' | 'md' | 'lg';
     type?: 'button' | 'submit' | 'reset';
     variant?: 'primary' | 'positive' | 'danger';
@@ -16,6 +17,7 @@
     label: '',
     loading: false,
     outlined: false,
+    ghost: false,
     size: 'md',
     type: 'button',
     variant: 'primary',
@@ -34,6 +36,10 @@
       if (props.variant === 'primary') { classes.push('btn-primary-outline'); }
       if (props.variant === 'positive') { classes.push('btn-positive-outline'); }
       if (props.variant === 'danger') { classes.push('btn-danger-outline'); }
+    } else if (props.ghost) {
+      if (props.variant === 'primary') { classes.push('btn-primary-ghost'); }
+      if (props.variant === 'positive') { classes.push('btn-positive-ghost'); }
+      if (props.variant === 'danger') { classes.push('btn-danger-ghost'); }
     } else {
       if (props.variant === 'primary') { classes.push('btn-primary'); }
       if (props.variant === 'positive') { classes.push('btn-positive'); }

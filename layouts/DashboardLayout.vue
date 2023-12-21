@@ -5,7 +5,7 @@
   const $store = useUserStore();
   const { loading } = storeToRefs($store);
 
-  await $store.fetchCurrentUser();
+  await $store.fetchProfile();
 </script>
 
 <template>
@@ -14,8 +14,10 @@
     <div v-else>
       <gc-drawer />
       <div class="min-h-screen">
-        <div class="p-4 pl-[72px] pr-9">
-          <slot />
+        <div class="pl-[72px] pr-4 lg:pr-9 py-4">
+          <div class="container">
+            <slot />
+          </div>
         </div>
       </div>
       <gc-footer />

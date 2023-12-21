@@ -1,27 +1,21 @@
 import { defineStore } from 'pinia';
 import { useAppStore } from '@/stores/app';
 import type {
-  Friend,
+  Database,
+  OnboardingStep,
   Notification,
-  Trip,
-  TripFriend,
-  UpdateNotification,
-  User,
+  Profile,
 } from '@/types';
 
-interface DashboardData {
-  friends: Friend[];
-  trips: Trip[];
-  trip_friends: TripFriend[];
+interface ProfileData extends Profile {
+  onboarding_steps: OnboardingStep[];
+  notifications: Notification[];
 }
 
 type State = {
-  currentUser: User | null;
+  profile: Profile | null;
   loading: boolean;
-  notifications: {
-    items: Notification[];
-    totalCount: number;
-  };
+  notifications: Notification[];
 };
 
 type Getters = {
@@ -29,20 +23,10 @@ type Getters = {
 };
 
 type Actions = {
-  // createOnboardingStep(input: CreateOnboardStepInput): Promise<CreateOnboardStepResponse>;
-  // fetchCurrentUser(): void;
-  fetchDashboard(): Promise<DashboardData>;
-  // fetchNotifications(input: NotificationsInput): void;
-  // handleAcceptInvite(inviteId: number): Promise<UpdateTripFriendResponse>;
-  // handleDeclineInvite(inviteId: number): Promise<UpdateTripFriendResponse>;
-  // handleUndoInvite(invite: TripFriend): Promise<UpdateTripFriendResponse>;
-  // loginToForums(input: DiscourseInput): Promise<DiscoursePayload>;
+  fetchProfile(): void;
+  fetchNotification (id: number | string): void;
+  subscribeToNotifications(): void;
   markAllAsRead(): void;
-  sendWelcomeEmail(): void;
-  // updateAvatar(input: UpdateAvatarInput): void;
-  updateNotification(input: UpdateNotification): void;
-  // updatePassword(input: UpdatePasswordInput): Promise<UpdatePasswordPayload>;
-  // updateUser(input: UpdateUserInput): void;
 };
 
 export const useUserStore = defineStore<'user', State, Getters, Actions>(
@@ -50,172 +34,102 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
   {
     state () {
       return {
-        currentUser: null,
+        profile: null,
         loading: false,
-        notifications: {
-          items: [],
-          totalCount: 0,
-        },
+        notifications: [],
       };
     },
 
     getters: {
-
       unreadNotifications () {
-        return this.notifications.items.filter(n => !n.read_on_date);
+        return this.notifications.filter(n => !n.read_on_date);
       },
     },
 
     actions: {
-      // async createOnboardingStep (input: CreateOnboardStepInput) {
-      //   const client = useClient();
-      //   const sdk = getSdk(client);
-
-      //   const { createOnboardStep } = await sdk.CreateOnboardingStep({ input });
-
-      //   return createOnboardStep as CreateOnboardStepResponse;
-      // },
-
-      // async fetchCurrentUser () {
-      //   const $store = useAppStore();
-      //   this.loading = true;
-
-      //   try {
-      //     const { id, error: sessionError } = await getUserId();
-
-      //     if (sessionError || !id) {
-      //       this.currentUser = null;
-      //       this.loading = false;
-      //       $store.notifyNegative('An error occurred while loading your account.');
-      //       return;
-      //     }
-
-      //     const { data: user, error } = await supabase.from('users')
-      //       .select('*, onboarding_steps(*), notifications(*)')
-      //       .eq('id', id)
-      //       .single();
-
-      //     if (!user || error) {
-      //       this.currentUser = null;
-      //       this.notifications = { items: [], totalCount: 0 };
-      //       this.loading = false;
-      //       $store.notifyNegative('An error occurred while loading your account.');
-      //       return;
-      //     }
-
-      //     this.currentUser = user;
-      //     this.notifications = { items: user.notifications, totalCount: user.notifications.length };
-      //     this.loading = false;
-      //   } catch (err) {
-      //     console.error({ err });
-      //   } finally {
-      //     this.loading = false;
-      //   }
-      // },
-
-      async fetchDashboard () {
-        this.loading = true;
-        const supabase = useSupabaseClient();
+      async fetchProfile () {
         const $store = useAppStore();
+        this.loading = true;
 
         try {
           const user = useSupabaseUser();
 
-          const { data, error } = await supabase.from('users')
-            .select('trip_friends(*), friends!friends_friend_id_fkey(*), trips(*)')
-            .eq('id', user.value!.id)
+          if (!user.value) {
+            this.profile = null;
+            this.loading = false;
+            $store.notifyNegative('An error occurred while loading your profile.');
+            return;
+          }
+
+          const supabase = useSupabaseClient<Database>();
+          const { data, error } = await supabase.from('profiles')
+            .select(`
+              *,
+              onboarding_steps(*),
+              notifications!notifications_profile_id_fkey(*, sender:sender_id(*))
+            `)
+            .eq('id', user.value.id)
+            .returns<ProfileData>()
             .single();
 
           if (!data || error) {
-            $store.notifyNegative('An error occurred while loading your account.');
+            this.profile = null;
+            this.notifications = [];
             this.loading = false;
-            return { trip_friends: [], friends: [], trips: [] } as DashboardData;
+            $store.notifyNegative('An error occurred while loading your account.');
+            return;
           }
 
-          return data as DashboardData;
+          this.profile = data;
+          this.notifications = (data as ProfileData).notifications;
+          this.loading = false;
         } catch (err) {
           console.error({ err });
-          return { trip_friends: [], friends: [], trips: [] } as DashboardData;
         } finally {
           this.loading = false;
         }
       },
 
-      // async fetchNotifications (input: NotificationsInput) {
-      //   const client = useClient();
-      //   const sdk = getSdk(client);
+      async fetchNotification (id) {
+        const supabase = useSupabaseClient<Database>();
 
-      //   const { notifications } = await sdk.Notifications({ input });
+        const { data } = await supabase.from('notifications')
+          .select('*, sender:sender_id(*)')
+          .eq('id', id)
+          .single();
 
-      //   if (notifications.notifications && !notifications.errors) {
-      //     this.notifications.push(...notifications.notifications as Notification[]);
-      //     this.totalCount = notifications.totalCount;
-      //   }
-      // },
-
-      // async handleAcceptInvite (inviteId: number) {
-      //   const client = useClient();
-      //   const sdk = getSdk(client);
-      //   const input = {
-      //     id: inviteId,
-      //     status: TripFriendStatus.Accepted,
-      //     accepted_invite_on: new Date()
-      //       .toISOString(),
-      //   };
-
-      //   const { updateTripFriend } = await sdk.UpdateTripFriend({ input });
-      //   return updateTripFriend as UpdateTripFriendResponse;
-      // },
-
-      // async handleDeclineInvite (inviteId: number) {
-      //   const client = useClient();
-      //   const sdk = getSdk(client);
-      //   const input = { id: inviteId, status: TripFriendStatus.Declined };
-
-      //   const { updateTripFriend } = await sdk.UpdateTripFriend({ input });
-      //   return updateTripFriend as UpdateTripFriendResponse;
-      // },
-
-      // async handleUndoInvite (invite: TripFriend) {
-      //   const client = useClient();
-      //   const sdk = getSdk(client);
-      //   const input = { id: invite.id, status: TripFriendStatus.Pending, accepted_invite_on: null };
-
-      //   const { updateTripFriend } = await sdk.UpdateTripFriend({ input });
-      //   return updateTripFriend as UpdateTripFriendResponse;
-      // },
-
-      // async loginToForums (input: DiscourseInput) {
-      //   const client = useClient();
-      //   const sdk = getSdk(client);
-
-      //   const { loginToForums } = await sdk.LoginToForums({ input });
-      //   return loginToForums;
-      // },
-
-      sendWelcomeEmail () {
-        // const client = useClient();
-        // const sdk = getSdk(client);
-
-        // sdk.SendWelcomeEmail();
+        if (data) {
+          const i = this.notifications.findIndex(n => n.id === id);
+          this.notifications[i] = data as Notification;
+        }
       },
 
-      // async updateAvatar (input: UpdateAvatarInput) {
-      //   const client = useClient();
-      //   const sdk = getSdk(client);
+      async subscribeToNotifications () {
+        const supabase = useSupabaseClient<Database>();
 
-      //   const { updateAvatar } = await sdk.UpdateAvatar({ input });
-      //   if (!updateAvatar.errors) {
-      //     this.currentUser = updateAvatar.user as User;
-      //   }
-      // },
+        supabase.channel('notifications')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'notifications' },
+            ({ eventType, new: newNotification }) => {
+              if (eventType === 'INSERT' || eventType === 'UPDATE') {
+                this.fetchNotification(newNotification.id);
+              }
+            },
+          )
+          .subscribe();
+      },
 
       async markAllAsRead () {
-        const supabase = useSupabaseClient();
+        const supabase = useSupabaseClient<Database>();
+        const user = useSupabaseUser();
         const $store = useAppStore();
         const { data, error } = await supabase.from('notifications')
-          .update({ read_on_date: new Date() })
-          .eq('user_id', this.currentUser?.id)
+          .update({
+            read_on_date: new Date()
+              .toISOString(),
+          })
+          .eq('profile_id', user.value?.id as string)
           .select();
 
         if (error) {
@@ -223,47 +137,9 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         }
 
         if (data) {
-          this.notifications = { items: data, totalCount: data.length };
+          this.notifications = data;
         }
       },
-
-      async updateNotification (input: UpdateNotification) {
-        const supabase = useSupabaseClient();
-        const $store = useAppStore();
-        const { data, error } = await supabase.from('notifications')
-          .update({ read_on_date: new Date()
-            .toISOString() })
-          .eq('id', input.id)
-          .select()
-          .single();
-
-        if (error) {
-          $store.notifyNegative('An error occurred while marking notifications as read.');
-        }
-
-        if (data) {
-          const i = this.notifications.items.findIndex(n => n.id === data.id);
-          this.notifications.items[i] = data;
-        }
-      },
-
-      // async updatePassword (input: UpdatePasswordInput) {
-      //   const client = useClient();
-      //   const sdk = getSdk(client);
-
-      //   const { updatePassword } = await sdk.UpdatePassword({ input });
-      //   return updatePassword;
-      // },
-
-      // async updateUser (input: UpdateUserInput) {
-      //   const client = useClient();
-      //   const sdk = getSdk(client);
-
-      //   const { updateUser } = await sdk.UpdateUser({ input });
-      //   if (!updateUser.errors) {
-      //     this.currentUser = updateUser.user as User;
-      //   }
-      // },
     },
   },
 );

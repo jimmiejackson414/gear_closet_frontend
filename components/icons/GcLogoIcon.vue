@@ -1,15 +1,11 @@
 <script lang='ts' setup>
   interface Props {
     wrapperClass?: string;
-    width?: number;
-    height?: number | string;
     fill?: string;
   }
 
   withDefaults(defineProps<Props>(), {
-    wrapperClass: '',
-    width: 40,
-    height: 'auto',
+    wrapperClass: 'w-4 h-4',
     fill: '#4a4a4a',
   });
 </script>
@@ -17,7 +13,7 @@
 <template>
   <div
     :class="wrapperClass"
-    :style="{ fill, width: `${width}px`, height }">
+    :style="{ fill }">
     <svg
       id="Layer_1"
       enableBackground="new 0 0 300 232"

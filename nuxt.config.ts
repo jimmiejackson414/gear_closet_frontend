@@ -33,11 +33,21 @@ export default defineNuxtConfig({
 
   modules: [
     '@nuxtjs/supabase',
+    '@pinia/nuxt',
     '@nuxtjs/tailwindcss',
+    '@vueuse/nuxt',
   ],
 
   optimizeDeps: {
     include: ['tailwind.config.ts'],
+  },
+
+  postcss: {
+    plugins: {
+      'tailwindcss/nesting': {},
+      tailwindcss: {},
+      autoprefixer: {},
+    },
   },
 
   runtimeConfig: {

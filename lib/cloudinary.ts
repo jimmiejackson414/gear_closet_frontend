@@ -1,9 +1,6 @@
 // import { Cloudinary } from '@cloudinary/url-gen';
-import type { User } from '@/types';
+import type { Database, Profile } from '@/types';
 
-// const runtimeConfig = useRuntimeConfig();
-// const cloudName = runtimeConfig.public.CLOUDINARY_CLOUD_NAME as string;
-// console.log({ cloudName });
 
 // export const cld = new Cloudinary({
 //   cloud: { cloudName: runtimeConfig.public.CLOUDINARY_CLOUD_NAME as string },
@@ -12,6 +9,9 @@ import type { User } from '@/types';
 
 export const buildImageSrc = (url: string) => {
   if (!url) return undefined;
+
+  const runtimeConfig = useRuntimeConfig();
+  const cloudName = runtimeConfig.public.CLOUDINARY_CLOUD_NAME as string;
   return `https://res.cloudinary.com/${cloudName}/image/upload/${url}`;
 };
 
@@ -21,8 +21,8 @@ export const searchExistingImages = async (image: string) => {
   //   .execute();
 };
 
-export const destroyExisting = async (user: User) => {
-  const supabase = useSupabaseClient();
+export const destroyExisting = async (user: Profile) => {
+  const supabase = useSupabaseClient<Database>();
   // destroy in cloudinary
   if (user.image) {
     // await cloudinary.v2.uploader.destroy(
@@ -38,7 +38,7 @@ export const destroyExisting = async (user: User) => {
   }
 
   return await supabase
-    .from('users')
+    .from('profiles')
     .update({ image: null })
     .eq('id', user.id)
     .select()

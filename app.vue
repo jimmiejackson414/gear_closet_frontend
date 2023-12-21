@@ -1,3 +1,15 @@
+<script lang="ts" setup>
+  import type { Database } from '~/types';
+
+  const supabase = useSupabaseClient<Database>();
+
+  supabase.auth.onAuthStateChange((event, _session) => {
+    if (event === 'SIGNED_OUT') {
+      supabase.removeAllChannels();
+    }
+  });
+</script>
+
 <template>
   <div class="bg-white h-full">
     <NuxtLayout>

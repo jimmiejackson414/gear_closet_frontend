@@ -1,0 +1,13 @@
+@layer components {
+  .Vue-Toastification__toast--success.custom {
+    @apply bg-positive text-white;
+  }
+
+  .Vue-Toastification__toast--error.custom {
+    @apply bg-danger text-white;
+  }
+
+  .Vue-Toastification__toast.custom .Vue-Toastification__icon {
+    @apply text-white w-8 h-8;
+  }
+}
