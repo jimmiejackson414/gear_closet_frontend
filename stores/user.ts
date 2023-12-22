@@ -14,7 +14,6 @@ interface ProfileData extends Profile {
 
 type State = {
   profile: Profile | null;
-  loading: boolean;
   notifications: Notification[];
 };
 
@@ -35,7 +34,6 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
     state () {
       return {
         profile: null,
-        loading: false,
         notifications: [],
       };
     },
@@ -49,14 +47,14 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
     actions: {
       async fetchProfile () {
         const $store = useAppStore();
-        this.loading = true;
+        $store.loading = true;
 
         try {
           const user = useSupabaseUser();
 
           if (!user.value) {
             this.profile = null;
-            this.loading = false;
+            $store.loading = false;
             $store.notifyNegative('An error occurred while loading your profile.');
             return;
           }
@@ -75,18 +73,18 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           if (!data || error) {
             this.profile = null;
             this.notifications = [];
-            this.loading = false;
+            $store.loading = false;
             $store.notifyNegative('An error occurred while loading your account.');
             return;
           }
 
           this.profile = data;
           this.notifications = (data as ProfileData).notifications;
-          this.loading = false;
+          $store.loading = false;
         } catch (err) {
           console.error({ err });
         } finally {
-          this.loading = false;
+          $store.loading = false;
         }
       },
 

@@ -1,8 +1,10 @@
 import { defineStore } from 'pinia';
-// import { CheckCircle2Icon, AlertCircleIcon, InfoIcon } from 'lucide-vue-next';
+import { useToast } from 'vue-toastification';
+import { CheckCircle2Icon, AlertCircleIcon, InfoIcon } from 'lucide-vue-next';
 
 type State = {
   drawer: boolean;
+  loading: boolean;
 };
 
 type Getters = {
@@ -16,12 +18,13 @@ type Actions = {
   toggleDrawer(): void;
 };
 
-// const toast = useToast();
+const toast = useToast();
 
 export const useAppStore = defineStore<'app', State, Getters, Actions>('app', {
   state () {
     return {
       drawer: false,
+      loading: false,
     };
   },
 
@@ -29,19 +32,19 @@ export const useAppStore = defineStore<'app', State, Getters, Actions>('app', {
 
   actions: {
     notifyPositive (message) {
-      // toast.success(message, {
-      //   icon: CheckCircle2Icon,
-      // });
+      toast.success(message, {
+        icon: CheckCircle2Icon,
+      });
     },
     notifyNegative (message) {
-      // toast.error(message, {
-      //   icon: AlertCircleIcon,
-      // });
+      toast.error(message, {
+        icon: AlertCircleIcon,
+      });
     },
     notifyInfo (message) {
-      // toast.info(message, {
-      //   icon: InfoIcon,
-      // });
+      toast.info(message, {
+        icon: InfoIcon,
+      });
     },
     toggleDrawer () {
       this.drawer = !this.drawer;

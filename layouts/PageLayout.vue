@@ -1,6 +1,4 @@
 <script lang='ts' setup>
-  import { storeToRefs } from 'pinia';
-  import { useUserStore } from '@/stores/user';
   import { capitalize } from '@/helpers/functions';
 
   interface Props {
@@ -16,13 +14,13 @@
   });
 
   const $route = useRoute();
-  const $store = useUserStore();
+  const $store = useAppStore();
 
   const { loading } = storeToRefs($store);
 </script>
 
 <template>
-  <div>
+  <div class="bg-zinc-100">
     <gc-loading-wrapper v-if="loading" />
     <div v-else>
       <gc-drawer v-if="!minimal" />
