@@ -24,7 +24,7 @@
     <gc-loading-wrapper v-if="loading" />
     <div v-else>
       <gc-drawer v-if="!minimal" />
-      <div class="min-h-screen">
+      <div class="min-h-screen pt-5">
         <div
           class="container py-4"
           :class="$route.name === 'onboarding' ? 'px-4' : 'pl-[72px] pr-14 py-9'">
@@ -34,7 +34,7 @@
           <gc-navbar-alt
             v-else
             :align-logo="alignLogo" />
-          <div class="p-6">
+          <div class="py-6">
             <slot />
           </div>
         </div>

@@ -1,8 +1,10 @@
 <script lang='ts' setup>
+  import { SettingsIcon } from 'lucide-vue-next';
   import { decrypt } from '~/helpers/encryption';
   import { ResourceType } from '@/types';
   import type { Database, Friend, ShoppingListItem, Todo, Trip, TripDetail } from '@/types';
-  import type { ExtendedPack, ExtendedPoll } from '~/types/helpers';
+  import type { ExtendedPack, ExtendedPoll } from '@/types/helpers';
+  import type { SelectOption } from '@/components/common/GcSelect.vue';
 
   interface PlanningPageData {
     trips: Trip[];
@@ -17,7 +19,7 @@
 
   const $store = useAppStore();
   const $route = useRoute();
-  const data = reactive<PlanningPageData>({
+  const data = ref<PlanningPageData>({
     trips: [],
     pack: null,
     tripDetails: [],
@@ -27,6 +29,9 @@
     poll: null,
     errors: null,
   });
+  const selectedTrip = ref<string | number | undefined>(undefined);
+  // @ts-ignore
+  const tripOptions = computed(() => data.value.trips.map(t => ({ label: t.name, value: t.id })) as SelectOption[]); // TODO: Fix TS Error
   
   const fetchPlanningPage = async () => {
     const supabase = useSupabaseClient<Database>();
@@ -40,10 +45,16 @@
         .select('*')
         .order('created_at', { ascending: true })
         .eq('profile_id', user.value!.id);
+      console.log({ tripsData });
 
       if (!tripsData || error) { throw new Error('An error occurred while loading your trips.'); }
+      data.value.trips = tripsData;
 
       const tripId = $route.query?.trip ? decrypt($route.query.trip) : tripsData[0]?.id;
+      console.log({ tripId });
+      
+      const findSelectedTrip = tripsData.find(trip => trip.id === tripId) as Trip;
+      selectedTrip.value = findSelectedTrip.id as number;
 
       // run packs query
       const { data: tripPacks, error: packError } = await supabase
@@ -73,7 +84,7 @@
       console.log({ tripDetails });
 
       if (tripDetailsError) { throw new Error('An error occurred while loading your trip details.'); }
-      data.tripDetails = tripDetails;
+      data.value.tripDetails = tripDetails;
 
       // run todos query
       const { data: todos, error: todosError } = await supabase
@@ -85,7 +96,7 @@
       console.log({ todos });
 
       if (todosError) { throw new Error('An error occurred while loading your todos.'); }
-      data.todos = todos;
+      data.value.todos = todos;
 
       // run shopping items query
       const { data: shoppingItems, error: shoppingItemsError } = await supabase
@@ -97,7 +108,7 @@
       console.log({ shoppingItems });
 
       if (shoppingItemsError) { throw new Error('An error occurred while loading your shopping items.'); }
-      data.shoppingItems = shoppingItems;
+      data.value.shoppingItems = shoppingItems;
 
       // run friends query
       const { data: friends, error: friendsError } = await supabase
@@ -168,6 +179,12 @@
     $store.loading = false;
   });
 
+  const isSettingsOpen = ref(false);
+  const settingsDropdown = ref<any | null>(null);
+  onClickOutside(settingsDropdown, () => isSettingsOpen.value = false);
+
+  const newTripModalOpen = ref(false);
+
   definePageMeta({
     layout: 'page-layout',
   });
@@ -184,19 +201,70 @@
 </script>
 
 <template>
-  <div>
+  <div class="py-6">
     <!-- Settings Row -->
+    <div class="flex justify-end items-center gap-6 mb-8">
+      <div class="flex justify-center items-center relative">
+        <button
+          class="duration-150 ease-in-out font-medium inline-flex items-center relative text-center hover:text-dark-grey text-gray-500 text-sm focus:outline-none"
+          type="button"
+          @click="isSettingsOpen = !isSettingsOpen">
+          <settings-icon class="h-6 w-6" />
+        </button>
+        <fade-transition>
+          <div
+            v-if="isSettingsOpen"
+            ref="settingsDropdown"
+            class="absolute top-full right-0 bg-white border divide-gray-100 duration-300 max-w-sm mt-2 rounded-lg shadow transition-all w-max z-20">
+            <p class="block font-bold px-4 py-2 rounded-t-lg text-center text-dark-grey">
+              Settings
+            </p>
+            <ul class="">
+              <li class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-center text-dark-grey hover:bg-gray-100">
+                Create Poll
+              </li>
+              <li class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-center text-dark-grey hover:bg-gray-100">
+                Leave Trip
+              </li>
+            </ul>
+          </div>
+        </fade-transition>
+      </div>
+      <gc-select
+        label="Selected Trip"
+        :model-value="selectedTrip"
+        name="selected-trip-select"
+        :options="tripOptions" />
+      <gc-button
+        label="New Trip"
+        size="sm"
+        @click="newTripModalOpen = true" />
+    </div>
 
-    <!-- Left Column -->
-    <!-- 1. Pack Widget -->
-    <!-- 2. Hike Details -->
-    <!-- 3. Trip Details -->
+    <div class="grid lg:grid-cols-[65%,35%] grid-cols-1 gap-6">
+      <!-- Pack Widget -->
+      <pack-widget />
 
-    <!-- Right Column -->
-    <!-- 1. Poll -->
-    <!-- 2. Friends -->
-    <!-- 3. Todos -->
-    <!-- 4. Shopping List -->
+      <!-- Poll -->
+      <poll-widget />
+
+      <!-- Hike Details -->
+      <hike-details-widget />
+
+      <!-- Friends -->
+      <trip-friends-widget />
+
+      <!-- Trip Details -->
+      <trip-details-widget />
+
+      <!-- Todos -->
+      <todos-widget />
+
+      <div />
+
+      <!-- Shopping List -->
+      <shopping-list-widget />
+    </div>
 
     <!-- Modals -->
     <!-- 1. Create Trip Dialog -->

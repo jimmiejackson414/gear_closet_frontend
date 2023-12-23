@@ -25,6 +25,8 @@
     type: 'button',
     variant: 'primary',
   });
+
+  const emit = defineEmits(['click']);
   
   const classList = computed(() => {
     let classes = ['btn'];
@@ -68,7 +70,8 @@
     v-else
     :class="classList"
     :disabled="disabled"
-    :type="type">
+    :type="type"
+    @click="emit('click')">
     <gc-spinner
       v-if="loading"
       fill />
