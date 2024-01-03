@@ -2,23 +2,21 @@ import { defineStore } from 'pinia';
 import { useAppStore } from '@/stores/app';
 import type {
   Database,
-  OnboardingStep,
-  Notification,
-  Profile,
+  Tables,
 } from '@/types';
 
-interface ProfileData extends Profile {
-  onboarding_steps: OnboardingStep[];
-  notifications: Notification[];
-}
+// interface ProfileData extends Profile {
+//   onboarding_steps: OnboardingStep[];
+//   notifications: Notification[];
+// }
 
 type State = {
-  profile: Profile | null;
-  notifications: Notification[];
+  profile: Tables<'profiles'>| null;
+  notifications: Tables<'notifications'>[];
 };
 
 type Getters = {
-  unreadNotifications(): Notification[];
+  unreadNotifications(): Tables<'notifications'>[];
 };
 
 type Actions = {
@@ -67,7 +65,6 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
               notifications!notifications_profile_id_fkey(*, sender:sender_id(*))
             `)
             .eq('id', user.value.id)
-            .returns<ProfileData>()
             .single();
 
           if (!data || error) {
@@ -78,8 +75,8 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
             return;
           }
 
-          this.profile = data;
-          this.notifications = (data as ProfileData).notifications;
+          this.profile = data as any;
+          this.notifications = (data).notifications;
           $store.loading = false;
         } catch (err) {
           console.error({ err });
@@ -98,7 +95,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
         if (data) {
           const i = this.notifications.findIndex(n => n.id === id);
-          this.notifications[i] = data as Notification;
+          this.notifications[i] = data;
         }
       },
 

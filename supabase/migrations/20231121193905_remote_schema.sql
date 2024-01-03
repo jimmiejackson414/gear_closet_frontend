@@ -146,7 +146,7 @@ begin
   ON CONFLICT (id) DO UPDATE SET email = new.email;
   INSERT INTO public.notifications (title, content, read_on_date, profile_id, sender_id)
   values ('Welcome!', 'Welcome to Gear Closet! This is where you will receive all of your important updates.', null, new.id, '00000000-0000-0000-0000-000000000000');
-  INSERT INTO public.trips (name, description, starting_point, ending_point, starting_date, ending_date, coordinates, slug, profile_id)
+  INSERT INTO public.trips (name, description, starting_point, ending_point, starting_date, ending_date, slug, profile_id)
   values ('My first trip!', 'This is my first trip to plan.', 'Starting point', 'Ending point', null, null, null, null, new.id);
   return new;
 end;
@@ -579,7 +579,6 @@ CREATE TABLE IF NOT EXISTS "public"."trips" (
     "ending_point" character varying,
     "starting_date" timestamp with time zone,
     "ending_date" timestamp with time zone,
-    "coordinates" "json",
     "slug" character varying NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "profile_id" "uuid" NOT NULL

@@ -1,10 +1,10 @@
 <script lang='ts' setup>
-  import type { Database, Friend, Trip, TripFriend } from '@/types';
+  import type { Database, Tables } from '@/types';
 
   interface DashboardData {
-    friends: Friend[];
-    trips: Trip[];
-    trip_friends: TripFriend[];
+    friends: Tables<'friends'>[];
+    trips: Tables<'trips'>[];
+    trip_friends: Tables<'trip_friends'>[];
   }
 
   const $store = useAppStore();

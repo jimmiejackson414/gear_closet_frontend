@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue';
-  import { CheckIcon, ChevronDownIcon, XCircleIcon, XIcon } from 'lucide-vue-next';
+  import { ChevronDownIcon, XCircleIcon } from 'lucide-vue-next';
 
   export type SelectOption = {
     label: string;
@@ -13,7 +13,7 @@
     disabled?: boolean;
     error?: string | null;
     loading?: boolean;
-    modelValue: string | string[] | number;
+    modelValue?: string | string[] | number;
     options: SelectOption[] | null;
     placeholder?: string,
     required?: boolean;

@@ -8,13 +8,13 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "typegen": "npx supabase gen types typescript --local public > ./types/index.ts && npx better-supabase-types -i ./types/index.ts -f -s",
+    "typegen": "npx supabase gen types typescript --local --schema=public > ./types/index.ts",
     "cert": "mkcert -key-file ./localhost-key.pem -cert-file ./localhost.pem localhost"
   },
   "devDependencies": {
     "@kalimahapps/eslint-plugin-tailwind": "^1.0.10",
     "@nuxt/devtools": "latest",
-    "@nuxtjs/supabase": "^1.1.4",
+    "@nuxtjs/supabase": "^1.1.5",
     "@nuxtjs/tailwindcss": "^6.10.1",
     "@rushstack/eslint-patch": "^1.6.0",
     "@stylistic/eslint-plugin-js": "^1.5.1",

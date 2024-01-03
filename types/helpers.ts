@@ -20,10 +20,6 @@ export type ExtendedUser = Database['public']['Tables']['profiles']['Row'] & {
   onboarding_steps: Database['public']['Tables']['onboarding_steps']['Row'][];
 };
 
-export type ExtendedPoll = Database['public']['Tables']['polls']['Row'] & {
-  question: Database['public']['Tables']['questions']['Row'];
-}
-
 export type ForumPost = {
   id: number;
   name: string;

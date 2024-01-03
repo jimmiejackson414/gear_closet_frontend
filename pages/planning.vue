@@ -1,19 +1,17 @@
 <script lang='ts' setup>
   import { SettingsIcon } from 'lucide-vue-next';
   import { decrypt } from '~/helpers/encryption';
-  import { ResourceType } from '@/types';
-  import type { Database, Friend, ShoppingListItem, Todo, Trip, TripDetail } from '@/types';
-  import type { ExtendedPack, ExtendedPoll } from '@/types/helpers';
-  import type { SelectOption } from '@/components/common/GcSelect.vue';
+  import type { Database, Tables } from '@/types';
+  import type { SelectOption } from '~/components/common/GcSelect.vue';
 
   interface PlanningPageData {
-    trips: Trip[];
-    pack: ExtendedPack | null;
-    tripDetails: TripDetail[];
-    todos: Todo[];
-    shoppingItems: ShoppingListItem[];
-    friends: Friend[];
-    poll: ExtendedPoll | null;
+    trips: Tables<'trips'>[];
+    pack: Tables<'packs'> | null;
+    tripDetails: Tables<'trip_details'>[];
+    todos: Tables<'todos'>[];
+    shoppingItems: Tables<'shopping_list_items'>[];
+    friends: Tables<'friends'>[];
+    poll: Tables<'polls'> | null;
     errors: string[] | null;
   }
 
@@ -30,8 +28,7 @@
     errors: null,
   });
   const selectedTrip = ref<string | number | undefined>(undefined);
-  // @ts-ignore
-  const tripOptions = computed(() => data.value.trips.map(t => ({ label: t.name, value: t.id })) as SelectOption[]); // TODO: Fix TS Error
+  const tripOptions = computed(() => data.value.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
   
   const fetchPlanningPage = async () => {
     const supabase = useSupabaseClient<Database>();
@@ -53,27 +50,26 @@
       const tripId = $route.query?.trip ? decrypt($route.query.trip) : tripsData[0]?.id;
       console.log({ tripId });
       
-      const findSelectedTrip = tripsData.find(trip => trip.id === tripId) as Trip;
+      const findSelectedTrip = tripsData.find(trip => trip.id === tripId) as Tables<'trips'>;
       selectedTrip.value = findSelectedTrip.id as number;
 
       // run packs query
       const { data: tripPacks, error: packError } = await supabase
         .from('trip_packs')
         .select(`
-            pack:pack_id(*,
-              categories(*,
-                category_items(*,
-                  item:item_id(*)
-                )
+          packs!trip_packs_pack_id_fkey(*,
+            categories(*,
+              category_items(*,
+                item:item_id(*)
               )
             )
-          `)
+          )
+        `)
         .match({ trip_id: tripId, profile_id: user.value!.id });
       console.log({ tripPacks, packError });
 
       if (packError) { throw new Error('An error occurred while loading your packs.'); }
-      // @ts-ignore
-      if (tripPacks.length) { data.pack = tripPacks[0].pack; } // TODO: Fix TS Error
+      if (tripPacks.length) { data.value.pack = tripPacks[0].packs; }
 
       // run trip details query
       const { data: tripDetails, error: tripDetailsError } = await supabase
@@ -90,7 +86,8 @@
       const { data: todos, error: todosError } = await supabase
         .from('todos')
         .select('*')
-        .or(`and(resource_type.eq.${ResourceType.USER},profile_id.eq.${user.value?.id}),resource_type.eq.GROUP`)
+        // .or(`and(resource_type.eq.${ResourceType.USER},profile_id.eq.${user.value?.id}),resource_type.eq.GROUP`)
+        // .or(`and(resource_type.eq.${<Enums<'resource_type'>[]>},profile_id.eq.${user.value?.id}),resource_type.eq.GROUP`)
         .order('created_at', { ascending: true })
         .eq('trip_id', tripId);
       console.log({ todos });
@@ -102,7 +99,8 @@
       const { data: shoppingItems, error: shoppingItemsError } = await supabase
         .from('shopping_list_items')
         .select('*')
-        .or(`and(resource_type.eq.${ResourceType.USER},profile_id.eq.${user.value?.id}),resource_type.eq.GROUP`)
+        // .or(`and(resource_type.eq.${ResourceType.USER},profile_id.eq.${user.value?.id}),resource_type.eq.GROUP`)
+        .or(`and(resource_type.eq.USER,profile_id.eq.${user.value?.id}),resource_type.eq.GROUP`)
         .order('created_at', { ascending: true })
         .eq('trip_id', tripId);
       console.log({ shoppingItems });
@@ -166,8 +164,7 @@
       console.log({ poll });
 
       if (pollError) { throw new Error('An error occurred while loading your poll.'); }
-      // @ts-ignore
-      data.poll = { ...poll, question: poll?.question }; // TODO: Fix TS Error
+      data.value.poll = poll;
     } catch (err: any) {
       console.log(`catch`, err);
       $store.notifyNegative(err);
@@ -201,7 +198,7 @@
 </script>
 
 <template>
-  <div class="py-6">
+  <div>
     <!-- Settings Row -->
     <div class="flex justify-end items-center gap-6 mb-8">
       <div class="flex justify-center items-center relative">
