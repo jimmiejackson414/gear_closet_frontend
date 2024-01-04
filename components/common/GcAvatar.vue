@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { initials } from '~/helpers/functions';
-  import type { Profile } from '~/types';  
+  import type { Profile } from '~/types/better';  
 
   interface Props {
     profile?: Profile;

@@ -39,7 +39,7 @@
   * p tags - 22px
   */
   .text-base-lg {
-    @apply font-sans;
+    @apply font-sans font-normal;
     font-size: 1.375rem;
     line-height: 1.625rem;
   }

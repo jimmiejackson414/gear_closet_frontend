@@ -1129,7 +1129,12 @@ export interface Database {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_planning_page_data: {
+        Args: {
+          p_trip_id: number
+        }
+        Returns: Json
+      }
     }
     Enums: {
       measuring_system: "IMPERIAL" | "METRIC"

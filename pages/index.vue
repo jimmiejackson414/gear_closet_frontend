@@ -23,7 +23,7 @@
       const user = useSupabaseUser();
 
       const { data: pageData, error } = await supabase.from('profiles')
-        .select('trip_friends(*), friends!friends_friend_id_fkey(*), trips(*)')
+        .select('trip_friends!trip_friends_profile_id_fkey(*), friends!friends_friend_id_fkey(*), trips(*)')
         .eq('id', user.value!.id)
         .single();
 
@@ -84,7 +84,7 @@
           :loading="loading" />
       </div>
       <div class="col-span-12">
-        <forums-widget />
+        <!-- <forums-widget /> -->
       </div>
     </div>
   </div>

@@ -2,7 +2,7 @@
   import { FootprintsIcon } from 'lucide-vue-next';
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
-  import type { Trip } from '@/types';
+  import type { Trip } from '@/types/better';
   import { encrypt } from '~/helpers/encryption';
 
   dayjs.extend(relativeTime);

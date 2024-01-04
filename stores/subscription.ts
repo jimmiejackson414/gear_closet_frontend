@@ -1,14 +1,5 @@
 import { defineStore } from 'pinia';
-// import { useClient } from '@/lib/graphqlRequest';
-import {
-  // BaseError,
-  // CreateCheckoutSessionResponse,
-  // CreateFreeSubscriptionResponse,
-  // getSdk,
-  // ManageSubscriptionResponse,
-  // SubscriptionResponseData,
-  SubscriptionLevel,
-} from '@/types';
+import { SubscriptionLevel } from '@/types/better';
 
 type State = {
   subscription: any | null;

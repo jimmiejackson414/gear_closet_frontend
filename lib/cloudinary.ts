@@ -1,5 +1,5 @@
 // import { Cloudinary } from '@cloudinary/url-gen';
-import type { Database, Profile } from '@/types';
+import type { Database, Tables } from '@/types';
 
 
 // export const cld = new Cloudinary({
@@ -21,7 +21,7 @@ export const searchExistingImages = async (image: string) => {
   //   .execute();
 };
 
-export const destroyExisting = async (user: Profile) => {
+export const destroyExisting = async (user: Tables<'profiles'>) => {
   const supabase = useSupabaseClient<Database>();
   // destroy in cloudinary
   if (user.image) {

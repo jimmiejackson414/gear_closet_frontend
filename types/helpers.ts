@@ -1,24 +1,24 @@
-import type { Database } from '@/types';
+import type { Tables } from '@/types';
 
-export type ExtendedNotification = Database['public']['Tables']['notifications']['Row'] & {
-  sender: Database['public']['Tables']['profiles']['Row'];
+export type ExtendedCategoryItem = Tables<'category_items'> & {
+  item: Tables<'items'>
 };
 
-export type ExtendedCategoryItem = Database['public']['Tables']['category_items']['Row'] & {
-  item: Database['public']['Tables']['items']['Row'];
-};
-
-export type ExtendedCategory = Database['public']['Tables']['categories']['Row'] & {
+export type ExtendedCategory = Tables<'categories'> & {
   category_items: ExtendedCategoryItem[];
 };
 
-export type ExtendedPack = Database['public']['Tables']['packs']['Row'] & {
+export type ExtendedPack = Tables<'packs'> & {
   categories: ExtendedCategory[];
 };
 
-export type ExtendedUser = Database['public']['Tables']['profiles']['Row'] & {
-  onboarding_steps: Database['public']['Tables']['onboarding_steps']['Row'][];
+export type ExtendedUser = Tables<'profiles'> & {
+  onboarding_steps: Tables<'onboarding_steps'>[];
 };
+
+export type ExtendedNotification = Tables<'notifications'> & {
+  sender: Tables<'profiles'>;
+}
 
 export type ForumPost = {
   id: number;

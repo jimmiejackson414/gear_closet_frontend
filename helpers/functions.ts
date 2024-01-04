@@ -1,6 +1,6 @@
 import Dinero from 'dinero.js';
 import convert from 'convert';
-import type { Profile } from '@/types';
+import type { Tables } from '@/types';
 import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '~/types/helpers';
 import type { Currency } from 'dinero.js';
 import type { Mass } from 'convert';
@@ -147,7 +147,7 @@ export const getPagination = (page: number, pageSize: number): { from: number, t
   return { from, to };
 };
 
-export const initials = (user: Profile | null | undefined): string => {
+export const initials = (user: Tables<'profiles'>| null | undefined): string => {
   const base = 'GC';
   if (!user) return base;
   const firstInitial = user.first_name?.charAt(0);
@@ -155,7 +155,7 @@ export const initials = (user: Profile | null | undefined): string => {
   return firstInitial && lastInitial ? `${firstInitial}${lastInitial}` : base;
 };
 
-export const friendlyUsername = (user: Profile | null | undefined, options?: FriendlyUsernameOptions): string => {
+export const friendlyUsername = (user: Tables<'profiles'> | null | undefined, options?: FriendlyUsernameOptions): string => {
   if (!user) return initials(user);
   if (options?.includeTrailName && user.trail_name) {
     return `${user.first_name} "${user.trail_name}" ${user.last_name}`;

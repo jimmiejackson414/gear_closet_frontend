@@ -5,11 +5,6 @@ import type {
   Tables,
 } from '@/types';
 
-// interface ProfileData extends Profile {
-//   onboarding_steps: OnboardingStep[];
-//   notifications: Notification[];
-// }
-
 type State = {
   profile: Tables<'profiles'>| null;
   notifications: Tables<'notifications'>[];

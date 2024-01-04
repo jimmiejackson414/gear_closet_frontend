@@ -1,173 +1,59 @@
 <script lang='ts' setup>
   import { SettingsIcon } from 'lucide-vue-next';
   import { decrypt } from '~/helpers/encryption';
+  import type { ExtendedPack } from '@/types/helpers';
   import type { Database, Tables } from '@/types';
   import type { SelectOption } from '~/components/common/GcSelect.vue';
 
   interface PlanningPageData {
     trips: Tables<'trips'>[];
-    pack: Tables<'packs'> | null;
+    pack?: ExtendedPack;
     tripDetails: Tables<'trip_details'>[];
     todos: Tables<'todos'>[];
     shoppingItems: Tables<'shopping_list_items'>[];
     friends: Tables<'friends'>[];
-    poll: Tables<'polls'> | null;
-    errors: string[] | null;
+    poll?: Tables<'polls'>;
+    errors?: string[];
   }
 
   const $store = useAppStore();
   const $route = useRoute();
   const data = ref<PlanningPageData>({
     trips: [],
-    pack: null,
+    pack: undefined,
     tripDetails: [],
     todos: [],
     shoppingItems: [],
     friends: [],
-    poll: null,
-    errors: null,
+    poll: undefined,
+    errors: undefined,
   });
   const selectedTrip = ref<string | number | undefined>(undefined);
   const tripOptions = computed(() => data.value.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
   
+  const loading = ref(false);
   const fetchPlanningPage = async () => {
-    const supabase = useSupabaseClient<Database>();
-
+    loading.value = true;
     try {
-      const user = useSupabaseUser();
+      const supabase = useSupabaseClient<Database>();
+      const tripId = $route.query?.trip && Number(decrypt($route.query.trip));
+      const { data: pageData, error } = await supabase
+        .rpc('get_planning_page_data', { p_trip_id: tripId || 0 })
+        .returns<PlanningPageData>();
+      console.log({ data });
+      console.log({ error });
 
-      // run trips query
-      const { data: tripsData, error } = await supabase
-        .from('trips')
-        .select('*')
-        .order('created_at', { ascending: true })
-        .eq('profile_id', user.value!.id);
-      console.log({ tripsData });
+      if (pageData) {
+        data.value = pageData;
 
-      if (!tripsData || error) { throw new Error('An error occurred while loading your trips.'); }
-      data.value.trips = tripsData;
-
-      const tripId = $route.query?.trip ? decrypt($route.query.trip) : tripsData[0]?.id;
-      console.log({ tripId });
-      
-      const findSelectedTrip = tripsData.find(trip => trip.id === tripId) as Tables<'trips'>;
-      selectedTrip.value = findSelectedTrip.id as number;
-
-      // run packs query
-      const { data: tripPacks, error: packError } = await supabase
-        .from('trip_packs')
-        .select(`
-          packs!trip_packs_pack_id_fkey(*,
-            categories(*,
-              category_items(*,
-                item:item_id(*)
-              )
-            )
-          )
-        `)
-        .match({ trip_id: tripId, profile_id: user.value!.id });
-      console.log({ tripPacks, packError });
-
-      if (packError) { throw new Error('An error occurred while loading your packs.'); }
-      if (tripPacks.length) { data.value.pack = tripPacks[0].packs; }
-
-      // run trip details query
-      const { data: tripDetails, error: tripDetailsError } = await supabase
-        .from('trip_details')
-        .select('*')
-        .order('created_at', { ascending: true })
-        .eq('trip_id', tripId);
-      console.log({ tripDetails });
-
-      if (tripDetailsError) { throw new Error('An error occurred while loading your trip details.'); }
-      data.value.tripDetails = tripDetails;
-
-      // run todos query
-      const { data: todos, error: todosError } = await supabase
-        .from('todos')
-        .select('*')
-        // .or(`and(resource_type.eq.${ResourceType.USER},profile_id.eq.${user.value?.id}),resource_type.eq.GROUP`)
-        // .or(`and(resource_type.eq.${<Enums<'resource_type'>[]>},profile_id.eq.${user.value?.id}),resource_type.eq.GROUP`)
-        .order('created_at', { ascending: true })
-        .eq('trip_id', tripId);
-      console.log({ todos });
-
-      if (todosError) { throw new Error('An error occurred while loading your todos.'); }
-      data.value.todos = todos;
-
-      // run shopping items query
-      const { data: shoppingItems, error: shoppingItemsError } = await supabase
-        .from('shopping_list_items')
-        .select('*')
-        // .or(`and(resource_type.eq.${ResourceType.USER},profile_id.eq.${user.value?.id}),resource_type.eq.GROUP`)
-        .or(`and(resource_type.eq.USER,profile_id.eq.${user.value?.id}),resource_type.eq.GROUP`)
-        .order('created_at', { ascending: true })
-        .eq('trip_id', tripId);
-      console.log({ shoppingItems });
-
-      if (shoppingItemsError) { throw new Error('An error occurred while loading your shopping items.'); }
-      data.value.shoppingItems = shoppingItems;
-
-      // run friends query
-      const { data: friends, error: friendsError } = await supabase
-        .from('trip_friends')
-        .select(`
-          *,
-          trip:trip_id!inner(*),
-          profile:profile_id!inner(*)
-        `)
-        .order('created_at', { ascending: true })
-        .filter('profile.id', 'neq', user.value!.id)
-        .eq('profile_id', user.value!.id);
-      console.log({ friends });
-
-      if (friendsError) { throw new Error('An error occurred while loading your friends.'); }
-      
-      // add trips that user has been invited to
-      // for (const friend of friends) {
-      //   if (!result.trips.find(trip => trip?.id === friend.trip.id)) {
-      //     data.trips.push(friend.trip);
-      //   }
-      // }
-
-      // add additional details to friends
-      // if (friends?.length) {
-      //   const updatedFriends = [];
-      //   for (const u of friends) {
-      //     const { data } = await supabase
-      //       .from('trip_packs')
-      //       .select(`
-      //         pack:pack_id(*)
-      //       `)
-      //       .match({ trip_id: tripId, user_id: u.user.id })
-      //       .single();
-
-      //     updatedFriends.push({ ...u, pack: data ? data.pack : null });
-      //   }
-      //   data.friends = updatedFriends;
-      // }
-
-      // run poll query
-      const { data: poll, error: pollError } = await supabase
-        .from('polls')
-        .select(
-          `
-            *,
-            question:questions!inner(*,
-              answers!answers_question_id_fkey(*)
-            ),
-            profile_answers(*)
-          `,
-        )
-        .eq('trip_id', tripId)
-        .maybeSingle();
-      console.log({ poll });
-
-      if (pollError) { throw new Error('An error occurred while loading your poll.'); }
-      data.value.poll = poll;
+        // set selected trip if available
+        const findSelectedTrip = pageData.trips.find(trip => trip.id === (tripId ? tripId : pageData.trips[0].id)) as Tables<'trips'>;
+        selectedTrip.value = findSelectedTrip.id as number;
+      }
     } catch (err: any) {
-      console.log(`catch`, err);
       $store.notifyNegative(err);
+    } finally {
+      loading.value = false;
     }
   };
 
@@ -240,13 +126,15 @@
 
     <div class="grid lg:grid-cols-[65%,35%] grid-cols-1 gap-6">
       <!-- Pack Widget -->
-      <pack-widget />
+      <pack-widget
+        :data="data.pack"
+        :loading="loading" />
 
       <!-- Poll -->
       <poll-widget />
 
       <!-- Hike Details -->
-      <hike-details-widget />
+      <hike-details-widget :loading="loading" />
 
       <!-- Friends -->
       <trip-friends-widget />

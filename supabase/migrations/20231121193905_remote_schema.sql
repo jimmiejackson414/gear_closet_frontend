@@ -147,12 +147,111 @@ begin
   INSERT INTO public.notifications (title, content, read_on_date, profile_id, sender_id)
   values ('Welcome!', 'Welcome to Gear Closet! This is where you will receive all of your important updates.', null, new.id, '00000000-0000-0000-0000-000000000000');
   INSERT INTO public.trips (name, description, starting_point, ending_point, starting_date, ending_date, slug, profile_id)
-  values ('My first trip!', 'This is my first trip to plan.', 'Starting point', 'Ending point', null, null, null, null, new.id);
+  values ('My first trip!', 'This is my first trip to plan.', 'Starting point', 'Ending point', null, null, null, new.id);
   return new;
 end;
 $$;
 
 ALTER FUNCTION "public"."handle_new_user"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) RETURNS "json"
+  LANGUAGE "plpgsql" SECURITY DEFINER
+  AS $$
+  DECLARE
+    trips_data JSON;
+    trip_packs_data JSON;
+    trip_details_data JSON;
+    todos_data JSON;
+    shopping_items_data JSON;
+    friends_data JSON;
+    poll_data JSON;
+    dynamic_trip_id BIGINT;
+  BEGIN
+    -- Fetch trips data
+    SELECT json_agg(row_to_json(t.*)) INTO trips_data
+    FROM trips t
+    WHERE t.profile_id = auth.uid()
+    GROUP BY t.created_at
+    ORDER BY t.created_at ASC;
+
+    -- Set dynamic_trip_id to the ID of the first trip
+    SELECT COALESCE((SELECT t.id FROM trips t WHERE t.profile_id = auth.uid() ORDER BY t.created_at ASC LIMIT 1), 0) INTO dynamic_trip_id;
+
+    -- Fetch trip packs data using dynamic_trip_id along with associated pack details
+    SELECT COALESCE(json_agg(json_build_object(
+      'pack', row_to_json(pack.*),
+      'categories', (
+        SELECT COALESCE(json_agg(json_build_object(
+          'category', row_to_json(c.*),
+          'category_items', (
+            SELECT COALESCE(json_agg(json_build_object(
+              'category_item', row_to_json(ci.*),
+              'item', row_to_json(i.*)
+            )), '[]'::JSON)
+            FROM category_items ci
+            JOIN items i ON ci.item_id = i.id
+            WHERE ci.category_id = c.id
+          )
+        )), '[]'::JSON)
+        FROM categories c
+        WHERE c.pack_id = tp.pack_id
+      )
+    )), '[]'::JSON) INTO trip_packs_data
+    FROM trip_packs tp
+    JOIN packs pack ON tp.pack_id = pack.id
+    WHERE tp.profile_id = auth.uid()
+      AND (p_trip_id = 0 OR tp.trip_id = dynamic_trip_id);
+
+    -- Fetch trip details data
+    SELECT COALESCE(json_agg(row_to_json(td.*)), '[]'::JSON) INTO trip_details_data
+    FROM trip_details td
+    WHERE td.trip_id = COALESCE(p_trip_id, 0);
+
+    -- Fetch todos data
+    SELECT COALESCE(json_agg(row_to_json(todo.*)), '[]'::JSON) INTO todos_data
+    FROM todos todo
+    WHERE todo.trip_id = COALESCE(p_trip_id, 0);
+
+    -- Fetch shopping items data
+    SELECT COALESCE(json_agg(row_to_json(si.*)), '[]'::JSON) INTO shopping_items_data
+    FROM shopping_list_items si
+    WHERE si.trip_id = COALESCE(p_trip_id, 0);
+
+    -- Fetch friends data with details from related tables
+    SELECT COALESCE(json_agg(json_build_object(
+      'friend_profile', row_to_json(p.*),
+      'friend_trip_packs', (
+        SELECT COALESCE(json_agg(row_to_json(tp.*)), '[]'::JSON)
+        FROM trip_packs tp
+        WHERE tp.profile_id = tf.profile_id
+          AND (p_trip_id = 0 OR tp.trip_id = dynamic_trip_id)
+      )
+    )), '[]'::JSON) INTO friends_data
+    FROM trip_friends tf
+    JOIN profiles p ON tf.profile_id = p.id
+    WHERE tf.profile_id = auth.uid()
+      AND tf.profile_id != auth.uid();  -- Filter out the user itself
+
+    -- Fetch poll data
+    SELECT row_to_json(p.*) INTO poll_data
+    FROM polls p
+    WHERE p.trip_id = COALESCE(p_trip_id, 0)
+    LIMIT 1;
+
+    -- Output the result
+    RETURN jsonb_build_object(
+      'trips', trips_data,
+      'trip_packs', trip_packs_data,
+      'trip_details', trip_details_data,
+      'todos', todos_data,
+      'shopping_items', shopping_items_data,
+      'friends', friends_data,
+      'poll', poll_data
+    );
+    END;
+$$;
+
+ALTER FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) OWNER TO "postgres";
 
 SET default_tablespace = '';
 
@@ -536,6 +635,7 @@ CREATE TABLE IF NOT EXISTS "public"."trip_friends" (
     "created_at" timestamp with time zone DEFAULT "now"(),
     "status" "public"."trip_friend_status" DEFAULT 'PENDING'::"public"."trip_friend_status" NOT NULL,
     "profile_id" "uuid",
+    "invited_by_id" "uuid",
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 
@@ -871,6 +971,9 @@ ALTER TABLE ONLY "public"."trip_friends"
 ALTER TABLE ONLY "public"."trip_friends"
     ADD CONSTRAINT "trip_friends_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
+ALTER TABLE ONLY "public"."trip_friends"
+    ADD CONSTRAINT "trip_friends_invited_by_id_fkey" FOREIGN KEY ("invited_by_id") REFERENCES "public"."profiles"("id");
+
 ALTER TABLE ONLY "public"."trip_packs"
     ADD CONSTRAINT "trip_packs_pack_id_fkey" FOREIGN KEY ("pack_id") REFERENCES "public"."packs"("id");
 
@@ -939,6 +1042,10 @@ GRANT ALL ON FUNCTION "public"."generate_slug"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "anon";
 GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "anon";
+GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "service_role";
 
 GRANT ALL ON TABLE "public"."answers" TO "anon";
 GRANT ALL ON TABLE "public"."answers" TO "authenticated";

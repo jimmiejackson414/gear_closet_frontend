@@ -1,6 +1,7 @@
 import dinero from 'dinero.js';
-import { SubscriptionLevel } from '@/types';
 import tailwind from '@/helpers/tailwind';
+import type { Enums } from '@/types';
+import { SubscriptionLevel } from '~/types/better';
 
 export interface Tier {
   title: string;
@@ -12,7 +13,7 @@ export interface Tier {
   buttonText: string;
   buttonVariant: string;
   buttonDisabled: boolean;
-  value: SubscriptionLevel;
+  value: Enums<'subscription_level'>;
 }
 
 const tiers: Tier[] = [
