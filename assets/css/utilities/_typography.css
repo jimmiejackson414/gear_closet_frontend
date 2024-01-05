@@ -21,9 +21,7 @@
   * p tags - 18px
   */
   .text-eyebrow {
-    @apply font-sans font-semibold;
-    font-size: 1.125rem;
-    line-height: 2.5rem;
+    @apply font-sans font-semibold uppercase tracking-widest text-sm;
   }
 
   /*

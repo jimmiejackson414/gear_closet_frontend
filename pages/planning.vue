@@ -32,7 +32,6 @@
   const selectedTrip = ref<Trip | undefined>(undefined);
   const tripOptions = computed(() => data.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
   
-  const supabase = useSupabaseClient<Database>();
   const loading = ref(false);
   /**
    * Fetches the planning page data.
@@ -40,6 +39,7 @@
   const fetchPlanningPage = async () => {
     loading.value = true;
     try {
+      const supabase = useSupabaseClient<Database>();
       const tripId = $route.query?.trip && Number(decrypt($route.query.trip));
       const { data: pageData, error } = await supabase
         .rpc('get_planning_page_data', { p_trip_id: tripId || 0 })
@@ -56,32 +56,6 @@
       $store.notifyNegative(err);
     } finally {
       loading.value = false;
-    }
-  };
-
-  /**
-   * Creates a new detail for the selected trip.
-   * @param type The type of detail to create.
-   */
-  const createNewDetail = async (type: TripDetailType) => {
-    try {
-      const { data: newDetail, error } = await supabase.from('trip_details')
-        .insert({
-          trip_id: selectedTrip.value?.id as number,
-          title: 'New detail',
-          type,
-          value: 'New detail description',
-        })
-        .select();
-
-      if (newDetail?.length && !error) {
-        newDetail.forEach(d => {
-          data.trip_details.unshift(d);
-        });
-      }
-    } catch (err) {
-      console.log({ err });
-      $store.notifyNegative('There was an error creating a new detail.');
     }
   };
 
@@ -168,7 +142,7 @@
         :data="data"
         :loading="loading"
         :selected-trip="selectedTrip"
-        @create="createNewDetail" />
+        @create="e => data.trip_details.unshift(e)" />
 
       <!-- Friends -->
       <trip-friends-widget

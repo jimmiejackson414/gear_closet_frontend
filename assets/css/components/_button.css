@@ -32,38 +32,74 @@
     /* Color Variants */
     &-primary {
       @apply bg-primary text-white hover:bg-primary-dark border border-transparent;
+
+      svg {
+        @apply text-primary w-4 h-4;
+      }
     }
 
     &-primary-outline {
       @apply bg-transparent border text-primary border-primary hover:bg-gray-100;
+
+      svg {
+        @apply text-primary w-4 h-4;
+      }
     }
 
     &-primary-ghost {
       @apply bg-transparent border text-primary border-transparent hover:bg-gray-100;
+
+      svg {
+        @apply text-primary w-4 h-4;
+      }
     }
 
     &-positive {
       @apply bg-positive text-white hover:bg-positive-dark border border-transparent;
+
+      svg {
+        @apply text-primary w-4 h-4;
+      }
     }
 
     &-positive-ghost {
       @apply bg-transparent border text-positive border-transparent hover:bg-gray-100;
+
+      svg {
+        @apply text-primary w-4 h-4;
+      }
     }
 
     &-positive-outline {
       @apply bg-transparent border text-positive border-positive hover:bg-gray-100;
+
+      svg {
+        @apply text-primary w-4 h-4;
+      }
     }
 
     &-danger {
       @apply bg-danger text-white hover:bg-danger-dark border border-transparent;
+
+      svg {
+        @apply text-primary w-4 h-4;
+      }
     }
 
     &-danger-ghost {
       @apply bg-transparent border text-danger border-transparent hover:bg-gray-100;
+
+      svg {
+        @apply text-primary w-4 h-4;
+      }
     }
 
     &-danger-outline {
       @apply bg-transparent border text-danger border-danger hover:bg-gray-100;
+
+      svg {
+        @apply text-primary w-4 h-4;
+      }
     }
   }
 }

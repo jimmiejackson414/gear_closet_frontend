@@ -1,13 +1,16 @@
 <script lang='ts' setup>
   import GcSpinner from '@/components/common/GcSpinner.vue';
+  import type { Icon } from 'lucide-vue-next';
   import type { RouteLocationRaw } from 'vue-router';
 
   interface Props {
     disabled?: boolean;
+    icon?: Icon;
     label?: string;
     loading?: boolean;
     outlined?: boolean;
     ghost?: boolean;
+    round?: boolean;
     size?: 'sm' | 'md' | 'lg';
     to?: RouteLocationRaw;
     type?: 'button' | 'submit' | 'reset';
@@ -16,10 +19,12 @@
 
   const props = withDefaults(defineProps<Props>(), {
     disabled: false,
+    icon: undefined,
     label: '',
     loading: false,
     outlined: false,
     ghost: false,
+    round: false,
     to: undefined,
     size: 'md',
     type: 'button',
@@ -52,8 +57,17 @@
     }
 
     // Disabled
-    if (props.disabled) {
-      classes.push('cursor-not-allowed opacity-50');
+    if (props.disabled) { classes.push('cursor-not-allowed opacity-50'); }
+
+    // Round
+    if (props.round) { classes.push('rounded-full'); }
+
+    // Icon
+    if (props.icon) {
+      classes.push('btn-icon p-0');
+      if (props.size == 'sm') { classes.push('w-6 h-6'); }
+      if (props.size == 'md') { classes.push('w-8 h-8'); }
+      if (props.size == 'lg') { classes.push('w-12 h-12'); }
     }
 
     return classes;
@@ -78,6 +92,10 @@
     <span v-else-if="$slots.default">
       <slot />
     </span>
+    <component
+      :is="icon"
+      v-else-if="icon"
+      class="text-white" />
     <span v-else>
       {{ label }}
     </span> 
