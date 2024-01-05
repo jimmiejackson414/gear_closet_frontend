@@ -1,4 +1,4 @@
-import { Theme } from '@/types/better';
+import { Theme } from '@/types';
 
 export interface Option {
   text: string;

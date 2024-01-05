@@ -1,59 +1,87 @@
 <script lang='ts' setup>
   import { SettingsIcon } from 'lucide-vue-next';
   import { decrypt } from '~/helpers/encryption';
+  import { TripDetailType } from '@/types';
   import type { ExtendedPack } from '@/types/helpers';
-  import type { Database, Tables } from '@/types';
+  import type { Database, Tables, Trip } from '@/types';
   import type { SelectOption } from '~/components/common/GcSelect.vue';
 
-  interface PlanningPageData {
+  export interface PlanningPageData {
     trips: Tables<'trips'>[];
     pack?: ExtendedPack;
-    tripDetails: Tables<'trip_details'>[];
+    trip_details: Tables<'trip_details'>[];
     todos: Tables<'todos'>[];
-    shoppingItems: Tables<'shopping_list_items'>[];
-    friends: Tables<'friends'>[];
+    shopping_items: Tables<'shopping_list_items'>[];
+    friends: Tables<'trip_friends'>[];
     poll?: Tables<'polls'>;
     errors?: string[];
   }
 
   const $store = useAppStore();
   const $route = useRoute();
-  const data = ref<PlanningPageData>({
+  let data = reactive<PlanningPageData>({
     trips: [],
     pack: undefined,
-    tripDetails: [],
+    trip_details: [],
     todos: [],
-    shoppingItems: [],
+    shopping_items: [],
     friends: [],
     poll: undefined,
     errors: undefined,
   });
-  const selectedTrip = ref<string | number | undefined>(undefined);
-  const tripOptions = computed(() => data.value.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
+  const selectedTrip = ref<Trip | undefined>(undefined);
+  const tripOptions = computed(() => data.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
   
+  const supabase = useSupabaseClient<Database>();
   const loading = ref(false);
+  /**
+   * Fetches the planning page data.
+   */
   const fetchPlanningPage = async () => {
     loading.value = true;
     try {
-      const supabase = useSupabaseClient<Database>();
       const tripId = $route.query?.trip && Number(decrypt($route.query.trip));
       const { data: pageData, error } = await supabase
         .rpc('get_planning_page_data', { p_trip_id: tripId || 0 })
         .returns<PlanningPageData>();
-      console.log({ data });
-      console.log({ error });
 
-      if (pageData) {
-        data.value = pageData;
+      if (pageData && !error) {
+        data = pageData;
 
         // set selected trip if available
         const findSelectedTrip = pageData.trips.find(trip => trip.id === (tripId ? tripId : pageData.trips[0].id)) as Tables<'trips'>;
-        selectedTrip.value = findSelectedTrip.id as number;
+        selectedTrip.value = findSelectedTrip;
       }
     } catch (err: any) {
       $store.notifyNegative(err);
     } finally {
       loading.value = false;
+    }
+  };
+
+  /**
+   * Creates a new detail for the selected trip.
+   * @param type The type of detail to create.
+   */
+  const createNewDetail = async (type: TripDetailType) => {
+    try {
+      const { data: newDetail, error } = await supabase.from('trip_details')
+        .insert({
+          trip_id: selectedTrip.value?.id as number,
+          title: 'New detail',
+          type,
+          value: 'New detail description',
+        })
+        .select();
+
+      if (newDetail?.length && !error) {
+        newDetail.forEach(d => {
+          data.trip_details.unshift(d);
+        });
+      }
+    } catch (err) {
+      console.log({ err });
+      $store.notifyNegative('There was an error creating a new detail.');
     }
   };
 
@@ -84,7 +112,7 @@
 </script>
 
 <template>
-  <div>
+  <div class="pb-8">
     <!-- Settings Row -->
     <div class="flex justify-end items-center gap-6 mb-8">
       <div class="flex justify-center items-center relative">
@@ -115,7 +143,7 @@
       </div>
       <gc-select
         label="Selected Trip"
-        :model-value="selectedTrip"
+        :model-value="selectedTrip?.id"
         name="selected-trip-select"
         :options="tripOptions" />
       <gc-button
@@ -131,24 +159,38 @@
         :loading="loading" />
 
       <!-- Poll -->
-      <poll-widget />
+      <poll-widget
+        :data="data.poll"
+        :loading="loading" />
 
       <!-- Hike Details -->
-      <hike-details-widget :loading="loading" />
+      <hike-details-widget
+        :data="data"
+        :loading="loading"
+        :selected-trip="selectedTrip"
+        @create="createNewDetail" />
 
       <!-- Friends -->
-      <trip-friends-widget />
+      <trip-friends-widget
+        :data="data.friends"
+        :loading="loading" />
 
       <!-- Trip Details -->
-      <trip-details-widget />
+      <trip-details-widget
+        :data="data.trip_details?.filter(t => t.type === TripDetailType.TRIP) || []"
+        :loading="loading" />
 
       <!-- Todos -->
-      <todos-widget />
+      <todos-widget
+        :data="data.todos"
+        :loading="loading" />
 
       <div />
 
       <!-- Shopping List -->
-      <shopping-list-widget />
+      <shopping-list-widget
+        :data="data.shopping_items"
+        :loading="loading" />
     </div>
 
     <!-- Modals -->

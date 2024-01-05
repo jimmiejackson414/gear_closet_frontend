@@ -23,14 +23,13 @@
     </div>
     <gc-skeleton v-if="loading" />
     <gc-empty-state v-else-if="!loading && !data">
-      <p class="mb-4 text-base-lg">
+      <p class="mb-4 text-base">
         You haven't added a pack to this trip yet!
       </p>
       <gc-button
         label="Add a pack"
         outlined
-        size="sm"
-        type="button" />
+        size="sm" />
     </gc-empty-state>
     <div v-else>
       Display pack chart

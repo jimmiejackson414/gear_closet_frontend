@@ -3,7 +3,7 @@
 
   const supabase = useSupabaseClient<Database>();
 
-  supabase.auth.onAuthStateChange((event, _session) => {
+  supabase.auth.onAuthStateChange((event) => {
     if (event === 'SIGNED_OUT') {
       supabase.removeAllChannels();
     }

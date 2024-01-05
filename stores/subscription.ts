@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { SubscriptionLevel } from '@/types/better';
+import { SubscriptionLevel } from '@/types';
 
 type State = {
   subscription: any | null;

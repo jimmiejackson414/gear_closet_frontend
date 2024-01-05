@@ -5,13 +5,14 @@
     autocomplete?: string;
     disabled?: boolean;
     error?: string;
-    label: string;
+    label?: string;
     modelValue: string | null;
     name: string;
     passwordToggle?: boolean;
     prependIcon?: Icon;
     required?: boolean;
     type?: string;
+    size?: 'sm' | 'md' | 'lg';
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -25,6 +26,7 @@
     prependIcon: undefined,
     required: false,
     type: 'text',
+    size: 'md',
   });
 
   const showPassword = ref(false);
@@ -46,13 +48,29 @@
     emit('blur', val || undefined);
   };
 
-  const hasError = computed(() => {
-    return !!props.error;
+  const hasError = computed(() => !!props.error );
+
+  const computedClasses = computed(() => {
+    const classes = [];
+
+    // determine padding based on size prop
+    if (props.size === 'sm') { classes.push('p-2 text-xs'); }
+    else if (props.size === 'md') { classes.push('p-2.5 text-sm'); }
+    else if (props.size === 'lg') { classes.push('p-4 sm:text-md'); }
+
+    // determine properties based on disabled prop and error state
+    hasError.value ? classes.push('border-danger') : classes.push('border-gray-300');
+    props.disabled ? classes.push('bg-gray-100 pointer-events-none') : classes.push('bg-white pointer-events-auto');
+
+    // override padding based on prependIcon prop
+    if (props.prependIcon) { classes.push('ps-11'); }
+
+    return classes;
   });
 </script>
 
 <template>
-  <div>
+  <div class="w-fit">
     <div class="relative">
       <div class="absolute inset-y-0 flex items-center pointer-events-none ps-3.5 start-0">
         <component
@@ -62,12 +80,8 @@
       <input
         :id="name"
         :autocomplete="autocomplete"
-        class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 pb-2.5 peer pt-4 px-2.5 rounded-lg text-dark-grey text-sm w-full focus:outline-none focus:ring-0"
-        :class="[
-          Boolean(prependIcon) ? 'ps-11' : '',
-          hasError ? 'border-danger' : 'border-gray-300',
-          disabled ? 'bg-gray-100 pointer-events-none' : 'bg-white pointer-events-auto',
-        ]"
+        class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 peer rounded-lg text-dark-grey w-full focus:outline-none focus:ring-0"
+        :class="computedClasses"
         :disabled="disabled"
         placeholder=""
         :required="required"

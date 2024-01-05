@@ -39,6 +39,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
     actions: {
       async fetchProfile () {
+        console.log(`fetchProfile`);
         const $store = useAppStore();
         $store.loading = true;
 

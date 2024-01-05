@@ -59,6 +59,9 @@ export default {
       fontFamily: {
         sans: ['Lato', ...defaultTheme.fontFamily.sans],
       },
+      transitionTimingFunction: {
+        'snap': 'cubic-bezier(1, 0, 0, 1)',
+      },
     },
   },
   plugins: [

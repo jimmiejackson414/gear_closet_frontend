@@ -30,7 +30,7 @@
   * p tags - 16px
   */
   .text-base {
-    @apply font-sans;
+    @apply font-sans font-normal;
     font-size: 1rem;
     line-height: 1.625rem;
   }

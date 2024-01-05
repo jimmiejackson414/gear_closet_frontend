@@ -126,6 +126,13 @@ CREATE TYPE "public"."user_role" AS ENUM (
 
 ALTER TYPE "public"."user_role" OWNER TO "postgres";
 
+CREATE TYPE "public"."trip_details_type" AS ENUM (
+    'HIKE',
+    'TRIP'
+);
+
+ALTER TYPE "public"."trip_details_type" OWNER TO "postgres";
+
 CREATE OR REPLACE FUNCTION "public"."generate_slug"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$
@@ -611,7 +618,7 @@ CREATE TABLE IF NOT EXISTS "public"."trip_details" (
     "title" character varying,
     "url" character varying,
     "value" character varying,
-    "type" character varying,
+    "type" "public"."trip_details_type" DEFAULT 'HIKE'::"public"."trip_details_type" NOT NULL,
     "trip_id" bigint,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
