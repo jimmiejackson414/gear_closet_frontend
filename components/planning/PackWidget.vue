@@ -1,16 +1,9 @@
 <script lang='ts' setup>
   import { BackpackIcon } from 'lucide-vue-next';
-  import type { ExtendedPack } from '~/types/helpers';
+  import { usePlanningStore } from '#imports';
 
-  interface Props {
-    data?: ExtendedPack;
-    loading: boolean;
-  }
-
-  withDefaults(defineProps<Props>(), {
-    data: undefined,
-    loading: false,
-  });
+  const $store = usePlanningStore();
+  const { data, pageLoading, selectedTrip } = storeToRefs($store);
 </script>
 
 <template>
@@ -21,8 +14,8 @@
         Pack
       </p>
     </div>
-    <gc-skeleton v-if="loading" />
-    <gc-empty-state v-else-if="!loading && !data">
+    <gc-skeleton v-if="pageLoading" />
+    <gc-empty-state v-else-if="!pageLoading && !data.pack">
       <p class="mb-4 text-base">
         You haven't added a pack to this trip yet!
       </p>

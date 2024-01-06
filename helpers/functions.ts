@@ -1,7 +1,7 @@
 import Dinero from 'dinero.js';
 import convert from 'convert';
 import type { Tables } from '@/types';
-import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '~/types/helpers';
+import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '@/types/helpers';
 import type { Currency } from 'dinero.js';
 import type { Mass } from 'convert';
 

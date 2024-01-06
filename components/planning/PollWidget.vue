@@ -1,16 +1,9 @@
 <script lang='ts' setup>
   import { VoteIcon } from 'lucide-vue-next';
-  import type { Poll } from '~/types';
+  import { usePlanningStore } from '@/stores/planning';
 
-  interface Props {
-    data?: Poll;
-    loading: boolean;
-  }
-  
-  withDefaults(defineProps<Props>(), {
-    data: undefined,
-    loading: false,
-  });
+  const $store = usePlanningStore();
+  const { data, pageLoading, selectedTrip } = storeToRefs($store);
 </script>
 
 <template>
@@ -21,13 +14,13 @@
         Poll
       </p>
     </div>
-    <gc-skeleton v-if="loading" />
-    <gc-empty-state v-else-if="!loading && !data">
+    <gc-skeleton v-if="pageLoading" />
+    <gc-empty-state v-else-if="!pageLoading && !data.poll">
       <p class="mb-4 text-base">
         You haven't created a poll for this trip yet!
       </p>
       <gc-button
-        label="Create a poll"
+        label="Get Started"
         outlined
         size="sm" />
     </gc-empty-state>

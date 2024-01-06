@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  import type { Database } from '~/types';
+  import type { Database } from '@/types';
 
   const supabase = useSupabaseClient<Database>();
 

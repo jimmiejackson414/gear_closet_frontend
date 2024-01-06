@@ -24,7 +24,7 @@ export default defineNuxtConfig({
 
   components: [
     {
-      path: '~/components',
+      path: '@/components',
       pathPrefix: false,
     },
   ],
@@ -66,6 +66,8 @@ export default defineNuxtConfig({
     include: ['tailwind.config.ts'],
   },
 
+  plugins: ['~/plugins/vue-tailwind-datepicker.ts'],
+
   postcss: {
     plugins: {
       'tailwindcss/nesting': {},
@@ -99,5 +101,6 @@ export default defineNuxtConfig({
 
   typescript: {
     typeCheck: true,
+    include: ['vendor.d.ts'],
   },
 });

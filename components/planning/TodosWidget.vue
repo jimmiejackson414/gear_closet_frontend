@@ -1,16 +1,9 @@
 <script lang='ts' setup>
   import { ListTodoIcon } from 'lucide-vue-next';
-  import type { Todo } from '~/types';
+  import { usePlanningStore } from '@/stores/planning';
 
-  interface Props {
-    data?: Todo[];
-    loading: boolean;
-  }
-
-  withDefaults(defineProps<Props>(), {
-    data: undefined,
-    loading: false,
-  });
+  const $store = usePlanningStore();
+  const { data, pageLoading, selectedTrip } = storeToRefs($store);
 </script>
 
 <template>
@@ -21,13 +14,13 @@
         Todos
       </p>
     </div>
-    <gc-skeleton v-if="loading" />
-    <gc-empty-state v-else-if="!loading && !data?.length">
+    <gc-skeleton v-if="pageLoading" />
+    <gc-empty-state v-else-if="!pageLoading && !data?.todos.length">
       <p class="mb-4 text-base">
         You haven't added any todos to this trip yet!
       </p>
       <gc-button
-        label="Add a pack"
+        label="Get Started"
         outlined
         size="sm" />
     </gc-empty-state>

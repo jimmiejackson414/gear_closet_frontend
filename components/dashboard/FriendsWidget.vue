@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { UsersIcon } from 'lucide-vue-next';
-  import type { Friend, Profile } from '~/types'; 
+  import type { Friend, Profile } from '@/types'; 
 
   interface Props {
     data: Friend[];

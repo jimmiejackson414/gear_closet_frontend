@@ -3,7 +3,7 @@
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import type { Trip } from '@/types';
-  import { encrypt } from '~/helpers/encryption';
+  import { encrypt } from '@/helpers/encryption';
 
   dayjs.extend(relativeTime);
   

@@ -1,67 +1,19 @@
 <script lang='ts' setup>
   import { SettingsIcon } from 'lucide-vue-next';
-  import { decrypt } from '~/helpers/encryption';
-  import { TripDetailType } from '@/types';
-  import type { ExtendedPack } from '@/types/helpers';
-  import type { Database, Tables, Trip } from '@/types';
-  import type { SelectOption } from '~/components/common/GcSelect.vue';
+  import { usePlanningStore } from '~/stores/planning';
+  import type { Tables, TripDetail } from '@/types';
+  import type { SelectOption } from '@/components/common/GcSelect.vue';
 
-  export interface PlanningPageData {
-    trips: Tables<'trips'>[];
-    pack?: ExtendedPack;
-    trip_details: Tables<'trip_details'>[];
-    todos: Tables<'todos'>[];
-    shopping_items: Tables<'shopping_list_items'>[];
-    friends: Tables<'trip_friends'>[];
-    poll?: Tables<'polls'>;
-    errors?: string[];
-  }
-
-  const $store = useAppStore();
   const $route = useRoute();
-  let data = reactive<PlanningPageData>({
-    trips: [],
-    pack: undefined,
-    trip_details: [],
-    todos: [],
-    shopping_items: [],
-    friends: [],
-    poll: undefined,
-    errors: undefined,
-  });
-  const selectedTrip = ref<Trip | undefined>(undefined);
-  const tripOptions = computed(() => data.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
-  
-  const loading = ref(false);
-  /**
-   * Fetches the planning page data.
-   */
-  const fetchPlanningPage = async () => {
-    loading.value = true;
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const tripId = $route.query?.trip && Number(decrypt($route.query.trip));
-      const { data: pageData, error } = await supabase
-        .rpc('get_planning_page_data', { p_trip_id: tripId || 0 })
-        .returns<PlanningPageData>();
+  const $store = usePlanningStore();
+  const { data, pageLoading, selectedTrip } = storeToRefs($store);
 
-      if (pageData && !error) {
-        data = pageData;
-
-        // set selected trip if available
-        const findSelectedTrip = pageData.trips.find(trip => trip.id === (tripId ? tripId : pageData.trips[0].id)) as Tables<'trips'>;
-        selectedTrip.value = findSelectedTrip;
-      }
-    } catch (err: any) {
-      $store.notifyNegative(err);
-    } finally {
-      loading.value = false;
-    }
-  };
+  const tripOptions = computed(() => data.value.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
 
   onMounted(async () => {
-    await fetchPlanningPage();
-    $store.loading = false;
+    pageLoading.value = true;
+    await $store.fetchPlanningPage($route.query);
+    pageLoading.value = false;
   });
 
   const isSettingsOpen = ref(false);
@@ -128,43 +80,27 @@
 
     <div class="grid lg:grid-cols-[65%,35%] grid-cols-1 gap-6">
       <!-- Pack Widget -->
-      <pack-widget
-        :data="data.pack"
-        :loading="loading" />
+      <pack-widget />
 
       <!-- Poll -->
-      <poll-widget
-        :data="data.poll"
-        :loading="loading" />
+      <poll-widget />
 
       <!-- Hike Details -->
-      <hike-details-widget
-        :data="data"
-        :loading="loading"
-        :selected-trip="selectedTrip"
-        @create="e => data.trip_details.unshift(e)" />
+      <hike-details-widget @create="(detail: TripDetail) => data.trip_details.unshift(detail)" />
 
       <!-- Friends -->
-      <trip-friends-widget
-        :data="data.friends"
-        :loading="loading" />
+      <trip-friends-widget />
 
       <!-- Trip Details -->
-      <trip-details-widget
-        :data="data.trip_details?.filter(t => t.type === TripDetailType.TRIP) || []"
-        :loading="loading" />
+      <trip-details-widget @create="(detail: TripDetail) => data.trip_details.unshift(detail)" />
 
       <!-- Todos -->
-      <todos-widget
-        :data="data.todos"
-        :loading="loading" />
+      <todos-widget />
 
       <div />
 
       <!-- Shopping List -->
-      <shopping-list-widget
-        :data="data.shopping_items"
-        :loading="loading" />
+      <shopping-list-widget />
     </div>
 
     <!-- Modals -->

@@ -57,4 +57,11 @@
       max-width: 1320px;
     }
   }
+
+  /* Datepicker Styles */
+  #vtd {
+    .vtd-datepicker-date {
+      /* @apply text-white bg-primary; */
+    }
+  }
 }

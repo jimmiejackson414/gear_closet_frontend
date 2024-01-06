@@ -1,16 +1,9 @@
 <script lang='ts' setup>
   import { UsersRoundIcon } from 'lucide-vue-next';
-  import type { TripFriend } from '~/types';
+  import { usePlanningStore } from '#imports';
 
-  interface Props {
-    data?: TripFriend[];
-    loading: boolean;
-  }
-
-  withDefaults(defineProps<Props>(), {
-    data: undefined,
-    loading: false,
-  }); 
+  const $store = usePlanningStore();
+  const { data, pageLoading, selectedTrip } = storeToRefs($store);
 </script>
 
 <template>
@@ -21,13 +14,13 @@
         Friends
       </p>
     </div>
-    <gc-skeleton v-if="loading" />
-    <gc-empty-state v-else-if="!loading && !data?.length">
+    <gc-skeleton v-if="pageLoading" />
+    <gc-empty-state v-else-if="!pageLoading && !data.friends.length">
       <p class="mb-4 text-base">
         You haven't added any friends to this trip yet!
       </p>
       <gc-button
-        label="Invite a friend"
+        label="Get Started"
         outlined
         size="sm" />
     </gc-empty-state>

@@ -2,7 +2,7 @@
   import { storeToRefs } from 'pinia';
   import { BellRingIcon } from 'lucide-vue-next';
   import { useUserStore } from '@/stores/user';
-  import type { ExtendedNotification } from '~/types/helpers';
+  import type { ExtendedNotification } from '@/types/helpers';
 
   interface Props {
     pageTitle: string;

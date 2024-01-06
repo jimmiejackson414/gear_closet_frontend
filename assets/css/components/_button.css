@@ -34,7 +34,7 @@
       @apply bg-primary text-white hover:bg-primary-dark border border-transparent;
 
       svg {
-        @apply text-primary w-4 h-4;
+        @apply w-4 h-4;
       }
     }
 
@@ -42,15 +42,15 @@
       @apply bg-transparent border text-primary border-primary hover:bg-gray-100;
 
       svg {
-        @apply text-primary w-4 h-4;
+        @apply w-4 h-4;
       }
     }
 
     &-primary-ghost {
-      @apply bg-transparent border text-primary border-transparent hover:bg-gray-100;
+      @apply bg-transparent border [&_svg]:text-primary text-primary border-transparent hover:bg-gray-100;
 
       svg {
-        @apply text-primary w-4 h-4;
+        @apply w-4 h-4;
       }
     }
 
@@ -58,7 +58,7 @@
       @apply bg-positive text-white hover:bg-positive-dark border border-transparent;
 
       svg {
-        @apply text-primary w-4 h-4;
+        @apply w-4 h-4;
       }
     }
 
@@ -66,7 +66,7 @@
       @apply bg-transparent border text-positive border-transparent hover:bg-gray-100;
 
       svg {
-        @apply text-primary w-4 h-4;
+        @apply w-4 h-4;
       }
     }
 
@@ -74,7 +74,7 @@
       @apply bg-transparent border text-positive border-positive hover:bg-gray-100;
 
       svg {
-        @apply text-primary w-4 h-4;
+        @apply w-4 h-4;
       }
     }
 
@@ -82,7 +82,7 @@
       @apply bg-danger text-white hover:bg-danger-dark border border-transparent;
 
       svg {
-        @apply text-primary w-4 h-4;
+        @apply w-4 h-4;
       }
     }
 
@@ -90,7 +90,7 @@
       @apply bg-transparent border text-danger border-transparent hover:bg-gray-100;
 
       svg {
-        @apply text-primary w-4 h-4;
+        @apply w-4 h-4;
       }
     }
 
@@ -98,7 +98,7 @@
       @apply bg-transparent border text-danger border-danger hover:bg-gray-100;
 
       svg {
-        @apply text-primary w-4 h-4;
+        @apply w-4 h-4;
       }
     }
   }

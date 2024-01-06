@@ -1,28 +1,25 @@
 <script lang='ts' setup>
-  import { ColumnsIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
-  import { TripDetailType, type Database, type Trip, type TripDetail } from '@/types';
-  import type { PlanningPageData } from '@/pages/planning.vue';
-  
-  interface Props {
-    data?: PlanningPageData;
-    selectedTrip?: Trip;
-    loading: boolean;
-  }
-
-  const props = withDefaults(defineProps<Props>(), {
-    data: undefined,
-    selectedTrip: undefined,
-    loading: false,
-  });
+  import { MountainIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
+  import { usePlanningStore } from '@/stores/planning';
+  import { TripDetailType, type Database, type TripDetail } from '@/types';
 
   const emits = defineEmits(['create', 'update']);
-  const $store = useAppStore();
+  const $appStore = useAppStore();
+  const $store = usePlanningStore();
+  const { data, pageLoading, selectedTrip } = storeToRefs($store);
 
   const hikeDetails = computed(() => {
-    return props.data?.trip_details.filter((detail) => {
+    return data.value?.trip_details.filter((detail) => {
       return detail.type === TripDetailType.HIKE;
-    });
+    }) || [];
   });
+
+  const isEditDialogOpen = ref(false);
+  const activeDetail = ref<TripDetail | null>(null);
+  const toggleEditDialog = (detail: TripDetail) => {
+    activeDetail.value = detail;
+    isEditDialogOpen.value = !isEditDialogOpen.value;
+  };
 
   /**
    * Creates a new detail for the selected trip.
@@ -32,39 +29,32 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
-          trip_id: props.selectedTrip?.id as number,
+          trip_id: selectedTrip?.value?.id as number,
           title: 'New detail',
           type: TripDetailType.HIKE,
-          value: 'New detail description',
+          value: 'New hike detail description',
         })
         .select();
 
       if (newDetail?.length && !error) {
-        emits('create', newDetail);
+        data.value.trip_details.unshift(newDetail[0]);
       }
     } catch (err) {
       console.log({ err });
-      $store.notifyNegative('There was an error creating a new detail.');
+      $appStore.notifyNegative('There was an error creating a new detail.');
     }
-  };
-
-  const isEditDialogOpen = ref(false);
-  const activeDetail = ref<TripDetail | null>(null);
-  const toggleEditDialog = (detail: TripDetail) => {
-    activeDetail.value = detail;
-    isEditDialogOpen.value = !isEditDialogOpen.value;
   };
 </script>
 
 <template>
   <div class="bg-white px-8 py-4 rounded-4xl shadow-light">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
-      <columns-icon class="h-6 mr-6 text-primary w-6" />
+      <mountain-icon class="h-6 mr-6 text-primary w-6" />
       <p class="font-bold text-base">
         Hike Details
       </p>
       <gc-button
-        v-if="!loading && data?.trip_details.length"
+        v-if="!pageLoading && hikeDetails.length"
         class="justify-self-end"
         :icon="PlusIcon"
         round
@@ -72,13 +62,13 @@
         variant="positive"
         @click="createNewDetail" />
     </div>
-    <gc-skeleton v-if="loading" />
-    <gc-empty-state v-else-if="!loading && !data?.trip_details.length">
+    <gc-skeleton v-if="pageLoading" />
+    <gc-empty-state v-else-if="!pageLoading && !hikeDetails.length">
       <p class="mb-4 text-base">
         You haven't created any hike details yet!
       </p>
       <gc-button
-        label="Add a detail"
+        label="Get Started"
         outlined
         size="sm"
         @click="createNewDetail" />

@@ -10,6 +10,7 @@ export default {
     "./pages/**/*.vue",
     "./nuxt.config.{js,ts}",
     "./node_modules/flowbite/**/*.{js,ts}",
+    "./node_modules/vue-tailwind-datepicker/**/*.js",
   ],
   theme: {
     extend: {
@@ -55,6 +56,9 @@ export default {
         'light-grey': '#e7e7e7',
         'grey': '#6d6d6d',
         'dark-grey': '#4a4a4a',
+
+        'vtd-primary': '#2368a2',
+        'vtd-secondary': '#2368a2',
       },
       fontFamily: {
         sans: ['Lato', ...defaultTheme.fontFamily.sans],
