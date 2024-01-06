@@ -59,9 +59,23 @@
   }
 
   /* Datepicker Styles */
-  #vtd {
-    .vtd-datepicker-date {
-      /* @apply text-white bg-primary; */
+  .dp__main.gc-dp {
+    @apply w-fit;
+
+    .dp__input {
+      &.gc-dp-input {
+        @apply bg-transparent border border-gray-300 rounded-lg text-dark-grey active:border-primary;
+      }
+    }
+    .dp__calendar_item {
+      .dp__range_start, .dp__range_end {
+        &.gc-dp-cell {
+          @apply !bg-primary;
+        }
+      }
+      .dp__today .gc-dp-cell {
+        @apply !border-primary;
+      }
     }
   }
 }

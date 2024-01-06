@@ -55,7 +55,7 @@
         <slot />
         <pencil-icon
           v-if="!hideEditBtn"
-          class="duration-100 ease-snap group-hover:opacity-100 h-4 ml-4 opacity-0 text-grey hover:text-primary transition w-4" />
+          class="cursor-pointer duration-100 ease-snap group-hover:opacity-100 h-4 ml-4 opacity-0 text-grey hover:text-primary transition w-4" />
       </span>
       <gc-input
         v-else

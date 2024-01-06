@@ -82,25 +82,25 @@
       <!-- Pack Widget -->
       <pack-widget />
 
-      <!-- Poll -->
-      <poll-widget />
+      <!-- Friends -->
+      <trip-friends-widget />
 
       <!-- Hike Details -->
       <hike-details-widget @create="(detail: TripDetail) => data.trip_details.unshift(detail)" />
 
-      <!-- Friends -->
-      <trip-friends-widget />
+      <!-- Todos -->
+      <todos-widget />
 
       <!-- Trip Details -->
       <trip-details-widget @create="(detail: TripDetail) => data.trip_details.unshift(detail)" />
 
-      <!-- Todos -->
-      <todos-widget />
+      <!-- Shopping List -->
+      <shopping-list-widget />
 
       <div />
 
-      <!-- Shopping List -->
-      <shopping-list-widget />
+      <!-- Poll -->
+      <poll-widget />
     </div>
 
     <!-- Modals -->

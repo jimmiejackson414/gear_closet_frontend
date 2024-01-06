@@ -41,7 +41,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           friends: [],
           poll: undefined,
         },
-        pageLoading: false,
+        pageLoading: true,
         selectedTrip: undefined,
       };
     },

@@ -1,11 +1,12 @@
 <script lang='ts' setup>
-  import VueTailwindDatepicker from 'vue-tailwind-datepicker';
-  import { FootprintsIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
+  import VueDatePicker from '@vuepic/vue-datepicker';
+  import { FootprintsIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
   import { usePlanningStore } from '@/stores/planning';
   import { TripDetailType } from '@/types';
   import type { Database, TripDetail } from '@/types';
+  import '@vuepic/vue-datepicker/dist/main.css';
 
-  const emits = defineEmits(['create', 'update']);
+  const emits = defineEmits(['create', 'update-trip']);
   const $appStore = useAppStore();
   const $store = usePlanningStore();
   const { data, pageLoading, selectedTrip } = storeToRefs($store);
@@ -26,7 +27,7 @@
   /**
    * Creates a new detail for the selected trip.
    */
-  const createNewDetail = async () => {
+  const createDetail = async () => {
     try {
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
@@ -47,12 +48,42 @@
     }
   };
 
-  // const startingDate = ref<string | undefined>(selectedTrip?.value?.starting_date as string);
-  // const endingDate = ref<string | undefined>(selectedTrip?.value?.ending_date as string);
-  const dateRange = ref<{ start: string | Date; end: string | Date; }>({
-    start: '',
-    end: '',
-  });
+  const updateDetail = async () => {
+    try {
+      console.log(`updateDetail`);
+      // const supabase = useSupabaseClient<Database>();
+      // const { data: updatedDetail, error } = await supabase.from('trip_details')
+      //   .update({
+      //     title: activeDetail.value?.title,
+      //     value: activeDetail.value?.value,
+      //   })
+      //   .eq('id', activeDetail.value?.id as number)
+      //   .select();
+
+      // if (updatedDetail?.length && !error) {
+      //   const index = data.value.trip_details.findIndex((detail) => detail.id === activeDetail.value?.id);
+      //   data.value.trip_details[index] = updatedDetail[0];
+      //   isEditDialogOpen.value = false;
+      // }
+    } catch (err) {
+      console.log({ err });
+      $appStore.notifyNegative('There was an error updating the detail.');
+    }
+  };
+
+  const editingTripDates = ref(false);
+  const dateRange = ref([]);
+  const format = (dates: Date[]) => {
+    const date1 = dates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    const date2 = dates[1]?.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return `${date1} to ${date2 || ''}`;
+  };
+
+  const formattedDate = (date: string | undefined | null) => {
+    if (!date) return '';
+    return new Date(date)
+      .toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  };
 </script>
 
 <template>
@@ -69,7 +100,7 @@
         round
         size="sm"
         variant="positive"
-        @click="createNewDetail" />
+        @click="createDetail" />
     </div>
     <gc-skeleton v-if="pageLoading" />
     <gc-empty-state v-else-if="!pageLoading && !tripDetails?.length">
@@ -80,28 +111,53 @@
         label="Get Started"
         outlined
         size="sm"
-        @click="createNewDetail" />
+        @click="createDetail" />
     </gc-empty-state>
     <div v-else>
-      <div class="flex items-center gap-6 mb-3">
+      <div class="flex flex-col mb-6">
         <gc-inline-edit
           :model-value="selectedTrip?.name"
           name="trip_name"
           placeholder="Trip Name"
           size="sm"
-          @handle-update="emits('update')">
+          @handle-update="updateDetail">
           <h5 class="!font-black text-base-lg">
             {{ selectedTrip?.name }}
           </h5>
         </gc-inline-edit>
-        <div class="hike-duration">
-          <vue-tailwind-datepicker
-            v-model="dateRange"
-            as-single
-            input-classes="focus:ring-1 focus:ring-primary focus:outline-none rounded-lg"
-            placeholder="Start and End Dates"
-            separator="to"
-            use-range />
+        <div>
+          <div
+            v-if="!editingTripDates"
+            class="flex items-center gap-4 group"
+            @click="editingTripDates = !editingTripDates">
+            <p class="cursor-pointer text-base text-grey">
+              {{ selectedTrip?.starting_date ? formattedDate(selectedTrip?.starting_date) : 'Start Date' }}
+            </p>
+            <move-right-icon class="h-6 text-grey w-6" />
+            <p class="cursor-pointer text-base text-grey">
+              {{ selectedTrip?.ending_date ? formattedDate(selectedTrip?.ending_date) : 'End Date' }}
+            </p>
+            <gc-button
+              class="group-hover:opacity-100 opacity-0"
+              ghost
+              :icon="PencilIcon"
+              round
+              size="sm" />
+          </div>
+          <vue-date-picker
+            v-else
+            :action-row="{ showNow: false, showPreview: false, showCancel: false, showSelect: true }"
+            :auto-apply="true"
+            calendar-cell-class-name="gc-dp-cell"
+            class="gc-dp"
+            :format="format"
+            :hide-navigation="['time']"
+            input-class-name="gc-dp-input"
+            :model-value="dateRange"
+            placeholder="Star and End Dates"
+            :preview-format="format"
+            range
+            @update:model-value="emits('update-trip', dateRange)" />
         </div>
       </div>
       <ul>

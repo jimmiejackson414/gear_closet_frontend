@@ -22,6 +22,10 @@ export default defineNuxtConfig({
     pageTransition: { name: 'page', mode: 'out-in' },
   },
 
+  build: {
+    transpile: ['@vuepic/vue-datepicker'],
+  },
+
   components: [
     {
       path: '@/components',
@@ -65,8 +69,6 @@ export default defineNuxtConfig({
   optimizeDeps: {
     include: ['tailwind.config.ts'],
   },
-
-  plugins: ['~/plugins/vue-tailwind-datepicker.ts'],
 
   postcss: {
     plugins: {
