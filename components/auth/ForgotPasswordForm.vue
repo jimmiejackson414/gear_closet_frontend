@@ -53,6 +53,7 @@
     <div class="auto-rows-auto grid grid-cols-1 gap-4">
       <gc-input
         v-model="form.email"
+        class="w-full"
         :error="fieldErrors.email"
         label="Email"
         name="email"

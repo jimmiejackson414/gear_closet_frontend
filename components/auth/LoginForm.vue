@@ -96,6 +96,7 @@
       <gc-input
         v-model="form.email"
         autocomplete="email"
+        class="w-full"
         :disabled="submitting"
         :error="fieldErrors.email"
         label="Email"
@@ -107,6 +108,7 @@
       <gc-input
         v-model="form.password"
         autocomplete="current-password"
+        class="w-full"
         :disabled="submitting"
         :error="fieldErrors.password"
         label="Password"

@@ -136,6 +136,7 @@
       <gc-input
         v-model="form.email"
         autocomplete="email"
+        class="w-full"
         :disabled="submitting"
         :error="fieldErrors.email"
         label="Email"
@@ -146,6 +147,7 @@
       <gc-input
         v-model="form.firstName"
         autocomplete="given-name"
+        class="w-full"
         :disabled="submitting"
         :error="fieldErrors.firstName"
         label="First Name"
@@ -156,6 +158,7 @@
       <gc-input
         v-model="form.lastName"
         autocomplete="family-name"
+        class="w-full"
         :disabled="submitting"
         :error="fieldErrors.lastName"
         label="Last Name"
@@ -166,6 +169,7 @@
       <gc-input
         v-model="form.password"
         autocomplete="current-password"
+        class="w-full"
         :disabled="submitting"
         :error="fieldErrors.password"
         label="Password"
@@ -178,6 +182,7 @@
       <gc-input
         v-model="form.passwordConfirm"
         autocomplete="confirm-password"
+        class="w-full"
         :disabled="submitting"
         :error="fieldErrors.passwordConfirm"
         label="Confirm Password"

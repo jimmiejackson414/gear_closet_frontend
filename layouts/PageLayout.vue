@@ -20,7 +20,7 @@
 </script>
 
 <template>
-  <div class="bg-zinc-100">
+  <div class="bg-white">
     <gc-loading-wrapper v-if="loading" />
     <div v-else>
       <gc-drawer v-if="!minimal" />

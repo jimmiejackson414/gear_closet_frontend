@@ -71,6 +71,7 @@
     }
   };
 
+  const datePicker = ref(null);
   const editingTripDates = ref(false);
   const dateRange = ref([]);
   const format = (dates: Date[]) => {
@@ -84,6 +85,8 @@
     return new Date(date)
       .toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
   };
+
+  onClickOutside(datePicker, () => editingTripDates.value = false);
 </script>
 
 <template>
@@ -146,6 +149,7 @@
           </div>
           <vue-date-picker
             v-else
+            ref="datePicker"
             :action-row="{ showNow: false, showPreview: false, showCancel: false, showSelect: true }"
             :auto-apply="true"
             calendar-cell-class-name="gc-dp-cell"
@@ -154,7 +158,7 @@
             :hide-navigation="['time']"
             input-class-name="gc-dp-input"
             :model-value="dateRange"
-            placeholder="Star and End Dates"
+            placeholder="Start and End Dates"
             :preview-format="format"
             range
             @update:model-value="emits('update-trip', dateRange)" />

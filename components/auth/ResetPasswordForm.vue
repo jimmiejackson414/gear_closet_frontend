@@ -55,6 +55,7 @@
     <div class="auto-rows-auto grid grid-cols-1 gap-4">
       <gc-input
         v-model="form.password"
+        class="w-full"
         :error="fieldErrors.password"
         label="Password"
         name="password"
@@ -63,6 +64,7 @@
         @blur="validateFieldOnBlur('password')" />
       <gc-input
         v-model="form.passwordConfirm"
+        class="w-full"
         :error="fieldErrors.passwordConfirm"
         label="Confirm Password"
         name="passwordConfirm"

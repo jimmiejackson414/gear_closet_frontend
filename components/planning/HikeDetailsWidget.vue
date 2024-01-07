@@ -103,8 +103,8 @@
           :key="detail.id"
           class="mb-5">
           <div class="flex items-center group space-between">
-            <div class="flex flex-1 flex-col">
-              <span class="text-eyebrow text-grey">
+            <div class="flex justify-between items-center flex-1">
+              <span class="!font-bold text-base text-grey">
                 {{ detail.title }}
               </span>
               <a
@@ -117,7 +117,7 @@
               </a>
               <span
                 v-else
-                class="font-bold text-base">
+                class="font-bold text-base text-grey">
                 {{ detail.value }}
               </span>
             </div>

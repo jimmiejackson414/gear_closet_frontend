@@ -24,7 +24,7 @@
 </script>
 
 <template>
-  <div class="bg-zinc-100 fixed h-screen pb-4 pt-12 px-2 z-50">
+  <div class="bg-white fixed h-screen pb-4 pt-12 px-2 z-50">
     <ul class="flex items-center flex-col gap-4 h-full">
       <li class="border-b border-light-grey">
         <span class="block mb-4 px-4 py-2">
