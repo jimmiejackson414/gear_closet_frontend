@@ -19,7 +19,7 @@
           :fill="backgroundImage.fill"
           :width="500" />
       </div>
-      <div class="absolute right-0 bg-white grid grid-cols-1 justify-center h-full items-center max-w-lg px-12 py-8 rounded-s-3xl w-full">
+      <div class="absolute right-0 bg-transparent grid grid-cols-1 justify-center h-full items-center max-w-lg px-12 py-8 rounded-s-3xl w-full">
         <slot />
       </div>
     </div>

@@ -6,7 +6,7 @@
   import type { Database, TripDetail } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
-  const emits = defineEmits(['create', 'update-trip']);
+  const emits = defineEmits(['update-trip']);
   const $appStore = useAppStore();
   const $store = usePlanningStore();
   const { data, pageLoading, selectedTrip } = storeToRefs($store);
@@ -102,7 +102,6 @@
         :icon="PlusIcon"
         round
         size="sm"
-        variant="positive"
         @click="createDetail" />
     </div>
     <gc-skeleton v-if="pageLoading" />
@@ -169,14 +168,24 @@
           v-for="detail in tripDetails"
           :key="detail.id"
           class="mb-5">
-          <div class="flex items-center group space-between">
-            <div class="flex flex-1 flex-col">
-              <span class="text-eyebrow text-grey">
+          <div class="flex items-center gap-4 group space-between">
+            <div class="flex justify-between items-center flex-1">
+              <p class="!font-bold text-base text-grey">
                 {{ detail.title }}
-              </span>
-              <span class="font-bold text-base">
+              </p>
+              <a
+                v-if="detail.url"
+                class="font-bold text-base"
+                :href="detail.url"
+                rel="noopener noreferrer"
+                target="_blank">
                 {{ detail.value }}
-              </span>
+              </a>
+              <p
+                v-else
+                class="font-bold text-base text-grey">
+                {{ detail.value }}
+              </p>
             </div>
             <gc-button
               class="group-hover:opacity-100 opacity-0"

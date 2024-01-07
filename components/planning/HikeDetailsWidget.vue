@@ -1,9 +1,8 @@
 <script lang='ts' setup>
   import { MountainIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
-  import { usePlanningStore } from '@/stores/planning';
   import { TripDetailType, type Database, type TripDetail } from '@/types';
 
-  const emits = defineEmits(['create', 'update']);
+  const emits = defineEmits(['update']);
   const $appStore = useAppStore();
   const $store = usePlanningStore();
   const { data, pageLoading, selectedTrip } = storeToRefs($store);
@@ -59,7 +58,6 @@
         :icon="PlusIcon"
         round
         size="sm"
-        variant="positive"
         @click="createNewDetail" />
     </div>
     <gc-skeleton v-if="pageLoading" />
@@ -102,11 +100,11 @@
           v-for="detail in hikeDetails"
           :key="detail.id"
           class="mb-5">
-          <div class="flex items-center group space-between">
+          <div class="flex items-center gap-4 group space-between">
             <div class="flex justify-between items-center flex-1">
-              <span class="!font-bold text-base text-grey">
+              <p class="!font-bold text-base text-grey">
                 {{ detail.title }}
-              </span>
+              </p>
               <a
                 v-if="detail.url"
                 class="font-bold text-base"
@@ -115,11 +113,11 @@
                 target="_blank">
                 {{ detail.value }}
               </a>
-              <span
+              <p
                 v-else
                 class="font-bold text-base text-grey">
                 {{ detail.value }}
-              </span>
+              </p>
             </div>
             <gc-button
               class="group-hover:opacity-100 opacity-0"
