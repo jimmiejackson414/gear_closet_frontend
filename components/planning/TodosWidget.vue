@@ -1,6 +1,8 @@
 <script lang='ts' setup>
-  import { ListTodoIcon } from 'lucide-vue-next';
+  import { Tabs } from 'flowbite';
+  import { ListTodoIcon, PlusIcon } from 'lucide-vue-next';
   import { ResourceType, type Database, type Todo, type UpdateTodo } from '@/types';
+  import type { InstanceOptions, TabsOptions, TabsInterface, TabItem } from 'flowbite';
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
@@ -20,12 +22,13 @@
   const createTodo = async () => {
     try {
       const supabase = useSupabaseClient<Database>();
+      const activeTab = tabs?.getActiveTab();
       const { data: newTodo, error } = await supabase.from('todos')
         .insert({
           trip_id: selectedTrip?.value?.id as number,
           title: 'New todo',
           completed: false,
-          resource_type: 'USER', // OR GROUP
+          resource_type: activeTab?.id as ResourceType,
         })
         .select();
 
@@ -60,15 +63,60 @@
       $appStore.notifyNegative('There was an error updating the todo.');
     }
   };
+
+  /**
+   * Instantiates the tabs component.
+   */
+  let tabs: TabsInterface | null = null;
+  watch([pageLoading, data], async (newValues) => {
+    console.log({ newValues });
+    const [newPageLoading, newData] = newValues;
+    if (!newPageLoading && newData?.todos.length) {
+      await nextTick();
+      const tabsElement = document?.getElementById('default-tab') as HTMLElement;
+      if (tabsElement) {
+        tabs = null;
+        const tabElements: TabItem[] = [
+          {
+            id: ResourceType.USER,
+            triggerEl: document?.querySelector('#you-tab') as HTMLElement,
+            targetEl: document?.querySelector('#you') as HTMLElement,
+          },
+          {
+            id: ResourceType.GROUP,
+            triggerEl: document?.querySelector('#group-tab') as HTMLElement,
+            targetEl: document?.querySelector('#group') as HTMLElement,
+          },
+        ];
+        const options: TabsOptions = {
+          defaultTabId: 'you-tab',
+          activeClasses: 'text-primary hover:text-primary !border-primary border-primary border-b-2',
+          inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
+        };
+        const instanceOptions: InstanceOptions = {
+          id: 'default-tab',
+          override: true,
+        };
+        tabs = new Tabs(tabsElement, tabElements, options, instanceOptions);
+      }
+    }
+  }, { deep: true });
 </script>
 
 <template>
   <div class="bg-grey-50 px-8 py-4 rounded-2xl shadow-light">
-    <div class="flex justify-start items-center py-4">
+    <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
       <list-todo-icon class="h-6 mr-6 text-primary w-6" />
       <p class="font-bold text-base">
         Todos
       </p>
+      <gc-button
+        v-if="!pageLoading && data?.todos.length"
+        class="justify-self-end"
+        :icon="PlusIcon"
+        round
+        size="sm"
+        @click="createTodo" />
     </div>
     <gc-skeleton v-if="pageLoading" />
     <gc-empty-state v-else-if="!pageLoading && !data?.todos.length">
@@ -85,8 +133,7 @@
       <div class="border-b border-gray-200 mb-4">
         <ul
           id="default-tab"
-          class="-mb-px flex flex-wrap font-medium text-center text-sm"
-          data-tabs-toggle="#default-tab-content"
+          class="-mb-px flex flex-wrap font-medium text-center text-gray-500 text-sm"
           role="tablist">
           <li
             class="me-2"
@@ -95,8 +142,7 @@
               id="you-tab"
               aria-controls="you"
               aria-selected="false"
-              class="aria-selected:border-primary aria-selected:text-primary border-b-2 hover:border-gray-300 inline-block p-4 rounded-t-lg hover:text-gray-600"
-              data-tabs-target="#you"
+              class="border-b-2 hover:border-gray-300 border-transparent inline-block p-4 rounded-t-lg hover:text-gray-600"
               role="tab"
               type="button">
               You
@@ -109,8 +155,7 @@
               id="group-tab"
               aria-controls="group"
               aria-selected="false"
-              class="aria-selected:border-primary aria-selected:text-primary border-b-2 hover:border-gray-300 inline-block p-4 rounded-t-lg hover:text-gray-600"
-              data-tabs-target="#group"
+              class="border-b-2 hover:border-gray-300 border-transparent inline-block p-4 rounded-t-lg hover:text-gray-600"
               role="tab"
               type="button">
               Group
@@ -127,7 +172,8 @@
           <div v-if="userTodos.length">
             <div
               v-for="todo in userTodos"
-              :key="todo.id">
+              :key="todo.id"
+              class="mb-5 last:mb-0">
               <gc-checkbox
                 :id="`todo-${todo.id}`"
                 :checked="todo.completed"
@@ -150,7 +196,8 @@
           <div v-if="groupTodos.length">
             <div
               v-for="todo in groupTodos"
-              :key="todo.id">
+              :key="todo.id"
+              class="mb-5 last:mb-0">
               <gc-checkbox
                 :id="`todo-${todo.id}`"
                 :checked="todo.completed"
@@ -159,7 +206,9 @@
                 @update="e => updateTodo(todo, { completed: e })" />
             </div>
           </div>
-          <p class="text-center text-sm">
+          <p
+            v-else
+            class="text-center text-sm">
             No group todos found.
           </p>
         </div>

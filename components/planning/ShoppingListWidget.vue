@@ -1,18 +1,123 @@
 <script lang='ts' setup>
-  import { CheckSquare2Icon } from 'lucide-vue-next';
-  import { usePlanningStore } from '@/stores/planning';
+  import { Tabs } from 'flowbite';
+  import { CheckSquare2Icon, PlusIcon } from 'lucide-vue-next';
+  import { ResourceType, type Database, type ShoppingListItem, type UpdateShoppingListItem } from '@/types';
+  import type { InstanceOptions, TabsOptions, TabsInterface, TabItem } from 'flowbite';
 
+  const $appStore = useAppStore();
   const $store = usePlanningStore();
   const { data, pageLoading, selectedTrip } = storeToRefs($store);
+
+  const userItems = computed(() => {
+    return data.value.shopping_items.filter(t => t.resource_type === ResourceType.USER);
+  });
+
+  const groupItems = computed(() => {
+    return data.value.shopping_items.filter(t => t.resource_type === ResourceType.GROUP);
+  });
+
+  /**
+   * Creates a new shopping item for the selected trip.
+   */
+  const createShoppingItem = async () => {
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const activeTab = tabs?.getActiveTab();
+      const { data: newItem, error } = await supabase.from('shopping_list_items')
+        .insert({
+          trip_id: selectedTrip?.value?.id as number,
+          title: 'New shopping item',
+          completed: false,
+          resource_type: activeTab?.id as ResourceType,
+          quantity: 1,
+        })
+        .select();
+
+      if (newItem?.length && !error) {
+        data.value.shopping_items.unshift(newItem[0]);
+      }
+    } catch (err) {
+      console.log({ err });
+      $appStore.notifyNegative('There was an error creating a new shopping item.');
+    }
+  };
+
+  /**
+   *  Updates a shopping item.
+   * @param shoppingItem 
+   */
+  const updateShoppingItem = async (shoppingItem: ShoppingListItem, payload: UpdateShoppingListItem) => {
+    console.log({ shoppingItem, payload });
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const { data: updatedShoppingItem, error } = await supabase.from('shopping_items')
+        .update(payload)
+        .eq('id', shoppingItem.id as number)
+        .select();
+
+      if (updatedShoppingItem?.length && !error) {
+        const index = data.value.shopping_items.findIndex((t) => t.id === shoppingItem.id);
+        data.value.shopping_items[index] = updatedShoppingItem[0];
+      }
+    } catch (err) {
+      console.log({ err });
+      $appStore.notifyNegative('There was an error updating the shopping item.');
+    }
+  };
+
+  /**
+   * Instantiates the tabs component.
+   */
+  let tabs: TabsInterface | null = null;
+  watch([pageLoading, data], async (newValues) => {
+    console.log({ newValues });
+    const [newPageLoading, newData] = newValues;
+    if (!newPageLoading && newData?.shopping_items.length) {
+      await nextTick();
+      const tabsElement = document.getElementById('shopping-items-tab') as HTMLElement;
+      if (tabsElement) {
+        tabs = null;
+        const tabElements: TabItem[] = [
+          {
+            id: ResourceType.USER,
+            triggerEl: document.querySelector('#your-items-tab') as HTMLElement,
+            targetEl: document.querySelector('#your-items') as HTMLElement,
+          },
+          {
+            id: ResourceType.GROUP,
+            triggerEl: document.querySelector('#group-items-tab') as HTMLElement,
+            targetEl: document.querySelector('#group-items') as HTMLElement,
+          },
+        ];
+        const options: TabsOptions = {
+          defaultTabId: 'your-items-tab',
+          activeClasses: 'text-primary hover:text-primary !border-primary border-primary border-b-2',
+          inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
+        };
+        const instanceOptions: InstanceOptions = {
+          id: 'shopping-items-tab',
+          override: true,
+        };
+        tabs = new Tabs(tabsElement, tabElements, options, instanceOptions);
+      }
+    }
+  }, { deep: true });
 </script>
 
 <template>
   <div class="bg-grey-50 px-8 py-4 rounded-2xl shadow-light">
-    <div class="flex justify-start items-center py-4">
+    <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
       <check-square-2-icon class="h-6 mr-6 text-primary w-6" />
       <p class="font-bold text-base">
         Shopping Items
       </p>
+      <gc-button
+        v-if="!pageLoading && data?.todos.length"
+        class="justify-self-end"
+        :icon="PlusIcon"
+        round
+        size="sm"
+        @click="createShoppingItem" />
     </div>
     <gc-skeleton v-if="pageLoading" />
     <gc-empty-state v-else-if="!pageLoading && !data?.shopping_items.length">
@@ -22,10 +127,93 @@
       <gc-button
         label="Get Started"
         outlined
-        size="sm" />
+        size="sm"
+        @click="createShoppingItem" />
     </gc-empty-state>
     <div v-else>
-      Display shopping items
+      <div class="border-b border-gray-200 mb-4">
+        <ul
+          id="shopping-items-tab"
+          class="-mb-px flex flex-wrap font-medium text-center text-gray-500 text-sm"
+          role="tablist">
+          <li
+            class="me-2"
+            role="presentation">
+            <button
+              id="your-items-tab"
+              aria-controls="your-items"
+              aria-selected="false"
+              class="border-b-2 hover:border-gray-300 border-transparent inline-block p-4 rounded-t-lg hover:text-gray-600"
+              role="tab"
+              type="button">
+              You
+            </button>
+          </li>
+          <li
+            class="me-2"
+            role="presentation">
+            <button
+              id="group-items-tab"
+              aria-controls="group-items"
+              aria-selected="false"
+              class="border-b-2 hover:border-gray-300 border-transparent inline-block p-4 rounded-t-lg hover:text-gray-600"
+              role="tab"
+              type="button">
+              Group
+            </button>
+          </li>
+        </ul>
+      </div>
+      <div id="default-tab-content">
+        <div
+          id="your-items"
+          aria-labelledby="your-items-tab"
+          class="bg-gray-50 hidden p-4 rounded-lg"
+          role="tabpanel">
+          <div v-if="userItems.length">
+            <div
+              v-for="item in userItems"
+              :key="item.id"
+              class="mb-5 last:mb-0">
+              <gc-checkbox
+                :id="`item-${item.id}`"
+                :checked="item.completed"
+                :label="item.title"
+                strike-through
+                @update="e => updateShoppingItem(item, { completed: e })" />
+            </div>
+          </div>
+          <p
+            v-else
+            class="text-base text-center">
+            No shopping items found.
+          </p>
+        </div>
+        <div
+          id="group-items"
+          aria-labelledby="group-items-tab"
+          class="bg-gray-50 hidden p-4 rounded-lg"
+          role="tabpanel">
+          <div v-if="groupItems.length">
+            <div
+              v-for="item in groupItems"
+              :key="item.id"
+              class="mb-5 last:mb-0">
+              <gc-checkbox
+                :id="`item-${item.id}`"
+                :checked="item.completed"
+                :label="item.title"
+                strike-through
+                @update="e => updateShoppingItem(item, { completed: e })" />
+            </div>
+          </div>
+          <p
+            v-else
+            class="text-center text-sm">
+            No group shopping items found.
+          </p>
+        </div>
+      </div>
     </div>
   </div>
 </template>

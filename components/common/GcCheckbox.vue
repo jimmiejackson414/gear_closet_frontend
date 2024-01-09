@@ -2,12 +2,12 @@
   interface Props {
     id: string;
     checked: boolean;
-    label: string | null;
+    label?: string | null;
     strikeThrough: boolean;
   }
 
   withDefaults(defineProps<Props>(), {
-    label: null,
+    label: undefined,
     strikeThrough: false,
   });
 
@@ -28,6 +28,7 @@
       value=""
       @change="handleChange">
     <label
+      v-if="label"
       class="cursor-pointer font-medium ms-2 text-gray-500 text-sm"
       :for="id">
       {{ label }}
