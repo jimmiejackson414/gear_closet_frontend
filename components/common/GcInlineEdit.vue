@@ -2,7 +2,7 @@
   import { PencilIcon } from 'lucide-vue-next';
 
   interface Props {
-    modelValue?: string | null;
+    modelValue?: string | number | null;
     name: string;
     placeholder?: string;
     hideEditBtn?: boolean;
@@ -21,10 +21,15 @@
   const emits = defineEmits(['handleUpdate']);
 
   const isEditing = ref(false);
-  const localModel = ref<string | null | undefined>(undefined);
-  const inlineEditRef = ref(null);
+  const localModel = ref<string | number | null | undefined>(undefined);
+  const inlineEditRef = ref<any>(null);
 
-  const toggleEditing = () => { isEditing.value = !isEditing.value; };
+  const toggleEditing = () => {
+    isEditing.value = !isEditing.value;
+    if (isEditing.value) {
+      nextTick(() => inlineEditRef.value?.focusInput());
+    }
+  };
 
   const handleEmit = () => {
     isEditing.value = false;
@@ -45,29 +50,26 @@
 
 <template>
   <div class="grid grid-cols-[auto] h-full relative w-fit">
-    <slide-up-transition>
-      <span
-        v-if="!isEditing"
-        class="cursor-pointer duration-100 ease-snap flex items-center group px-1 py-1.5 transition"
-        @click="toggleEditing"
-        @keydown="toggleEditing"
-        @trigger="toggleEditing">
-        <slot />
-        <pencil-icon
-          v-if="!hideEditBtn"
-          class="cursor-pointer duration-100 ease-snap group-hover:opacity-100 h-4 ml-4 opacity-0 text-grey hover:text-primary transition w-4" />
-      </span>
-      <gc-input
-        v-else
-        ref="inlineEditRef"
-        v-model="localModel"
-        :name="name"
-        :placeholder="placeholder"
-        :size="size"
-        @blur="handleEmit"
-        @keydown.enter.prevent="handleEmit"
-        @keydown.escape="handleEscape"
-        @keydown.tab="handleEmit" />
-    </slide-up-transition>
+    <span
+      v-show="!isEditing"
+      class="cursor-pointer duration-100 ease-snap flex items-center group px-1 py-1.5 transition"
+      @click="toggleEditing"
+      @keydown="toggleEditing"
+      @trigger="toggleEditing">
+      <slot />
+      <pencil-icon
+        v-if="!hideEditBtn"
+        class="cursor-pointer duration-100 ease-snap group-hover:opacity-100 h-4 ml-4 opacity-0 text-grey hover:text-primary transition w-4" />
+    </span>
+    <gc-input
+      v-show="isEditing"
+      ref="inlineEditRef"
+      v-model="localModel"
+      :name="name"
+      :placeholder="placeholder"
+      :size="size"
+      @blur="handleEmit"
+      @enter="handleEmit"
+      @keydown.escape="handleEscape" />
   </div>
 </template>

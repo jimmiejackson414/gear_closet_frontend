@@ -41,9 +41,12 @@ export default {
         'positive': '#21ba45',
         'positive-dark': '#16652a',
 
-        'danger-light': '#f9e5db',
-        'danger': '#DE6B48',
-        'danger-dark': '#a92f25',
+        // 'danger-light': '#f9e5db',
+        // 'danger': '#DE6B48',
+        // 'danger-dark': '#a92f25',
+        'danger-light': '#fdd5d1',
+        'danger': '#d9534f',
+        'danger-dark': '#a94442',
 
         'info-light': '#e3f0fb',
         'info': '#88ccf1',

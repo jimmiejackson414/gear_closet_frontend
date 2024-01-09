@@ -36,7 +36,6 @@
         data.value.todos.unshift(newTodo[0]);
       }
     } catch (err) {
-      console.log({ err });
       $appStore.notifyNegative('There was an error creating a new todo.');
     }
   };
@@ -46,7 +45,6 @@
    * @param todo 
    */
   const updateTodo = async (todo: Todo, payload: UpdateTodo) => {
-    console.log({ todo, payload });
     try {
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTodo, error } = await supabase.from('todos')
@@ -59,7 +57,6 @@
         data.value.todos[index] = updatedTodo[0];
       }
     } catch (err) {
-      console.log({ err });
       $appStore.notifyNegative('There was an error updating the todo.');
     }
   };
@@ -69,7 +66,6 @@
    */
   let tabs: TabsInterface | null = null;
   watch([pageLoading, data], async (newValues) => {
-    console.log({ newValues });
     const [newPageLoading, newData] = newValues;
     if (!newPageLoading && newData?.todos.length) {
       await nextTick();
@@ -130,7 +126,7 @@
         @click="createTodo" />
     </gc-empty-state>
     <div v-else>
-      <div class="border-b border-gray-200 mb-4">
+      <div class="border-b border-gray-200">
         <ul
           id="default-tab"
           class="-mb-px flex flex-wrap font-medium text-center text-gray-500 text-sm"
@@ -170,17 +166,51 @@
           class="bg-gray-50 hidden p-4 rounded-lg"
           role="tabpanel">
           <div v-if="userTodos.length">
-            <div
-              v-for="todo in userTodos"
-              :key="todo.id"
-              class="mb-5 last:mb-0">
-              <gc-checkbox
-                :id="`todo-${todo.id}`"
-                :checked="todo.completed"
-                :label="todo.title"
-                strike-through
-                @update="e => updateTodo(todo, { completed: e })" />
-            </div>
+            <table class="text-gray-500 text-left text-sm w-full">
+              <thead class="bg-gray-50 text-gray-700 text-xs uppercase">
+                <tr>
+                  <th
+                    class="p-0"
+                    scope="col">
+                    <div class="flex items-center" />
+                  </th>
+                  <th
+                    class="px-6 py-0"
+                    scope="col">
+                    Title
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="todo in userTodos"
+                  :key="todo.id">
+                  <td class="p-0 w-4">
+                    <div class="flex items-center">
+                      <gc-checkbox
+                        :id="`todo-${todo.id}`"
+                        :checked="todo.completed"
+                        strike-through
+                        @update="e => updateTodo(todo, { completed: e })" />
+                    </div>
+                  </td>
+                  <th
+                    class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap"
+                    scope="row">
+                    <gc-inline-edit
+                      hide-edit-btn
+                      :model-value="todo.title"
+                      name="title"
+                      size="sm"
+                      @handle-update="e => updateTodo(todo, { title: e })">
+                      <p class="font-medium text-gray-500 text-sm">
+                        {{ todo.title }}
+                      </p>
+                    </gc-inline-edit>
+                  </th>
+                </tr>
+              </tbody>
+            </table>
           </div>
           <p
             v-else

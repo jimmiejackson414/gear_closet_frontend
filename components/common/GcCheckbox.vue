@@ -3,7 +3,7 @@
     id: string;
     checked: boolean;
     label?: string | null;
-    strikeThrough: boolean;
+    strikeThrough?: boolean;
   }
 
   withDefaults(defineProps<Props>(), {

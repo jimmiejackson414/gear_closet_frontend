@@ -3,7 +3,7 @@
   import { FootprintsIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
   import { usePlanningStore } from '@/stores/planning';
   import { TripDetailType } from '@/types';
-  import type { Database, TripDetail } from '@/types';
+  import type { Database, TripDetail, UpdateTripDetail } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
   const emits = defineEmits(['update-trip']);
@@ -48,23 +48,20 @@
     }
   };
 
-  const updateDetail = async () => {
+  const updateDetail = async (payload: UpdateTripDetail) => {
     try {
-      console.log(`updateDetail`);
-      // const supabase = useSupabaseClient<Database>();
-      // const { data: updatedDetail, error } = await supabase.from('trip_details')
-      //   .update({
-      //     title: activeDetail.value?.title,
-      //     value: activeDetail.value?.value,
-      //   })
-      //   .eq('id', activeDetail.value?.id as number)
-      //   .select();
+      console.log(`updateDetail`, payload);
+      const supabase = useSupabaseClient<Database>();
+      const { data: updatedDetail, error } = await supabase.from('trip_details')
+        .update(payload)
+        .eq('id', activeDetail.value?.id as number)
+        .select();
 
-      // if (updatedDetail?.length && !error) {
-      //   const index = data.value.trip_details.findIndex((detail) => detail.id === activeDetail.value?.id);
-      //   data.value.trip_details[index] = updatedDetail[0];
-      //   isEditDialogOpen.value = false;
-      // }
+      if (updatedDetail?.length && !error) {
+        const index = data.value.trip_details.findIndex((detail) => detail.id === activeDetail.value?.id);
+        data.value.trip_details[index] = updatedDetail[0];
+        isEditDialogOpen.value = false;
+      }
     } catch (err) {
       console.log({ err });
       $appStore.notifyNegative('There was an error updating the detail.');
@@ -198,5 +195,14 @@
         </li>
       </ul>
     </div>
+    <gc-modal
+      :is-open="isEditDialogOpen"
+      title="Edit Hike Detail"
+      @handle-cancel="isEditDialogOpen = false"
+      @handle-continue="updateDetail">
+      <div>
+        Edit Modal
+      </div>
+    </gc-modal>
   </div>
 </template>

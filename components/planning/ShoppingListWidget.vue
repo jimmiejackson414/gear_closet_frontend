@@ -37,7 +37,6 @@
         data.value.shopping_items.unshift(newItem[0]);
       }
     } catch (err) {
-      console.log({ err });
       $appStore.notifyNegative('There was an error creating a new shopping item.');
     }
   };
@@ -47,10 +46,10 @@
    * @param shoppingItem 
    */
   const updateShoppingItem = async (shoppingItem: ShoppingListItem, payload: UpdateShoppingListItem) => {
-    console.log({ shoppingItem, payload });
+    console.log(`updateShoppingItem`);
     try {
       const supabase = useSupabaseClient<Database>();
-      const { data: updatedShoppingItem, error } = await supabase.from('shopping_items')
+      const { data: updatedShoppingItem, error } = await supabase.from('shopping_list_items')
         .update(payload)
         .eq('id', shoppingItem.id as number)
         .select();
@@ -60,7 +59,6 @@
         data.value.shopping_items[index] = updatedShoppingItem[0];
       }
     } catch (err) {
-      console.log({ err });
       $appStore.notifyNegative('There was an error updating the shopping item.');
     }
   };
@@ -70,7 +68,6 @@
    */
   let tabs: TabsInterface | null = null;
   watch([pageLoading, data], async (newValues) => {
-    console.log({ newValues });
     const [newPageLoading, newData] = newValues;
     if (!newPageLoading && newData?.shopping_items.length) {
       await nextTick();
@@ -131,7 +128,7 @@
         @click="createShoppingItem" />
     </gc-empty-state>
     <div v-else>
-      <div class="border-b border-gray-200 mb-4">
+      <div class="border-b border-gray-200">
         <ul
           id="shopping-items-tab"
           class="-mb-px flex flex-wrap font-medium text-center text-gray-500 text-sm"
@@ -171,17 +168,70 @@
           class="bg-gray-50 hidden p-4 rounded-lg"
           role="tabpanel">
           <div v-if="userItems.length">
-            <div
-              v-for="item in userItems"
-              :key="item.id"
-              class="mb-5 last:mb-0">
-              <gc-checkbox
-                :id="`item-${item.id}`"
-                :checked="item.completed"
-                :label="item.title"
-                strike-through
-                @update="e => updateShoppingItem(item, { completed: e })" />
-            </div>
+            <table class="text-gray-500 text-left text-sm w-full">
+              <thead class="bg-gray-50 text-gray-700 text-xs uppercase">
+                <tr>
+                  <th
+                    class="p-0"
+                    scope="col">
+                    <div class="flex items-center" />
+                  </th>
+                  <th
+                    class="px-6 py-0"
+                    scope="col">
+                    Title
+                  </th>
+                  <th
+                    class="px-6 py-0"
+                    scope="col">
+                    Quantity
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="item in userItems"
+                  :key="item.id">
+                  <td class="p-0 w-4">
+                    <div class="flex items-center">
+                      <gc-checkbox
+                        :id="`item-${item.id}`"
+                        :checked="item.completed"
+                        strike-through
+                        @update="e => updateShoppingItem(item, { completed: e })" />
+                    </div>
+                  </td>
+                  <th
+                    class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap"
+                    scope="row">
+                    <gc-inline-edit
+                      hide-edit-btn
+                      :model-value="item.title"
+                      name="title"
+                      size="sm"
+                      @handle-update="e => updateShoppingItem(item, { title: e })">
+                      <p class="font-medium text-gray-500 text-sm">
+                        {{ item.title }}
+                      </p>
+                    </gc-inline-edit>
+                  </th>
+                  <th
+                    class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap"
+                    scope="row">
+                    <gc-inline-edit
+                      hide-edit-btn
+                      :model-value="item.quantity"
+                      name="quantity"
+                      size="sm"
+                      @handle-update="e => updateShoppingItem(item, { quantity: e })">
+                      <p class="font-medium text-gray-500 text-sm">
+                        {{ item.quantity }}
+                      </p>
+                    </gc-inline-edit>
+                  </th>
+                </tr>
+              </tbody>
+            </table>
           </div>
           <p
             v-else

@@ -6,7 +6,7 @@
     disabled?: boolean;
     error?: string;
     label?: string;
-    modelValue: string | null;
+    modelValue: string | number | null;
     name: string;
     passwordToggle?: boolean;
     prependIcon?: Icon;
@@ -29,24 +29,43 @@
     size: 'md',
   });
 
+  const inputRef = ref<HTMLInputElement | null>(null);
   const showPassword = ref(false);
-  const computedType = computed(() => {
-    return showPassword.value ? 'text' : props.type;
-  });
+
+  const emit = defineEmits(['update:model-value', 'blur', 'enter']);
+
+  const focusInput = () => {
+    inputRef.value?.focus();
+  };
+
+  defineExpose({ focusInput });
 
   const togglePasswordVisibility = () => {
     showPassword.value = !showPassword.value;
   };
 
-  const emit = defineEmits(['update:model-value', 'blur']);
-
   const handleInput = (val: string) => {
     emit('update:model-value', val || undefined);
   };
 
-  const handleBlur = (val: string) => {
-    emit('blur', val || undefined);
+  const enterKeyPressed = ref(false);
+  const handleBlur = () => {
+    nextTick(() => {
+      if (!enterKeyPressed.value) {
+        emit('blur', props.modelValue || undefined);
+      }
+      enterKeyPressed.value = false;
+    });
   };
+
+  const handleEnter = () => {
+    enterKeyPressed.value = true;
+    emit('enter', props.modelValue || undefined);
+  };
+
+  const computedType = computed(() => {
+    return showPassword.value ? 'text' : props.type;
+  });
 
   const hasError = computed(() => !!props.error );
 
@@ -79,6 +98,7 @@
       </div>
       <input
         :id="name"
+        ref="inputRef"
         :autocomplete="autocomplete"
         class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 peer rounded-lg text-dark-grey w-full focus:outline-none focus:ring-0"
         :class="computedClasses"
@@ -87,8 +107,9 @@
         :required="required"
         :type="computedType"
         :value="modelValue"
-        @blur="handleBlur(($event.target as HTMLInputElement).value)"
-        @input="handleInput(($event.target as HTMLInputElement).value)">
+        @blur="handleBlur"
+        @input="handleInput(($event.target as HTMLInputElement).value)"
+        @keydown.enter.prevent="handleEnter">
       <label
         class="-translate-y-4 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 absolute top-2 bg-white duration-300 origin-[0] peer-focus:-translate-y-4 peer-focus:px-2 peer-focus:scale-75 peer-focus:text-primary peer-focus:top-2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-1/2 px-2 scale-75 start-1 text-gray-500 text-sm transform z-10"
         :for="name">

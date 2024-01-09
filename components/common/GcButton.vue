@@ -14,7 +14,7 @@
     size?: 'sm' | 'md' | 'lg';
     to?: RouteLocationRaw;
     type?: 'button' | 'submit' | 'reset';
-    variant?: 'primary' | 'positive' | 'danger';
+    variant?: 'primary' | 'positive' | 'danger' | 'secondary';
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -50,6 +50,8 @@
       if (props.variant === 'primary') { classes.push('btn-primary-ghost'); }
       if (props.variant === 'positive') { classes.push('btn-positive-ghost'); }
       if (props.variant === 'danger') { classes.push('btn-danger-ghost'); }
+    } else if (props.variant === 'secondary') {
+      classes.push('btn-secondary');
     } else {
       if (props.variant === 'primary') { classes.push('btn-primary'); }
       if (props.variant === 'positive') { classes.push('btn-positive'); }

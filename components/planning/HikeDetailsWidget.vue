@@ -1,6 +1,7 @@
 <script lang='ts' setup>
   import { MountainIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
-  import { TripDetailType, type Database, type TripDetail } from '@/types';
+  import { prependProtocol } from '@/helpers/functions';
+  import { TripDetailType, type Database, type TripDetail, type UpdateTripDetail } from '@/types';
 
   const emits = defineEmits(['update']);
   const $appStore = useAppStore();
@@ -15,6 +16,21 @@
 
   const isEditDialogOpen = ref(false);
   const activeDetail = ref<TripDetail | null>(null);
+  const detailHasUrl = ref(false);
+
+  const updateDetailHasUrl = (value: boolean) => {
+    if (value) {
+      activeDetail.value!.url = activeDetail.value?.url ? prependProtocol(activeDetail.value?.url) : '';
+    } else {
+      activeDetail.value!.url = null;
+    }
+    detailHasUrl.value = value;
+  };
+
+  watch(activeDetail, (newVal) => {
+    detailHasUrl.value = Boolean(newVal?.url);
+  });
+
   const toggleEditDialog = (detail: TripDetail) => {
     activeDetail.value = detail;
     isEditDialogOpen.value = !isEditDialogOpen.value;
@@ -39,8 +55,57 @@
         data.value.trip_details.unshift(newDetail[0]);
       }
     } catch (err) {
-      console.log({ err });
       $appStore.notifyNegative('There was an error creating a new detail.');
+    }
+  };
+
+  /**
+   * Updates a detail.
+   */
+  const submitting = ref(false);
+  const updateDetail = async () => {
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      const payload: UpdateTripDetail = { ...activeDetail.value, url: detailHasUrl.value ? prependProtocol(activeDetail.value?.url as string) : null };
+
+      const { data: updatedDetail, error } = await supabase.from('trip_details')
+        .update(payload)
+        .eq('id', activeDetail.value?.id as number)
+        .select();
+
+      if (updatedDetail?.length && !error) {
+        const index = data.value.trip_details.findIndex((t) => t.id === activeDetail.value?.id);
+        data.value.trip_details[index] = updatedDetail[0];
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error updating the detail.');
+    } finally {
+      submitting.value = false;
+      isEditDialogOpen.value = false;
+    }
+  };
+
+  /**
+   * Deletes a detail.
+   */
+  const deleteDetail = async () => {
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      const { error } = await supabase.from('trip_details')
+        .delete()
+        .eq('id', activeDetail.value?.id as number);
+
+      if (!error) {
+        const index = data.value.trip_details.findIndex((t) => t.id === activeDetail.value?.id);
+        data.value.trip_details.splice(index, 1);
+        isEditDialogOpen.value = false;
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error deleting the detail.');
+    } finally {
+      submitting.value = false;
     }
   };
 </script>
@@ -107,7 +172,7 @@
               </p>
               <a
                 v-if="detail.url"
-                class="font-bold text-base"
+                class="font-bold hyperlink text-base"
                 :href="detail.url"
                 rel="noopener noreferrer"
                 target="_blank">
@@ -130,5 +195,59 @@
         </li>
       </ul>
     </div>
+    <gc-modal
+      :is-open="isEditDialogOpen"
+      title="Edit Hike Detail">
+      <template #default>
+        <div class="flex flex-col gap-6">
+          <gc-input
+            class="w-full"
+            label="Title"
+            :model-value="activeDetail?.title"
+            name="title"
+            @update:model-value="e => activeDetail!.title = e" />
+          <gc-input
+            class="w-full"
+            label="Value"
+            :model-value="activeDetail?.value"
+            name="value"
+            @update:model-value="e => activeDetail!.value = e" />
+          <gc-checkbox
+            id="has-url"
+            :checked="detailHasUrl"
+            label="Link to URL?"
+            @update="updateDetailHasUrl" />
+          <gc-input
+            v-if="detailHasUrl"
+            class="w-full"
+            label="URL"
+            :model-value="activeDetail?.url"
+            name="url"
+            @update:model-value="e => activeDetail!.url = e" />
+        </div>
+      </template>
+      <template #actions>
+        <gc-button
+          :disabled="submitting"
+          label="Delete"
+          outlined
+          size="sm"
+          variant="danger"
+          @click="deleteDetail" />
+        <div class="flex items-center gap-4">
+          <gc-button
+            :disabled="submitting"
+            label="Cancel"
+            size="sm"
+            variant="secondary"
+            @click="isEditDialogOpen = false" />
+          <gc-button
+            :disabled="submitting"
+            label="Update"
+            size="sm"
+            @click="updateDetail" />
+        </div>
+      </template>
+    </gc-modal>
   </div>
 </template>

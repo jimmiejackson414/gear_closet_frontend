@@ -79,7 +79,7 @@
     }
 
     &-danger {
-      @apply bg-danger text-white hover:bg-danger-dark border border-transparent;
+      @apply bg-danger text-white hover:bg-opacity-80 border border-transparent;
 
       svg {
         @apply w-4 h-4;
@@ -96,6 +96,14 @@
 
     &-danger-outline {
       @apply bg-transparent border text-danger border-danger hover:bg-gray-100;
+
+      svg {
+        @apply w-4 h-4;
+      }
+    }
+
+    &-secondary {
+      @apply bg-white hover:bg-gray-100 border border-gray-200 text-gray-500 hover:text-gray-900 focus:outline-none focus:ring-4 focus:ring-gray-200 focus:z-10;
 
       svg {
         @apply w-4 h-4;
