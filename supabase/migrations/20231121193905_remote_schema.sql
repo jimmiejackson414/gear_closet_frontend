@@ -808,11 +808,23 @@ ALTER TABLE ONLY "public"."replies"
 ALTER TABLE ONLY "public"."shopping_list_items"
     ADD CONSTRAINT "shopping_list_items_pkey" PRIMARY KEY ("id");
 
+ALTER TABLE "public"."shopping_list_items"
+ADD CONSTRAINT shopping_list_profile_id_check CHECK (
+  (resource_type = 'USER' AND profile_id IS NOT NULL) OR
+  resource_type = 'GROUP'
+);
+
 ALTER TABLE ONLY "public"."subscriptions"
     ADD CONSTRAINT "subscriptions_pkey" PRIMARY KEY ("id");
 
 ALTER TABLE ONLY "public"."todos"
     ADD CONSTRAINT "todos_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE "public"."todos"
+ADD CONSTRAINT todos_profile_id_check CHECK (
+  (resource_type = 'USER' AND profile_id IS NOT NULL) OR
+  resource_type = 'GROUP'
+);
 
 ALTER TABLE ONLY "public"."trip_details"
     ADD CONSTRAINT "trip_details_pkey" PRIMARY KEY ("id");

@@ -31,7 +31,7 @@
     variant: 'primary',
   });
 
-  const emit = defineEmits(['click']);
+  // const emit = defineEmits(['click']);
   
   const classList = computed(() => {
     let classes = ['btn'];
@@ -84,10 +84,10 @@
   </nuxt-link>
   <button
     v-else
+    v-bind="$attrs"
     :class="classList"
     :disabled="disabled"
-    :type="type"
-    @click="emit('click')">
+    :type="type">
     <gc-spinner
       v-if="loading"
       fill />

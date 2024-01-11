@@ -22,14 +22,16 @@
   const createShoppingItem = async () => {
     try {
       const supabase = useSupabaseClient<Database>();
+      const user = useSupabaseUser();
       const activeTab = tabs?.getActiveTab();
       const { data: newItem, error } = await supabase.from('shopping_list_items')
         .insert({
-          trip_id: selectedTrip?.value?.id as number,
-          title: 'New shopping item',
           completed: false,
-          resource_type: activeTab?.id as ResourceType,
+          profile_id: user.value?.id as string,
           quantity: 1,
+          resource_type: activeTab?.id as ResourceType,
+          title: 'New shopping item',
+          trip_id: selectedTrip?.value?.id as number,
         })
         .select();
 
@@ -46,7 +48,6 @@
    * @param shoppingItem 
    */
   const updateShoppingItem = async (shoppingItem: ShoppingListItem, payload: UpdateShoppingListItem) => {
-    console.log(`updateShoppingItem`);
     try {
       const supabase = useSupabaseClient<Database>();
       const { data: updatedShoppingItem, error } = await supabase.from('shopping_list_items')
@@ -66,39 +67,51 @@
   /**
    * Instantiates the tabs component.
    */
+  const activeTab = ref(ResourceType.USER);
   let tabs: TabsInterface | null = null;
-  watch([pageLoading, data], async (newValues) => {
-    const [newPageLoading, newData] = newValues;
-    if (!newPageLoading && newData?.shopping_items.length) {
-      await nextTick();
-      const tabsElement = document.getElementById('shopping-items-tab') as HTMLElement;
-      if (tabsElement) {
-        tabs = null;
-        const tabElements: TabItem[] = [
-          {
-            id: ResourceType.USER,
-            triggerEl: document.querySelector('#your-items-tab') as HTMLElement,
-            targetEl: document.querySelector('#your-items') as HTMLElement,
-          },
-          {
-            id: ResourceType.GROUP,
-            triggerEl: document.querySelector('#group-items-tab') as HTMLElement,
-            targetEl: document.querySelector('#group-items') as HTMLElement,
-          },
-        ];
-        const options: TabsOptions = {
-          defaultTabId: 'your-items-tab',
-          activeClasses: 'text-primary hover:text-primary !border-primary border-primary border-b-2',
-          inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
-        };
-        const instanceOptions: InstanceOptions = {
-          id: 'shopping-items-tab',
-          override: true,
-        };
-        tabs = new Tabs(tabsElement, tabElements, options, instanceOptions);
-      }
+  const instantiateTabs = () => {
+    const tabsElement = document?.getElementById('shopping-items-tab') as HTMLElement;
+    if (tabsElement) {
+      const tabElements: TabItem[] = [
+        {
+          id: ResourceType.USER,
+          triggerEl: document?.querySelector('#your-items-tab') as HTMLElement,
+          targetEl: document?.querySelector('#your-items') as HTMLElement,
+        },
+        {
+          id: ResourceType.GROUP,
+          triggerEl: document?.querySelector('#group-items-tab') as HTMLElement,
+          targetEl: document?.querySelector('#group-items') as HTMLElement,
+        },
+      ];
+      const options: TabsOptions = {
+        defaultTabId: activeTab.value,
+        activeClasses: 'text-primary hover:text-primary !border-primary border-primary border-b-2',
+        inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
+      };
+      const instanceOptions: InstanceOptions = {
+        id: 'your-items-tab',
+        override: true,
+      };
+      tabs = new Tabs(tabsElement, tabElements, options, instanceOptions);
     }
-  }, { deep: true });
+  };
+
+  /**
+   * Watch for changes to the page loading state and todos length.
+   * If the page is no longer loading and there are todos, instantiate the tabs.
+   */
+  watch([() => pageLoading.value, () => data.value.shopping_items.length], async (newValues, oldValues) => {
+    const [newPageLoading, newItemsLength] = newValues;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_, oldItemsLength] = oldValues;
+
+    if (!newPageLoading && newItemsLength > 0 && oldItemsLength === 0) {
+      await nextTick();
+      instantiateTabs();
+    }
+
+  }, { immediate: true });
 </script>
 
 <template>
@@ -245,17 +258,70 @@
           class="bg-gray-50 hidden p-4 rounded-lg"
           role="tabpanel">
           <div v-if="groupItems.length">
-            <div
-              v-for="item in groupItems"
-              :key="item.id"
-              class="mb-5 last:mb-0">
-              <gc-checkbox
-                :id="`item-${item.id}`"
-                :checked="item.completed"
-                :label="item.title"
-                strike-through
-                @update="e => updateShoppingItem(item, { completed: e })" />
-            </div>
+            <table class="text-gray-500 text-left text-sm w-full">
+              <thead class="bg-gray-50 text-gray-700 text-xs uppercase">
+                <tr>
+                  <th
+                    class="p-0"
+                    scope="col">
+                    <div class="flex items-center" />
+                  </th>
+                  <th
+                    class="px-6 py-0"
+                    scope="col">
+                    Title
+                  </th>
+                  <th
+                    class="px-6 py-0"
+                    scope="col">
+                    Quantity
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="item in groupItems"
+                  :key="item.id">
+                  <td class="p-0 w-4">
+                    <div class="flex items-center">
+                      <gc-checkbox
+                        :id="`item-${item.id}`"
+                        :checked="item.completed"
+                        strike-through
+                        @update="e => updateShoppingItem(item, { completed: e })" />
+                    </div>
+                  </td>
+                  <th
+                    class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap"
+                    scope="row">
+                    <gc-inline-edit
+                      hide-edit-btn
+                      :model-value="item.title"
+                      name="title"
+                      size="sm"
+                      @handle-update="e => updateShoppingItem(item, { title: e })">
+                      <p class="font-medium text-gray-500 text-sm">
+                        {{ item.title }}
+                      </p>
+                    </gc-inline-edit>
+                  </th>
+                  <th
+                    class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap"
+                    scope="row">
+                    <gc-inline-edit
+                      hide-edit-btn
+                      :model-value="item.quantity"
+                      name="quantity"
+                      size="sm"
+                      @handle-update="e => updateShoppingItem(item, { quantity: e })">
+                      <p class="font-medium text-gray-500 text-sm">
+                        {{ item.quantity }}
+                      </p>
+                    </gc-inline-edit>
+                  </th>
+                </tr>
+              </tbody>
+            </table>
           </div>
           <p
             v-else

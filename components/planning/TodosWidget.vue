@@ -22,13 +22,15 @@
   const createTodo = async () => {
     try {
       const supabase = useSupabaseClient<Database>();
+      const user = useSupabaseUser();
       const activeTab = tabs?.getActiveTab();
       const { data: newTodo, error } = await supabase.from('todos')
         .insert({
-          trip_id: selectedTrip?.value?.id as number,
-          title: 'New todo',
           completed: false,
+          profile_id: user.value?.id as string,
           resource_type: activeTab?.id as ResourceType,
+          title: 'New todo',
+          trip_id: selectedTrip?.value?.id as number,
         })
         .select();
 
@@ -64,39 +66,51 @@
   /**
    * Instantiates the tabs component.
    */
+  const activeTab = ref(ResourceType.USER);
   let tabs: TabsInterface | null = null;
-  watch([pageLoading, data], async (newValues) => {
-    const [newPageLoading, newData] = newValues;
-    if (!newPageLoading && newData?.todos.length) {
-      await nextTick();
-      const tabsElement = document?.getElementById('default-tab') as HTMLElement;
-      if (tabsElement) {
-        tabs = null;
-        const tabElements: TabItem[] = [
-          {
-            id: ResourceType.USER,
-            triggerEl: document?.querySelector('#you-tab') as HTMLElement,
-            targetEl: document?.querySelector('#you') as HTMLElement,
-          },
-          {
-            id: ResourceType.GROUP,
-            triggerEl: document?.querySelector('#group-tab') as HTMLElement,
-            targetEl: document?.querySelector('#group') as HTMLElement,
-          },
-        ];
-        const options: TabsOptions = {
-          defaultTabId: 'you-tab',
-          activeClasses: 'text-primary hover:text-primary !border-primary border-primary border-b-2',
-          inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
-        };
-        const instanceOptions: InstanceOptions = {
-          id: 'default-tab',
-          override: true,
-        };
-        tabs = new Tabs(tabsElement, tabElements, options, instanceOptions);
-      }
+  const instantiateTabs = () => {
+    const tabsElement = document?.getElementById('default-tab') as HTMLElement;
+    if (tabsElement) {
+      const tabElements: TabItem[] = [
+        {
+          id: ResourceType.USER,
+          triggerEl: document?.querySelector('#you-tab') as HTMLElement,
+          targetEl: document?.querySelector('#you') as HTMLElement,
+        },
+        {
+          id: ResourceType.GROUP,
+          triggerEl: document?.querySelector('#group-tab') as HTMLElement,
+          targetEl: document?.querySelector('#group') as HTMLElement,
+        },
+      ];
+      const options: TabsOptions = {
+        defaultTabId: activeTab.value,
+        activeClasses: 'text-primary hover:text-primary !border-primary border-primary border-b-2',
+        inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
+      };
+      const instanceOptions: InstanceOptions = {
+        id: 'default-tab',
+        override: true,
+      };
+      tabs = new Tabs(tabsElement, tabElements, options, instanceOptions);
     }
-  }, { deep: true });
+  };
+
+  /**
+   * Watch for changes to the page loading state and todos length.
+   * If the page is no longer loading and there are todos, instantiate the tabs.
+   */
+  watch([() => pageLoading.value, () => data.value.todos.length], async (newValues, oldValues) => {
+    const [newPageLoading, newTodosLength] = newValues;
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [_, oldTodosLength] = oldValues;
+
+    if (!newPageLoading && newTodosLength > 0 && oldTodosLength === 0) {
+      await nextTick();
+      instantiateTabs();
+    }
+
+  }, { immediate: true });
 </script>
 
 <template>
@@ -224,17 +238,51 @@
           class="bg-gray-50 hidden p-4 rounded-lg"
           role="tabpanel">
           <div v-if="groupTodos.length">
-            <div
-              v-for="todo in groupTodos"
-              :key="todo.id"
-              class="mb-5 last:mb-0">
-              <gc-checkbox
-                :id="`todo-${todo.id}`"
-                :checked="todo.completed"
-                :label="todo.title"
-                strike-through
-                @update="e => updateTodo(todo, { completed: e })" />
-            </div>
+            <table class="text-gray-500 text-left text-sm w-full">
+              <thead class="bg-gray-50 text-gray-700 text-xs uppercase">
+                <tr>
+                  <th
+                    class="p-0"
+                    scope="col">
+                    <div class="flex items-center" />
+                  </th>
+                  <th
+                    class="px-6 py-0"
+                    scope="col">
+                    Title
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr
+                  v-for="todo in groupTodos"
+                  :key="todo.id">
+                  <td class="p-0 w-4">
+                    <div class="flex items-center">
+                      <gc-checkbox
+                        :id="`todo-${todo.id}`"
+                        :checked="todo.completed"
+                        strike-through
+                        @update="e => updateTodo(todo, { completed: e })" />
+                    </div>
+                  </td>
+                  <th
+                    class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap"
+                    scope="row">
+                    <gc-inline-edit
+                      hide-edit-btn
+                      :model-value="todo.title"
+                      name="title"
+                      size="sm"
+                      @handle-update="e => updateTodo(todo, { title: e })">
+                      <p class="font-medium text-gray-500 text-sm">
+                        {{ todo.title }}
+                      </p>
+                    </gc-inline-edit>
+                  </th>
+                </tr>
+              </tbody>
+            </table>
           </div>
           <p
             v-else

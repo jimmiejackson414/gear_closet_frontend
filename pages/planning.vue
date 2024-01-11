@@ -31,7 +31,7 @@
     meta: [
       {
         name: 'description',
-        content: 'Welcome to your Gear Closet planning!',
+        content: 'Welcome to your Gear Closet planning page!',
       },
     ],
   });
