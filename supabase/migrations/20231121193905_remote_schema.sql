@@ -30,6 +30,24 @@ CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
+CREATE TYPE "public"."question_type" AS (
+  question_id integer,
+  question text
+);
+
+CREATE TYPE "public"."answer_type" AS (
+  answer_id integer,
+  answer text
+);
+
+CREATE TYPE "public"."poll_with_question_and_answers" AS (
+  poll_id integer,
+  trip_id integer,
+  profile_id uuid,
+  question "public"."question_type",
+  answers "public"."answer_type"[]
+);
+
 CREATE TYPE "public"."measuring_system" AS ENUM (
     'IMPERIAL',
     'METRIC'
@@ -161,6 +179,47 @@ $$;
 
 ALTER FUNCTION "public"."handle_new_user"() OWNER TO "postgres";
 
+
+CREATE OR REPLACE FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[])
+  RETURNS "public"."poll_with_question_and_answers"
+  LANGUAGE plpgsql SECURITY DEFINER
+  AS $$
+  DECLARE
+    new_poll_id integer;
+    new_question_id integer;
+    new_poll "public"."poll_with_question_and_answers";
+    i integer;
+  BEGIN
+    -- Insert the poll
+    INSERT INTO polls (trip_id, profile_id)
+    VALUES (trip_id, auth.uid())
+    RETURNING id INTO new_poll_id;
+
+    -- Insert the question
+    INSERT INTO questions (poll_id, profile_id, title)
+    VALUES (new_poll_id, auth.uid(), question)
+    RETURNING id INTO new_question_id;
+
+    -- Insert the answers
+    FOR i IN 1..array_length(answers, 1)
+    LOOP
+      INSERT INTO answers (question_id, profile_id, content)
+      VALUES (new_question_id, auth.uid(), answers[i]);
+    END LOOP;
+
+    -- Select the newly created poll, question, and answers
+    SELECT new_poll_id::integer, polls.trip_id::integer, auth.uid()::uuid, (new_question_id::integer, question)::"public"."question_type", 
+      ARRAY(SELECT (id::integer, content)::"public"."answer_type" FROM answers WHERE question_id = new_question_id)::"public"."answer_type"[]
+    INTO new_poll
+    FROM polls
+    WHERE polls.id = new_poll_id;
+
+    RETURN new_poll;
+  END;
+$$;
+
+ALTER FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) OWNER TO "postgres";
+
 CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) RETURNS "json"
   LANGUAGE "plpgsql" SECURITY DEFINER
   AS $$
@@ -240,9 +299,15 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
       AND tf.profile_id != auth.uid();  -- Filter out the user itself
 
     -- Fetch poll data
-    SELECT row_to_json(p.*) INTO poll_data
-    FROM polls p
-    WHERE p.trip_id = COALESCE(p_trip_id, 0)
+    SELECT row_to_json(poll_with_question_and_answers) INTO poll_data
+    FROM (
+      SELECT p.id, p.trip_id, p.profile_id, q.title, array_agg(a.*) AS answers
+      FROM polls p
+      JOIN questions q ON p.id = q.poll_id
+      JOIN answers a ON q.id = a.question_id
+      WHERE p.trip_id = dynamic_trip_id
+      GROUP BY p.id, q.title
+    ) AS poll_with_question_and_answers
     LIMIT 1;
 
     -- Output the result
@@ -901,7 +966,7 @@ ALTER TABLE ONLY "public"."answers"
     ADD CONSTRAINT "answers_question_id_fkey" FOREIGN KEY ("question_id") REFERENCES "public"."questions"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."answers"
-    ADD CONSTRAINT "answers_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
+    ADD CONSTRAINT "answers_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."categories"
     ADD CONSTRAINT "categories_pack_id_fkey" FOREIGN KEY ("pack_id") REFERENCES "public"."packs"("id");
@@ -1065,6 +1130,10 @@ GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "anon";
 GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "service_role";
 
 GRANT ALL ON TABLE "public"."answers" TO "anon";
 GRANT ALL ON TABLE "public"."answers" TO "authenticated";

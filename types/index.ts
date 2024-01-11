@@ -974,7 +974,7 @@ export interface Database {
           id: number;
           title: string | null;
           trip_id: number | null;
-          type: Database["public"]["Enums"]["trip_details_type"] | null;
+          type: Database["public"]["Enums"]["trip_details_type"];
           updated_at: string;
           url: string | null;
           value: string | null;
@@ -984,7 +984,7 @@ export interface Database {
           id?: number;
           title?: string | null;
           trip_id?: number | null;
-          type?: Database["public"]["Enums"]["trip_details_type"] | null;
+          type?: Database["public"]["Enums"]["trip_details_type"];
           updated_at?: string;
           url?: string | null;
           value?: string | null;
@@ -994,7 +994,7 @@ export interface Database {
           id?: number;
           title?: string | null;
           trip_id?: number | null;
-          type?: Database["public"]["Enums"]["trip_details_type"] | null;
+          type?: Database["public"]["Enums"]["trip_details_type"];
           updated_at?: string;
           url?: string | null;
           value?: string | null;
@@ -1168,6 +1168,14 @@ export interface Database {
       [_ in never]: never;
     };
     Functions: {
+      create_poll: {
+        Args: {
+          trip_id: number;
+          question: string;
+          answers: string[];
+        };
+        Returns: Database["public"]["CompositeTypes"]["poll_with_question_and_answers"];
+      };
       get_planning_page_data: {
         Args: {
           p_trip_id: number;
@@ -1207,13 +1215,27 @@ export interface Database {
         | "COLORBLIND10"
         | "JEWELBRIGHT9"
         | "HUECIRCLE19";
-      trip_details_type: "TRIP" | "HIKE";
+      trip_details_type: "HIKE" | "TRIP";
       trip_friend_status: "ACCEPTED" | "DECLINED" | "PENDING";
       trip_invitation_status: "ACCEPTED" | "DECLINED" | "PENDING";
       user_role: "ADMIN" | "USER";
     };
     CompositeTypes: {
-      [_ in never]: never;
+      answer_type: {
+        answer_id: number;
+        answer: string;
+      };
+      poll_with_question_and_answers: {
+        poll_id: number;
+        trip_id: number;
+        profile_id: string;
+        question: Database["public"]["CompositeTypes"]["question_type"];
+        answers: unknown;
+      };
+      question_type: {
+        question_id: number;
+        question: string;
+      };
     };
   };
   storage: {
@@ -1546,8 +1568,8 @@ export enum Theme {
 }
 
 export enum TripDetailType {
-  TRIP = "TRIP",
   HIKE = "HIKE",
+  TRIP = "TRIP",
 }
 
 export enum TripFriendStatus {
@@ -1693,6 +1715,11 @@ export type InsertTrip = Database["public"]["Tables"]["trips"]["Insert"];
 export type UpdateTrip = Database["public"]["Tables"]["trips"]["Update"];
 
 // Functions
+export type ArgsCreatePoll =
+  Database["public"]["Functions"]["create_poll"]["Args"];
+export type ReturnTypeCreatePoll =
+  Database["public"]["Functions"]["create_poll"]["Returns"];
+
 export type ArgsGetPlanningPageDatum =
   Database["public"]["Functions"]["get_planning_page_data"]["Args"];
 export type ReturnTypeGetPlanningPageDatum =

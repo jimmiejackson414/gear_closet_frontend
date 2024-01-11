@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
 import { decrypt } from "~/helpers/encryption";
 import type { Database, Tables } from "@/types";
-import type { ExtendedPack } from "@/types/helpers";
+import type { ExtendedPack, ExtendedPoll } from "@/types/helpers";
 import type { LocationQuery } from "vue-router";
 
 export interface PlanningPageData {
@@ -11,7 +11,7 @@ export interface PlanningPageData {
   todos: Tables<'todos'>[];
   shopping_items: Tables<'shopping_list_items'>[];
   friends: Tables<'trip_friends'>[];
-  poll?: Tables<'polls'>;
+  poll?: ExtendedPoll;
   errors?: string[];
 }
 

@@ -12,6 +12,7 @@
     prependIcon?: Icon;
     required?: boolean;
     type?: string;
+    placeholder?: string;
     size?: 'sm' | 'md' | 'lg';
   }
 
@@ -24,6 +25,7 @@
     name: '',
     passwordToggle: false,
     prependIcon: undefined,
+    placeholder: undefined,
     required: false,
     type: 'text',
     size: 'md',
@@ -103,7 +105,7 @@
         class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 peer rounded-lg text-dark-grey w-full focus:outline-none focus:ring-0"
         :class="computedClasses"
         :disabled="disabled"
-        placeholder=""
+        :placeholder="placeholder"
         :required="required"
         :type="computedType"
         :value="modelValue"

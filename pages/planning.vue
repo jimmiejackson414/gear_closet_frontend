@@ -56,7 +56,7 @@
             <p class="block font-bold px-4 py-2 rounded-t-lg text-center text-dark-grey">
               Settings
             </p>
-            <ul class="">
+            <ul>
               <li class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-center text-dark-grey hover:bg-gray-100">
                 Create Poll
               </li>
@@ -68,6 +68,7 @@
         </fade-transition>
       </div>
       <gc-select
+        :disabled="pageLoading"
         label="Selected Trip"
         :model-value="selectedTrip?.id"
         name="selected-trip-select"

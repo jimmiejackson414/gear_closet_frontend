@@ -20,6 +20,14 @@ export type ExtendedNotification = Tables<'notifications'> & {
   sender: Tables<'profiles'>;
 }
 
+export interface ExtendedPoll {
+  id: number;
+  trip_id: number;
+  profile_id: string;
+  title: string; // question title
+  answers: Tables<'answers'>[];
+}
+
 export type ForumPost = {
   id: number;
   name: string;

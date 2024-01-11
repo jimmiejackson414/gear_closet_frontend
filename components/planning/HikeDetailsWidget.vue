@@ -197,7 +197,8 @@
     </div>
     <gc-modal
       :is-open="isEditDialogOpen"
-      title="Edit Hike Detail">
+      title="Edit Hike Detail"
+      @handle-cancel="isEditDialogOpen = false">
       <template #default>
         <div class="flex flex-col gap-6">
           <gc-input

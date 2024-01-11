@@ -1,9 +1,7 @@
 <script lang='ts' setup>
   import { LogOutIcon } from 'lucide-vue-next';
-  import GcLogoIcon from '@/components/icons/GcLogoIcon.vue';
   import { drawerLinks } from '@/helpers/drawerLinks';
   import { tailwind } from '@/helpers';
-  import { useAuthStore } from '@/stores/auth';
   import type { LinkItem } from '@/helpers/drawerLinks';
 
   const $route = useRoute();
@@ -15,10 +13,10 @@
     return isActiveRoute(link) ? tailwind.theme.colors.primary : tailwind.theme.colors['grey'];
   };
 
-  const $store = useAuthStore();
   const $router = useRouter();
   const handleLogout = async () => {
-    await $store.clearUser();
+    const supabase = useSupabaseClient();
+    await supabase.auth.signOut();
     $router.push({ name: 'login' });
   };
 </script>

@@ -28,7 +28,8 @@
     <div
       v-if="isOpen"
       class="fixed top-0 right-0 left-0 md:inset-0 flex justify-center items-center h-[calc(100%-1rem)] max-h-full overflow-x-hidden overflow-y-auto p-4 w-full z-50"
-      tabindex="-1">
+      tabindex="-1"
+      @keydown.escape="emit('handleCancel')">
       <div class="bg-black fixed inset-0 opacity-50" />
       <div
         ref="modalRef"
