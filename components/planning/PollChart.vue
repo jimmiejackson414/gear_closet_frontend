@@ -1,10 +1,146 @@
 <script lang='ts' setup>
-  import { ref } from 'vue';
-  
+  import { CheckCircle2Icon, PlusIcon } from 'lucide-vue-next';
+  import type { Database, Tables } from '~/types';
+  import type { ExtendedPoll } from '~/types/helpers';
+
+  interface Props {
+    poll: ExtendedPoll;
+  } 
+
+  const props = defineProps<Props>();
+
+  const $appStore = useAppStore();
+  const submitting = ref(false);
+  const isAdding = ref(false);
+  const user = useSupabaseUser();
+  const emits = defineEmits(['createAnswer', 'createVote']);
+
+  const showResults = computed(() => props.poll.votes.some(v => v.profile_id === user.value?.id));
+  const totalVotes = computed(() => props.poll.votes.reduce((acc, _cur) => acc + 1, 0));
+  const calcAnswers = computed(() => {
+    if (totalVotes.value === 0) {
+      return props.poll.answers.map(a => {
+        return { ...a, percent: '0%' };
+      });
+    }
+
+    return props.poll.answers.map(a => {
+      const votesForAnswer = props.poll.votes.filter(v => v.answer_id === a.id).length;
+      return {
+        ...a,
+        percent: votesForAnswer > 0 ? `${Math.round((votesForAnswer / totalVotes.value) * 100)}%` : '0%',
+      };
+    });
+  });
+
+  const createVote = async (answer: Tables<'answers'>) => {
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const { data: newVote, error } = await supabase.from('profile_answers')
+        .insert({
+          profile_id: user.value?.id,
+          answer_id: answer.id,
+          poll_id: props.poll.id,
+        })
+        .select();
+    
+      if (!error && newVote.length) { emits('createVote', newVote[0]); }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error creating a new vote.');
+    } finally {
+      submitting.value = false;
+    }
+  };
+
+  const newAnswer = ref('');
+  const newAnswerInputRef = ref(null);
+  const resetNewAnswer = () => {
+    newAnswer.value = '';
+    isAdding.value = false;
+  };
+
+  const createAnswer = async () => {
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const { data, error } = await supabase.from('answers')
+        .insert({
+          content: newAnswer.value,
+          question_id: props.poll.question.id,
+          profile_id: user.value?.id,
+        })
+        .select();
+      console.log({ data, error });
+
+      if (!error && data?.length) {
+        emits('createAnswer', data[0]);
+        resetNewAnswer();
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error creating a new answer.');
+    } finally {
+      isAdding.value = false;
+    }
+  };
+  onClickOutside(newAnswerInputRef, () => isAdding.value = false);
 </script>
 
 <template>
   <div>
-    Render poll chart
+    <h5 class="font-bold text-center text-xl">
+      {{ poll.question.title }}
+    </h5>
+    <div class="grid grid-cols-1-col my-4">
+      <div
+        v-for="(answer, i) in calcAnswers"
+        :key="i">
+        <!-- Show buttons if user has not voted yet -->
+        <template v-if="!showResults">
+          <gc-button
+            class="mb-3 w-full"
+            :label="answer.content"
+            outlined
+            variant="positive"
+            @click="createVote(answer)" />
+        </template>
+
+        <!-- Else, show the results -->
+        <template v-else>
+          <div class="bg-gray-200 flex justify-center items-center h-10 mb-3 relative rounded-lg w-full">
+            <div
+              class="absolute bg-positive-light h-10 rounded-lg"
+              :style="{ width: answer.percent }" />
+            <div class="absolute font-medium ml-2">
+              {{ answer.content }} ({{ answer.percent }})
+            </div>
+          </div>
+        </template>
+      </div>
+
+      <!-- Show the add answer button if user has not voted yet -->
+      <SlideUpTransition v-if="poll.answers.length < 6">
+        <gc-button
+          v-if="!isAdding"
+          class="justify-self-center"
+          size="sm"
+          @click="isAdding = true">
+          <plus-icon class="h-4 mr-2 w-4" />
+          Add Answer
+        </gc-button>
+        <gc-input
+          v-else
+          ref="newAnswerInputRef"
+          v-model="newAnswer"
+          class="mt-2 w-full"
+          label="New Answer"
+          name="newAnswer"
+          :prepend-icon="CheckCircle2Icon"
+          @blur="createAnswer"
+          @enter="createAnswer"
+          @keyup.escape="resetNewAnswer" />
+      </SlideUpTransition>
+    </div>
+    <div
+      class="font-bold text-grey text-right text-sm"
+      v-text="`${poll.votes.length} ${poll.votes.length === 1 ? 'vote' : 'votes'}`" />
   </div>
 </template>

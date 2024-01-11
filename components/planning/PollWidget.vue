@@ -1,7 +1,7 @@
 <script lang='ts' setup>
-  import { CheckCircle2Icon, HelpCircleIcon, SettingsIcon, VoteIcon } from 'lucide-vue-next';
+  import { AlertCircleIcon, CheckCircle2Icon, HelpCircleIcon, SettingsIcon, VoteIcon } from 'lucide-vue-next';
   import { usePlanningStore } from '@/stores/planning';
-  import type { Database } from '@/types';
+  import type { Database, Tables } from '@/types';
   import type { ExtendedPoll } from '@/types/helpers';
 
   const $appStore = useAppStore();
@@ -12,9 +12,23 @@
   const isPollDialogOpen = ref(false);
   const submitting = ref(false);
   const modalState = ref<'create' | 'edit'>('create');
-  const modalForm = reactive({
-    question: '',
-    answers: [''],
+  const modalForm = reactive<{ question: Tables<'questions'>, answers: Tables<'answers'>[]}>({
+    question: {
+      id: 0,
+      poll_id: 0,
+      created_at: '',
+      updated_at: '',
+      profile_id: '',
+      title: '',
+    },
+    answers: [{
+      id: 0,
+      question_id: 0,
+      created_at: '',
+      updated_at: '',
+      profile_id: '',
+      content: '',
+    }],
   });
 
   const modalTitle = computed(() => {
@@ -29,47 +43,48 @@
   /**
    * Delete poll from the selected trip.
    */
+  const isDeleteConfirmOpen = ref(false);
   const deletePoll = async () => {
-    // try {
-    //   const supabase = useSupabaseClient<Database>();
-    //   const { error } = await supabase.from('polls')
-    //     .delete()
-    //     .eq('id', data.value.poll?.id);
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const { error } = await supabase.from('polls')
+        .delete()
+        .eq('id', data.value.poll?.id as number);
 
-    //   if (!error) {
-    //     data.value.poll = null;
-    //   }
-    // } catch (err) {
-    //   $appStore.notifyNegative('There was an error deleting the poll.');
-    // } finally {
-    //   isSettingsOpen.value = false;
-    // }
+      if (error) { $appStore.notifyNegative('There was an error deleting the poll.'); }
+      else {
+        data.value.poll = undefined;
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error deleting the poll.');
+    } finally {
+      isDeleteConfirmOpen.value = false;
+    }
   };
 
   /**
    * Update the selected trip's poll.
    */
   const updatePoll = async () => {
-    // try {
-    //   submitting.value = true;
-    //   const supabase = useSupabaseClient<Database>();
-    //   const { data: updatedPoll, error } = await supabase.from('polls')
-    //     .update({
-    //       question: modalForm.question,
-    //       answers: modalForm.answers,
-    //     })
-    //     .eq('id', data.value.poll?.id)
-    //     .select();
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      const { data: updatedPoll, error } = await supabase.rpc('update_poll', {
+        poll_id: data.value.poll?.id as number,
+        question: modalForm.question?.title as string,
+        answers: modalForm.answers.map(a => a.content) as string[],
+      })
+        .returns<ExtendedPoll>()
+        .select();
 
-    //   if (updatedPoll?.length && !error) {
-    //     data.value.poll = updatedPoll[0];
-    //   }
-    // } catch (err) {
-    //   $appStore.notifyNegative('There was an error updating the poll.');
-    // } finally {
-    //   submitting.value = false;
-    //   isPollDialogOpen.value = false;
-    // }
+      if (error) { $appStore.notifyNegative('There was an error updating the poll.');}
+      if (updatedPoll) { data.value.poll = updatedPoll as unknown as ExtendedPoll; }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error updating the poll.');
+    } finally {
+      submitting.value = false;
+      isPollDialogOpen.value = false;
+    }
   };
 
   /**
@@ -81,15 +96,14 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newPoll, error } = await supabase.rpc('create_poll', {
         trip_id: selectedTrip?.value?.id as number,
-        question: modalForm.question,
-        answers: modalForm.answers,
+        question: modalForm.question?.title as string,
+        answers: modalForm.answers.map(a => a.content) as string[],
       })
         .returns<ExtendedPoll>()
         .single();
 
-      if (newPoll && !error) {
-        data.value.poll = newPoll;
-      }
+      if (error) { $appStore.notifyNegative('There was an error creating a new poll.');}
+      if (newPoll) { data.value.poll = newPoll; }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new poll.');
     } finally {
@@ -101,20 +115,28 @@
   /**
    * Add a new answer to the poll.
    */
-  const addAnswer = () => { modalForm.answers.push(''); };
+  const addAnswer = () => {
+    modalForm.answers.push({
+      id: 0,
+      question_id: 0,
+      created_at: '',
+      updated_at: '',
+      profile_id: '',
+      content: '',
+    });
+  };
 
   const settingsBtnRef = ref(null);
   const settingsDropdownRef = ref(null);
   onClickOutside(settingsBtnRef, () => isSettingsOpen.value = false);
   onClickOutside(settingsDropdownRef, () => isSettingsOpen.value = false);
 
-  onMounted(() => {
-    // set modalForm values if editing
-    if (data.value.poll) {
-      modalForm.question = data.value.poll.title;
-      modalForm.answers = data.value.poll.answers.map((a) => a.content) as string[];
+  watch(() => data.value.poll, (newPoll) => {
+    if (newPoll) {
+      modalForm.question = JSON.parse(JSON.stringify(newPoll.question));
+      modalForm.answers = JSON.parse(JSON.stringify(newPoll.answers));
     }
-  });
+  }, { immediate: true });
 </script>
 
 <template>
@@ -151,7 +173,9 @@
                 </button>
               </li>
               <li class="bg-white hover:bg-gray-50 duration-100 transition-[background]">
-                <button class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-center hover:text-danger-dark text-danger">
+                <button
+                  class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-center hover:text-danger-dark text-danger"
+                  @click="isDeleteConfirmOpen = true">
                   Delete Poll
                 </button>
               </li>
@@ -172,9 +196,14 @@
         @click="isPollDialogOpen = true" />
     </gc-empty-state>
     <div v-else>
-      <poll-chart />
+      <poll-chart
+        :poll="(data.poll as ExtendedPoll)"
+        @create-answer="data.poll?.answers.push($event)"
+        @create-vote="data.poll?.votes.push($event)" />
     </div>
   </div>
+
+  <!-- Create & Edit Modal -->
   <gc-modal
     :is-open="isPollDialogOpen"
     :title="modalTitle"
@@ -196,7 +225,7 @@
           for="question">
           Question
           <gc-input
-            v-model="modalForm.question"
+            v-model="modalForm.question.title"
             class="font-normal text-base w-full"
             name="question"
             placeholder="Where should we go hiking this year?"
@@ -212,7 +241,7 @@
               :key="index"
               class="w-full">
               <gc-input
-                v-model="modalForm.answers[index]"
+                v-model="modalForm.answers[index].content"
                 class="font-normal w-full"
                 :name="`Answer-${index}`"
                 :placeholder="`Answer ${index + 1}`"
@@ -243,6 +272,41 @@
           :loading="submitting"
           size="sm"
           @click="modalState === 'edit' ? updatePoll() : createPoll()" />
+      </div>
+    </template>
+  </gc-modal>
+
+  <!-- Delete Confirm Modal -->
+  <gc-modal
+    :is-open="isDeleteConfirmOpen"
+    size="sm"
+    @handle-cancel="isDeleteConfirmOpen = false">
+    <template #default>
+      <div class="flex justify-center items-center flex-col">
+        <alert-circle-icon class="h-12 mb-4 text-danger w-12" />
+        <p class="mb-2 text-base">
+          Are you sure you want to delete this poll?
+        </p>
+        <p class="font-bold mb-4 text-sm">
+          This action cannot be undone.
+        </p>
+      </div>
+    </template>
+    <template #actions>
+      <div class="flex justify-center items-center gap-4 w-full">
+        <gc-button
+          :disabled="submitting"
+          label="Cancel"
+          size="sm"
+          variant="secondary"
+          @click="isDeleteConfirmOpen = false" />
+        <gc-button
+          :disabled="submitting"
+          label="Yes, I'm Sure"
+          :loading="submitting"
+          size="sm"
+          variant="danger"
+          @click="deletePoll" />
       </div>
     </template>
   </gc-modal>

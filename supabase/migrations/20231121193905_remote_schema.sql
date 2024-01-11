@@ -40,14 +40,6 @@ CREATE TYPE "public"."answer_type" AS (
   answer text
 );
 
-CREATE TYPE "public"."poll_with_question_and_answers" AS (
-  poll_id integer,
-  trip_id integer,
-  profile_id uuid,
-  question "public"."question_type",
-  answers "public"."answer_type"[]
-);
-
 CREATE TYPE "public"."measuring_system" AS ENUM (
     'IMPERIAL',
     'METRIC'
@@ -179,15 +171,14 @@ $$;
 
 ALTER FUNCTION "public"."handle_new_user"() OWNER TO "postgres";
 
-
 CREATE OR REPLACE FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[])
-  RETURNS "public"."poll_with_question_and_answers"
+  RETURNS "json"
   LANGUAGE plpgsql SECURITY DEFINER
   AS $$
   DECLARE
     new_poll_id integer;
     new_question_id integer;
-    new_poll "public"."poll_with_question_and_answers";
+    new_poll "json";
     i integer;
   BEGIN
     -- Insert the poll
@@ -208,17 +199,73 @@ CREATE OR REPLACE FUNCTION "public"."create_poll"("trip_id" bigint, "question" t
     END LOOP;
 
     -- Select the newly created poll, question, and answers
-    SELECT new_poll_id::integer, polls.trip_id::integer, auth.uid()::uuid, (new_question_id::integer, question)::"public"."question_type", 
-      ARRAY(SELECT (id::integer, content)::"public"."answer_type" FROM answers WHERE question_id = new_question_id)::"public"."answer_type"[]
+    SELECT json_build_object(
+      'id', p.id::integer,
+      'trip_id', p.trip_id::integer,
+      'profile_id', p.profile_id::uuid,
+      'question', (SELECT row_to_json(q.*) FROM questions q WHERE q.id = new_question_id),
+      'answers', COALESCE((SELECT json_agg(row_to_json(a.*)) FROM answers a WHERE a.question_id = new_question_id), '[]'),
+      'votes', COALESCE((SELECT json_agg(row_to_json(pa.*)) FROM profile_answers pa WHERE pa.poll_id = new_poll_id), '[]')
+    )
     INTO new_poll
-    FROM polls
-    WHERE polls.id = new_poll_id;
+    FROM polls p
+    WHERE p.id = new_poll_id;
 
     RETURN new_poll;
   END;
 $$;
 
 ALTER FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answers" text[])
+  RETURNS "json"
+  LANGUAGE plpgsql SECURITY DEFINER
+  AS $$
+  DECLARE
+    updated_poll "json";
+    i integer;
+    answer_ids bigint[];
+    question_id bigint;
+  BEGIN
+    -- Update the question
+    UPDATE questions SET title = question WHERE questions.poll_id = update_poll.poll_id;
+
+    -- Get the IDs of the existing answers
+    SELECT array_agg(id) INTO answer_ids FROM answers WHERE answers.question_id IN (SELECT id FROM questions WHERE questions.poll_id = update_poll.poll_id);
+
+    -- Get the question ID
+    SELECT id INTO question_id FROM questions WHERE questions.poll_id = update_poll.poll_id;
+
+    -- Update the answers
+    FOR i IN 1..array_length(update_poll.answers, 1)
+    LOOP
+      IF i <= array_length(answer_ids, 1) THEN
+        -- Update existing answer
+        UPDATE answers SET content = update_poll.answers[i] WHERE id = answer_ids[i];
+      ELSE
+        -- Insert new answer
+        INSERT INTO answers (content, question_id) VALUES (update_poll.answers[i], question_id);
+      END IF;
+    END LOOP;
+
+    -- Select the updated poll, question, and answers
+    SELECT json_build_object(
+      'id', p.id::integer,
+      'trip_id', p.trip_id::integer,
+      'profile_id', p.profile_id::uuid,
+      'question', (SELECT row_to_json(q.*) FROM questions q WHERE q.poll_id = update_poll.poll_id),
+      'answers', COALESCE((SELECT json_agg(row_to_json(a.*)) FROM answers a WHERE a.question_id IN (SELECT id FROM questions WHERE questions.poll_id = update_poll.poll_id)), '[]'),
+      'votes', COALESCE((SELECT json_agg(row_to_json(pa.*)) FROM profile_answers pa WHERE pa.poll_id = update_poll.poll_id), '[]')
+    )
+    INTO updated_poll
+    FROM polls p
+    WHERE p.id = update_poll.poll_id;
+
+    RETURN updated_poll;
+  END;
+$$;
+
+ALTER FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answers" text[]) OWNER TO "postgres";
 
 CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) RETURNS "json"
   LANGUAGE "plpgsql" SECURITY DEFINER
@@ -299,15 +346,17 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
       AND tf.profile_id != auth.uid();  -- Filter out the user itself
 
     -- Fetch poll data
-    SELECT row_to_json(poll_with_question_and_answers) INTO poll_data
-    FROM (
-      SELECT p.id, p.trip_id, p.profile_id, q.title, array_agg(a.*) AS answers
-      FROM polls p
-      JOIN questions q ON p.id = q.poll_id
-      JOIN answers a ON q.id = a.question_id
-      WHERE p.trip_id = dynamic_trip_id
-      GROUP BY p.id, q.title
-    ) AS poll_with_question_and_answers
+    SELECT json_build_object(
+      'id', p.id::integer,
+      'trip_id', p.trip_id::integer,
+      'profile_id', p.profile_id::uuid,
+      'question', (SELECT row_to_json(q.*) FROM questions q WHERE q.poll_id = p.id),
+      'answers', COALESCE((SELECT json_agg(row_to_json(a.*)) FROM answers a WHERE a.question_id = q.id), '[]'),
+      'votes', COALESCE((SELECT json_agg(row_to_json(pa.*)) FROM profile_answers pa WHERE pa.poll_id = p.id), '[]')
+    ) INTO poll_data
+    FROM polls p
+    JOIN questions q ON p.id = q.poll_id
+    WHERE p.trip_id = dynamic_trip_id
     LIMIT 1;
 
     -- Output the result
@@ -1134,6 +1183,10 @@ GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "
 GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "anon";
 GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answers" text[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answers" text[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answers" text[]) TO "service_role";
 
 GRANT ALL ON TABLE "public"."answers" TO "anon";
 GRANT ALL ON TABLE "public"."answers" TO "authenticated";

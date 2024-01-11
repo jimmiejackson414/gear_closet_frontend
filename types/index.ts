@@ -1174,11 +1174,19 @@ export interface Database {
           question: string;
           answers: string[];
         };
-        Returns: Database["public"]["CompositeTypes"]["poll_with_question_and_answers"];
+        Returns: Json;
       };
       get_planning_page_data: {
         Args: {
           p_trip_id: number;
+        };
+        Returns: Json;
+      };
+      update_poll: {
+        Args: {
+          poll_id: number;
+          question: string;
+          answers: string[];
         };
         Returns: Json;
       };
@@ -1224,13 +1232,6 @@ export interface Database {
       answer_type: {
         answer_id: number;
         answer: string;
-      };
-      poll_with_question_and_answers: {
-        poll_id: number;
-        trip_id: number;
-        profile_id: string;
-        question: Database["public"]["CompositeTypes"]["question_type"];
-        answers: unknown;
       };
       question_type: {
         question_id: number;
@@ -1724,6 +1725,11 @@ export type ArgsGetPlanningPageDatum =
   Database["public"]["Functions"]["get_planning_page_data"]["Args"];
 export type ReturnTypeGetPlanningPageDatum =
   Database["public"]["Functions"]["get_planning_page_data"]["Returns"];
+
+export type ArgsUpdatePoll =
+  Database["public"]["Functions"]["update_poll"]["Args"];
+export type ReturnTypeUpdatePoll =
+  Database["public"]["Functions"]["update_poll"]["Returns"];
 
 // Schema: storage
 // Tables

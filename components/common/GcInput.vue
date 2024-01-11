@@ -102,7 +102,7 @@
         :id="name"
         ref="inputRef"
         :autocomplete="autocomplete"
-        class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 peer rounded-lg text-dark-grey w-full focus:outline-none focus:ring-0"
+        class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 peer rounded-lg text-dark-grey placeholder:text-grey-200 w-full focus:outline-none focus:ring-0"
         :class="computedClasses"
         :disabled="disabled"
         :placeholder="placeholder"

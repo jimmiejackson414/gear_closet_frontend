@@ -6,7 +6,7 @@
   interface Props {
     disabled?: boolean;
     icon?: Icon;
-    label?: string;
+    label?: string | null;
     loading?: boolean;
     outlined?: boolean;
     ghost?: boolean;
@@ -91,7 +91,9 @@
     <gc-spinner
       v-if="loading"
       fill />
-    <span v-else-if="$slots.default">
+    <span
+      v-else-if="$slots.default"
+      class="flex items-center">
       <slot />
     </span>
     <component
