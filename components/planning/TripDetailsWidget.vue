@@ -1,13 +1,13 @@
 <script lang='ts' setup>
+  import dayjs from 'dayjs';
   import VueDatePicker from '@vuepic/vue-datepicker';
   import { FootprintsIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
   import { usePlanningStore } from '@/stores/planning';
   import { TripDetailType } from '@/types';
   import { prependProtocol } from '~/helpers/functions';
-  import type { Database, TripDetail, UpdateTripDetail } from '@/types';
+  import type { Database, TripDetail, UpdateTrip, UpdateTripDetail } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
-  const emits = defineEmits(['update-trip']);
   const $appStore = useAppStore();
   const $store = usePlanningStore();
   const { data, pageLoading, selectedTrip } = storeToRefs($store);
@@ -36,7 +36,7 @@
   });
 
   const toggleEditDialog = (detail: TripDetail) => {
-    activeDetail.value = detail;
+    activeDetail.value = { ...detail };
     isEditDialogOpen.value = !isEditDialogOpen.value;
   };
 
@@ -56,7 +56,7 @@
         .select();
 
       if (newDetail?.length && !error) {
-        data.value.trip_details.unshift(newDetail[0]);
+        data.value.trip_details.push(newDetail[0]);
       }
     } catch (err) {
       console.log({ err });
@@ -113,19 +113,47 @@
     }
   };
 
+  /**
+   * Update a trip
+   * @param payload
+   */
+  const updateTrip = async (payload: UpdateTrip) => {
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const { data: updatedTrip, error } = await supabase.from('trips')
+        .update(payload)
+        .eq('id', selectedTrip?.value?.id as number)
+        .select();
+
+      if (updatedTrip?.length && selectedTrip && !error) {
+        selectedTrip.value = updatedTrip[0];
+
+        // Find the index of the corresponding trip in data.value.trips and update it
+        const tripIndex = data.value.trips.findIndex(trip => trip.id === updatedTrip[0].id);
+        if (tripIndex !== -1) {
+          data.value.trips.splice(tripIndex, 1, updatedTrip[0]);
+        }
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error updating the trip.');
+    }
+  };
+
   const datePicker = ref(null);
   const editingTripDates = ref(false);
-  const dateRange = ref([]);
+  const dateRange = computed(() => [selectedTrip?.value?.starting_date || '', selectedTrip?.value?.ending_date || '']);
   const format = (dates: Date[]) => {
-    const date1 = dates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    const date2 = dates[1]?.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-    return `${date1} to ${date2 || ''}`;
+    const date1 = dayjs(dates[0])
+      .format('MMM D, YYYY');
+    const date2 = dates[1] ? dayjs(dates[1])
+      .format('MMM D, YYYY') : '';
+    return `${date1} to ${date2}`;
   };
 
   const formattedDate = (date: string | undefined | null) => {
     if (!date) return '';
-    return new Date(date)
-      .toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    return dayjs(date)
+      .format('MMM D, YYYY');
   };
 
   onClickOutside(datePicker, () => editingTripDates.value = false);
@@ -164,7 +192,7 @@
           name="trip_name"
           placeholder="Trip Name"
           size="sm"
-          @handle-update="updateDetail">
+          @handle-update="updateTrip({ name: $event })">
           <h5 class="!font-black text-base-lg">
             {{ selectedTrip?.name }}
           </h5>
@@ -202,7 +230,10 @@
             placeholder="Start and End Dates"
             :preview-format="format"
             range
-            @update:model-value="emits('update-trip', dateRange)" />
+            @update:model-value="
+              updateTrip({ starting_date: $event[0], ending_date: $event[1] }),
+              editingTripDates = false;
+            " />
         </div>
       </div>
       <ul>

@@ -318,17 +318,17 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
     -- Fetch trip details data
     SELECT COALESCE(json_agg(row_to_json(td.*)), '[]'::JSON) INTO trip_details_data
     FROM trip_details td
-    WHERE td.trip_id = COALESCE(p_trip_id, 0);
+    WHERE td.trip_id = dynamic_trip_id;
 
     -- Fetch todos data
     SELECT COALESCE(json_agg(row_to_json(todo.*)), '[]'::JSON) INTO todos_data
     FROM todos todo
-    WHERE todo.trip_id = COALESCE(p_trip_id, 0);
+    WHERE todo.trip_id = dynamic_trip_id;
 
     -- Fetch shopping items data
     SELECT COALESCE(json_agg(row_to_json(si.*)), '[]'::JSON) INTO shopping_items_data
     FROM shopping_list_items si
-    WHERE si.trip_id = COALESCE(p_trip_id, 0);
+    WHERE si.trip_id = dynamic_trip_id;
 
     -- Fetch friends data with details from related tables
     SELECT COALESCE(json_agg(json_build_object(

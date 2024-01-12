@@ -72,7 +72,9 @@
 </script>
 
 <template>
-  <form @submit.prevent="handleSubmit">
+  <form
+    @keydown.enter="handleSubmit"
+    @submit.prevent="handleSubmit">
     <div class="grid grid-cols-[50px,50px] gap-4 justify-center text-center">
       <button
         class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"

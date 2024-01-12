@@ -92,31 +92,34 @@
 
 <template>
   <div class="w-fit">
-    <div class="relative">
-      <div class="absolute inset-y-0 flex items-center pointer-events-none ps-3.5 start-0">
-        <component
-          :is="prependIcon"
-          class="h-5 text-grey w-5" />
-      </div>
-      <input
-        :id="name"
-        ref="inputRef"
-        :autocomplete="autocomplete"
-        class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 peer rounded-lg text-dark-grey placeholder:text-grey-200 w-full focus:outline-none focus:ring-0"
-        :class="computedClasses"
-        :disabled="disabled"
-        :placeholder="placeholder"
-        :required="required"
-        :type="computedType"
-        :value="modelValue"
-        @blur="handleBlur"
-        @input="handleInput(($event.target as HTMLInputElement).value)"
-        @keydown.enter.prevent="handleEnter">
+    <div class="flex flex-col gap-2">
       <label
-        class="-translate-y-4 rtl:peer-focus:left-auto rtl:peer-focus:translate-x-1/4 absolute top-2 bg-white duration-300 origin-[0] peer-focus:-translate-y-4 peer-focus:px-2 peer-focus:scale-75 peer-focus:text-primary peer-focus:top-2 peer-placeholder-shown:-translate-y-1/2 peer-placeholder-shown:scale-100 peer-placeholder-shown:top-1/2 px-2 scale-75 start-1 text-gray-500 text-sm transform z-10"
+        v-if="label"
+        class="font-bold text-grey text-sm"
         :for="name">
         {{ label }}
       </label>
+      <div class="relative">
+        <div class="absolute inset-y-0 flex items-center pointer-events-none ps-3.5 start-0">
+          <component
+            :is="prependIcon"
+            class="h-5 text-grey w-5" />
+        </div>
+        <input
+          :id="name"
+          ref="inputRef"
+          :autocomplete="autocomplete"
+          class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 peer rounded-lg text-gray-700 placeholder:text-grey-100 w-full focus:outline-none focus:ring-0"
+          :class="computedClasses"
+          :disabled="disabled"
+          :placeholder="placeholder"
+          :required="required"
+          :type="computedType"
+          :value="modelValue"
+          @blur="handleBlur"
+          @input="handleInput(($event.target as HTMLInputElement).value)"
+          @keydown.enter.prevent="handleEnter">
+      </div>
       <button
         v-if="passwordToggle"
         class="absolute top-0 end-0 p-3.5 rounded-e-md"

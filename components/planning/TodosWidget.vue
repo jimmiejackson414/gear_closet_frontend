@@ -35,7 +35,7 @@
         .select();
 
       if (newTodo?.length && !error) {
-        data.value.todos.unshift(newTodo[0]);
+        data.value.todos.push(newTodo[0]);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new todo.');
@@ -204,12 +204,11 @@
                       <gc-checkbox
                         :id="`todo-${todo.id}`"
                         :checked="todo.completed"
-                        strike-through
                         @update="e => updateTodo(todo, { completed: e })" />
                     </div>
                   </td>
                   <th
-                    class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap"
+                    class="font-medium px-6 py-2 text-gray-900 whitespace-nowrap"
                     scope="row">
                     <gc-inline-edit
                       hide-edit-btn
@@ -217,7 +216,9 @@
                       name="title"
                       size="sm"
                       @handle-update="e => updateTodo(todo, { title: e })">
-                      <p class="font-medium text-gray-500 text-sm">
+                      <p
+                        class="font-medium text-grey text-sm"
+                        :class="{ 'line-through': todo.completed }">
                         {{ todo.title }}
                       </p>
                     </gc-inline-edit>
@@ -262,12 +263,11 @@
                       <gc-checkbox
                         :id="`todo-${todo.id}`"
                         :checked="todo.completed"
-                        strike-through
                         @update="e => updateTodo(todo, { completed: e })" />
                     </div>
                   </td>
                   <th
-                    class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap"
+                    class="font-medium px-6 py-2 text-gray-900 whitespace-nowrap"
                     scope="row">
                     <gc-inline-edit
                       hide-edit-btn
@@ -275,7 +275,9 @@
                       name="title"
                       size="sm"
                       @handle-update="e => updateTodo(todo, { title: e })">
-                      <p class="font-medium text-gray-500 text-sm">
+                      <p
+                        class="font-medium text-grey text-sm"
+                        :class="{ 'line-through': todo.completed }">
                         {{ todo.title }}
                       </p>
                     </gc-inline-edit>

@@ -15,12 +15,12 @@
   const user = useSupabaseUser();
   const emits = defineEmits(['createAnswer', 'createVote']);
 
-  const showResults = computed(() => props.poll.votes.some(v => v.profile_id === user.value?.id));
+  const hasVoted = computed(() => props.poll.votes.some(v => v.profile_id === user.value?.id));
   const totalVotes = computed(() => props.poll.votes.reduce((acc, _cur) => acc + 1, 0));
   const calcAnswers = computed(() => {
     if (totalVotes.value === 0) {
       return props.poll.answers.map(a => {
-        return { ...a, percent: '0%' };
+        return { ...a, percent: 0 };
       });
     }
 
@@ -28,9 +28,18 @@
       const votesForAnswer = props.poll.votes.filter(v => v.answer_id === a.id).length;
       return {
         ...a,
-        percent: votesForAnswer > 0 ? `${Math.round((votesForAnswer / totalVotes.value) * 100)}%` : '0%',
+        percent: votesForAnswer > 0 ? Math.round((votesForAnswer / totalVotes.value) * 100) : 0,
       };
     });
+  });
+
+  const highestPercentAnswer = computed(() => {
+    return calcAnswers.value.reduce((acc, cur) => {
+      if (cur.percent > acc.percent) {
+        return cur;
+      }
+      return acc;
+    }, calcAnswers.value[0]);
   });
 
   const createVote = async (answer: Tables<'answers'>) => {
@@ -69,7 +78,6 @@
           profile_id: user.value?.id,
         })
         .select();
-      console.log({ data, error });
 
       if (!error && data?.length) {
         emits('createAnswer', data[0]);
@@ -94,7 +102,7 @@
         v-for="(answer, i) in calcAnswers"
         :key="i">
         <!-- Show buttons if user has not voted yet -->
-        <template v-if="!showResults">
+        <template v-if="!hasVoted">
           <gc-button
             class="mb-3 w-full"
             :label="answer.content"
@@ -108,16 +116,18 @@
           <div class="bg-gray-200 flex justify-center items-center h-10 mb-3 relative rounded-lg w-full">
             <div
               class="absolute bg-positive-light h-10 rounded-lg"
-              :style="{ width: answer.percent }" />
-            <div class="absolute font-medium ml-2">
-              {{ answer.content }} ({{ answer.percent }})
+              :style="{ width: answer.percent + '%' }" />
+            <div
+              class="absolute ml-2"
+              :class="[ answer.content === highestPercentAnswer.content ? 'font-bold' : 'font-medium' ]">
+              {{ answer.content }} ({{ answer.percent + '%' }})
             </div>
           </div>
         </template>
       </div>
 
       <!-- Show the add answer button if user has not voted yet -->
-      <SlideUpTransition v-if="poll.answers.length < 6">
+      <SlideUpTransition v-if="!hasVoted && poll.answers.length < 6">
         <gc-button
           v-if="!isAdding"
           class="justify-self-center"

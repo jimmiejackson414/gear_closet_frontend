@@ -52,7 +52,7 @@
   <div class="grid grid-cols-[auto] h-full relative w-fit">
     <span
       v-show="!isEditing"
-      class="cursor-pointer duration-100 ease-snap flex items-center group px-1 py-1.5 transition"
+      class="cursor-pointer duration-100 ease-snap flex items-center group py-1.5 transition"
       @click="toggleEditing"
       @keydown="toggleEditing"
       @trigger="toggleEditing">

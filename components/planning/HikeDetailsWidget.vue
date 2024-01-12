@@ -1,9 +1,8 @@
 <script lang='ts' setup>
   import { MountainIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
   import { prependProtocol } from '@/helpers/functions';
-  import { TripDetailType, type Database, type TripDetail, type UpdateTripDetail } from '@/types';
+  import { TripDetailType, type Database, type TripDetail, type UpdateTripDetail, type UpdateTrip } from '@/types';
 
-  const emits = defineEmits(['update']);
   const $appStore = useAppStore();
   const $store = usePlanningStore();
   const { data, pageLoading, selectedTrip } = storeToRefs($store);
@@ -32,7 +31,7 @@
   });
 
   const toggleEditDialog = (detail: TripDetail) => {
-    activeDetail.value = detail;
+    activeDetail.value = { ...detail };
     isEditDialogOpen.value = !isEditDialogOpen.value;
   };
 
@@ -52,7 +51,7 @@
         .select();
 
       if (newDetail?.length && !error) {
-        data.value.trip_details.unshift(newDetail[0]);
+        data.value.trip_details.push(newDetail[0]);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new detail.');
@@ -108,6 +107,26 @@
       submitting.value = false;
     }
   };
+
+  /**
+   * Updates a trip
+   * @param payload
+   */
+  const updateTrip = async (payload: UpdateTrip) => {
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const { data: updatedTrip, error } = await supabase.from('trips')
+        .update(payload)
+        .eq('id', selectedTrip?.value?.id as number)
+        .select();
+
+      if (updatedTrip?.length && selectedTrip && !error) {
+        selectedTrip.value = updatedTrip[0];
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error updating the trip.');
+    }
+  };
 </script>
 
 <template>
@@ -143,7 +162,7 @@
           name="starting_point"
           placeholder="Ending point"
           size="sm"
-          @handle-update="emits('update')">
+          @handle-update="updateTrip({ starting_point: $event })">
           <h5 class="!font-black text-base-lg">
             {{ selectedTrip?.starting_point }}
           </h5>
@@ -154,7 +173,7 @@
           name="ending_point"
           placeholder="Ending point"
           size="sm"
-          @handle-update="emits('update')">
+          @handle-update="updateTrip({ ending_point: $event })">
           <h5 class="!font-black text-base-lg">
             {{ selectedTrip?.ending_point }}
           </h5>

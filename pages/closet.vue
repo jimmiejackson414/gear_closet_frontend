@@ -1,10 +1,21 @@
 <script lang='ts' setup>
-  import { ref } from 'vue';
-  
+  definePageMeta({
+    layout: 'page-layout',
+  });
+
+  useHead({
+    title: 'Closet | Gear Closet',
+    meta: [
+      {
+        name: 'description',
+        content: 'Welcome to your Gear Closet!',
+      },
+    ],
+  });
 </script>
 
 <template>
-  <div>
-    Closet Page
+  <div class="pb-8">
+    Closet page
   </div>
 </template>

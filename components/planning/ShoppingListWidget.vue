@@ -36,7 +36,7 @@
         .select();
 
       if (newItem?.length && !error) {
-        data.value.shopping_items.unshift(newItem[0]);
+        data.value.shopping_items.push(newItem[0]);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new shopping item.');
@@ -122,7 +122,7 @@
         Shopping Items
       </p>
       <gc-button
-        v-if="!pageLoading && data?.todos.length"
+        v-if="!pageLoading && data?.shopping_items.length"
         class="justify-self-end"
         :icon="PlusIcon"
         round
@@ -215,7 +215,7 @@
                     </div>
                   </td>
                   <th
-                    class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap"
+                    class="font-medium px-6 py-2 text-gray-900 whitespace-nowrap"
                     scope="row">
                     <gc-inline-edit
                       hide-edit-btn
@@ -223,13 +223,15 @@
                       name="title"
                       size="sm"
                       @handle-update="e => updateShoppingItem(item, { title: e })">
-                      <p class="font-medium text-gray-500 text-sm">
+                      <p
+                        class="font-medium text-grey text-sm"
+                        :class="{ 'line-through': item.completed }">
                         {{ item.title }}
                       </p>
                     </gc-inline-edit>
                   </th>
                   <th
-                    class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap"
+                    class="font-medium px-6 py-2 text-gray-900 whitespace-nowrap"
                     scope="row">
                     <gc-inline-edit
                       hide-edit-btn
@@ -237,7 +239,9 @@
                       name="quantity"
                       size="sm"
                       @handle-update="e => updateShoppingItem(item, { quantity: e })">
-                      <p class="font-medium text-gray-500 text-sm">
+                      <p
+                        class="font-medium text-grey text-sm"
+                        :class="{ 'line-through': item.completed }">
                         {{ item.quantity }}
                       </p>
                     </gc-inline-edit>
@@ -292,7 +296,7 @@
                     </div>
                   </td>
                   <th
-                    class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap"
+                    class="font-medium px-6 py-2 text-gray-900 whitespace-nowrap"
                     scope="row">
                     <gc-inline-edit
                       hide-edit-btn
@@ -300,13 +304,15 @@
                       name="title"
                       size="sm"
                       @handle-update="e => updateShoppingItem(item, { title: e })">
-                      <p class="font-medium text-gray-500 text-sm">
+                      <p
+                        class="font-medium text-grey text-sm"
+                        :class="{ 'line-through': item.completed }">
                         {{ item.title }}
                       </p>
                     </gc-inline-edit>
                   </th>
                   <th
-                    class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap"
+                    class="font-medium px-6 py-2 text-gray-900 whitespace-nowrap"
                     scope="row">
                     <gc-inline-edit
                       hide-edit-btn
@@ -314,7 +320,7 @@
                       name="quantity"
                       size="sm"
                       @handle-update="e => updateShoppingItem(item, { quantity: e })">
-                      <p class="font-medium text-gray-500 text-sm">
+                      <p class="font-medium text-grey text-sm">
                         {{ item.quantity }}
                       </p>
                     </gc-inline-edit>
