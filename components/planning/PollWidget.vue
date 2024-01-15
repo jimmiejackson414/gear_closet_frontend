@@ -6,7 +6,7 @@
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data, pageLoading, selectedTrip } = storeToRefs($store);
+  const { data, pageLoading, selectedTripId } = storeToRefs($store);
 
   const isSettingsOpen = ref(false);
   const isPollDialogOpen = ref(false);
@@ -95,7 +95,7 @@
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const { data: newPoll, error } = await supabase.rpc('create_poll', {
-        trip_id: selectedTrip?.value?.id as number,
+        trip_id: selectedTripId?.value as number,
         question: modalForm.question?.title as string,
         answers: modalForm.answers.map(a => a.content) as string[],
       })

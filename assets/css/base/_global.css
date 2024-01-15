@@ -64,7 +64,7 @@
 
     .dp__input {
       &.gc-dp-input {
-        @apply bg-transparent border border-gray-300 rounded-lg text-dark-grey active:border-primary;
+        @apply bg-transparent border border-gray-300 rounded-lg text-dark-grey active:border-primary placeholder:!text-gray-400 font-sans text-base py-2.5 ps-9;
       }
     }
     .dp__calendar_item {

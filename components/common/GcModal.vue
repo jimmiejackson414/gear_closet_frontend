@@ -42,7 +42,7 @@
         <!-- modal content -->
         <div class="bg-white relative rounded-lg shadow">
           <!-- modal header -->
-          <div class="border-b border-transparent flex justify-between items-center px-4 md:px-5 py-4 rounded-t">
+          <div class="border-b border-gray-200 flex justify-between items-center px-4 md:px-5 py-4 rounded-t">
             <h3 class="font-medium text-gray-900 text-xl">
               {{ title }}
             </h3>

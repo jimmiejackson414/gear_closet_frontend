@@ -6,7 +6,7 @@
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data, pageLoading, selectedTrip } = storeToRefs($store);
+  const { data, pageLoading, selectedTripId } = storeToRefs($store);
 
   const userTodos = computed(() => {
     return data.value.todos.filter(t => t.resource_type === ResourceType.USER);
@@ -30,7 +30,7 @@
           profile_id: user.value?.id as string,
           resource_type: activeTab?.id as ResourceType,
           title: 'New todo',
-          trip_id: selectedTrip?.value?.id as number,
+          trip_id: selectedTripId?.value as number,
         })
         .select();
 

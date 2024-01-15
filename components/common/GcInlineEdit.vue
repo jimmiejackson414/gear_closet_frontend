@@ -8,6 +8,7 @@
     hideEditBtn?: boolean;
     type?: string;
     size?: 'sm' | 'md' | 'lg';
+    inputClasses?: string;
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -16,6 +17,7 @@
     hideEditBtn: false,
     type: 'text',
     size: 'md',
+    inputClasses: 'w-fit',
   });
 
   const emits = defineEmits(['handleUpdate']);
@@ -33,7 +35,10 @@
 
   const handleEmit = () => {
     isEditing.value = false;
-    emits('handleUpdate', localModel.value);
+    // only emit if the value has changed
+    if (localModel.value !== props.modelValue) {
+      emits('handleUpdate', localModel.value);
+    }
   };
 
   const handleEscape = () => {
@@ -49,7 +54,9 @@
 </script>
 
 <template>
-  <div class="grid grid-cols-[auto] h-full relative w-fit">
+  <div
+    class="grid grid-cols-[auto] h-full relative"
+    :class="inputClasses">
     <span
       v-show="!isEditing"
       class="cursor-pointer duration-100 ease-snap flex items-center group py-1.5 transition"
@@ -65,6 +72,7 @@
       v-show="isEditing"
       ref="inlineEditRef"
       v-model="localModel"
+      :class="inputClasses"
       :name="name"
       :placeholder="placeholder"
       :size="size"

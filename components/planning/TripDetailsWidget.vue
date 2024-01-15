@@ -10,7 +10,7 @@
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data, pageLoading, selectedTrip } = storeToRefs($store);
+  const { data, pageLoading, selectedTripId, selectedTrip } = storeToRefs($store);
 
   const tripDetails = computed(() => {
     return data.value?.trip_details.filter((detail) => {
@@ -48,7 +48,7 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
-          trip_id: selectedTrip?.value?.id as number,
+          trip_id: selectedTripId?.value as number,
           title: 'New detail',
           type: TripDetailType.TRIP,
           value: 'New trip detail description',
@@ -122,11 +122,11 @@
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTrip, error } = await supabase.from('trips')
         .update(payload)
-        .eq('id', selectedTrip?.value?.id as number)
+        .eq('id', selectedTripId?.value as number)
         .select();
 
-      if (updatedTrip?.length && selectedTrip && !error) {
-        selectedTrip.value = updatedTrip[0];
+      if (updatedTrip?.length && selectedTripId && !error) {
+        selectedTripId.value = updatedTrip[0].id;
 
         // Find the index of the corresponding trip in data.value.trips and update it
         const tripIndex = data.value.trips.findIndex(trip => trip.id === updatedTrip[0].id);

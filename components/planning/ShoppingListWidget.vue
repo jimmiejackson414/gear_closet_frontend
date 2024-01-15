@@ -6,7 +6,7 @@
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data, pageLoading, selectedTrip } = storeToRefs($store);
+  const { data, pageLoading, selectedTripId } = storeToRefs($store);
 
   const userItems = computed(() => {
     return data.value.shopping_items.filter(t => t.resource_type === ResourceType.USER);
@@ -31,7 +31,7 @@
           quantity: 1,
           resource_type: activeTab?.id as ResourceType,
           title: 'New shopping item',
-          trip_id: selectedTrip?.value?.id as number,
+          trip_id: selectedTripId?.value as number,
         })
         .select();
 

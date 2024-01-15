@@ -3,7 +3,7 @@
   import { usePlanningStore } from '#imports';
 
   const $store = usePlanningStore();
-  const { data, pageLoading, selectedTrip } = storeToRefs($store);
+  const { data, pageLoading, selectedTripId, selectedTrip } = storeToRefs($store);
 </script>
 
 <template>

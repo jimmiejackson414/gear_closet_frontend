@@ -13,7 +13,7 @@
     disabled?: boolean;
     error?: string | null;
     loading?: boolean;
-    modelValue?: string | string[] | number;
+    modelValue?: string | string[] | number | null;
     options: SelectOption[] | null;
     placeholder?: string,
     required?: boolean;

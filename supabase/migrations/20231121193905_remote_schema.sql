@@ -281,14 +281,19 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
     dynamic_trip_id BIGINT;
   BEGIN
     -- Fetch trips data
-    SELECT json_agg(row_to_json(t.*)) INTO trips_data
-    FROM trips t
-    WHERE t.profile_id = auth.uid()
-    GROUP BY t.created_at
-    ORDER BY t.created_at ASC;
+    SELECT json_agg(row_to_json(sub.*)) INTO trips_data
+    FROM (
+      SELECT * FROM trips t
+      WHERE t.profile_id = auth.uid()
+      ORDER BY t.created_at ASC
+    ) sub;
 
-    -- Set dynamic_trip_id to the ID of the first trip
-    SELECT COALESCE((SELECT t.id FROM trips t WHERE t.profile_id = auth.uid() ORDER BY t.created_at ASC LIMIT 1), 0) INTO dynamic_trip_id;
+    -- Set dynamic_trip_id based on p_trip_id or to the ID of the first trip
+    IF p_trip_id = 0 THEN
+      SELECT COALESCE((SELECT t.id FROM trips t WHERE t.profile_id = auth.uid() ORDER BY t.created_at ASC LIMIT 1), 0) INTO dynamic_trip_id;
+    ELSE
+      dynamic_trip_id := p_trip_id;
+    END IF;
 
     -- Fetch trip packs data using dynamic_trip_id along with associated pack details
     SELECT COALESCE(json_agg(json_build_object(
@@ -800,7 +805,7 @@ CREATE TABLE IF NOT EXISTS "public"."trips" (
     "ending_point" character varying,
     "starting_date" timestamp with time zone,
     "ending_date" timestamp with time zone,
-    "slug" character varying NOT NULL,
+    "slug" character varying,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "profile_id" "uuid" NOT NULL
 );

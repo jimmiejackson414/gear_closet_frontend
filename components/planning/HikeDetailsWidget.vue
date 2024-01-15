@@ -5,7 +5,7 @@
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data, pageLoading, selectedTrip } = storeToRefs($store);
+  const { data, pageLoading, selectedTrip, selectedTripId } = storeToRefs($store);
 
   const hikeDetails = computed(() => {
     return data.value?.trip_details.filter((detail) => {
@@ -43,7 +43,7 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
-          trip_id: selectedTrip?.value?.id as number,
+          trip_id: selectedTripId?.value,
           title: 'New detail',
           type: TripDetailType.HIKE,
           value: 'New hike detail description',
@@ -117,11 +117,15 @@
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTrip, error } = await supabase.from('trips')
         .update(payload)
-        .eq('id', selectedTrip?.value?.id as number)
+        .eq('id', selectedTripId?.value as number)
         .select();
 
-      if (updatedTrip?.length && selectedTrip && !error) {
-        selectedTrip.value = updatedTrip[0];
+      // Update the trip in the store.
+      if (updatedTrip?.length && selectedTripId && !error) {
+        const tripToUpdate = data.value.trips.find((t) => t.id === selectedTripId.value);
+        if (tripToUpdate) {
+          Object.assign(tripToUpdate, updatedTrip[0]);
+        }
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error updating the trip.');
@@ -156,7 +160,7 @@
         @click="createNewDetail" />
     </gc-empty-state>
     <div v-else>
-      <div class="flex items-center gap-6 mb-3">
+      <div class="flex items-center gap-6">
         <gc-inline-edit
           :model-value="selectedTrip?.starting_point"
           name="starting_point"
@@ -177,6 +181,19 @@
           <h5 class="!font-black text-base-lg">
             {{ selectedTrip?.ending_point }}
           </h5>
+        </gc-inline-edit>
+      </div>
+      <div class="flex items-center mb-6">
+        <gc-inline-edit
+          input-classes="w-full"
+          :model-value="selectedTrip?.description"
+          name="description"
+          placeholder="Trip description"
+          size="sm"
+          @handle-update="updateTrip({ description: $event })">
+          <p class="cursor-pointer text-base text-grey">
+            {{ selectedTrip?.description }}
+          </p>
         </gc-inline-edit>
       </div>
       <ul>

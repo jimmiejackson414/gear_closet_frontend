@@ -16,15 +16,17 @@ export interface PlanningPageData {
 }
 
 type State = {
-  data: PlanningPageData,
-  pageLoading: boolean,
-  selectedTrip?: Tables<'trips'>,
+  data: PlanningPageData;
+  pageLoading: boolean;
+  selectedTripId: number | null;
 };
 
-type Getters = {};
+type Getters = {
+  selectedTrip(): Tables<'trips'> | undefined;
+};
 
 type Actions = {
-  fetchPlanningPage(query: LocationQuery): Promise<void>;
+  fetchPlanningPage(identifier: LocationQuery | number): Promise<void>;
 };
 
 export const usePlanningStore = defineStore<"planning", State, Getters, Actions>(
@@ -42,23 +44,32 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           poll: undefined,
         },
         pageLoading: true,
-        selectedTrip: undefined,
+        selectedTripId: null,
       };
     },
 
-    getters: {},
+    getters: {
+      selectedTrip () {
+        return this.data.trips.find(trip => trip.id === this.selectedTripId);
+      },
+    },
 
     actions: {
       /**
        * Fetches the planning page data.
        */
-      async fetchPlanningPage (query: LocationQuery) {
+      async fetchPlanningPage (identifier) {
+        console.log({ identifier });
         const $store = useAppStore();
         this.pageLoading = true;
 
         try {
           const supabase = useSupabaseClient<Database>();
-          const tripId = query?.trip && Number(decrypt(query.trip));
+
+          let tripId: number | undefined;
+          if (typeof identifier === 'number') { tripId = identifier; }
+          else if (identifier?.trip) { tripId = Number(decrypt(identifier.trip)); }
+
           const { data: pageData, error } = await supabase
             .rpc('get_planning_page_data', { p_trip_id: tripId || 0 })
             .returns<PlanningPageData>();
@@ -68,7 +79,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
 
             // set selected trip if available
             const findSelectedTrip = pageData.trips.find(trip => trip.id === (tripId ? tripId : pageData.trips[0].id)) as Tables<'trips'>;
-            this.selectedTrip = findSelectedTrip;
+            this.selectedTripId = findSelectedTrip.id;
           }
         } catch (err: any) {
           $store.notifyNegative(err);

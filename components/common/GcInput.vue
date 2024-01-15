@@ -75,8 +75,8 @@
     const classes = [];
 
     // determine padding based on size prop
-    if (props.size === 'sm') { classes.push('p-2 text-xs'); }
-    else if (props.size === 'md') { classes.push('p-2.5 text-sm'); }
+    if (props.size === 'sm') { classes.push('p-2 text-base'); }
+    else if (props.size === 'md') { classes.push('p-2.5 text-base'); }
     else if (props.size === 'lg') { classes.push('p-4 sm:text-md'); }
 
     // determine properties based on disabled prop and error state
@@ -84,7 +84,7 @@
     props.disabled ? classes.push('bg-gray-100 pointer-events-none') : classes.push('bg-white pointer-events-auto');
 
     // override padding based on prependIcon prop
-    if (props.prependIcon) { classes.push('ps-11'); }
+    if (props.prependIcon) { classes.push('ps-9'); }
 
     return classes;
   });
@@ -100,16 +100,14 @@
         {{ label }}
       </label>
       <div class="relative">
-        <div class="absolute inset-y-0 flex items-center pointer-events-none ps-3.5 start-0">
-          <component
-            :is="prependIcon"
-            class="h-5 text-grey w-5" />
-        </div>
+        <component
+          :is="prependIcon"
+          class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-grey w-5" />
         <input
           :id="name"
           ref="inputRef"
           :autocomplete="autocomplete"
-          class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 peer rounded-lg text-gray-700 placeholder:text-grey-100 w-full focus:outline-none focus:ring-0"
+          class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 peer py-2.5 rounded-lg text-dark-grey w-full focus:outline-none focus:ring-0 placeholder:!text-gray-400"
           :class="computedClasses"
           :disabled="disabled"
           :placeholder="placeholder"
