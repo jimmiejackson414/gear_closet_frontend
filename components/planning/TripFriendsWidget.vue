@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import { ArrowDownUpIcon, SearchIcon, UsersRoundIcon } from 'lucide-vue-next';
   import type { SelectOption } from '@/types/helpers';
-  import type { Database, Profile } from '@/types';
+  import { TripFriendStatus, type Database, type Profile, type InsertTripFriend } from '@/types';
 
   const $store = usePlanningStore();
   const $appStore = useAppStore();
@@ -51,19 +51,24 @@
   const submitting = ref(false);
   const inviteFriends = async () => {
     try {
-      // submitting.value = true;
-      // const supabase = useSupabaseClient<Database>();
-      // const { data: invitedFriends, error } = await supabase.from('trip_invites')
-      //   .insert(friendsToInvite.value.map(f => ({
-      //     trip_id: selectedTripId.value,
-      //     profile_id: f.value,
-      //     by_email: f.by_email,
-      //   })))
-      //   .select();
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      const user = useSupabaseUser();
+      // TODO: Fix TS error
+      // @ts-ignore
+      const payload = friendsToInvite.value.map(f => ({
+        trip_id: selectedTripId.value,
+        profile_id: f.id,
+        status: TripFriendStatus.PENDING,
+        invited_by_id: user.value?.id,
+      })) as InsertTripFriend[];
+      const { data: invitedFriends, error } = await supabase.from('trip_invites')
+        .insert(payload)
+        .select();
 
-      // if (invitedFriends?.length && !error) {
-      //   $appStore.notifyPositive('Successfully invited friends to trip!');
-      // }
+      if (invitedFriends?.length && !error) {
+        $appStore.notifyPositive('Successfully invited friends to trip!');
+      }
     } catch (err) {
       $appStore.notifyNegative('There was an error inviting friends to the trip.');
     } finally {
