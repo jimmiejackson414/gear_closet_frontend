@@ -762,6 +762,7 @@ CREATE TABLE IF NOT EXISTS "public"."trip_friends" (
     "status" "public"."trip_friend_status" DEFAULT 'PENDING'::"public"."trip_friend_status" NOT NULL,
     "profile_id" "uuid",
     "invited_by_id" "uuid",
+    "invite_token" character varying,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 

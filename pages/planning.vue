@@ -93,7 +93,6 @@
   const handleSelectTrip = async (trip: { label: string, value: number }) => {
     const cookie = useCookie('selectedTripId');
     cookie.value = encrypt(trip.value);
-    // await $store.fetchPlanningPage(trip.value);
   };
 
   definePageMeta({

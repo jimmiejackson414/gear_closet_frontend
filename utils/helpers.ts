@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import Dinero from 'dinero.js';
 import convert from 'convert';
 import type { Tables } from '@/types';
@@ -198,3 +199,5 @@ export const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: nu
     timeoutId = setTimeout(() => func(...args), waitFor);
   };
 };
+
+export const generateUniqueToken = () => uuidv4();

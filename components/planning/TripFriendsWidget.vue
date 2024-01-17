@@ -54,14 +54,25 @@
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
-      const payload = (friendsToInvite.value as Profile[]).map(f => ({
+      const existingFriendsPayload = (friendsToInvite.value as Profile[]).map(f => ({
         trip_id: selectedTripId.value,
         profile_id: f.id,
         status: TripFriendStatus.PENDING,
         invited_by_id: user.value?.id,
       })) as InsertTripFriend[];
+      
+      const newFriendsPayload = emailsToInvite.value.map((email: string) => {
+        const token = generateUniqueToken();
+        // sendInvitationEmail(email, token); // TODO: Implement this
+        return {
+          trip_id: selectedTripId.value,
+          status: TripFriendStatus.PENDING,
+          invited_by_id: user.value?.id,
+          invite_token: token,
+        };
+      }) as InsertTripFriend[];
       const { data: invitedFriends, error } = await supabase.from('trip_invites')
-        .insert(payload)
+        .insert([...existingFriendsPayload, ...newFriendsPayload])
         .select();
 
       if (invitedFriends?.length && !error) {

@@ -81,6 +81,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     cloudinaryApiKey: process.env.NUXT_CLOUDINARY_API_KEY,
     cloudinaryApiSecret: process.env.NUXT_CLOUDINARY_API_SECRET,
+    sendgridApiKey: process.env.NUXT_SENDGRID_API_KEY,
 
     public: {
       cloudinaryCloudName: process.env.NUXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
