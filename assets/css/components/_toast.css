@@ -1,0 +1,29 @@
+@layer components {
+  .Vue-Toastification__toast--success.gc-toast {
+    @apply bg-white text-dark-grey border-l-[5px] border-positive items-center;
+
+    .Vue-Toastification__icon {
+      @apply fill-positive stroke-white w-8 h-8;
+    }
+  }
+
+  .Vue-Toastification__toast--error.gc-toast {
+    @apply bg-white text-dark-grey border-l-[5px] border-danger;
+
+    .Vue-Toastification__icon {
+      @apply fill-danger stroke-white w-8 h-8;
+    }
+  }
+
+  .Vue-Toastification__toast--info.gc-toast {
+    @apply bg-white text-dark-grey border-l-[5px] border-info;
+
+    .Vue-Toastification__icon {
+      @apply fill-info stroke-white w-8 h-8;
+    }
+  }
+
+  .Vue-Toastification__toast.gc-toast .Vue-Toastification__close-button {
+    @apply text-dark-grey w-8 h-8;
+  }
+}

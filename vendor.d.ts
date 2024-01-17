@@ -1,1 +1,1 @@
-// declare module 'preline/plugin';
+declare module 'flowbite-datepicker/DateRangePicker';

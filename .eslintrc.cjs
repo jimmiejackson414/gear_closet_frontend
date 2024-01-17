@@ -18,15 +18,8 @@ module.exports = {
   plugins: ['@kalimahapps/eslint-plugin-tailwind', '@stylistic/js'],
 
   overrides: [
-    // {
-    //   files: ['**/*.vue'],
-    //   rules: {
-    //     indent: 'off',
-    //     '@typescript-eslint/indent': 'off',
-    //   },
-    // },
     {
-      files: ['src/pages/**/*.vue'],
+      files: ['./pages/**/*.vue'],
       rules: { 
         'vue/multi-word-component-names': 'off',
       },

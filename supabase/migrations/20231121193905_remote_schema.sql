@@ -30,6 +30,16 @@ CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
+CREATE TYPE "public"."question_type" AS (
+  question_id integer,
+  question text
+);
+
+CREATE TYPE "public"."answer_type" AS (
+  answer_id integer,
+  answer text
+);
+
 CREATE TYPE "public"."measuring_system" AS ENUM (
     'IMPERIAL',
     'METRIC'
@@ -126,6 +136,13 @@ CREATE TYPE "public"."user_role" AS ENUM (
 
 ALTER TYPE "public"."user_role" OWNER TO "postgres";
 
+CREATE TYPE "public"."trip_details_type" AS ENUM (
+    'HIKE',
+    'TRIP'
+);
+
+ALTER TYPE "public"."trip_details_type" OWNER TO "postgres";
+
 CREATE OR REPLACE FUNCTION "public"."generate_slug"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$
@@ -141,18 +158,226 @@ CREATE OR REPLACE FUNCTION "public"."handle_new_user"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
 begin
-  INSERT INTO public.users (id, email, first_name, last_name, image, role, subscription_level, measuring_system)
+  INSERT INTO public.profiles (id, email, first_name, last_name, image, role, subscription_level, measuring_system)
   values (new.id, new.email, new.raw_user_meta_data ->> 'first_name', new.raw_user_meta_data ->> 'last_name', null, 'USER', 'ANNUAL', 'IMPERIAL')
   ON CONFLICT (id) DO UPDATE SET email = new.email;
-  INSERT INTO public.notifications (title, content, read_on_date, user_id)
-  values ('Welcome!', 'Welcome to Gear Closet! This is where you will receive all of your important updates.', null, new.id);
-  INSERT INTO public.trips (name, description, starting_point, ending_point, starting_date, ending_date, coordinates, slug, user_id)
-  values ('My first trip!', 'This is my first trip to plan.', 'Starting point', 'Ending point', null, null, null, null, new.id);
+  INSERT INTO public.notifications (title, content, read_on_date, profile_id, sender_id)
+  values ('Welcome!', 'Welcome to Gear Closet! This is where you will receive all of your important updates.', null, new.id, '00000000-0000-0000-0000-000000000000');
+  INSERT INTO public.trips (name, description, starting_point, ending_point, starting_date, ending_date, slug, profile_id)
+  values ('My first trip!', 'This is my first trip to plan.', 'Starting point', 'Ending point', null, null, null, new.id);
   return new;
 end;
 $$;
 
 ALTER FUNCTION "public"."handle_new_user"() OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[])
+  RETURNS "json"
+  LANGUAGE plpgsql SECURITY DEFINER
+  AS $$
+  DECLARE
+    new_poll_id integer;
+    new_question_id integer;
+    new_poll "json";
+    i integer;
+  BEGIN
+    -- Insert the poll
+    INSERT INTO polls (trip_id, profile_id)
+    VALUES (trip_id, auth.uid())
+    RETURNING id INTO new_poll_id;
+
+    -- Insert the question
+    INSERT INTO questions (poll_id, profile_id, title)
+    VALUES (new_poll_id, auth.uid(), question)
+    RETURNING id INTO new_question_id;
+
+    -- Insert the answers
+    FOR i IN 1..array_length(answers, 1)
+    LOOP
+      INSERT INTO answers (question_id, profile_id, content)
+      VALUES (new_question_id, auth.uid(), answers[i]);
+    END LOOP;
+
+    -- Select the newly created poll, question, and answers
+    SELECT json_build_object(
+      'id', p.id::integer,
+      'trip_id', p.trip_id::integer,
+      'profile_id', p.profile_id::uuid,
+      'question', (SELECT row_to_json(q.*) FROM questions q WHERE q.id = new_question_id),
+      'answers', COALESCE((SELECT json_agg(row_to_json(a.*)) FROM answers a WHERE a.question_id = new_question_id), '[]'),
+      'votes', COALESCE((SELECT json_agg(row_to_json(pa.*)) FROM profile_answers pa WHERE pa.poll_id = new_poll_id), '[]')
+    )
+    INTO new_poll
+    FROM polls p
+    WHERE p.id = new_poll_id;
+
+    RETURN new_poll;
+  END;
+$$;
+
+ALTER FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answers" text[])
+  RETURNS "json"
+  LANGUAGE plpgsql SECURITY DEFINER
+  AS $$
+  DECLARE
+    updated_poll "json";
+    i integer;
+    answer_ids bigint[];
+    question_id bigint;
+  BEGIN
+    -- Update the question
+    UPDATE questions SET title = question WHERE questions.poll_id = update_poll.poll_id;
+
+    -- Get the IDs of the existing answers
+    SELECT array_agg(id) INTO answer_ids FROM answers WHERE answers.question_id IN (SELECT id FROM questions WHERE questions.poll_id = update_poll.poll_id);
+
+    -- Get the question ID
+    SELECT id INTO question_id FROM questions WHERE questions.poll_id = update_poll.poll_id;
+
+    -- Update the answers
+    FOR i IN 1..array_length(update_poll.answers, 1)
+    LOOP
+      IF i <= array_length(answer_ids, 1) THEN
+        -- Update existing answer
+        UPDATE answers SET content = update_poll.answers[i] WHERE id = answer_ids[i];
+      ELSE
+        -- Insert new answer
+        INSERT INTO answers (content, question_id) VALUES (update_poll.answers[i], question_id);
+      END IF;
+    END LOOP;
+
+    -- Select the updated poll, question, and answers
+    SELECT json_build_object(
+      'id', p.id::integer,
+      'trip_id', p.trip_id::integer,
+      'profile_id', p.profile_id::uuid,
+      'question', (SELECT row_to_json(q.*) FROM questions q WHERE q.poll_id = update_poll.poll_id),
+      'answers', COALESCE((SELECT json_agg(row_to_json(a.*)) FROM answers a WHERE a.question_id IN (SELECT id FROM questions WHERE questions.poll_id = update_poll.poll_id)), '[]'),
+      'votes', COALESCE((SELECT json_agg(row_to_json(pa.*)) FROM profile_answers pa WHERE pa.poll_id = update_poll.poll_id), '[]')
+    )
+    INTO updated_poll
+    FROM polls p
+    WHERE p.id = update_poll.poll_id;
+
+    RETURN updated_poll;
+  END;
+$$;
+
+ALTER FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answers" text[]) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) RETURNS "json"
+  LANGUAGE "plpgsql" SECURITY DEFINER
+  AS $$
+  DECLARE
+    trips_data JSON;
+    trip_packs_data JSON;
+    trip_details_data JSON;
+    todos_data JSON;
+    shopping_items_data JSON;
+    friends_data JSON;
+    poll_data JSON;
+    dynamic_trip_id BIGINT;
+  BEGIN
+    -- Fetch trips data
+    SELECT json_agg(row_to_json(sub.*)) INTO trips_data
+    FROM (
+      SELECT * FROM trips t
+      WHERE t.profile_id = auth.uid()
+      ORDER BY t.created_at ASC
+    ) sub;
+
+    -- Set dynamic_trip_id based on p_trip_id or to the ID of the first trip
+    IF p_trip_id = 0 THEN
+      SELECT COALESCE((SELECT t.id FROM trips t WHERE t.profile_id = auth.uid() ORDER BY t.created_at ASC LIMIT 1), 0) INTO dynamic_trip_id;
+    ELSE
+      dynamic_trip_id := p_trip_id;
+    END IF;
+
+    -- Fetch trip packs data using dynamic_trip_id along with associated pack details
+    SELECT COALESCE(json_agg(json_build_object(
+      'pack', row_to_json(pack.*),
+      'categories', (
+        SELECT COALESCE(json_agg(json_build_object(
+          'category', row_to_json(c.*),
+          'category_items', (
+            SELECT COALESCE(json_agg(json_build_object(
+              'category_item', row_to_json(ci.*),
+              'item', row_to_json(i.*)
+            )), '[]'::JSON)
+            FROM category_items ci
+            JOIN items i ON ci.item_id = i.id
+            WHERE ci.category_id = c.id
+          )
+        )), '[]'::JSON)
+        FROM categories c
+        WHERE c.pack_id = tp.pack_id
+      )
+    )), '[]'::JSON) INTO trip_packs_data
+    FROM trip_packs tp
+    JOIN packs pack ON tp.pack_id = pack.id
+    WHERE tp.profile_id = auth.uid()
+      AND (p_trip_id = 0 OR tp.trip_id = dynamic_trip_id);
+
+    -- Fetch trip details data
+    SELECT COALESCE(json_agg(row_to_json(td.*)), '[]'::JSON) INTO trip_details_data
+    FROM trip_details td
+    WHERE td.trip_id = dynamic_trip_id;
+
+    -- Fetch todos data
+    SELECT COALESCE(json_agg(row_to_json(todo.*)), '[]'::JSON) INTO todos_data
+    FROM todos todo
+    WHERE todo.trip_id = dynamic_trip_id;
+
+    -- Fetch shopping items data
+    SELECT COALESCE(json_agg(row_to_json(si.*)), '[]'::JSON) INTO shopping_items_data
+    FROM shopping_list_items si
+    WHERE si.trip_id = dynamic_trip_id;
+
+    -- Fetch friends data with details from related tables
+    SELECT COALESCE(json_agg(json_build_object(
+      'friend_profile', row_to_json(p.*),
+      'friend_trip_packs', (
+        SELECT COALESCE(json_agg(row_to_json(tp.*)), '[]'::JSON)
+        FROM trip_packs tp
+        WHERE tp.profile_id = tf.profile_id
+          AND (p_trip_id = 0 OR tp.trip_id = dynamic_trip_id)
+      )
+    )), '[]'::JSON) INTO friends_data
+    FROM trip_friends tf
+    JOIN profiles p ON tf.profile_id = p.id
+    WHERE tf.profile_id = auth.uid()
+      AND tf.profile_id != auth.uid();  -- Filter out the user itself
+
+    -- Fetch poll data
+    SELECT json_build_object(
+      'id', p.id::integer,
+      'trip_id', p.trip_id::integer,
+      'profile_id', p.profile_id::uuid,
+      'question', (SELECT row_to_json(q.*) FROM questions q WHERE q.poll_id = p.id),
+      'answers', COALESCE((SELECT json_agg(row_to_json(a.*)) FROM answers a WHERE a.question_id = q.id), '[]'),
+      'votes', COALESCE((SELECT json_agg(row_to_json(pa.*)) FROM profile_answers pa WHERE pa.poll_id = p.id), '[]')
+    ) INTO poll_data
+    FROM polls p
+    JOIN questions q ON p.id = q.poll_id
+    WHERE p.trip_id = dynamic_trip_id
+    LIMIT 1;
+
+    -- Output the result
+    RETURN jsonb_build_object(
+      'trips', trips_data,
+      'trip_packs', trip_packs_data,
+      'trip_details', trip_details_data,
+      'todos', todos_data,
+      'shopping_items', shopping_items_data,
+      'friends', friends_data,
+      'poll', poll_data
+    );
+    END;
+$$;
+
+ALTER FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) OWNER TO "postgres";
 
 SET default_tablespace = '';
 
@@ -163,7 +388,7 @@ CREATE TABLE IF NOT EXISTS "public"."answers" (
     "content" "text",
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "user_id" "uuid",
+    "profile_id" "uuid",
     "question_id" bigint
 );
 
@@ -224,7 +449,7 @@ CREATE TABLE IF NOT EXISTS "public"."comments" (
     "text" "text",
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"(),
-    "user_id" "uuid" NOT NULL,
+    "profile_id" "uuid" NOT NULL,
     "pack_id" bigint NOT NULL
 );
 
@@ -242,7 +467,7 @@ ALTER TABLE "public"."comments" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS ID
 CREATE TABLE IF NOT EXISTS "public"."customers" (
     "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
     "stripe_customer_id" "text",
-    "user_id" "uuid" NOT NULL
+    "profile_id" "uuid" NOT NULL
 );
 
 ALTER TABLE "public"."customers" OWNER TO "postgres";
@@ -253,7 +478,7 @@ CREATE TABLE IF NOT EXISTS "public"."friends" (
     "invite_accepted_on" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"(),
-    "user_id" "uuid",
+    "profile_id" "uuid",
     "friend_id" "uuid"
 );
 
@@ -282,7 +507,7 @@ CREATE TABLE IF NOT EXISTS "public"."items" (
     "slug" character varying NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"(),
-    "user_id" "uuid"
+    "profile_id" "uuid"
 );
 
 ALTER TABLE "public"."items" OWNER TO "postgres";
@@ -303,7 +528,8 @@ CREATE TABLE IF NOT EXISTS "public"."notifications" (
     "read_on_date" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "user_id" "uuid"
+    "profile_id" "uuid",
+    "sender_id" "uuid"
 );
 
 ALTER TABLE "public"."notifications" OWNER TO "postgres";
@@ -318,7 +544,7 @@ ALTER TABLE "public"."notifications" ALTER COLUMN "id" ADD GENERATED BY DEFAULT 
 );
 
 CREATE TABLE IF NOT EXISTS "public"."onboarding_steps" (
-    "user_id" "uuid" NOT NULL,
+    "profile_id" "uuid" NOT NULL,
     "page" "text" NOT NULL,
     "completion_date" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
@@ -333,7 +559,7 @@ CREATE TABLE IF NOT EXISTS "public"."packs" (
     "slug" character varying NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"(),
-    "user_id" "uuid" NOT NULL,
+    "profile_id" "uuid" NOT NULL,
     "theme" "public"."theme" DEFAULT 'BLUE6'::"public"."theme",
     "private" boolean DEFAULT false NOT NULL,
     "allow_comments" boolean DEFAULT false NOT NULL
@@ -354,7 +580,7 @@ CREATE TABLE IF NOT EXISTS "public"."polls" (
     "id" bigint NOT NULL,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "user_id" "uuid",
+    "profile_id" "uuid",
     "trip_id" bigint
 );
 
@@ -406,7 +632,7 @@ CREATE TABLE IF NOT EXISTS "public"."questions" (
     "poll_id" bigint,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "user_id" "uuid"
+    "profile_id" "uuid"
 );
 
 ALTER TABLE "public"."questions" OWNER TO "postgres";
@@ -423,7 +649,7 @@ ALTER TABLE "public"."questions" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS I
 CREATE TABLE IF NOT EXISTS "public"."replies" (
     "id" bigint NOT NULL,
     "comment_id" bigint NOT NULL,
-    "user_id" "uuid" NOT NULL,
+    "profile_id" "uuid" NOT NULL,
     "created_at" timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text"),
     "updated_at" timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text"),
     "text" "text"
@@ -449,7 +675,7 @@ CREATE TABLE IF NOT EXISTS "public"."shopping_list_items" (
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"(),
     "resource_type" "public"."resource_type" DEFAULT 'USER'::"public"."resource_type" NOT NULL,
-    "user_id" "uuid"
+    "profile_id" "uuid"
 );
 
 ALTER TABLE "public"."shopping_list_items" OWNER TO "postgres";
@@ -465,7 +691,7 @@ ALTER TABLE "public"."shopping_list_items" ALTER COLUMN "id" ADD GENERATED BY DE
 
 CREATE TABLE IF NOT EXISTS "public"."subscriptions" (
     "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
-    "user_id" "uuid" NOT NULL,
+    "profile_id" "uuid" NOT NULL,
     "status" "public"."subscription_status",
     "metadata" "jsonb",
     "price_id" "text",
@@ -492,7 +718,7 @@ CREATE TABLE IF NOT EXISTS "public"."todos" (
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"(),
     "resource_type" "public"."resource_type" DEFAULT 'USER'::"public"."resource_type" NOT NULL,
-    "user_id" "uuid"
+    "profile_id" "uuid"
 );
 
 ALTER TABLE "public"."todos" OWNER TO "postgres";
@@ -511,7 +737,7 @@ CREATE TABLE IF NOT EXISTS "public"."trip_details" (
     "title" character varying,
     "url" character varying,
     "value" character varying,
-    "type" character varying,
+    "type" "public"."trip_details_type" DEFAULT 'HIKE'::"public"."trip_details_type" NOT NULL,
     "trip_id" bigint,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
@@ -534,7 +760,9 @@ CREATE TABLE IF NOT EXISTS "public"."trip_friends" (
     "accepted_invite_on" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "status" "public"."trip_friend_status" DEFAULT 'PENDING'::"public"."trip_friend_status" NOT NULL,
-    "user_id" "uuid",
+    "profile_id" "uuid",
+    "invited_by_id" "uuid",
+    "invite_token" character varying,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 
@@ -555,7 +783,7 @@ CREATE TABLE IF NOT EXISTS "public"."trip_packs" (
     "pack_id" bigint,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"(),
-    "user_id" "uuid"
+    "profile_id" "uuid"
 );
 
 ALTER TABLE "public"."trip_packs" OWNER TO "postgres";
@@ -578,10 +806,9 @@ CREATE TABLE IF NOT EXISTS "public"."trips" (
     "ending_point" character varying,
     "starting_date" timestamp with time zone,
     "ending_date" timestamp with time zone,
-    "coordinates" "json",
-    "slug" character varying NOT NULL,
+    "slug" character varying,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "user_id" "uuid" NOT NULL
+    "profile_id" "uuid" NOT NULL
 );
 
 ALTER TABLE "public"."trips" OWNER TO "postgres";
@@ -595,19 +822,19 @@ ALTER TABLE "public"."trips" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENT
     CACHE 1
 );
 
-CREATE TABLE IF NOT EXISTS "public"."user_answers" (
+CREATE TABLE IF NOT EXISTS "public"."profile_answers" (
     "id" bigint NOT NULL,
     "answer_id" bigint,
-    "user_id" "uuid",
+    "profile_id" "uuid",
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "poll_id" bigint
 );
 
-ALTER TABLE "public"."user_answers" OWNER TO "postgres";
+ALTER TABLE "public"."profile_answers" OWNER TO "postgres";
 
-ALTER TABLE "public"."user_answers" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
-    SEQUENCE NAME "public"."user_answers_id_seq"
+ALTER TABLE "public"."profile_answers" ALTER COLUMN "id" ADD GENERATED BY DEFAULT AS IDENTITY (
+    SEQUENCE NAME "public"."profile_answers_id_seq"
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -615,7 +842,7 @@ ALTER TABLE "public"."user_answers" ALTER COLUMN "id" ADD GENERATED BY DEFAULT A
     CACHE 1
 );
 
-CREATE TABLE IF NOT EXISTS "public"."users" (
+CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "id" "uuid" NOT NULL,
     "email" "text" NOT NULL,
     "first_name" "text",
@@ -636,7 +863,7 @@ CREATE TABLE IF NOT EXISTS "public"."users" (
     "location" "jsonb"
 );
 
-ALTER TABLE "public"."users" OWNER TO "postgres";
+ALTER TABLE "public"."profiles" OWNER TO "postgres";
 
 ALTER TABLE ONLY "public"."answers"
     ADD CONSTRAINT "answers_pkey" PRIMARY KEY ("id");
@@ -672,7 +899,7 @@ ALTER TABLE ONLY "public"."notifications"
     ADD CONSTRAINT "notifications_pkey" PRIMARY KEY ("id");
 
 ALTER TABLE ONLY "public"."onboarding_steps"
-    ADD CONSTRAINT "onboarding_completion_pkey" PRIMARY KEY ("user_id", "page");
+    ADD CONSTRAINT "onboarding_completion_pkey" PRIMARY KEY ("profile_id", "page");
 
 ALTER TABLE ONLY "public"."packs"
     ADD CONSTRAINT "packs_pkey" PRIMARY KEY ("id");
@@ -701,11 +928,23 @@ ALTER TABLE ONLY "public"."replies"
 ALTER TABLE ONLY "public"."shopping_list_items"
     ADD CONSTRAINT "shopping_list_items_pkey" PRIMARY KEY ("id");
 
+ALTER TABLE "public"."shopping_list_items"
+ADD CONSTRAINT shopping_list_profile_id_check CHECK (
+  (resource_type = 'USER' AND profile_id IS NOT NULL) OR
+  resource_type = 'GROUP'
+);
+
 ALTER TABLE ONLY "public"."subscriptions"
     ADD CONSTRAINT "subscriptions_pkey" PRIMARY KEY ("id");
 
 ALTER TABLE ONLY "public"."todos"
     ADD CONSTRAINT "todos_pkey" PRIMARY KEY ("id");
+
+ALTER TABLE "public"."todos"
+ADD CONSTRAINT todos_profile_id_check CHECK (
+  (resource_type = 'USER' AND profile_id IS NOT NULL) OR
+  resource_type = 'GROUP'
+);
 
 ALTER TABLE ONLY "public"."trip_details"
     ADD CONSTRAINT "trip_details_pkey" PRIMARY KEY ("id");
@@ -722,11 +961,11 @@ ALTER TABLE ONLY "public"."trips"
 ALTER TABLE ONLY "public"."trips"
     ADD CONSTRAINT "trips_slug_key" UNIQUE ("slug");
 
-ALTER TABLE ONLY "public"."user_answers"
-    ADD CONSTRAINT "user_answers_pkey" PRIMARY KEY ("id");
+ALTER TABLE ONLY "public"."profile_answers"
+    ADD CONSTRAINT "profile_answers_pkey" PRIMARY KEY ("id");
 
-ALTER TABLE ONLY "public"."users"
-    ADD CONSTRAINT "users_pkey" PRIMARY KEY ("id");
+ALTER TABLE ONLY "public"."profiles"
+    ADD CONSTRAINT "profiles_pkey" PRIMARY KEY ("id");
 
 CREATE OR REPLACE TRIGGER "generate_slug_for_categories" BEFORE INSERT ON "public"."categories" FOR EACH ROW EXECUTE FUNCTION "public"."generate_slug"();
 
@@ -772,9 +1011,9 @@ CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."trip_pa
 
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."trips" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
-CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."user_answers" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."profile_answers" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
-CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."users" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."profiles" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
 CREATE OR REPLACE TRIGGER "handle_new_user" AFTER INSERT ON "auth"."users" FOR EACH ROW EXECUTE PROCEDURE "public"."handle_new_user"();
 
@@ -782,7 +1021,7 @@ ALTER TABLE ONLY "public"."answers"
     ADD CONSTRAINT "answers_question_id_fkey" FOREIGN KEY ("question_id") REFERENCES "public"."questions"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."answers"
-    ADD CONSTRAINT "answers_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "answers_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."categories"
     ADD CONSTRAINT "categories_pack_id_fkey" FOREIGN KEY ("pack_id") REFERENCES "public"."packs"("id");
@@ -797,34 +1036,37 @@ ALTER TABLE ONLY "public"."comments"
     ADD CONSTRAINT "comments_pack_id_fkey" FOREIGN KEY ("pack_id") REFERENCES "public"."packs"("id");
 
 ALTER TABLE ONLY "public"."comments"
-    ADD CONSTRAINT "comments_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "comments_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."customers"
-    ADD CONSTRAINT "customers_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "customers_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."friends"
-    ADD CONSTRAINT "friends_friend_id_fkey" FOREIGN KEY ("friend_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "friends_friend_id_fkey" FOREIGN KEY ("friend_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."friends"
-    ADD CONSTRAINT "friends_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "friends_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."items"
-    ADD CONSTRAINT "items_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "items_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."notifications"
-    ADD CONSTRAINT "notifications_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE CASCADE;
+    ADD CONSTRAINT "notifications_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id") ON DELETE CASCADE;
+
+ALTER TABLE ONLY "public"."notifications"
+    ADD CONSTRAINT "notifications_sender_id_fkey" FOREIGN KEY ("sender_id") REFERENCES "public"."profiles"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."onboarding_steps"
-    ADD CONSTRAINT "onboarding_steps_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "onboarding_steps_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."packs"
-    ADD CONSTRAINT "packs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "packs_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."polls"
     ADD CONSTRAINT "polls_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id");
 
 ALTER TABLE ONLY "public"."polls"
-    ADD CONSTRAINT "polls_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "polls_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."prices"
     ADD CONSTRAINT "prices_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id");
@@ -833,31 +1075,31 @@ ALTER TABLE ONLY "public"."questions"
     ADD CONSTRAINT "questions_poll_id_fkey" FOREIGN KEY ("poll_id") REFERENCES "public"."polls"("id") ON DELETE CASCADE;
 
 ALTER TABLE ONLY "public"."questions"
-    ADD CONSTRAINT "questions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "questions_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."replies"
     ADD CONSTRAINT "replies_comment_id_fkey" FOREIGN KEY ("comment_id") REFERENCES "public"."comments"("id");
 
 ALTER TABLE ONLY "public"."replies"
-    ADD CONSTRAINT "replies_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "replies_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."shopping_list_items"
     ADD CONSTRAINT "shopping_list_items_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id");
 
 ALTER TABLE ONLY "public"."shopping_list_items"
-    ADD CONSTRAINT "shopping_list_items_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "shopping_list_items_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."subscriptions"
     ADD CONSTRAINT "subscriptions_price_id_fkey" FOREIGN KEY ("price_id") REFERENCES "public"."prices"("id");
 
 ALTER TABLE ONLY "public"."subscriptions"
-    ADD CONSTRAINT "subscriptions_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "subscriptions_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."todos"
     ADD CONSTRAINT "todos_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id");
 
 ALTER TABLE ONLY "public"."todos"
-    ADD CONSTRAINT "todos_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "todos_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."trip_details"
     ADD CONSTRAINT "trip_details_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id");
@@ -866,7 +1108,10 @@ ALTER TABLE ONLY "public"."trip_friends"
     ADD CONSTRAINT "trip_friends_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id");
 
 ALTER TABLE ONLY "public"."trip_friends"
-    ADD CONSTRAINT "trip_friends_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "trip_friends_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
+
+ALTER TABLE ONLY "public"."trip_friends"
+    ADD CONSTRAINT "trip_friends_invited_by_id_fkey" FOREIGN KEY ("invited_by_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."trip_packs"
     ADD CONSTRAINT "trip_packs_pack_id_fkey" FOREIGN KEY ("pack_id") REFERENCES "public"."packs"("id");
@@ -875,54 +1120,54 @@ ALTER TABLE ONLY "public"."trip_packs"
     ADD CONSTRAINT "trip_packs_trip_id_fkey" FOREIGN KEY ("trip_id") REFERENCES "public"."trips"("id");
 
 ALTER TABLE ONLY "public"."trip_packs"
-    ADD CONSTRAINT "trip_packs_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "trip_packs_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
 ALTER TABLE ONLY "public"."trips"
-    ADD CONSTRAINT "trips_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+    ADD CONSTRAINT "trips_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
-ALTER TABLE ONLY "public"."user_answers"
-    ADD CONSTRAINT "user_answers_answer_id_fkey" FOREIGN KEY ("answer_id") REFERENCES "public"."answers"("id") ON DELETE CASCADE;
+ALTER TABLE ONLY "public"."profile_answers"
+    ADD CONSTRAINT "profile_answers_answer_id_fkey" FOREIGN KEY ("answer_id") REFERENCES "public"."answers"("id") ON DELETE CASCADE;
 
-ALTER TABLE ONLY "public"."user_answers"
-    ADD CONSTRAINT "user_answers_poll_id_fkey" FOREIGN KEY ("poll_id") REFERENCES "public"."polls"("id") ON DELETE CASCADE;
+ALTER TABLE ONLY "public"."profile_answers"
+    ADD CONSTRAINT "profile_answers_poll_id_fkey" FOREIGN KEY ("poll_id") REFERENCES "public"."polls"("id") ON DELETE CASCADE;
 
-ALTER TABLE ONLY "public"."user_answers"
-    ADD CONSTRAINT "user_answers_user_id_fkey" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id");
+ALTER TABLE ONLY "public"."profile_answers"
+    ADD CONSTRAINT "profile_answers_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
 
-ALTER TABLE ONLY "public"."users"
-    ADD CONSTRAINT "users_id_fkey" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON UPDATE CASCADE ON DELETE CASCADE;
+ALTER TABLE ONLY "public"."profiles"
+    ADD CONSTRAINT "profiles_id_fkey" FOREIGN KEY ("id") REFERENCES "auth"."users"("id") ON UPDATE CASCADE ON DELETE CASCADE;
 
 CREATE POLICY "Allow public read-only access." ON "public"."prices" FOR SELECT USING (true);
 
 CREATE POLICY "Allow public read-only access." ON "public"."products" FOR SELECT USING (true);
 
-CREATE POLICY "Can only view own subs data." ON "public"."subscriptions" FOR SELECT USING (("auth"."uid"() = "user_id"));
+CREATE POLICY "Can only view own subs data." ON "public"."subscriptions" FOR SELECT USING (("auth"."uid"() = "profile_id"));
 
-CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."categories" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."categories" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
-CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."category_items" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."category_items" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
-CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."customers" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."customers" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
-CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."friends" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."friends" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
-CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."items" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."items" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
-CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."notifications" USING (("auth"."uid"() = "user_id")) WITH CHECK (("auth"."uid"() = "user_id"));
+CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."notifications" USING (("auth"."uid"() = "profile_id")) WITH CHECK (("auth"."uid"() = "profile_id"));
 
-CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."packs" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."packs" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
-CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."shopping_list_items" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."shopping_list_items" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
-CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."todos" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."todos" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
-CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."trip_details" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."trip_details" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
-CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."trip_friends" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."trip_friends" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
-CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."trip_packs" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."trip_packs" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
-CREATE POLICY "Enable CRUD for authenticated users only" ON "public"."trips" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."trips" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
 REVOKE USAGE ON SCHEMA "public" FROM PUBLIC;
 GRANT USAGE ON SCHEMA "public" TO "anon";
@@ -936,6 +1181,18 @@ GRANT ALL ON FUNCTION "public"."generate_slug"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "anon";
 GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "anon";
+GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answers" text[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answers" text[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answers" text[]) TO "service_role";
 
 GRANT ALL ON TABLE "public"."answers" TO "anon";
 GRANT ALL ON TABLE "public"."answers" TO "authenticated";
@@ -1093,17 +1350,17 @@ GRANT ALL ON SEQUENCE "public"."trips_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."trips_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."trips_id_seq" TO "service_role";
 
-GRANT ALL ON TABLE "public"."user_answers" TO "anon";
-GRANT ALL ON TABLE "public"."user_answers" TO "authenticated";
-GRANT ALL ON TABLE "public"."user_answers" TO "service_role";
+GRANT ALL ON TABLE "public"."profile_answers" TO "anon";
+GRANT ALL ON TABLE "public"."profile_answers" TO "authenticated";
+GRANT ALL ON TABLE "public"."profile_answers" TO "service_role";
 
-GRANT ALL ON SEQUENCE "public"."user_answers_id_seq" TO "anon";
-GRANT ALL ON SEQUENCE "public"."user_answers_id_seq" TO "authenticated";
-GRANT ALL ON SEQUENCE "public"."user_answers_id_seq" TO "service_role";
+GRANT ALL ON SEQUENCE "public"."profile_answers_id_seq" TO "anon";
+GRANT ALL ON SEQUENCE "public"."profile_answers_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."profile_answers_id_seq" TO "service_role";
 
-GRANT ALL ON TABLE "public"."users" TO "anon";
-GRANT ALL ON TABLE "public"."users" TO "authenticated";
-GRANT ALL ON TABLE "public"."users" TO "service_role";
+GRANT ALL ON TABLE "public"."profiles" TO "anon";
+GRANT ALL ON TABLE "public"."profiles" TO "authenticated";
+GRANT ALL ON TABLE "public"."profiles" TO "service_role";
 
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES  TO "authenticated";

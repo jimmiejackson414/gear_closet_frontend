@@ -5,9 +5,12 @@ import type { Config } from 'tailwindcss';
 
 export default {
   content: [
-    './index.html',
-    './src/**/*.{vue,js,ts,jsx,tsx}',
-    './node_modules/flowbite/**/*.js',
+    "./components/**/*.{js,vue,ts}",
+    "./layouts/**/*.vue",
+    "./pages/**/*.vue",
+    "./nuxt.config.{js,ts}",
+    "./node_modules/flowbite/**/*.{js,ts}",
+    "./node_modules/vue-tailwind-datepicker/**/*.js",
   ],
   theme: {
     extend: {
@@ -38,9 +41,9 @@ export default {
         'positive': '#21ba45',
         'positive-dark': '#16652a',
 
-        'danger-light': '#f9e5db',
-        'danger': '#DE6B48',
-        'danger-dark': '#a92f25',
+        'danger-light': '#fdd5d1',
+        'danger': '#d9534f',
+        'danger-dark': '#a94442',
 
         'info-light': '#e3f0fb',
         'info': '#88ccf1',
@@ -53,9 +56,15 @@ export default {
         'light-grey': '#e7e7e7',
         'grey': '#6d6d6d',
         'dark-grey': '#4a4a4a',
+
+        'vtd-primary': '#2368a2',
+        'vtd-secondary': '#2368a2',
       },
       fontFamily: {
         sans: ['Lato', ...defaultTheme.fontFamily.sans],
+      },
+      transitionTimingFunction: {
+        'snap': 'cubic-bezier(1, 0, 0, 1)',
       },
     },
   },
