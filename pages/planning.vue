@@ -2,11 +2,9 @@
   import dayjs from 'dayjs';
   import VueDatePicker from '@vuepic/vue-datepicker';
   import { BackpackIcon, CalendarIcon, MapPinIcon, SettingsIcon, TextIcon } from 'lucide-vue-next';
-  import { decrypt, encrypt } from '@/helpers/encryption';
   import { usePlanningStore } from '@/stores/planning';
   import type { Database, InsertTrip, Tables, TripDetail } from '@/types';
-  import type { SelectOption } from '@/components/common/GcSelect.vue';
-  import type { LocationQuery } from '#vue-router';
+  import type { SelectOption } from '@/types/helpers';
   import '@vuepic/vue-datepicker/dist/main.css';
 
   const $route = useRoute();
@@ -17,20 +15,19 @@
 
   const tripOptions = computed(() => data.value.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
 
-  let identifier: LocationQuery | number = $route.query ?? 0;
+  let identifier = 0;
   watch($cookie, (newValue) => {
-    if (newValue) {
-      identifier = Number(decrypt(newValue));
+    if (newValue && !$route.query?.trip) {
+      identifier = Number(decrypt(newValue)) || 0;
       $store.fetchPlanningPage(identifier);
     }
   }, { immediate: true });
 
   onMounted(async () => {
-    if (!identifier) {
-      pageLoading.value = true;
-      await $store.fetchPlanningPage(identifier);
-      pageLoading.value = false;
-    }
+    identifier = $route.query?.trip ? Number(decrypt($route.query.trip)) || 0 : identifier;
+    pageLoading.value = true;
+    await $store.fetchPlanningPage(identifier);
+    pageLoading.value = false;
   });
 
   const isSettingsOpen = ref(false);
@@ -96,7 +93,7 @@
   const handleSelectTrip = async (trip: { label: string, value: number }) => {
     const cookie = useCookie('selectedTripId');
     cookie.value = encrypt(trip.value);
-    await $store.fetchPlanningPage(trip.value);
+    // await $store.fetchPlanningPage(trip.value);
   };
 
   definePageMeta({

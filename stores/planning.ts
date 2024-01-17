@@ -1,5 +1,4 @@
 import { defineStore } from "pinia";
-import { decrypt } from "~/helpers/encryption";
 import type { Database, Tables } from "@/types";
 import type { ExtendedPack, ExtendedPoll } from "@/types/helpers";
 import type { LocationQuery } from "vue-router";
@@ -58,17 +57,12 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
       /**
        * Fetches the planning page data.
        */
-      async fetchPlanningPage (identifier) {
-        console.log({ identifier });
+      async fetchPlanningPage (tripId: number) {
         const $store = useAppStore();
         this.pageLoading = true;
 
         try {
           const supabase = useSupabaseClient<Database>();
-
-          let tripId: number | undefined;
-          if (typeof identifier === 'number') { tripId = identifier; }
-          else if (identifier?.trip) { tripId = Number(decrypt(identifier.trip)); }
 
           const { data: pageData, error } = await supabase
             .rpc('get_planning_page_data', { p_trip_id: tripId || 0 })

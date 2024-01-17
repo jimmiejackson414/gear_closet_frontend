@@ -1,5 +1,5 @@
-export * as functions from './functions';
-export { default as fetchCardType } from './fetchCardType';
+export * as functions from './helpers';
+export { fetchCardType } from './fetchCardType';
 export { default as logoColor } from './logoColor';
 export { default as countries } from './countries';
 export { default as tiers } from './tiers';

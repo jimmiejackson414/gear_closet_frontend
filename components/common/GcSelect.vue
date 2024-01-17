@@ -1,11 +1,7 @@
 <script lang='ts' setup>
   import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue';
   import { ChevronDownIcon, XCircleIcon } from 'lucide-vue-next';
-
-  export type SelectOption = {
-    label: string;
-    value: string | number;
-  }
+  import type { SelectOption } from '@/types/helpers';
 
   interface Props {
     clearable?: boolean;

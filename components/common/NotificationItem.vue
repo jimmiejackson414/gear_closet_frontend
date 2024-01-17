@@ -1,7 +1,6 @@
 <script lang='ts' setup>
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
-  import { friendlyUsername } from '@/helpers/functions';
   import type { ExtendedNotification } from '@/types/helpers';
 
   dayjs.extend(relativeTime);

@@ -1,6 +1,5 @@
 <script lang='ts' setup>
   import { ref } from 'vue';
-  import { isValidEmail } from '@/helpers/functions';
   import { type Severity } from '@/components/common/GcAlert.vue';
 
   const supabase = useSupabaseClient();

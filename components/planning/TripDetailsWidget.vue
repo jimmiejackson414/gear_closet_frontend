@@ -4,7 +4,7 @@
   import { FootprintsIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
   import { usePlanningStore } from '@/stores/planning';
   import { TripDetailType } from '@/types';
-  import { prependProtocol } from '~/helpers/functions';
+  import { prependProtocol } from '~/utils/helpers';
   import type { Database, TripDetail, UpdateTrip, UpdateTripDetail } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 

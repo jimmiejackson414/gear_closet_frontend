@@ -1,6 +1,5 @@
 <script lang='ts' setup>
   import { AtSignIcon, LockIcon } from 'lucide-vue-next';
-  import { isValidEmail } from '@/helpers/functions';
   import type { Provider } from '@supabase/supabase-js';
 
   const supabase = useSupabaseClient();

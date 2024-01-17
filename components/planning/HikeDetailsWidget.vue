@@ -1,6 +1,5 @@
 <script lang='ts' setup>
   import { MountainIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
-  import { prependProtocol } from '@/helpers/functions';
   import { TripDetailType, type Database, type TripDetail, type UpdateTripDetail, type UpdateTrip } from '@/types';
 
   const $appStore = useAppStore();
@@ -185,7 +184,6 @@
       </div>
       <div class="flex items-center mb-6">
         <gc-inline-edit
-          input-classes="w-full"
           :model-value="selectedTrip?.description"
           name="description"
           placeholder="Trip description"

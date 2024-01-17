@@ -1,6 +1,4 @@
 <script lang='ts' setup>
-  import { capitalize } from '@/helpers/functions';
-
   interface Props {
     alignLogo?: 'start' | 'center' | 'end';
     minimal?: boolean;

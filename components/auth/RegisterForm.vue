@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { isValidEmail } from '@/helpers/functions';
   import { type Severity} from '@/components/common/GcAlert.vue';
   import type { Provider } from '@supabase/supabase-js';
 

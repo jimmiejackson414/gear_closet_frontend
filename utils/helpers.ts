@@ -147,7 +147,7 @@ export const getPagination = (page: number, pageSize: number): { from: number, t
   return { from, to };
 };
 
-export const initials = (user: Tables<'profiles'>| null | undefined): string => {
+export const initials = (user: Tables<'profiles'>| null | undefined) => {
   const base = 'GC';
   if (!user) return base;
   const firstInitial = user.first_name?.charAt(0);
@@ -155,7 +155,7 @@ export const initials = (user: Tables<'profiles'>| null | undefined): string => 
   return firstInitial && lastInitial ? `${firstInitial}${lastInitial}` : base;
 };
 
-export const friendlyUsername = (user: Tables<'profiles'> | null | undefined, options?: FriendlyUsernameOptions): string => {
+export const friendlyUsername = (user: Tables<'profiles'> | null | undefined, options?: FriendlyUsernameOptions) => {
   if (!user) return initials(user);
   if (options?.includeTrailName && user.trail_name) {
     return `${user.first_name} "${user.trail_name}" ${user.last_name}`;
@@ -186,3 +186,15 @@ export const prependProtocol = (url: string): string => {
 export const truncate = (str: string, num = 100): string => (num > str.length ? str : `${str.substring(0, num)}...`);
 
 export const validateEmail = (email: string): boolean => /\S+@\S+\.\S+/.test(email);
+
+export const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) => {
+  let timeoutId: NodeJS.Timeout | null = null;
+
+  return (...args: Parameters<F>): ReturnType<F> | void => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    timeoutId = setTimeout(() => func(...args), waitFor);
+  };
+};

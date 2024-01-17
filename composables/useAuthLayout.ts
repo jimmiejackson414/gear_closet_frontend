@@ -1,5 +1,4 @@
 import { Cloudinary } from '@cloudinary/url-gen';
-import { logoColor } from '@/helpers';
 
 const useAuthLayout = async  () => {
   const runtimeConfig = useRuntimeConfig();

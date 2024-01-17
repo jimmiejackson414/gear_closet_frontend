@@ -1,5 +1,4 @@
 import dinero from 'dinero.js';
-import tailwind from '@/helpers/tailwind';
 import type { Enums } from '@/types';
 import { SubscriptionLevel } from '@/types';
 

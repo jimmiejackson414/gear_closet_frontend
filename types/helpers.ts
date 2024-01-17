@@ -41,3 +41,8 @@ export type ForumPost = {
 export type ForumLatestPosts = {
   latest_posts: ForumPost[];
 }
+
+export type SelectOption = {
+  label: string;
+  value: string | number;
+}

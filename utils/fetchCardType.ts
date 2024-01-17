@@ -1,4 +1,4 @@
-const fetchCardType = (card: string | undefined | null): string => {
+export const fetchCardType = (card: string | undefined | null): string => {
   switch (card) {
     case 'amex':
       return '/images/financial/amex.svg';
@@ -18,5 +18,3 @@ const fetchCardType = (card: string | undefined | null): string => {
       return '/images/financial/unknown.svg';
   }
 };
-
-export default fetchCardType;
