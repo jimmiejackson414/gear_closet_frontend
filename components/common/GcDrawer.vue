@@ -1,6 +1,5 @@
 <script lang='ts' setup>
   import { LogOutIcon } from 'lucide-vue-next';
-  import type { LinkItem } from '@/utils/drawerLinks';
 
   const $route = useRoute();
 

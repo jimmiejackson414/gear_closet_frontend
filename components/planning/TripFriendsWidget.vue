@@ -54,9 +54,7 @@
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
-      // TODO: Fix TS error
-      // @ts-ignore
-      const payload = friendsToInvite.value.map(f => ({
+      const payload = (friendsToInvite.value as Profile[]).map(f => ({
         trip_id: selectedTripId.value,
         profile_id: f.id,
         status: TripFriendStatus.PENDING,
