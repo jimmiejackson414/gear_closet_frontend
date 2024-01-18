@@ -1121,7 +1121,7 @@ export interface Database {
           ending_point: string | null;
           id: number;
           name: string | null;
-          profile_id: string;
+          profile_id: string | null;
           slug: string | null;
           starting_date: string | null;
           starting_point: string | null;
@@ -1134,7 +1134,7 @@ export interface Database {
           ending_point?: string | null;
           id?: number;
           name?: string | null;
-          profile_id: string;
+          profile_id?: string | null;
           slug?: string | null;
           starting_date?: string | null;
           starting_point?: string | null;
@@ -1147,7 +1147,7 @@ export interface Database {
           ending_point?: string | null;
           id?: number;
           name?: string | null;
-          profile_id?: string;
+          profile_id?: string | null;
           slug?: string | null;
           starting_date?: string | null;
           starting_point?: string | null;

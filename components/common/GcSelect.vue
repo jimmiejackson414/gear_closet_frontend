@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { Listbox, ListboxButton, ListboxOptions, ListboxOption } from '@headlessui/vue';
   import { ChevronDownIcon, XCircleIcon } from 'lucide-vue-next';
   import type { SelectOption } from '@/types/helpers';
 
@@ -35,7 +34,7 @@
 </script>
 
 <template>
-  <listbox
+  <headless-listbox
     v-slot="{ open }"
     as="div"
     class="relative"
@@ -43,7 +42,7 @@
     :model-value="modelValue"
     :multiple="false"
     @update:model-value="(value: any) => emit('update:modelValue', value)">
-    <listbox-button
+    <headless-listbox-button
       class="appearance-none bg-white border focus:border-primary border-1 border-gray-300 flex items-center gap-3 peer px-2.5 py-2 rounded-lg text-dark-grey text-sm w-full focus:outline-none focus:ring-0"
       :class="[
         ( disabled || loading ) ? 'border-grey cursor-auto' : 'border-gray-300 cursor-pointer', customClasses,
@@ -76,20 +75,20 @@
           class="duration-150 ease-in-out font-bold h-[22px] transition-transform"
           :class="[ open ? 'rotate-180' : 'rotate-0', ( disabled || loading ) ? 'text-dark-grey' : 'text-light-primary' ]" />
       </div>
-    </listbox-button>
-    <fade-transition>
-      <listbox-options class="absolute top-[50px] inset-0 bg-white border-grey drop-shadow-[1px_4px_6px_rgba(0,0,0,0.1)] focus-visible:outline-none h-fit max-h-[270px] overflow-y-scroll rounded-lg w-full z-30">
+    </headless-listbox-button>
+    <zoom-transition>
+      <headless-listbox-options class="absolute top-[50px] inset-0 bg-white border-grey drop-shadow-[1px_4px_6px_rgba(0,0,0,0.1)] focus-visible:outline-none h-fit max-h-[270px] overflow-y-scroll rounded-lg w-max z-30">
         <span v-if="!options?.length">
-          <listbox-option>
-            <li class="cursor-default flex px-4 text-dark-grey">
+          <headless-listbox-option>
+            <li class="cursor-default flex px-4 py-2 text-dark-grey">
               <p class="text-base w-full">
                 No options available
               </p>
             </li>
-          </listbox-option>
+          </headless-listbox-option>
         </span>
         <span v-else>
-          <listbox-option
+          <headless-listbox-option
             v-for="option in options"
             :key="option.value"
             as="template"
@@ -99,9 +98,9 @@
                 {{ option.label }}
               </p>
             </li>
-          </listbox-option>
+          </headless-listbox-option>
         </span>
-      </listbox-options>
-    </fade-transition>
-  </listbox>
+      </headless-listbox-options>
+    </zoom-transition>
+  </headless-listbox>
 </template>

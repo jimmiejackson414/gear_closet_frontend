@@ -1,7 +1,6 @@
 import { defineStore } from "pinia";
 import type { Database, Tables } from "@/types";
 import type { ExtendedPack, ExtendedPoll } from "@/types/helpers";
-import type { LocationQuery } from "vue-router";
 
 export interface PlanningPageData {
   trips: Tables<'trips'>[];
@@ -25,7 +24,7 @@ type Getters = {
 };
 
 type Actions = {
-  fetchPlanningPage(identifier: LocationQuery | number): Promise<void>;
+  fetchPlanningPage(identifier: number): Promise<void>;
 };
 
 export const usePlanningStore = defineStore<"planning", State, Getters, Actions>(
@@ -57,7 +56,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
       /**
        * Fetches the planning page data.
        */
-      async fetchPlanningPage (tripId: number) {
+      async fetchPlanningPage (tripId) {
         const $store = useAppStore();
         this.pageLoading = true;
 

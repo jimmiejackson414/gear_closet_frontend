@@ -59,11 +59,16 @@ export default defineNuxtConfig({
     ],
   },
 
+  headlessui: {
+    prefix: 'Headless',
+  },
+
   modules: [
     '@nuxtjs/supabase',
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss',
     '@vueuse/nuxt',
+    'nuxt-headlessui',
   ],
 
   optimizeDeps: {

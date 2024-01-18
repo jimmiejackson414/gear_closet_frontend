@@ -25,14 +25,8 @@
 
   onMounted(async () => {
     identifier = $route.query?.trip ? Number(decrypt($route.query.trip)) || 0 : identifier;
-    pageLoading.value = true;
     await $store.fetchPlanningPage(identifier);
-    pageLoading.value = false;
   });
-
-  const isSettingsOpen = ref(false);
-  const settingsDropdown = ref<any | null>(null);
-  onClickOutside(settingsDropdown, () => isSettingsOpen.value = false);
 
   const isCreateTripDialogOpen = ref(false);
   const submitting = ref(false);
@@ -46,6 +40,7 @@
   /**
    * Creates a new trip.
    */
+  const dateRange = ref([]);
   const createTrip = async () => {
     try {
       submitting.value = true;
@@ -80,8 +75,14 @@
     }
   };
 
+  /**
+   * Leaves the current trip.
+   */
+  const leaveTrip = async () => {
+    // TODO: implement
+  };
+
   const datePicker = ref(null);
-  const dateRange = ref([]);
   const format = (dates: Date[]) => {
     const date1 = dayjs(dates[0])
       .format('MMM D, YYYY');
@@ -115,31 +116,32 @@
     <!-- Settings Row -->
     <div class="flex justify-between lg:justify-end items-center gap-6 mb-8">
       <div class="flex justify-center items-center gap-4">
-        <div class="flex relative">
-          <button
-            class="duration-150 ease-in-out font-medium inline-flex items-center relative text-center hover:text-dark-grey text-gray-500 text-sm focus:outline-none"
-            type="button"
-            @click="isSettingsOpen = !isSettingsOpen">
-            <settings-icon class="h-6 w-6" />
-          </button>
-          <fade-transition>
-            <div
-              v-if="isSettingsOpen"
-              ref="settingsDropdown"
-              class="absolute top-full right-0 bg-white border divide-gray-100 duration-300 max-w-sm mt-2 rounded-lg shadow transition-all w-max z-20">
-              <p class="block font-bold px-4 py-2 rounded-t-lg text-center text-dark-grey">
-                Settings
-              </p>
-              <ul>
-                <li class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-center text-dark-grey hover:bg-gray-100">
-                  Create Poll
-                </li>
-                <li class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-center text-dark-grey hover:bg-gray-100">
-                  Leave Trip
-                </li>
-              </ul>
+        <div class="flex">
+          <headless-menu
+            as="div"
+            class="inline-block relative text-left">
+            <div>
+              <headless-menu-button class="duration-150 ease-snap focus-visible:ring-2 focus-visible:ring-white/0 font-medium inline-flex justify-center outline-none focus:outline-none px-4 py-2 rounded-md text-gray-500 hover:text-dark-grey text-sm w-full">
+                <settings-icon class="h-6 w-6" />
+              </headless-menu-button>
             </div>
-          </fade-transition>
+            <zoom-transition>
+              <headless-menu-items class="absolute right-0 bg-white divide-gray-100 divide-y mt-2 origin-top-right ring-1 ring-black/5 rounded-md shadow-lg w-56 focus:outline-none">
+                <headless-menu-item
+                  class="border-b border-gray-300"
+                  disabled>
+                  <p class="!text-xs block font-bold px-4 py-2 rounded-t-lg text-eyebrow text-grey">
+                    Settings
+                  </p>
+                </headless-menu-item>
+                <headless-menu-item @click="leaveTrip">
+                  <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-dark-grey hover:bg-gray-100">
+                    Leave Trip
+                  </p>
+                </headless-menu-item>
+              </headless-menu-items>
+            </zoom-transition>
+          </headless-menu>
         </div>
         <gc-select
           :disabled="pageLoading"

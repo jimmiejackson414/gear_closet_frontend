@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { Combobox, ComboboxInput, ComboboxOptions, ComboboxOption } from '@headlessui/vue';
   import type { Icon } from 'lucide-vue-next';
   import type { SelectOption } from '@/types/helpers';
 
@@ -54,7 +53,7 @@
 </script>
 
 <template>
-  <combobox
+  <headless-combobox
     v-slot="{ open }"
     as="div"
     class="relative"
@@ -63,7 +62,7 @@
     :model-value="modelValue"
     :multiple="multiple"
     :nullable="nullable">
-    <combobox-input
+    <headless-combobox-input
       class="appearance-none bg-white border focus:border-primary border-1 border-gray-300 flex items-center gap-3 peer py-2.5 rounded-lg text-dark-grey w-full focus:outline-none focus:ring-0 placeholder:!text-gray-400"
       :class="computedClasses"
       :placeholder="placeholder"
@@ -76,20 +75,20 @@
     </div>
     <fade-transition>
       <div v-show="open">
-        <combobox-options
+        <headless-combobox-options
           class="absolute top-[50px] inset-0 bg-white border-grey drop-shadow-[1px_4px_6px_rgba(0,0,0,0.1)] focus-visible:outline-none h-fit max-h-[270px] overflow-y-scroll rounded-lg w-full z-30"
           static>
           <span v-if="!options?.length">
-            <combobox-option>
+            <headless-combobox-option>
               <div class="cursor-default flex p-4 text-dark-gray">
                 <p class="text-base">
                   No results found.
                 </p>
               </div>
-            </combobox-option>
+            </headless-combobox-option>
           </span>
           <span v-else>
-            <combobox-option
+            <headless-combobox-option
               v-for="option in filteredOptions"
               :key="option.value"
               :value="option">
@@ -98,10 +97,10 @@
                   {{ option.label }}
                 </p>
               </div>
-            </combobox-option>
+            </headless-combobox-option>
           </span>
-        </combobox-options>
+        </headless-combobox-options>
       </div>
     </fade-transition>
-  </combobox>
+  </headless-combobox>
 </template>

@@ -808,7 +808,7 @@ CREATE TABLE IF NOT EXISTS "public"."trips" (
     "ending_date" timestamp with time zone,
     "slug" character varying,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
-    "profile_id" "uuid" NOT NULL
+    "profile_id" "uuid"
 );
 
 ALTER TABLE "public"."trips" OWNER TO "postgres";
