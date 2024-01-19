@@ -556,7 +556,7 @@ ALTER TABLE "public"."onboarding_steps" OWNER TO "postgres";
 CREATE TABLE IF NOT EXISTS "public"."packs" (
     "id" bigint NOT NULL,
     "name" character varying,
-    "slug" character varying NOT NULL,
+    "slug" character varying,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"(),
     "profile_id" "uuid" NOT NULL,

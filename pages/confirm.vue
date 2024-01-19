@@ -1,7 +1,5 @@
 <script setup lang="ts">
-  definePageMeta({
-    layout: 'auth-layout',
-  });
+  definePageMeta({ layout: 'auth-layout' });
 
   const user = useSupabaseUser();
 

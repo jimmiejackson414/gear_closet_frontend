@@ -416,7 +416,7 @@ export interface Database {
           name: string | null;
           private: boolean;
           profile_id: string;
-          slug: string;
+          slug: string | null;
           theme: Database["public"]["Enums"]["theme"] | null;
           updated_at: string | null;
         };
@@ -427,7 +427,7 @@ export interface Database {
           name?: string | null;
           private?: boolean;
           profile_id: string;
-          slug: string;
+          slug?: string | null;
           theme?: Database["public"]["Enums"]["theme"] | null;
           updated_at?: string | null;
         };
@@ -438,7 +438,7 @@ export interface Database {
           name?: string | null;
           private?: boolean;
           profile_id?: string;
-          slug?: string;
+          slug?: string | null;
           theme?: Database["public"]["Enums"]["theme"] | null;
           updated_at?: string | null;
         };

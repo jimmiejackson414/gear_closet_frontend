@@ -37,6 +37,10 @@ export default defineNuxtConfig({
     port: 8000,
   },
 
+  devtools: {
+    enabled: true,
+  },
+
   head: {
     "meta": [
       // Primary tags

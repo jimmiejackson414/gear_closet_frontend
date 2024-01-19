@@ -1,7 +1,5 @@
 <script lang='ts' setup>
-  definePageMeta({
-    layout: 'public-layout',
-  });
+  definePageMeta({ layout: 'public-layout' });
 
   useHead({
     title: 'Terms and Conditions | Gear Closet',

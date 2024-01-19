@@ -1,7 +1,11 @@
 <script lang='ts' setup>
   import { PlusIcon, SettingsIcon } from 'lucide-vue-next';
+  import generateThemeOptions from '@/utils/chartTheme';
+  import { Theme } from '@/types';
   import type { SelectOption } from '@/types/helpers';
-  import type { Tables } from '@/types';
+  import type { Database, Tables } from '@/types';
+
+  definePageMeta({ layout: 'page-layout' });
 
   const $route = useRoute();
   const $appStore = useAppStore();
@@ -24,7 +28,38 @@
     await $store.fetchClosetPage(identifier);
   });
 
+  const submitting = ref(false);
   const isCreatePackDialogOpen = ref(false);
+  const themeOptions = computed(() => generateThemeOptions());
+  const newPack = reactive({
+    allow_comments: false,
+    name: '',
+    theme: Theme.BLUE6,
+    private: true,
+  });
+
+  /**
+   * Creates a new pack.
+   */
+  const createPack = async () => {
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      const user = useSupabaseUser();
+      const { data: createdPack, error } = await supabase.from('packs')
+        .insert([{
+          ...newPack,
+          profile_id: user.value?.id as string,
+        }])
+        .select();
+      console.log({ createdPack, error });
+    } catch (err) {
+      $appStore.notifyNegative('There was an error creating the pack.');
+    } finally {
+      submitting.value = false;
+      isCreatePackDialogOpen.value = false;
+    }
+  };
 
   const handleSelectPack = async (pack: { label: string, value: number }) => {
     const cookie = useCookie('selectedPackId');
@@ -34,10 +69,6 @@
   const sharePackList = () => {
     // TODO: Implement sharing pack list.
   };
-
-  definePageMeta({
-    layout: 'page-layout',
-  });
 
   useHead({
     title: 'Closet | Gear Closet',
@@ -88,6 +119,7 @@
           :model-value="selectedPackId"
           name="selected-trip-select"
           :options="packOptions"
+          size="sm"
           @update:model-value="handleSelectPack" />
       </div>
 
@@ -99,4 +131,56 @@
       </gc-button>
     </div>
   </div>
+
+  <!-- Create Pack Dialog -->
+  <gc-modal
+    :is-open="isCreatePackDialogOpen"
+    size="sm"
+    title="Create a New Pack"
+    @handle-cancel="isCreatePackDialogOpen = false">
+    <template #default>
+      <div class="flex flex-col gap-4">
+        <p class="text-base text-gray">
+          Create a new pack to add to your closet.
+        </p>
+        <gc-input
+          v-model:name="newPack.name"
+          class="w-full"
+          :disabled="submitting"
+          label="Pack Name"
+          placeholder="Summer Pack" />
+        <gc-select
+          :disabled="submitting"
+          label="Theme"
+          :model-value="newPack.theme"
+          :options="themeOptions"
+          @update:model-value="(value: Theme) => newPack.theme = value">
+          <template #option="{ option }">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-1">
+                <span
+                  v-for="color in (option as Option).colors"
+                  :key="color"
+                  class="border-1 border-white h-4 rounded-[3px] w-4"
+                  :style="{ backgroundColor: color }" />
+              </div>
+              <p class="text-base">
+                {{ option.label }}
+              </p>
+            </div>
+          </template>
+        </gc-select>
+        <!-- TODO: Toggle and info circle for Make Private -->
+        <!-- TODO: Toggle and info circle for Allow Comments -->
+      </div>
+    </template>
+    <template #actions>
+      <gc-button
+        :disabled="submitting"
+        label="Create Pack"
+        :loading="submitting"
+        size="sm"
+        @click="createPack" />
+    </template>
+  </gc-modal>
 </template>

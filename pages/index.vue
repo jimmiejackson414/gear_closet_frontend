@@ -1,6 +1,8 @@
 <script lang='ts' setup>
   import type { Database, Tables } from '@/types';
 
+  definePageMeta({ layout: 'dashboard-layout' });
+
   interface DashboardData {
     friends: Tables<'friends'>[];
     trips: Tables<'trips'>[];
@@ -44,10 +46,6 @@
   };
 
   await fetchDashboard();
-
-  definePageMeta({
-    layout: 'dashboard-layout',
-  });
 
   useHead({
     title: 'Dashboard | Gear Closet',

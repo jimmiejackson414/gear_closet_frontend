@@ -7,6 +7,8 @@
   import type { SelectOption } from '@/types/helpers';
   import '@vuepic/vue-datepicker/dist/main.css';
 
+  definePageMeta({ layout: 'page-layout' });
+
   const $route = useRoute();
   const $appStore = useAppStore();
   const $store = usePlanningStore();
@@ -95,10 +97,6 @@
     const cookie = useCookie('selectedTripId');
     cookie.value = encrypt(trip.value);
   };
-
-  definePageMeta({
-    layout: 'page-layout',
-  });
 
   useHead({
     title: 'Planning | Gear Closet',

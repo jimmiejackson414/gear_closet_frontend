@@ -100,7 +100,7 @@
         You haven't added any friends to this trip yet!
       </p>
       <gc-button
-        label="Get Started"
+        label="Invite Friends"
         outlined
         size="sm"
         @click="isInviteModalOpen = true" />
@@ -109,6 +109,8 @@
       Display friends
     </div>
   </div>
+
+  <!-- Invite Friends Modal -->
   <gc-modal
     :is-open="isInviteModalOpen"
     title="Invite Friends"

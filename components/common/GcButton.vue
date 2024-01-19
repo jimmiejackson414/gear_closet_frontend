@@ -79,7 +79,8 @@
 <template>
   <nuxt-link
     v-if="to"
-    :class="classList">
+    :class="classList"
+    :to="to">
     {{ label }}
   </nuxt-link>
   <button

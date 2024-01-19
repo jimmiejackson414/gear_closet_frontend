@@ -49,19 +49,19 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
         this.pageLoading = true;
 
         try {
-          const supabase = useSupabaseClient<Database>();
+          // const supabase = useSupabaseClient<Database>();
 
-          const { data: pageData, error } = await supabase
-            .rpc('get_closet_page_data', { p_pack_id: this.selectedPackId || 0 })
-            .returns<ClosetPageData>();
+          // const { data: pageData, error } = await supabase
+          //   .rpc('get_closet_page_data', { p_pack_id: this.selectedPackId || 0 })
+          //   .returns<ClosetPageData>();
 
-          if (pageData && !error) {
-            this.data = pageData;
+          // if (pageData && !error) {
+          //   this.data = pageData;
 
-            // set selected pack if available
-            const findSelectedPack = pageData.packs.find(pack => pack.id === (packId ? packId : pageData.packs[0].id)) as Tables<'packs'>;
-            this.selectedPackId = findSelectedPack.id;
-          }
+          //   // set selected pack if available
+          //   const findSelectedPack = pageData.packs.find(pack => pack.id === (packId ? packId : pageData.packs[0].id)) as Tables<'packs'>;
+          //   this.selectedPackId = findSelectedPack.id;
+          // }
         } catch (err: any) {
           $store.notifyNegative(err);
         } finally {
