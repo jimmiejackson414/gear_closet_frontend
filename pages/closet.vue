@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { PlusIcon, SettingsIcon } from 'lucide-vue-next';
+  import { InfoIcon, PlusIcon, SettingsIcon } from 'lucide-vue-next';
   import generateThemeOptions from '@/utils/chartTheme';
   import { Theme } from '@/types';
   import type { SelectOption } from '@/types/helpers';
@@ -61,6 +61,14 @@
     }
   };
 
+  const handleCancelModal = () => {
+    isCreatePackDialogOpen.value = false;
+    newPack.allow_comments = false;
+    newPack.name = '';
+    newPack.theme = Theme.BLUE6;
+    newPack.private = true;
+  };
+
   const handleSelectPack = async (pack: { label: string, value: number }) => {
     const cookie = useCookie('selectedPackId');
     cookie.value = encrypt(pack.value);
@@ -115,72 +123,117 @@
         </div>
         <gc-select
           :disabled="pageLoading"
-          label="Selected Trip"
           :model-value="selectedPackId"
           name="selected-trip-select"
           :options="packOptions"
+          placeholder="Selected Trip"
           size="sm"
           @update:model-value="handleSelectPack" />
       </div>
 
       <gc-button
+        class="self-center"
         size="sm"
         @click="isCreatePackDialogOpen = true">
         <plus-icon class="h-4 mr-2 text-white w-4" />
         New Pack
       </gc-button>
     </div>
-  </div>
 
-  <!-- Create Pack Dialog -->
-  <gc-modal
-    :is-open="isCreatePackDialogOpen"
-    size="sm"
-    title="Create a New Pack"
-    @handle-cancel="isCreatePackDialogOpen = false">
-    <template #default>
-      <div class="flex flex-col gap-4">
-        <p class="text-base text-gray">
-          Create a new pack to add to your closet.
-        </p>
-        <gc-input
-          v-model:name="newPack.name"
-          class="w-full"
-          :disabled="submitting"
-          label="Pack Name"
-          placeholder="Summer Pack" />
-        <gc-select
-          :disabled="submitting"
-          label="Theme"
-          :model-value="newPack.theme"
-          :options="themeOptions"
-          @update:model-value="(value: Theme) => newPack.theme = value">
-          <template #option="{ option }">
-            <div class="flex items-center gap-3">
-              <div class="flex items-center gap-1">
-                <span
-                  v-for="color in (option as Option).colors"
-                  :key="color"
-                  class="border-1 border-white h-4 rounded-[3px] w-4"
-                  :style="{ backgroundColor: color }" />
+    <!-- Create Pack Dialog -->
+    <gc-modal
+      :is-open="isCreatePackDialogOpen"
+      size="sm"
+      title="Create a New Pack"
+      @handle-cancel="isCreatePackDialogOpen = false">
+      <template #default>
+        <div class="flex flex-col gap-4">
+          <gc-input
+            v-model="newPack.name"
+            class="w-full"
+            :disabled="submitting"
+            label="Pack Name"
+            name="pack-name"
+            placeholder="Summer Pack" />
+          <gc-select
+            :disabled="submitting"
+            label="Theme"
+            :model-value="newPack.theme"
+            :options="themeOptions"
+            @update:model-value="(value: Theme) => newPack.theme = value">
+            <template #option="{ option }">
+              <div class="flex items-center gap-3">
+                <div class="flex items-center gap-1">
+                  <span
+                    v-for="color in (option as Option).colors"
+                    :key="color"
+                    class="border-1 border-white h-4 rounded-[3px] w-4"
+                    :style="{ backgroundColor: color }" />
+                </div>
+                <p class="text-base">
+                  {{ option.label }}
+                </p>
               </div>
+            </template>
+          </gc-select>
+          <gc-toggle
+            v-model="newPack.private"
+            :disabled="submitting"
+            variant="positive">
+            <div class="flex items-center gap-2">
               <p class="text-base">
-                {{ option.label }}
+                Private
               </p>
+              <info-icon
+                class="h-4 w-4"
+                data-tooltip-placement="right"
+                data-tooltip-target="tooltip-private" />
+              <div
+                id="tooltip-private"
+                class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
+                role="tooltip"
+                @mouseover="$event.stopPropagation">
+                Private packs cannot be viewed by other users.<br>This setting can be changed later.
+              </div>
             </div>
-          </template>
-        </gc-select>
-        <!-- TODO: Toggle and info circle for Make Private -->
-        <!-- TODO: Toggle and info circle for Allow Comments -->
-      </div>
-    </template>
-    <template #actions>
-      <gc-button
-        :disabled="submitting"
-        label="Create Pack"
-        :loading="submitting"
-        size="sm"
-        @click="createPack" />
-    </template>
-  </gc-modal>
+          </gc-toggle>
+          <gc-toggle
+            v-model="newPack.allow_comments"
+            :disabled="submitting"
+            variant="positive">
+            <div class="flex items-center gap-2">
+              <p class="text-base">
+                Allow Comments
+              </p>
+              <info-icon
+                class="h-4 w-4"
+                data-tooltip-placement="right"
+                data-tooltip-target="tooltip-comments" />
+              <div
+                id="tooltip-comments"
+                class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
+                role="tooltip"
+                @mouseover="$event.stopPropagation">
+                Allow users you share this pack with list to make comments?<br>This setting can be changed later.
+              </div>
+            </div>
+          </gc-toggle>
+        </div>
+      </template>
+      <template #actions>
+        <gc-button
+          :disabled="submitting"
+          label="Cancel"
+          size="sm"
+          variant="secondary"
+          @click="handleCancelModal" />
+        <gc-button
+          :disabled="submitting"
+          label="Create Pack"
+          :loading="submitting"
+          size="sm"
+          @click="createPack" />
+      </template>
+    </gc-modal>
+  </div>
 </template>
