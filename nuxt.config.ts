@@ -114,5 +114,13 @@ export default defineNuxtConfig({
   typescript: {
     typeCheck: true,
     include: ['vendor.d.ts'],
+    tsConfig: {
+      compilerOptions: {
+        paths: {
+          '@': ['.'],
+          '@/*': ['./*'],
+        },
+      },
+    },
   },
 });

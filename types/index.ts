@@ -1176,9 +1176,22 @@ export interface Database {
         };
         Returns: Json;
       };
+      get_closet_page_data: {
+        Args: {
+          p_pack_id: number;
+        };
+        Returns: Json;
+      };
       get_planning_page_data: {
         Args: {
           p_trip_id: number;
+        };
+        Returns: Json;
+      };
+      import_csv_data: {
+        Args: {
+          csv_data: Json;
+          p_pack_id: number;
         };
         Returns: Json;
       };
@@ -1721,10 +1734,20 @@ export type ArgsCreatePoll =
 export type ReturnTypeCreatePoll =
   Database["public"]["Functions"]["create_poll"]["Returns"];
 
+export type ArgsGetClosetPageDatum =
+  Database["public"]["Functions"]["get_closet_page_data"]["Args"];
+export type ReturnTypeGetClosetPageDatum =
+  Database["public"]["Functions"]["get_closet_page_data"]["Returns"];
+
 export type ArgsGetPlanningPageDatum =
   Database["public"]["Functions"]["get_planning_page_data"]["Args"];
 export type ReturnTypeGetPlanningPageDatum =
   Database["public"]["Functions"]["get_planning_page_data"]["Returns"];
+
+export type ArgsImportCsvDatum =
+  Database["public"]["Functions"]["import_csv_data"]["Args"];
+export type ReturnTypeImportCsvDatum =
+  Database["public"]["Functions"]["import_csv_data"]["Returns"];
 
 export type ArgsUpdatePoll =
   Database["public"]["Functions"]["update_poll"]["Args"];

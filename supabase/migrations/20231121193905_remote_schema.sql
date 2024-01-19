@@ -379,6 +379,106 @@ $$;
 
 ALTER FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) OWNER TO "postgres";
 
+CREATE OR REPLACE FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) RETURNS "json"
+  LANGUAGE "plpgsql" SECURITY DEFINER
+  AS $$
+  DECLARE
+    pack_data JSON;
+    dynamic_pack_id BIGINT;
+    user_packs JSON;
+  BEGIN
+    -- Set dynamic_pack_id based on p_pack_id or to the ID of the first pack
+    IF p_pack_id = 0 THEN
+      SELECT COALESCE((SELECT p.id FROM packs p WHERE p.profile_id = auth.uid() ORDER BY p.created_at ASC LIMIT 1), 0) INTO dynamic_pack_id;
+    ELSE
+      dynamic_pack_id := p_pack_id;
+    END IF;
+
+    -- Fetch all user's packs
+    SELECT COALESCE((SELECT json_agg(json_build_object('id', p.id, 'name', p.name)) FROM packs p WHERE p.profile_id = auth.uid()), '[]'::JSON) INTO user_packs;
+
+    -- Fetch pack data using dynamic_pack_id along with associated category details, category items, and items
+    SELECT COALESCE((SELECT json_build_object(
+      'pack', json_build_object(
+        'id', pack.id,
+        'name', pack.name,
+        'slug', pack.slug,
+        'created_at', pack.created_at,
+        'updated_at', pack.updated_at,
+        'profile_id', pack.profile_id,
+        'theme', pack.theme,
+        'private', pack.private,
+        'allow_comments', pack.allow_comments,
+        'categories', (
+          SELECT COALESCE(json_agg(subquery), '[]'::JSON)
+          FROM (
+            SELECT json_build_object(
+              'category', row_to_json(c.*),
+              'category_items', (
+                SELECT COALESCE(json_agg(json_build_object(
+                  'category_item', row_to_json(ci.*),
+                  'item', row_to_json(i.*)
+                )), '[]'::JSON)
+                FROM category_items ci
+                JOIN items i ON ci.item_id = i.id
+                WHERE ci.category_id = c.id
+              )
+            )
+            FROM categories c
+            WHERE c.pack_id = dynamic_pack_id
+            ORDER BY c.created_at DESC
+          ) AS subquery
+        )
+      ),
+      'packs', user_packs
+    ) FROM packs pack WHERE pack.id = dynamic_pack_id), '[]'::JSON) INTO pack_data;
+
+    -- Output the result
+    RETURN pack_data;
+  END;
+$$;
+ALTER FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION "public"."import_csv_data"("csv_data" JSONB, "p_pack_id" BIGINT) RETURNS JSONB
+LANGUAGE plpgsql
+AS $$
+DECLARE
+  "row_data" JSONB;
+  "category_id" BIGINT;
+  "item_id" BIGINT;
+  "result" JSONB := '[]'::JSONB;
+BEGIN
+  FOR "row_data" IN SELECT * FROM jsonb_array_elements("csv_data")
+  LOOP
+    -- Insert category
+    INSERT INTO "public"."categories" ("name", "slug", "unit", "pack_id", "created_at", "updated_at")
+    VALUES ("row_data"->>'category', 'slug', 'g', "p_pack_id", NOW(), NOW())
+    RETURNING "id" INTO "category_id";
+
+    -- Insert item
+    INSERT INTO "public"."items" ("name", "generic_type", "price", "consumable", "worn", "quantity", "unit", "weight", "url", "slug", "created_at", "updated_at", "profile_id")
+    VALUES ("row_data"->>'item_name', "row_data"->>'desc', "row_data"->>'price', "row_data"->>'consumable', "row_data"->>'worn', "row_data"->>'qty', "row_data"->>'unit', "row_data"->>'weight', "row_data"->>'url', 'slug', NOW(), NOW(), auth.uid())
+    RETURNING "id" INTO "item_id";
+
+    -- Link item to category
+    INSERT INTO "public"."category_items" ("category_id", "item_id", "position", "created_at", "updated_at")
+    VALUES ("category_id", "item_id", 0, NOW(), NOW());
+
+    -- Add category and item to result
+    "result" := jsonb_set("result", '{' || "category_id" || '}', jsonb_build_object(
+      'category', (SELECT row_to_json(c.*) FROM "public"."categories" c WHERE c."id" = "category_id"),
+      'category_items', (SELECT json_agg(json_build_object(
+        'category_item', row_to_json(ci.*),
+        'item', row_to_json(i.*)
+      )) FROM "public"."category_items" ci JOIN "public"."items" i ON ci."item_id" = i."id" WHERE ci."category_id" = "category_id")
+    ));
+  END LOOP;
+
+  RETURN "result";
+END;
+$$;
+ALTER FUNCTION "public"."import_csv_data"("csv_data" JSONB, "p_pack_id" BIGINT) OWNER TO "postgres";
+
 SET default_tablespace = '';
 
 SET default_table_access_method = "heap";
@@ -1185,6 +1285,14 @@ GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "anon";
 GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) TO "anon";
+GRANT ALL ON FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."import_csv_data"("csv_data" JSONB, "p_pack_id" BIGINT) TO "anon";
+GRANT ALL ON FUNCTION "public"."import_csv_data"("csv_data" JSONB, "p_pack_id" BIGINT) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."import_csv_data"("csv_data" JSONB, "p_pack_id" BIGINT) TO "service_role";
 
 GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "anon";
 GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "authenticated";

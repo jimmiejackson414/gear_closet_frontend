@@ -75,6 +75,11 @@
           :class="( disabled || loading ) ? 'text-gray-200' : 'text-gray-400'">
           {{ placeholder }}
         </p>
+        <template v-else-if="$slots.selected">
+          <slot
+            name="selected"
+            :selected-option="selectedOption" />
+        </template>
         <p
           v-else
           class="text-base"

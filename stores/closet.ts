@@ -1,19 +1,23 @@
 import { defineStore } from "pinia";
 import type { Database, Tables } from "@/types";
+import type { ExtendedPack } from "@/types/helpers";
 
 export interface ClosetPageData {
+  selectedPack?: ExtendedPack;
+  allPacks: Tables<'packs'>[];
+}
+
+interface ClosetPageResponse {
+  pack: ExtendedPack;
   packs: Tables<'packs'>[];
 }
 
 type State = {
   data: ClosetPageData;
   pageLoading: boolean;
-  selectedPackId: number | null;
 };
 
-type Getters = {
-  selectedPack(): Tables<'packs'> | undefined;
-};
+type Getters = {};
 
 type Actions = {
   fetchClosetPage(packId: number): Promise<void>;
@@ -25,19 +29,11 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
     state () {
       return {
         data: {
-          packs: [],
-          pack_items: [],
-          items: [],
+          selectedPack: undefined,
+          allPacks: [],
         },
         pageLoading: true,
-        selectedPackId: null,
       };
-    },
-
-    getters: {
-      selectedPack () {
-        return this.data.packs.find(pack => pack.id === this.selectedPackId);
-      },
     },
 
     actions: {
@@ -49,20 +45,19 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
         this.pageLoading = true;
 
         try {
-          // const supabase = useSupabaseClient<Database>();
+          const supabase = useSupabaseClient<Database>();
 
-          // const { data: pageData, error } = await supabase
-          //   .rpc('get_closet_page_data', { p_pack_id: this.selectedPackId || 0 })
-          //   .returns<ClosetPageData>();
+          const { data: pageData, error } = await supabase
+            .rpc('get_closet_page_data', { p_pack_id: packId || 0 })
+            .returns<ClosetPageResponse>();
 
-          // if (pageData && !error) {
-          //   this.data = pageData;
-
-          //   // set selected pack if available
-          //   const findSelectedPack = pageData.packs.find(pack => pack.id === (packId ? packId : pageData.packs[0].id)) as Tables<'packs'>;
-          //   this.selectedPackId = findSelectedPack.id;
-          // }
+          if (error) throw new Error(error.message);
+          if (!error && pageData) {
+            this.data.selectedPack = pageData.pack;
+            this.data.allPacks = pageData.packs || [];
+          }
         } catch (err: any) {
+          console.log(`inside catch`, err);
           $store.notifyNegative(err);
         } finally {
           this.pageLoading = false;

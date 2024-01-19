@@ -39,7 +39,7 @@
 </script>
 
 <template>
-  <label class="cursor-pointer inline-flex items-center relative">
+  <label class="cursor-pointer inline-flex items-center relative w-fit">
     <input
       :checked="modelValue"
       class="peer sr-only"

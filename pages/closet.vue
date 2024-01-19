@@ -1,8 +1,9 @@
 <script lang='ts' setup>
+  import Papa, { type ParseResult } from 'papaparse';
   import { InfoIcon, PlusIcon, SettingsIcon } from 'lucide-vue-next';
   import generateThemeOptions from '@/utils/chartTheme';
   import { Theme } from '@/types';
-  import type { SelectOption } from '@/types/helpers';
+  import type { ExtendedPack, SelectOption, ParsedResults, ExtendedCategory } from '@/types/helpers';
   import type { Database, Tables } from '@/types';
 
   definePageMeta({ layout: 'page-layout' });
@@ -11,9 +12,9 @@
   const $appStore = useAppStore();
   const $store = useClosetStore();
   const $cookie = useCookie('selectedPackId');
-  const { data, pageLoading, selectedPackId } = storeToRefs($store);
+  const { data, pageLoading } = storeToRefs($store);
 
-  const packOptions = computed(() => data.value.packs.map((p: Tables<'packs'>) => ({ label: p.name, value: p.id })) as SelectOption[]);
+  const packOptions = computed(() => data.value.allPacks.map((p: Tables<'packs'>) => ({ label: p.name, value: p.id })) as SelectOption[]);
   
   let identifier = 0;
   watch($cookie, (newValue) => {
@@ -39,6 +40,43 @@
   });
 
   /**
+   * Handles file upload.
+   */
+  const file = ref<File | undefined>(undefined);
+  const parsingResult = ref<{ status?: 'success' | 'failure', message?: string }>({
+    status: undefined,
+    message: undefined,
+  });
+  const parseFile = async (file: File) => {
+    return new Promise((resolve, reject) => {
+      Papa.parse(file, {
+        header: true,
+        dynamicTyping: true,
+        skipEmptyLines: true,
+        transformHeader: (header: string) => header.toLowerCase()
+          .trim()
+          .replace(/\s/g, '_'),
+        complete: (results: ParseResult<Record<string, unknown>>) => {
+          console.log({ results });
+          parsingResult.value = {
+            status: 'success',
+            message: 'Successfully parsed CSV file!',
+          };
+          resolve(results);
+        },
+        error: (err) => {
+          console.log({ err });
+          parsingResult.value = {
+            status: 'failure',
+            message: 'There was an error parsing the CSV file.',
+          };
+          reject(err);
+        },
+      });
+    });
+  };
+
+  /**
    * Creates a new pack.
    */
   const createPack = async () => {
@@ -52,7 +90,33 @@
           profile_id: user.value?.id as string,
         }])
         .select();
-      console.log({ createdPack, error });
+
+      if (createdPack?.length && !error) {
+        data.value.allPacks.push(createdPack[0]);
+        data.value.selectedPack = createdPack[0] as ExtendedPack;
+      } else {
+        $appStore.notifyNegative('There was an error creating the pack.');
+      }
+
+      if (file.value && createdPack?.length) {
+        const parseResults = await parseFile(file.value) as ParsedResults;
+        if (parseResults.data?.length) {
+          const { data: createdItems, error } = await supabase
+            .rpc('import_csv_data', {
+              p_pack_id: createdPack[0].id,
+              csv_data: parseResults.data,
+            })
+            .returns<{ categories: ExtendedCategory[] }>();
+
+          if (createdItems?.categories.length && !error) {
+            $appStore.notifyPositive('Pack and items created successfully!');
+          } else {
+            $appStore.notifyNegative('There was an error importing the CSV.');
+          }
+        }
+      } else {
+        $appStore.notifyPositive('Pack created successfully.');
+      }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating the pack.');
     } finally {
@@ -123,10 +187,10 @@
         </div>
         <gc-select
           :disabled="pageLoading"
-          :model-value="selectedPackId"
+          :model-value="(data.selectedPack?.id as number)"
           name="selected-trip-select"
           :options="packOptions"
-          placeholder="Selected Trip"
+          placeholder="Selected Pack"
           size="sm"
           @update:model-value="handleSelectPack" />
       </div>
@@ -140,6 +204,36 @@
       </gc-button>
     </div>
 
+    <div v-if="!data.allPacks.length">
+      <gc-empty-state>
+        <h5 class="font-bold mb-3 text-lg">
+          You haven't created any packs yet!
+        </h5>
+        <p class="mb-4 text-base">
+          Click the button below to get started.
+        </p>
+        <gc-button
+          label="Create a new pack"
+          outlined
+          size="sm"
+          @click="isCreatePackDialogOpen = true" />
+      </gc-empty-state>
+    </div>
+
+    <!-- Pack Summary & Tables -->
+    <div v-else-if="data.allPacks.length && data.selectedPack">
+      <pack-summary />
+      <div>
+        <h5 class="font-bold mb-3 text-lg">
+          Pack Details
+        </h5>
+        <pack-items-table
+          v-for="category in data.selectedPack.categories"
+          :key="category.id"
+          :category="category" />
+      </div>
+    </div>
+
     <!-- Create Pack Dialog -->
     <gc-modal
       :is-open="isCreatePackDialogOpen"
@@ -147,7 +241,7 @@
       title="Create a New Pack"
       @handle-cancel="isCreatePackDialogOpen = false">
       <template #default>
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-6">
           <gc-input
             v-model="newPack.name"
             class="w-full"
@@ -176,48 +270,75 @@
               </div>
             </template>
           </gc-select>
-          <gc-toggle
-            v-model="newPack.private"
-            :disabled="submitting"
-            variant="positive">
-            <div class="flex items-center gap-2">
-              <p class="text-base">
-                Private
-              </p>
-              <info-icon
-                class="h-4 w-4"
-                data-tooltip-placement="right"
-                data-tooltip-target="tooltip-private" />
-              <div
-                id="tooltip-private"
-                class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
-                role="tooltip"
-                @mouseover="$event.stopPropagation">
-                Private packs cannot be viewed by other users.<br>This setting can be changed later.
+          <gc-file-input
+            class="mb-3"
+            @update:model-value="file = $event">
+            <template #label>
+              <div class="flex items-center gap-2">
+                Import pack items (optional)
+                <info-icon
+                  class="h-4 w-4"
+                  data-tooltip-placement="top"
+                  data-tooltip-target="tooltip-import" />
+                <div
+                  id="tooltip-import"
+                  class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
+                  role="tooltip"
+                  @mouseover="$event.stopPropagation">
+                  Uploading a CSV will automatically add them to your pack.
+                </div>
               </div>
-            </div>
-          </gc-toggle>
-          <gc-toggle
-            v-model="newPack.allow_comments"
-            :disabled="submitting"
-            variant="positive">
-            <div class="flex items-center gap-2">
-              <p class="text-base">
-                Allow Comments
-              </p>
-              <info-icon
-                class="h-4 w-4"
-                data-tooltip-placement="right"
-                data-tooltip-target="tooltip-comments" />
-              <div
-                id="tooltip-comments"
-                class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
-                role="tooltip"
-                @mouseover="$event.stopPropagation">
-                Allow users you share this pack with list to make comments?<br>This setting can be changed later.
+            </template>
+            <template #help-text>
+              <a
+                class="hyperlink inline-block"
+                href="gear_closet_template.csv">Download CSV template</a>
+            </template>
+          </gc-file-input>
+          <div class="flex flex-col gap-3">
+            <gc-toggle
+              v-model="newPack.private"
+              :disabled="submitting"
+              variant="positive">
+              <div class="flex items-center gap-2">
+                <p class="text-base">
+                  Private
+                </p>
+                <info-icon
+                  class="h-4 w-4"
+                  data-tooltip-placement="right"
+                  data-tooltip-target="tooltip-private" />
+                <div
+                  id="tooltip-private"
+                  class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
+                  role="tooltip"
+                  @mouseover="$event.stopPropagation">
+                  Private packs cannot be viewed by other users.<br>This setting can be changed later.
+                </div>
               </div>
-            </div>
-          </gc-toggle>
+            </gc-toggle>
+            <gc-toggle
+              v-model="newPack.allow_comments"
+              :disabled="submitting"
+              variant="positive">
+              <div class="flex items-center gap-2">
+                <p class="text-base">
+                  Allow Comments
+                </p>
+                <info-icon
+                  class="h-4 w-4"
+                  data-tooltip-placement="right"
+                  data-tooltip-target="tooltip-comments" />
+                <div
+                  id="tooltip-comments"
+                  class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
+                  role="tooltip"
+                  @mouseover="$event.stopPropagation">
+                  Allow users you share this pack with list to make comments?<br>This setting can be changed later.
+                </div>
+              </div>
+            </gc-toggle>
+          </div>
         </div>
       </template>
       <template #actions>
