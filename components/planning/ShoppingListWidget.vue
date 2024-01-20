@@ -6,6 +6,7 @@
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
+  const $route = useRoute();
   const { data, pageLoading, selectedTripId } = storeToRefs($store);
 
   const userItems = computed(() => {
@@ -101,12 +102,10 @@
    * Watch for changes to the page loading state and todos length.
    * If the page is no longer loading and there are todos, instantiate the tabs.
    */
-  watch([() => pageLoading.value, () => data.value.shopping_items.length], async (newValues, oldValues) => {
+  watch([() => pageLoading.value, () => data.value.shopping_items.length, activeTab, () => $route.fullPath], async (newValues) => {
     const [newPageLoading, newItemsLength] = newValues;
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [_, oldItemsLength] = oldValues;
 
-    if (!newPageLoading && newItemsLength > 0 && oldItemsLength === 0) {
+    if (!newPageLoading && newItemsLength > 0) {
       await nextTick();
       instantiateTabs();
     }
@@ -115,10 +114,10 @@
 </script>
 
 <template>
-  <div class="bg-grey-50 px-8 py-4 rounded-2xl shadow-light">
+  <div class="card card-aside">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
       <check-square-2-icon class="h-6 mr-6 text-primary w-6" />
-      <p class="font-bold text-base">
+      <p class="!font-bold text-base">
         Shopping Items
       </p>
       <gc-button

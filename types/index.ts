@@ -82,7 +82,7 @@ export interface Database {
           id: number;
           name: string | null;
           pack_id: number | null;
-          slug: string;
+          slug: string | null;
           unit: string | null;
           updated_at: string;
         };
@@ -91,7 +91,7 @@ export interface Database {
           id?: number;
           name?: string | null;
           pack_id?: number | null;
-          slug: string;
+          slug?: string | null;
           unit?: string | null;
           updated_at?: string;
         };
@@ -100,7 +100,7 @@ export interface Database {
           id?: number;
           name?: string | null;
           pack_id?: number | null;
-          slug?: string;
+          slug?: string | null;
           unit?: string | null;
           updated_at?: string;
         };
@@ -1168,6 +1168,23 @@ export interface Database {
       [_ in never]: never;
     };
     Functions: {
+      create_category_and_item: {
+        Args: {
+          p_name: string;
+          p_pack_id: number;
+          p_items: Json;
+        };
+        Returns: {
+          id: number;
+          name: string;
+          slug: string;
+          unit: string;
+          pack_id: number;
+          created_at: string;
+          updated_at: string;
+          category_items: Json;
+        }[];
+      };
       create_poll: {
         Args: {
           trip_id: number;
@@ -1729,6 +1746,11 @@ export type InsertTrip = Database["public"]["Tables"]["trips"]["Insert"];
 export type UpdateTrip = Database["public"]["Tables"]["trips"]["Update"];
 
 // Functions
+export type ArgsCreateCategoryAndItem =
+  Database["public"]["Functions"]["create_category_and_item"]["Args"];
+export type ReturnTypeCreateCategoryAndItem =
+  Database["public"]["Functions"]["create_category_and_item"]["Returns"];
+
 export type ArgsCreatePoll =
   Database["public"]["Functions"]["create_poll"]["Args"];
 export type ReturnTypeCreatePoll =

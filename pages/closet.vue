@@ -42,12 +42,14 @@
   /**
    * Handles file upload.
    */
+  const isUploadCsvModalOpen = ref(false);
   const file = ref<File | undefined>(undefined);
   const parsingResult = ref<{ status?: 'success' | 'failure', message?: string }>({
     status: undefined,
     message: undefined,
   });
-  const parseFile = async (file: File) => {
+  const parseFile = async (file: File | undefined) => {
+    if (!file) return;
     return new Promise((resolve, reject) => {
       Papa.parse(file, {
         header: true,
@@ -75,6 +77,38 @@
   };
 
   /**
+   * Upload items to pack from CSV
+   */
+  const insertItemsFromCsv = async () => {
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+
+      const parseResults = await parseFile(file.value) as ParsedResults;
+      if (parseResults.data?.length) {
+        const { data: createdCategory, error } = await supabase
+          .rpc('import_csv_data', {
+            p_pack_id: data.value.selectedPack?.id as number,
+            csv_data: parseResults.data,
+          })
+          .returns<ExtendedCategory>();
+
+        if (createdCategory && !error) {
+          (data.value.selectedPack as ExtendedPack).categories.push(createdCategory);
+          $appStore.notifyPositive('Successfully imported your items!');
+        } else {
+          $appStore.notifyNegative('There was an error importing the CSV.');
+        }
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error uploading the csv.');
+    } finally {
+      submitting.value = false;
+      isUploadCsvModalOpen.value = false;
+    }
+  };
+
+  /**
    * Creates a new pack.
    */
   const createPack = async () => {
@@ -92,35 +126,52 @@
       if (createdPack?.length && !error) {
         data.value.allPacks.push({ id: createdPack[0].id, name: createdPack[0].name as string, slug: createdPack[0].slug as string });
         data.value.selectedPack = createdPack[0] as ExtendedPack;
+        $appStore.notifyPositive('Pack created successfully.');
       } else {
         $appStore.notifyNegative('There was an error creating the pack.');
-      }
-
-      if (file.value && createdPack?.length) {
-        const parseResults = await parseFile(file.value) as ParsedResults;
-        if (parseResults.data?.length) {
-          const { data: createdCategories, error } = await supabase
-            .rpc('import_csv_data', {
-              p_pack_id: createdPack[0].id,
-              csv_data: parseResults.data,
-            })
-            .returns<ExtendedCategory[]>();
-
-          if (createdCategories?.length && !error) {
-            (data.value.selectedPack as ExtendedPack).categories = createdCategories;
-            $appStore.notifyPositive('Pack and items created successfully!');
-          } else {
-            $appStore.notifyNegative('There was an error importing the CSV.');
-          }
-        }
-      } else {
-        $appStore.notifyPositive('Pack created successfully.');
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating the pack.');
     } finally {
       submitting.value = false;
       isCreatePackDialogOpen.value = false;
+    }
+  };
+
+  /**
+   * Creates a new default category.
+   */
+  const createCategory = async () => {
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      const { data: createdCategory, error } = await supabase
+        .rpc('create_category_and_item', {
+          p_name: 'Miscellaneous',
+          p_pack_id: data.value.selectedPack?.id as number,
+          p_items: [{
+            name: 'Miscellaneous',
+            generic_type: 'Miscellaneous',
+            weight: 0,
+            quantity: 0,
+            price: 0,
+            consumable: false,
+            worn: false,
+          }],
+        })
+        .returns<ExtendedCategory>();
+
+      if (createdCategory && !error) {
+        (data.value.selectedPack as ExtendedPack).categories.push(createdCategory);
+        $appStore.notifyPositive('Category created successfully.');
+      } else {
+        $appStore.notifyNegative('There was an error creating the category.');
+      }
+    } catch (err) {
+      console.log({ err });
+      $appStore.notifyNegative('There was an error creating the category.');
+    } finally {
+      submitting.value = false;
     }
   };
 
@@ -220,16 +271,42 @@
     </div>
 
     <!-- Pack Summary & Tables -->
-    <div v-else-if="data.allPacks.length && data.selectedPack">
-      <pack-summary />
-      <div>
-        <h5 class="font-bold mb-3 text-lg">
-          Pack Details
-        </h5>
-        <pack-items-table
-          v-for="category in data.selectedPack.categories"
-          :key="category.id"
-          :category="category" />
+    <div v-else-if="data.selectedPack">
+      <div v-if="!data.selectedPack.categories.length">
+        <gc-empty-state>
+          <h5 class="font-bold mb-2 text-base-lg">
+            Successfully created your new {{ data.selectedPack.name }} pack!
+          </h5>
+          <p class="mb-0 text-base">
+            The next step is to add some items to your pack.
+          </p>
+          <p class="mb-4 text-base">
+            You can add items to your pack by clicking the Get Started button below or by uploading a CSV file.
+          </p>
+          <div class="flex justify-center items-center gap-4">
+            <gc-button
+              label="Get started"
+              size="sm"
+              @click="createCategory" />
+            <gc-button
+              label="Upload CSV"
+              outlined
+              size="sm"
+              @click="isUploadCsvModalOpen = true" />
+          </div>
+        </gc-empty-state>
+      </div>
+      <div v-else>
+        <pack-summary />
+        <div class="mt-8">
+          <h5 class="font-bold mb-3 text-lg">
+            Pack Details
+          </h5>
+          <pack-items-table
+            v-for="category in data.selectedPack.categories"
+            :key="category.id"
+            :category="category" />
+        </div>
       </div>
     </div>
 
@@ -269,31 +346,6 @@
               </div>
             </template>
           </gc-select>
-          <gc-file-input
-            class="mb-3"
-            @update:model-value="file = $event">
-            <template #label>
-              <div class="flex items-center gap-2">
-                Import pack items (optional)
-                <info-icon
-                  class="h-4 w-4"
-                  data-tooltip-placement="top"
-                  data-tooltip-target="tooltip-import" />
-                <div
-                  id="tooltip-import"
-                  class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
-                  role="tooltip"
-                  @mouseover="$event.stopPropagation">
-                  Uploading a CSV will automatically add them to your pack.
-                </div>
-              </div>
-            </template>
-            <template #help-text>
-              <a
-                class="hyperlink inline-block"
-                href="gear_closet_template.csv">Download CSV template</a>
-            </template>
-          </gc-file-input>
           <div class="flex flex-col gap-3">
             <gc-toggle
               v-model="newPack.private"
@@ -353,6 +405,59 @@
           :loading="submitting"
           size="sm"
           @click="createPack" />
+      </template>
+    </gc-modal>
+
+    <!-- Upload from CSV -->
+    <gc-modal
+      :is-open="isUploadCsvModalOpen"
+      title="Upload from CSV"
+      @handle-cancel="isUploadCsvModalOpen = false">
+      <template #default>
+        <div class="flex items-center flex-col gap-4">
+          <p class="mb-0 text-base text-gray">
+            Upload a CSV file to automatically add items to your pack. Any items that already exist will not be affected.
+          </p>
+          <gc-file-input
+            class="my-4 w-full"
+            @update:model-value="file = $event">
+            <template #label>
+              <div class="flex items-center gap-2">
+                Import pack items (optional)
+                <info-icon
+                  class="h-4 w-4"
+                  data-tooltip-placement="top"
+                  data-tooltip-target="tooltip-import" />
+                <div
+                  id="tooltip-import"
+                  class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
+                  role="tooltip"
+                  @mouseover="$event.stopPropagation">
+                  Uploading a CSV will automatically add them to your pack.
+                </div>
+              </div>
+            </template>
+            <template #help-text>
+              <a
+                class="hyperlink inline-block"
+                href="gear_closet_template.csv">Download CSV template</a>
+            </template>
+          </gc-file-input>
+        </div>
+      </template>
+      <template #actions>
+        <gc-button
+          :disabled="submitting"
+          label="Cancel"
+          size="sm"
+          variant="secondary"
+          @click="isUploadCsvModalOpen = false" />
+        <gc-button
+          :disabled="submitting"
+          label="Add Pack"
+          :loading="submitting"
+          size="sm"
+          @click="insertItemsFromCsv" /> 
       </template>
     </gc-modal>
 

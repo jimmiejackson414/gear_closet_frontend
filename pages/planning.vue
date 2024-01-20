@@ -143,10 +143,10 @@
         </div>
         <gc-select
           :disabled="pageLoading"
-          label="Selected Trip"
           :model-value="selectedTripId"
           name="selected-trip-select"
           :options="tripOptions"
+          placeholder="Selected Trip"
           @update:model-value="handleSelectTrip" />
       </div>
 

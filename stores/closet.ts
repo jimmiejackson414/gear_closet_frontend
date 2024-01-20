@@ -65,8 +65,7 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
             this.data.allPacks = pageData.packs || [];
           }
         } catch (err: any) {
-          console.log(`inside catch`, err);
-          $store.notifyNegative(err);
+          $store.notifyNegative('An error occurred fetching the closet page.');
         } finally {
           this.pageLoading = false;
         }

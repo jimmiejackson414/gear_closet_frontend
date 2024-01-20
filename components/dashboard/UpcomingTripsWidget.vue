@@ -41,7 +41,7 @@
 </script>
 
 <template>
-  <div class="bg-white p-4 rounded-2xl shadow-light">
+  <div class="!bg-white card card-aside">
     <gc-skeleton
       v-if="loading"
       avatar

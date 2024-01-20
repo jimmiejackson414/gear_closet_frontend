@@ -1,0 +1,13 @@
+@layer components {
+  .card {
+    @apply px-8 py-4 shadow-light;
+
+    &.card-main {
+      @apply bg-white rounded-4xl;
+    }
+
+    &.card-aside {
+      @apply bg-gray-50 rounded-2xl;
+    }
+  }
+}

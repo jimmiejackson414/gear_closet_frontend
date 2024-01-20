@@ -87,10 +87,10 @@
 </script>
 
 <template>
-  <div class="bg-grey-50 px-8 py-4 rounded-2xl shadow-light">
+  <div class="card card-aside">
     <div class="flex justify-start items-center py-4">
       <users-round-icon class="h-6 mr-6 text-primary w-6" />
-      <p class="font-bold text-base">
+      <p class="!font-bold text-base">
         Friends
       </p>
     </div>

@@ -160,10 +160,10 @@
 </script>
 
 <template>
-  <div class="bg-white px-8 py-4 rounded-4xl shadow-light">
+  <div class="card card-main">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
       <footprints-icon class="h-6 mr-6 text-primary w-6" />
-      <p class="font-bold text-base">
+      <p class="!font-bold text-base">
         Trip Details
       </p>
       <gc-button
