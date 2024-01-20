@@ -4,12 +4,20 @@ import type { ExtendedPack } from "@/types/helpers";
 
 export interface ClosetPageData {
   selectedPack?: ExtendedPack;
-  allPacks: Tables<'packs'>[];
+  allPacks: {
+    id: number;
+    name: string;
+    slug: string;  
+  }[];
 }
 
 interface ClosetPageResponse {
   pack: ExtendedPack;
-  packs: Tables<'packs'>[];
+  packs: {
+    id: number;
+    name: string;
+    slug: string;
+  }[];
 }
 
 type State = {

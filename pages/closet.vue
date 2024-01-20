@@ -4,7 +4,7 @@
   import generateThemeOptions from '@/utils/chartTheme';
   import { Theme } from '@/types';
   import type { ExtendedPack, SelectOption, ParsedResults, ExtendedCategory } from '@/types/helpers';
-  import type { Database, Tables } from '@/types';
+  import type { Database } from '@/types';
 
   definePageMeta({ layout: 'page-layout' });
 
@@ -14,7 +14,7 @@
   const $cookie = useCookie('selectedPackId');
   const { data, pageLoading } = storeToRefs($store);
 
-  const packOptions = computed(() => data.value.allPacks.map((p: Tables<'packs'>) => ({ label: p.name, value: p.id })) as SelectOption[]);
+  const packOptions = computed(() => data.value.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
   
   let identifier = 0;
   watch($cookie, (newValue) => {
@@ -57,7 +57,6 @@
           .trim()
           .replace(/\s/g, '_'),
         complete: (results: ParseResult<Record<string, unknown>>) => {
-          console.log({ results });
           parsingResult.value = {
             status: 'success',
             message: 'Successfully parsed CSV file!',
@@ -65,7 +64,6 @@
           resolve(results);
         },
         error: (err) => {
-          console.log({ err });
           parsingResult.value = {
             status: 'failure',
             message: 'There was an error parsing the CSV file.',
@@ -92,7 +90,7 @@
         .select();
 
       if (createdPack?.length && !error) {
-        data.value.allPacks.push(createdPack[0]);
+        data.value.allPacks.push({ id: createdPack[0].id, name: createdPack[0].name as string, slug: createdPack[0].slug as string });
         data.value.selectedPack = createdPack[0] as ExtendedPack;
       } else {
         $appStore.notifyNegative('There was an error creating the pack.');
@@ -101,14 +99,15 @@
       if (file.value && createdPack?.length) {
         const parseResults = await parseFile(file.value) as ParsedResults;
         if (parseResults.data?.length) {
-          const { data: createdItems, error } = await supabase
+          const { data: createdCategories, error } = await supabase
             .rpc('import_csv_data', {
               p_pack_id: createdPack[0].id,
               csv_data: parseResults.data,
             })
-            .returns<{ categories: ExtendedCategory[] }>();
+            .returns<ExtendedCategory[]>();
 
-          if (createdItems?.categories.length && !error) {
+          if (createdCategories?.length && !error) {
+            (data.value.selectedPack as ExtendedPack).categories = createdCategories;
             $appStore.notifyPositive('Pack and items created successfully!');
           } else {
             $appStore.notifyNegative('There was an error importing the CSV.');
@@ -206,7 +205,7 @@
 
     <div v-if="!data.allPacks.length">
       <gc-empty-state>
-        <h5 class="font-bold mb-3 text-lg">
+        <h5 class="font-bold mb-3 text-base-lg">
           You haven't created any packs yet!
         </h5>
         <p class="mb-4 text-base">
@@ -356,5 +355,7 @@
           @click="createPack" />
       </template>
     </gc-modal>
+
+    <!-- Share Pack Dialog -->
   </div>
 </template>

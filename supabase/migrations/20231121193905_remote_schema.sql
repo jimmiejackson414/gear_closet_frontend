@@ -395,7 +395,7 @@ CREATE OR REPLACE FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) R
     END IF;
 
     -- Fetch all user's packs
-    SELECT COALESCE((SELECT json_agg(json_build_object('id', p.id, 'name', p.name)) FROM packs p WHERE p.profile_id = auth.uid()), '[]'::JSON) INTO user_packs;
+    SELECT COALESCE((SELECT json_agg(json_build_object('id', p.id, 'name', p.name, 'slug', p.slug)) FROM packs p WHERE p.profile_id = auth.uid()), '[]'::JSON) INTO user_packs;
 
     -- Fetch pack data using dynamic_pack_id along with associated category details, category items, and items
     SELECT COALESCE((SELECT json_build_object(
@@ -444,37 +444,65 @@ LANGUAGE plpgsql
 AS $$
 DECLARE
   "row_data" JSONB;
-  "category_id" BIGINT;
+  "cat_id" BIGINT;
   "item_id" BIGINT;
-  "result" JSONB := '[]'::JSONB;
+  "item_position" INTEGER;  -- renamed from "position"
 BEGIN
   FOR "row_data" IN SELECT * FROM jsonb_array_elements("csv_data")
   LOOP
-    -- Insert category
-    INSERT INTO "public"."categories" ("name", "slug", "unit", "pack_id", "created_at", "updated_at")
-    VALUES ("row_data"->>'category', 'slug', 'g', "p_pack_id", NOW(), NOW())
-    RETURNING "id" INTO "category_id";
+    -- Try to get the existing category id
+    SELECT "id" INTO "cat_id" FROM "public"."categories" WHERE "name" = "row_data"->>'category' AND "pack_id" = "p_pack_id";
+
+    -- If category doesn't exist, insert it and get the id
+    IF "cat_id" IS NULL THEN
+      INSERT INTO "public"."categories" ("name", "slug", "unit", "pack_id", "created_at", "updated_at")
+      VALUES ("row_data"->>'category', 'slug', 'g', "p_pack_id", NOW(), NOW())
+      RETURNING "id" INTO "cat_id";
+      -- Reset position counter for new category
+      "item_position" := 1;  -- renamed from "position"
+    ELSE
+      -- Get the current maximum position in the category
+      SELECT COALESCE(MAX("position"), 0) + 1 INTO "item_position" FROM "public"."category_items" WHERE "category_id" = "cat_id";  -- renamed from "position"
+    END IF;
 
     -- Insert item
     INSERT INTO "public"."items" ("name", "generic_type", "price", "consumable", "worn", "quantity", "unit", "weight", "url", "slug", "created_at", "updated_at", "profile_id")
-    VALUES ("row_data"->>'item_name', "row_data"->>'desc', "row_data"->>'price', "row_data"->>'consumable', "row_data"->>'worn', "row_data"->>'qty', "row_data"->>'unit', "row_data"->>'weight', "row_data"->>'url', 'slug', NOW(), NOW(), auth.uid())
+    VALUES ("row_data"->>'item_name', "row_data"->>'desc', ("row_data"->>'price')::bigint, (trim("row_data"->>'consumable') != '')::boolean, (trim("row_data"->>'worn') != '')::boolean, ("row_data"->>'qty')::bigint, "row_data"->>'unit', ("row_data"->>'weight')::numeric, "row_data"->>'url', 'slug', NOW(), NOW(), auth.uid())
     RETURNING "id" INTO "item_id";
 
     -- Link item to category
     INSERT INTO "public"."category_items" ("category_id", "item_id", "position", "created_at", "updated_at")
-    VALUES ("category_id", "item_id", 0, NOW(), NOW());
-
-    -- Add category and item to result
-    "result" := jsonb_set("result", '{' || "category_id" || '}', jsonb_build_object(
-      'category', (SELECT row_to_json(c.*) FROM "public"."categories" c WHERE c."id" = "category_id"),
-      'category_items', (SELECT json_agg(json_build_object(
-        'category_item', row_to_json(ci.*),
-        'item', row_to_json(i.*)
-      )) FROM "public"."category_items" ci JOIN "public"."items" i ON ci."item_id" = i."id" WHERE ci."category_id" = "category_id")
-    ));
+    VALUES ("cat_id", "item_id", "item_position", NOW(), NOW());  -- renamed from "position"
   END LOOP;
 
-  RETURN "result";
+  -- Return the data in the desired format
+  RETURN (
+    SELECT json_agg(json_build_object(
+      'id', c.id,
+      'name', c.name,
+      'slug', c.slug,
+      'unit', c.unit,
+      'pack_id', c.pack_id,
+      'created_at', c.created_at,
+      'updated_at', c.updated_at,
+      'category_items', (
+        SELECT json_agg(json_build_object(
+          'id', ci.id,
+          'category_id', ci.category_id,
+          'item_id', ci.item_id,
+          'position', ci.position,
+          'created_at', ci.created_at,
+          'updated_at', ci.updated_at,
+          'item', i.*
+        ))
+        FROM "public"."category_items" ci
+        JOIN "public"."items" i ON ci."item_id" = i."id"
+        WHERE ci."category_id" = c."id"
+      )
+    ))
+    FROM "public"."categories" c
+    WHERE c."pack_id" = "p_pack_id"
+  );
 END;
 $$;
 ALTER FUNCTION "public"."import_csv_data"("csv_data" JSONB, "p_pack_id" BIGINT) OWNER TO "postgres";
