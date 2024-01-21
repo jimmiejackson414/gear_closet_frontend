@@ -23,7 +23,12 @@ export default defineNuxtConfig({
   },
 
   build: {
-    transpile: ['@vuepic/vue-datepicker'],
+    transpile: [
+      '@vuepic/vue-datepicker',
+      'echarts',
+      'zrender',
+      'tslib',
+    ],
   },
 
   components: [

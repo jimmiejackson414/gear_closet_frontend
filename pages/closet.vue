@@ -226,6 +226,11 @@
                     Settings
                   </p>
                 </headless-menu-item>
+                <headless-menu-item @click="isUploadCsvModalOpen = true">
+                  <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-dark-grey hover:bg-gray-100">
+                    Import from CSV
+                  </p>
+                </headless-menu-item>
                 <headless-menu-item @click="sharePackList">
                   <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-dark-grey hover:bg-gray-100">
                     Share pack list
@@ -454,7 +459,7 @@
           @click="isUploadCsvModalOpen = false" />
         <gc-button
           :disabled="submitting"
-          label="Add Pack"
+          label="Add Items"
           :loading="submitting"
           size="sm"
           @click="insertItemsFromCsv" /> 

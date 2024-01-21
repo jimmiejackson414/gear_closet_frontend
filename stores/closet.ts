@@ -1,5 +1,5 @@
 import { defineStore } from "pinia";
-import type { Database, Tables } from "@/types";
+import type { Database } from "@/types";
 import type { ExtendedPack } from "@/types/helpers";
 
 export interface ClosetPageData {

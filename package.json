@@ -48,11 +48,11 @@
     "@pinia/nuxt": "^0.5.1",
     "@stripe/stripe-js": "^2.2.1",
     "@vuepic/vue-datepicker": "^7.4.0",
-    "apexcharts": "^3.44.2",
     "convert": "^4.14.0",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.10",
     "dinero.js": "^1.9.1",
+    "echarts": "^5.4.3",
     "filepond": "^4.30.4",
     "filepond-plugin-file-encode": "^2.1.13",
     "filepond-plugin-file-validate-size": "^2.2.8",
@@ -68,9 +68,9 @@
     "pinia": "^2.1.7",
     "uuid": "^9.0.1",
     "v-onboarding": "^2.6.0",
+    "vue-echarts": "^6.6.8",
     "vue-filepond": "^7.0.4",
     "vue-gtag": "^2.0.1",
-    "vue-toastification": "^2.0.0-rc.5",
-    "vue3-apexcharts": "^1.4.4"
+    "vue-toastification": "^2.0.0-rc.5"
   }
 }
