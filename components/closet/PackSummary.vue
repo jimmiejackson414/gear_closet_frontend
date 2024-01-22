@@ -15,6 +15,7 @@
   import { Theme, type Database } from '@/types';
   import convert, { type Mass } from 'convert';
   import type { ExtendedCategory } from '@/types/helpers';
+  import type { EChartsOption } from 'echarts';
 
   use([
     CanvasRenderer,
@@ -34,6 +35,7 @@
    */
   const submitting = ref(false);
   const isChangeThemeModalOpen = ref(false);
+  const chartRef = ref<InstanceType<typeof VChart> | null>(null);
   const updateTheme = async () => {
     try {
       submitting.value = true;
@@ -45,6 +47,17 @@
         .select();
       
       if (error || !pack) throw error;
+      chartRef.value?.setOption({
+        series: [{
+          itemStyle: {
+            color: (params: any) => {
+              const theme = findTheme(selectedTheme.value);
+              return theme[params.dataIndex];
+            },
+          },
+        }],
+      });
+      data.value.selectedPack!.theme = pack[0].theme;
       $appStore.notifyPositive('Successfully updated your pack theme.');
     } catch (error) {
       $appStore.notifyNegative('There was an error updating your pack theme.');
@@ -58,29 +71,32 @@
   const themeOptions = computed(() => generateThemeOptions());
 
   /* Bar Chart Options */
-  const barChart = ref(null);
-  const categoryName = ref('');
-  const categoryColor = ref('');
   const details = reactive([
     { title: 'Worn', weight: 0, color: '' },
     { title: 'Consumable', weight: 0, color: '' },
     { title: 'Base', weight: 0, color: '' },
     { title: 'Total', weight: 0, color: '' },
   ]);
-  const option = ref({
-    // tooltip: {
-    //   trigger: 'item',
-    //   formatter: '{a} <br/>{b} : {c} ({d}%)',
-    // },
+  const chartOptions = ref<EChartsOption>({
+    animationDuration: 300,
     xAxis: {
       type: 'category',
       axisTick: { alignWithLabel: true },
-      axisLabel: { rotate: 30 },
+      axisLabel: { rotate: 30, overflow: 'break', width: 100, margin: 24 },
       data: data.value.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
     },
     yAxis: {
       type: 'value',
+      splitLine: { show: false },
+      axisLabel: {
+        formatter: (value: any) => {
+          const weight = round(convert(value as number, 'g')
+            .to('lb'));
+          return `${weight} lbs`;
+        },
+      },
     },
+    grid: { show: false },
     series: [
       {
         data: data.value.selectedPack?.categories?.map(category => {
@@ -90,7 +106,7 @@
         }),
         type: 'bar',
         itemStyle: {
-          barBorderRadius: 5,
+          borderRadius: 5,
           color: (params: any) => {
             const theme = findTheme(data.value.selectedPack?.theme as Theme);
             return theme[params.dataIndex];
@@ -103,37 +119,21 @@
       trigger: 'item',
       formatter: (value: any) => {
         const category = data.value.selectedPack?.categories?.[value.dataIndex];
-        console.log({ category });
         const categoryWeight = calculateCategoryWeight(category as ExtendedCategory);
         const weight = round(convert(categoryWeight, 'mg')
           .to('lb'), 2);
-        return (
-          `<div class="flex flex-col gap-2 w-fit">
-            <p class="!font-bold text-base">
+        return (`
+          <div class="flex flex-col gap-2 w-fit">
+            <p class="text-eyebrow !text-sm">
+              <span style="margin-right: 4px; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${value.color};"></span>
               ${category?.name}
             </p>
-            <p class="font-bold text-base">
+            <p class="!font-bold text-base-lg text-center">
               ${weight} lbs
             </p>
-          </div>`
-        );
+          </div>
+        `);
       },
-      // formatter: (params: any) => {
-      //   console.log({ params });
-      //   return (
-      //     `<div class="flex gap-2 w-fit">
-      //       <span
-      //         class="border-1 border-white h-4 rounded-full w-4"
-      //         :style="{ backgroundColor: ${params.color} }"></span>
-      //       <p class="font-bold text-base">
-      //         ${params.name}
-      //       </p>
-      //       <p class="font-bold text-base">
-      //         ${params.value} lbs
-      //       </p>
-      //     </div>`
-      //   );
-      // },
     },
   });
 
@@ -151,14 +151,6 @@
       }
     }
   });
-
-  // watch for theme change
-  watch(() => selectedTheme, () => {
-    option.value.series[0].itemStyle.color = (params: any) => {
-      const theme = findTheme(selectedTheme.value);
-      return theme[params.dataIndex];
-    };
-  });
 </script>
 
 <template>
@@ -172,7 +164,12 @@
           </p>
         </div>
         <div class="h-[200px] lg:h-[375px] mb-4 mt-0 mx-auto w-full">
-          <v-chart :option="option" />
+          <client-only>
+            <v-chart
+              ref="chartRef"
+              :autoresize="true"
+              :option="chartOptions" />
+          </client-only>
         </div>
       </div>
       <div class="flex flex-col">
@@ -213,7 +210,7 @@
               {{ detail.title }}
             </span>
             <h6
-              class="font-bold text-lg"
+              class="duration-300 ease-snap font-bold text-lg transition-colors"
               :style="{ color: detail.color }">
               {{ detail.weight || '' }} lbs
             </h6>
@@ -223,7 +220,7 @@
     </div>
   </div>
   
-
+  <!-- Change Theme Modal -->
   <gc-modal
     :is-open="isChangeThemeModalOpen"
     size="sm"
@@ -239,7 +236,7 @@
           label="Theme"
           :model-value="selectedTheme"
           :options="themeOptions"
-          @update:model-value="(value: Theme) => selectedTheme = value">
+          @update:model-value="(val: Option) => selectedTheme = val.value">
           <template #option="{ option }">
             <div class="flex items-center gap-3">
               <div class="flex items-center gap-1">
@@ -251,6 +248,20 @@
               </div>
               <p class="text-base">
                 {{ option.label }}
+              </p>
+            </div>
+          </template>
+          <template #selected="{ selectedOption }">
+            <div class="flex items-center gap-3">
+              <div class="flex items-center gap-1">
+                <span
+                  v-for="color in findTheme(selectedOption)"
+                  :key="color"
+                  class="border-1 border-white h-4 rounded-[3px] w-4"
+                  :style="{ backgroundColor: color }" />
+              </div>
+              <p class="text-base">
+                {{ selectedOption }}
               </p>
             </div>
           </template>

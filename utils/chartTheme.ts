@@ -183,7 +183,7 @@ export const HueCircle19 = [
   '#4f7cba',
 ];
 
-export const findTheme = (theme: Theme | undefined): Array<string> => {
+export const findTheme = (theme: Theme | string | undefined): Array<string> => {
   switch (theme) {
     case Theme.BLUE6:
       return Blue6;
