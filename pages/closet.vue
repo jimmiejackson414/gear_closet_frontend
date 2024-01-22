@@ -192,6 +192,9 @@
     // TODO: Implement sharing pack list.
   };
 
+  const isDeleteCategoryModalOpen = ref(false);
+  const isDeletePackModalOpen = ref(false);
+
   useHead({
     title: 'Closet | Gear Closet',
     meta: [
@@ -219,13 +222,6 @@
             </div>
             <zoom-transition>
               <headless-menu-items class="absolute right-0 bg-white divide-gray-100 divide-y mt-2 origin-top-right ring-1 ring-black/5 rounded-md shadow-lg w-56 focus:outline-none">
-                <headless-menu-item
-                  class="border-b border-gray-300"
-                  disabled>
-                  <p class="!text-xs block font-bold px-4 py-2 rounded-t-lg text-eyebrow text-grey">
-                    Settings
-                  </p>
-                </headless-menu-item>
                 <headless-menu-item @click="isUploadCsvModalOpen = true">
                   <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-dark-grey hover:bg-gray-100">
                     Import from CSV
@@ -234,6 +230,11 @@
                 <headless-menu-item @click="sharePackList">
                   <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-dark-grey hover:bg-gray-100">
                     Share pack list
+                  </p>
+                </headless-menu-item>
+                <headless-menu-item @click="isDeletePackModalOpen = true">
+                  <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-danger hover:bg-gray-100">
+                    Delete pack
                   </p>
                 </headless-menu-item>
               </headless-menu-items>
@@ -259,7 +260,7 @@
       </gc-button>
     </div>
 
-    <div v-if="!data.allPacks.length">
+    <div v-if="!data.allPacks.length && !pageLoading">
       <gc-empty-state>
         <h5 class="font-bold mb-3 text-base-lg">
           You haven't created any packs yet!
@@ -276,7 +277,7 @@
     </div>
 
     <!-- Pack Summary & Tables -->
-    <div v-else-if="data.selectedPack">
+    <div v-else-if="data.selectedPack && !pageLoading">
       <div v-if="!data.selectedPack.categories.length">
         <gc-empty-state>
           <h5 class="font-bold mb-2 text-base-lg">
@@ -304,13 +305,13 @@
       <div v-else>
         <pack-summary />
         <div class="mt-8">
-          <h5 class="font-bold mb-3 text-lg">
-            Pack Details
-          </h5>
-          <pack-items-table
-            v-for="category in data.selectedPack.categories"
-            :key="category.id"
-            :category="category" />
+          <div class="flex flex-col gap-6">
+            <pack-items-table
+              v-for="category in data.selectedPack.categories"
+              :key="category.id"
+              :category="category"
+              @handle-delete-modal="isDeleteCategoryModalOpen = true" />
+          </div>
         </div>
       </div>
     </div>
@@ -466,6 +467,10 @@
       </template>
     </gc-modal>
 
-    <!-- Share Pack Dialog -->
+    <!-- Share Pack Modal -->
+
+    <!-- Delete Category Modal -->
+
+    <!-- Delete Pack Modal -->
   </div>
 </template>
