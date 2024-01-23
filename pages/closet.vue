@@ -314,7 +314,7 @@
         <div class="mt-8">
           <div class="flex flex-col gap-6">
             <dynamic-scroller
-              class="scroller"
+              class="h-100"
               :items="data.selectedPack.categories"
               :min-item-size="122">
               <template #default="{ item, index, active }">
@@ -329,11 +329,6 @@
                 </dynamic-scroller-item>
               </template>
             </dynamic-scroller>
-            <!-- <pack-items-table
-              v-for="category in data.selectedPack.categories"
-              :key="category.id"
-              :category="category"
-              @handle-delete-modal="isDeleteCategoryModalOpen = true" /> -->
           </div>
         </div>
       </div>
