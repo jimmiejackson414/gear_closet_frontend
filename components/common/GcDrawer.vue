@@ -44,12 +44,9 @@
             :color="iconColor(link)"
             :size="24" />
         </nuxt-link>
-        <div
+        <gc-tooltip
           :id="`tooltip-${link.title.toLowerCase()}`"
-          class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
-          role="tooltip">
-          {{ link.title }}
-        </div>
+          :label="link.title" />
       </li>
 
       <li class="grow" />
@@ -65,12 +62,9 @@
             :color="tailwind.theme.colors['grey']"
             :size="24" />
         </span>
-        <div
+        <gc-tooltip
           id="tooltip-logout"
-          class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
-          role="tooltip">
-          Logout
-        </div>
+          label="Logout" />
       </li>
     </ul>
   </div>

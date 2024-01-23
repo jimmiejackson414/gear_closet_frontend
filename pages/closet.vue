@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  // import { initTooltips } from 'flowbite';
   import Papa, { type ParseResult } from 'papaparse';
   import { InfoIcon, PlusIcon, SettingsIcon } from 'lucide-vue-next';
   import generateThemeOptions from '@/utils/chartTheme';
@@ -13,6 +14,12 @@
   const $store = useClosetStore();
   const $cookie = useCookie('selectedPackId');
   const { data, pageLoading } = storeToRefs($store);
+
+  // watch(data, async (newVal) => {
+  //   if (newVal.selectedPack?.categories.length && !pageLoading.value) {
+  //     initTooltips();
+  //   }
+  // }, { immediate: true, deep: true });
 
   const packOptions = computed(() => data.value.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
   
@@ -365,13 +372,9 @@
                   class="h-4 w-4"
                   data-tooltip-placement="right"
                   data-tooltip-target="tooltip-private" />
-                <div
+                <gc-tooltip
                   id="tooltip-private"
-                  class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
-                  role="tooltip"
-                  @mouseover="$event.stopPropagation">
-                  Private packs cannot be viewed by other users.<br>This setting can be changed later.
-                </div>
+                  label="Private packs cannot be viewed by other users. This setting can be changed later." />
               </div>
             </gc-toggle>
             <gc-toggle
@@ -386,13 +389,9 @@
                   class="h-4 w-4"
                   data-tooltip-placement="right"
                   data-tooltip-target="tooltip-comments" />
-                <div
+                <gc-tooltip
                   id="tooltip-comments"
-                  class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
-                  role="tooltip"
-                  @mouseover="$event.stopPropagation">
-                  Allow users you share this pack with list to make comments?<br>This setting can be changed later.
-                </div>
+                  label="Allow users you share this pack with list to make comments? This setting can be changed later." />
               </div>
             </gc-toggle>
           </div>
@@ -434,13 +433,9 @@
                   class="h-4 w-4"
                   data-tooltip-placement="top"
                   data-tooltip-target="tooltip-import" />
-                <div
+                <gc-tooltip
                   id="tooltip-import"
-                  class="absolute bg-dark-grey duration-300 font-medium inline-block invisible opacity-0 px-3 py-2 rounded-lg shadow-sm text-sm text-white tooltip transition-opacity z-10"
-                  role="tooltip"
-                  @mouseover="$event.stopPropagation">
-                  Uploading a CSV will automatically add them to your pack.
-                </div>
+                  label="Uploading a CSV will automatically add them to your pack." />
               </div>
             </template>
             <template #help-text>
@@ -463,7 +458,7 @@
           label="Add Items"
           :loading="submitting"
           size="sm"
-          @click="insertItemsFromCsv" /> 
+          @click="insertItemsFromCsv" />
       </template>
     </gc-modal>
 

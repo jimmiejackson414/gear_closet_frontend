@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { AppleIcon, GripVerticalIcon, LinkIcon, ShirtIcon, TrashIcon } from 'lucide-vue-next';
+  import { AppleIcon, ExternalLinkIcon, GripVerticalIcon, LinkIcon, ShirtIcon, TrashIcon } from 'lucide-vue-next';
   import type { ExtendedCategory } from '@/types/helpers';
   import type { Item } from '@/types';
 
@@ -9,7 +9,7 @@
     align: string;
   }
 
-  interface RowItem extends Item {
+  export interface RowItem extends Item {
     position: number;
   }
   
@@ -18,8 +18,9 @@
   }
 
   const props = defineProps<Props>();
-
   const emit = defineEmits(['update:modelValue', 'handleDeleteModal']);
+  const $store = useClosetStore();
+  const submitting = ref(false);
 
   const columns: Column[] = [
     { name: 'drag', label: '', align: 'left' },
@@ -40,16 +41,19 @@
     }));
   });
 
-  const updateItem = (
-    item: RowItem,
-    key: string,
-    value: string | number | boolean | undefined,
-  ) => {
-    console.log(`updateItem: ${item}, ${key}, ${value}`);
-  };
-
+  const activeRow = ref<RowItem | undefined>(undefined);
+  const newUrl = ref('');
   const isAddUrlModalOpen = ref(false);
-  const isRemoveItemModalOpen = ref(false);
+  const isValidUrl = computed(() => {
+    if (!newUrl.value) return false;
+    const urlRegex = /^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/;
+    return urlRegex.test(newUrl.value);
+  });
+  watch(isAddUrlModalOpen, (newVal) => {
+    newVal ? nextTick(() => newUrl.value = activeRow.value?.url || '') : newUrl.value = '';
+  });
+
+  const isRemoveConfirmModalOpen = ref(false);
 </script>
 
 <template>
@@ -108,7 +112,7 @@
                 :model-value="row.name"
                 name="item_name"
                 size="sm"
-                @handle-update="updateItem(row, 'name', $event)">
+                @handle-update="$store.updateItem(row, 'name', $event, category.id)">
                 <p class="!font-medium text-gray-900">
                   {{ row.name }}
                 </p>
@@ -120,7 +124,7 @@
                 :model-value="row.generic_type"
                 name="item_generic_type"
                 size="sm"
-                @handle-update="updateItem(row, 'generic_type', $event)">
+                @handle-update="$store.updateItem(row, 'generic_type', $event, category.id)">
                 <p class="!font-medium text-gray-500">
                   {{ row.generic_type }}
                 </p>
@@ -131,7 +135,7 @@
                 <button
                   class="cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
                   :class="row.consumable ? 'bg-info hover:bg-info/70' : 'bg-transparent hover:bg-gray-200'"
-                  @click="updateItem(row, 'consumable', !row.consumable)">
+                  @click="$store.updateItem(row, 'consumable', !row.consumable, category.id)">
                   <apple-icon
                     class="h-5 text-gray-500 w-5"
                     :class="row.consumable ? 'text-white' : 'text-dark-grey'" />
@@ -143,7 +147,7 @@
                 <button
                   class="cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
                   :class="row.worn ? 'bg-positive hover:bg-positive/70' : 'bg-transparent hover:bg-gray-200'"
-                  @click="updateItem(row, 'worn', !row.worn)">
+                  @click="$store.updateItem(row, 'worn', !row.worn, category.id)">
                   <shirt-icon
                     class="h-5 text-gray-500 w-5"
                     :class="row.worn ? 'text-white' : 'text-dark-grey'" />
@@ -157,7 +161,7 @@
                   :model-value="row.weight"
                   name="item_weight"
                   size="sm"
-                  @handle-update="updateItem(row, 'weight', Number($event))">
+                  @handle-update="$store.updateItem(row, 'weight', Number($event), category.id)">
                   {{ row.weight }}
                 </gc-inline-edit>
               </div>
@@ -169,7 +173,7 @@
                   :model-value="row.price"
                   name="item_price"
                   size="sm"
-                  @handle-update="updateItem(row, 'price', Number($event))">
+                  @handle-update="$store.updateItem(row, 'price', Number($event), category.id)">
                   {{ convertCurrency(row.price || 0) }}
                 </gc-inline-edit>
               </div>
@@ -181,7 +185,7 @@
                   :model-value="row.quantity"
                   name="item_quantity"
                   size="sm"
-                  @handle-update="updateItem(row, 'quantity', Number($event))">
+                  @handle-update="$store.updateItem(row, 'quantity', Number($event), category.id)">
                   {{ row.quantity }}
                 </gc-inline-edit>
               </div>
@@ -191,24 +195,85 @@
                 <!-- Add URL -->
                 <button
                   class="justify-self-end"
-                  @click="isAddUrlModalOpen = true">
-                  <link-icon class="duration-150 ease-snap h-5 text-gray-500 hover:text-primary transition w-5" />
+                  data-tooltip-placement="top"
+                  data-tooltip-target="tooltip-url"
+                  @click="[ activeRow = row, isAddUrlModalOpen = true ]">
+                  <link-icon
+                    class="duration-150 ease-snap h-5 transition w-5"
+                    :class="row.url ? 'text-primary hover:text-primary/70' : 'text-gray-500 hover:text-primary'" />
                 </button>
+                <gc-tooltip
+                  id="tooltip-url"
+                  url="Add URL" />
                 <!-- Remove From Category -->
                 <button
                   class="justify-self-end"
-                  @click="isRemoveItemModalOpen = true">
+                  data-tooltip-placement="top"
+                  data-tooltip-target="tooltip-remove"
+                  @click="[ activeRow = row, isRemoveConfirmModalOpen = true ]">
                   <trash-icon class="duration-150 ease-snap h-5 text-gray-500 hover:text-danger transition w-5" />
                 </button>
+                <gc-tooltip
+                  id="tooltip-remove"
+                  label="Remove from category" />
               </div>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-    
-    <!-- Add URL Modal -->
 
-    <!-- Remove Item Modal -->
+    <!-- Add URL Modal -->
+    <gc-modal
+      :is-open="isAddUrlModalOpen"
+      title="Add URL"
+      @handle-cancel="isAddUrlModalOpen = false">
+      <template #default>
+        <p class="mb-4 text-base">
+          Add a website URL to link to more information about this item.
+        </p>
+        <div class="flex flex-col">
+          <div class="flex items-end gap-4">
+            <gc-input
+              class="w-full"
+              label="URL"
+              :model-value="newUrl"
+              name="url"
+              placeholder="https://www.amazon.com"
+              :prepend-icon="LinkIcon"
+              @update:model-value="newUrl = $event" />
+            <a
+              class="mb-3"
+              data-tooltip-placement="top"
+              data-tooltip-target="tooltip-preview"
+              :disabled="!isValidUrl"
+              :href="newUrl"
+              rel="noopener noreferrer"
+              target="_blank">
+              <external-link-icon
+                class="duration-150 ease-expo h-6 transition w-6"
+                :class="[ !isValidUrl ? 'cursor-not-allowed text-gray-300' : 'text-gray-500 hover:text-primary cursor-pointer' ]" />
+            </a>
+            <gc-tooltip
+              id="tooltip-preview"
+              label="Visit link" />
+          </div>
+        </div>
+      </template>
+      <template #actions>
+        <gc-button
+          :disabled="submitting"
+          label="Cancel"
+          size="sm"
+          variant="secondary"
+          @click="[ isAddUrlModalOpen = false ]" />
+        <gc-button
+          :disabled="submitting"
+          label="Add Items"
+          :loading="submitting"
+          size="sm"
+          @click="[$store.updateItem(activeRow as RowItem, 'url', newUrl, category.id), isAddUrlModalOpen = false]" />
+      </template>
+    </gc-modal>
   </div>
 </template>
