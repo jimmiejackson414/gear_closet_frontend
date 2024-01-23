@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  // import { initTooltips } from 'flowbite';
+  import { initTooltips } from 'flowbite';
   import Papa, { type ParseResult } from 'papaparse';
   import { InfoIcon, PlusIcon, SettingsIcon } from 'lucide-vue-next';
   import generateThemeOptions from '@/utils/chartTheme';
@@ -15,11 +15,11 @@
   const $cookie = useCookie('selectedPackId');
   const { data, pageLoading } = storeToRefs($store);
 
-  // watch(data, async (newVal) => {
-  //   if (newVal.selectedPack?.categories.length && !pageLoading.value) {
-  //     initTooltips();
-  //   }
-  // }, { immediate: true, deep: true });
+  watch(data, async (newVal) => {
+    if (newVal.selectedPack?.categories.length && !pageLoading.value) {
+      initTooltips();
+    }
+  }, { immediate: true, deep: true });
 
   const packOptions = computed(() => data.value.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
   
@@ -313,11 +313,27 @@
         <pack-summary />
         <div class="mt-8">
           <div class="flex flex-col gap-6">
-            <pack-items-table
+            <dynamic-scroller
+              class="scroller"
+              :items="data.selectedPack.categories"
+              :min-item-size="122">
+              <template #default="{ item, index, active }">
+                <dynamic-scroller-item
+                  :active="active"
+                  :data-index="index"
+                  :item="item"
+                  :size-dependencies="[item.worn]">
+                  <pack-items-table
+                    :category="item"
+                    @handle-delete-modal="isDeletePackModalOpen = true" />
+                </dynamic-scroller-item>
+              </template>
+            </dynamic-scroller>
+            <!-- <pack-items-table
               v-for="category in data.selectedPack.categories"
               :key="category.id"
               :category="category"
-              @handle-delete-modal="isDeleteCategoryModalOpen = true" />
+              @handle-delete-modal="isDeleteCategoryModalOpen = true" /> -->
           </div>
         </div>
       </div>
