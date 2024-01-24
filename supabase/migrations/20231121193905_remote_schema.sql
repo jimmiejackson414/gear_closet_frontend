@@ -419,18 +419,20 @@ CREATE OR REPLACE FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) R
             'pack_id', c.pack_id,
             'updated_at', c.updated_at,
             'category_items', (
-              SELECT COALESCE(json_agg(json_build_object(
-                'id', ci.id,
-                'category_id', ci.category_id,
-                'item_id', ci.item_id,
-                'position', ci.position,
-                'created_at', ci.created_at,
-                'updated_at', ci.updated_at,
-                'item', row_to_json(i.*)
-              )), '[]'::JSON)
-              FROM category_items ci
-              JOIN items i ON ci.item_id = i.id
-              WHERE ci.category_id = c.id
+              SELECT COALESCE(json_agg(row_to_json(t) ORDER BY t.position), '[]'::JSON)
+              FROM (
+                SELECT 
+                  ci.id,
+                  ci.category_id,
+                  ci.item_id,
+                  ci.position,
+                  ci.created_at,
+                  ci.updated_at,
+                  row_to_json(i.*) AS item
+                FROM category_items ci
+                JOIN items i ON ci.item_id = i.id
+                WHERE ci.category_id = c.id
+              ) t
             )
           )), '[]'::JSON)
           FROM categories c

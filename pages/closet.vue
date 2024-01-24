@@ -1,10 +1,12 @@
 <script lang='ts' setup>
   import { initTooltips } from 'flowbite';
+  import { useClipboard } from '@vueuse/core';
   import Papa, { type ParseResult } from 'papaparse';
-  import { InfoIcon, PlusIcon, SettingsIcon } from 'lucide-vue-next';
+  import { CopyIcon, ExternalLinkIcon, LinkIcon, InfoIcon, PlusIcon, SettingsIcon } from 'lucide-vue-next';
   import generateThemeOptions from '@/utils/chartTheme';
   import { Theme } from '@/types';
   import type { ExtendedPack, SelectOption, ParsedResults, ExtendedCategory } from '@/types/helpers';
+  import type { RowItem } from '@/components/closet/PackItemsTable.vue';
   import type { Database } from '@/types';
 
   definePageMeta({ layout: 'page-layout' });
@@ -12,18 +14,22 @@
   const $route = useRoute();
   const $appStore = useAppStore();
   const $store = useClosetStore();
-  const $cookie = useCookie('selectedPackId');
   const { data, pageLoading } = storeToRefs($store);
 
   watch(data, async (newVal) => {
     if (newVal.selectedPack?.categories.length && !pageLoading.value) {
+      await nextTick();
       initTooltips();
     }
-  }, { immediate: true, deep: true });
+  }, { deep: true });
 
   const packOptions = computed(() => data.value.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
   
   let identifier = 0;
+  identifier = $route.query?.pack ? Number(decrypt($route.query.pack)) || 0 : identifier;
+  await $store.fetchClosetPage(identifier);
+
+  const $cookie = useCookie('selectedPackId');
   watch($cookie, (newValue) => {
     if (newValue && !$route.query?.pack) {
       identifier = Number(decrypt(newValue)) || 0;
@@ -31,10 +37,6 @@
     }
   }, { immediate: true });
 
-  onMounted(async () => {
-    identifier = $route.query?.pack ? Number(decrypt($route.query.pack)) || 0 : identifier;
-    await $store.fetchClosetPage(identifier);
-  });
 
   const submitting = ref(false);
   const isCreatePackDialogOpen = ref(false);
@@ -195,12 +197,154 @@
     cookie.value = encrypt(pack.value);
   };
 
-  const sharePackList = () => {
-    // TODO: Implement sharing pack list.
+
+  const isDeletePackModalOpen = ref(false);
+
+  /**
+   * Add URL to item
+   */
+  const newUrl = ref('');
+  const isAddUrlModalOpen = ref(false);
+  const activeRow = ref<RowItem | undefined>(undefined);
+  const activeCategoryId = ref<number | undefined>(undefined);
+  const handleInitialAddUrl = (row: RowItem, categoryId: number) => {
+    isAddUrlModalOpen.value = true;
+    activeRow.value = row;
+    activeCategoryId.value = categoryId;
+  };
+  watch(isAddUrlModalOpen, (newVal) => {
+    newVal ? nextTick(() => newUrl.value = activeRow.value?.url || '') : newUrl.value = '';
+  });
+
+  const isValidUrl = ref(false);
+  watch(newUrl, (newValue) => {
+    if (!newValue) return false;
+    const urlRegex = /^(https?:\/\/)?(www\.)?[^.\s]+\.[^\s]*$/gm;
+    isValidUrl.value = urlRegex.test(newValue);
+  }, { immediate: true });
+
+
+  /**
+   * Remove category from pack
+   */
+  const isRemoveCategoryModalOpen = ref(false);
+  // TODO: Pass in categoryId
+  const removeCategory = async (removeFromCloset = false, categoryId: number) => {
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+
+      // Remove category from pack
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', categoryId);
+
+      if (!error) {
+        // Find the index of the category in the pack
+        const categoryIndex = (data.value.selectedPack as ExtendedPack).categories.findIndex(c => c.id === categoryId);
+
+        // Remove the category from the pack
+        if (categoryIndex !== -1) {
+          (data.value.selectedPack as ExtendedPack).categories.splice(categoryIndex, 1);
+        }
+        $appStore.notifyPositive('Category removed from pack successfully.');
+
+        // If removeFromCloset is true, remove items from closet as well
+        if (removeFromCloset) {
+          const { error: closetError } = await supabase
+            .from('items')
+            .delete()
+            .match({ category_id: categoryId });
+
+          if (closetError) {
+            $appStore.notifyNegative('There was an error removing the items from the closet.');
+          } else {
+            $appStore.notifyPositive('Items removed from closet successfully.');
+          }
+        }
+      } else {
+        $appStore.notifyNegative('There was an error removing the category from the pack.');
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error removing the category.');
+    } finally {
+      submitting.value = false;
+      isRemoveCategoryModalOpen.value = false;
+    }
   };
 
-  const isDeleteCategoryModalOpen = ref(false);
-  const isDeletePackModalOpen = ref(false);
+  /**
+   * Remove item from pack
+   */
+  const isRemoveItemModalOpen = ref(false);
+  const removeItemCheckbox = ref(false);
+  // TODO: Pass in categoryId and itemId
+  const removeItem = async (removeFromCloset = false, categoryId = '', itemId = '') => {
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+
+      // Remove item from category
+      const { error } = await supabase
+        .from('category_items')
+        .delete()
+        .match({ category_id: categoryId, item_id: itemId });
+
+      if (!error) {
+        // Find the category
+        const category = (data.value.selectedPack as ExtendedPack).categories.find(c => c.id === Number(categoryId));
+
+        if (category) {
+          // Find the index of the category_item in the category
+          const categoryItemIndex = category.category_items.findIndex(category_item => category_item.item.id === Number(itemId));
+
+          // Remove the category_item from the category
+          if (categoryItemIndex !== -1) {
+            category.category_items.splice(categoryItemIndex, 1);
+          }
+        }
+        $appStore.notifyPositive('Item removed from category successfully.');
+
+        // If removeFromCloset is true, remove item from closet as well
+        if (removeFromCloset) {
+          const { error: closetError } = await supabase
+            .from('items')
+            .delete()
+            .match({ id: itemId });
+
+          if (closetError) {
+            $appStore.notifyNegative('There was an error removing the item from the closet.');
+          } else {
+            $appStore.notifyPositive('Item removed from closet successfully.');
+          }
+        }
+      } else {
+        $appStore.notifyNegative('There was an error removing the item from the category.');
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error removing the item.');
+    } finally {
+      submitting.value = false;
+      isRemoveItemModalOpen.value = false;
+    }
+  };
+
+  /**
+   * Share pack
+   */
+  const { copy } = useClipboard();
+  const isSharePackModalOpen = ref(false);
+  const shareLink = ref('');
+  const sharePackList = () => {
+    shareLink.value = `${window.location.origin}/p/packs/${data.value.selectedPack?.slug}`;
+    isSharePackModalOpen.value = true;
+  };
+
+  const copyToClipboard = () => {
+    copy(shareLink.value);
+    $appStore.notifyInfo('Copied to clipboard!');
+  };
 
   useHead({
     title: 'Closet | Gear Closet',
@@ -312,24 +456,27 @@
       <div v-else>
         <pack-summary />
         <div class="mt-8">
-          <div class="flex flex-col gap-6">
-            <dynamic-scroller
-              class="h-100"
-              :items="data.selectedPack.categories"
-              :min-item-size="122">
-              <template #default="{ item, index, active }">
-                <dynamic-scroller-item
-                  :active="active"
-                  :data-index="index"
-                  :item="item"
-                  :size-dependencies="[item.worn]">
+          <dynamic-scroller
+            class="h-100"
+            :items="data.selectedPack.categories"
+            :min-item-size="122">
+            <template #default="{ item, index, active }">
+              <dynamic-scroller-item
+                :active="active"
+                :data-index="index"
+                :item="item"
+                :size-dependencies="[item.worn]">
+                <div class="py-3">
                   <pack-items-table
                     :category="item"
-                    @handle-delete-modal="isDeletePackModalOpen = true" />
-                </dynamic-scroller-item>
-              </template>
-            </dynamic-scroller>
-          </div>
+                    @handle-add-url="handleInitialAddUrl"
+                    @handle-delete-modal="isDeletePackModalOpen = true"
+                    @handle-remove-category="isRemoveCategoryModalOpen = true"
+                    @handle-remove-item="isRemoveItemModalOpen = true" />
+                </div>
+              </dynamic-scroller-item>
+            </template>
+          </dynamic-scroller>
         </div>
       </div>
     </div>
@@ -474,9 +621,199 @@
     </gc-modal>
 
     <!-- Share Pack Modal -->
+    <gc-modal
+      :is-open="isSharePackModalOpen"
+      title="Share Pack List"
+      @handle-cancel="isSharePackModalOpen = false">
+      <template #default>
+        <div class="flex flex-col">
+          <p class="mb-4 text-base">
+            Share your pack list with other users by sending them the link below.
+          </p>
+          <div class="flex items-center gap-4">
+            <div class="flex items-end gap-4 w-full">
+              <gc-input
+                class="w-full"
+                label="Shareable Link"
+                :model-value="shareLink"
+                name="url"
+                :prepend-icon="LinkIcon"
+                readonly />
+              <button
+                class="cursor-pointer duration-150 ease-snap flex justify-center justify-self-end items-center h-8 mb-2 rounded-full transition w-8"
+                data-tooltip-placement="top"
+                data-tooltip-target="tooltip-share"
+                @click="copyToClipboard">
+                <copy-icon class="cursor-pointer duration-150 ease-expo h-6 text-gray-500 hover:text-primary transition w-6" />
+              </button>
+              <gc-tooltip
+                id="tooltip-share"
+                label="Copy link" />
+            </div>
+          </div>
+        </div>
+      </template>
+      <template #actions>
+        <gc-button
+          :disabled="submitting"
+          label="Close"
+          size="sm"
+          variant="secondary"
+          @click="isSharePackModalOpen = false" />
+      </template>
+    </gc-modal>
 
     <!-- Delete Category Modal -->
+    <gc-modal
+      :is-open="isRemoveCategoryModalOpen"
+      title="Remove Category from Pack"
+      @handle-cancel="[ isRemoveCategoryModalOpen = false, removeItemCheckbox = false]">
+      <template #default>
+        <div>
+          <p class="font-bold mb-0 text-base">
+            Are you sure you want to remove this category from this pack?
+          </p>
+          <p class="!font-bold mb-4 text-base text-danger">
+            This action cannot be undone!
+          </p>
+        </div>
+        <div class="flex items-center gap-4">
+          <gc-checkbox
+            id="remove-item-checkbox"
+            :checked="removeItemCheckbox"
+            label="Remove items from closet?" />
+          <info-icon
+            class="h-4 w-4"
+            data-tooltip-placement="top"
+            data-tooltip-target="tooltip-remove-category" />
+          <gc-tooltip
+            id="tooltip-remove-category"
+            label="Checking this will remove all items from the category as well as your closet." />
+        </div>
+      </template>
+      <template #actions>
+        <gc-button
+          :disabled="submitting"
+          label="Cancel"
+          size="sm"
+          variant="secondary"
+          @click="isRemoveCategoryModalOpen = false" />
+        <gc-button
+          :disabled="submitting"
+          label="Remove Category"
+          :loading="submitting"
+          size="sm"
+          variant="danger"
+          @click="removeCategory" />
+      </template>
+    </gc-modal>
 
     <!-- Delete Pack Modal -->
+
+    <!-- Remove Item Modal -->
+    <gc-modal
+      :is-open="isRemoveItemModalOpen"
+      title="Remove from Category"
+      @handle-cancel="[ isRemoveItemModalOpen = false, removeItemCheckbox = false ]">
+      <template #default>
+        <div>
+          <p class="font-bold mb-0 text-base">
+            Are you sure you want to remove this item from the category?
+          </p>
+          <p class="!font-bold mb-4 text-base text-danger">
+            This action cannot be undone!
+          </p>
+        </div>
+        <div class="flex items-center gap-4">
+          <gc-checkbox
+            id="remove-item-checkbox"
+            :checked="removeItemCheckbox"
+            label="Remove from closet?" />
+          <info-icon
+            class="h-4 w-4"
+            data-tooltip-placement="top"
+            data-tooltip-target="tooltip-remove-item" />
+          <gc-tooltip
+            id="tooltip-remove-item"
+            label="Unchecking this will keep the item in your closet to add later" />
+        </div>
+      </template>
+      <template #actions>
+        <gc-button
+          :disabled="submitting"
+          label="Cancel"
+          size="sm"
+          variant="secondary"
+          @click="isRemoveItemModalOpen = false" />
+        <gc-button
+          :disabled="submitting"
+          label="Remove Item"
+          :loading="submitting"
+          size="sm"
+          variant="danger"
+          @click="removeItem" />
+      </template>
+    </gc-modal>
+
+    <!-- Add URL Modal -->
+    <gc-modal
+      :is-open="isAddUrlModalOpen"
+      title="Add URL"
+      @handle-cancel="[ isAddUrlModalOpen = false, activeRow = undefined, activeCategoryId = undefined ]">
+      <template #default>
+        <p class="mb-4 text-base">
+          Add a website URL to link to more information about this item.
+        </p>
+        <div class="flex flex-col">
+          <div class="flex items-end gap-4">
+            <gc-input
+              class="w-full"
+              label="URL"
+              :model-value="newUrl"
+              name="url"
+              placeholder="https://www.amazon.com"
+              :prepend-icon="LinkIcon"
+              @update:model-value="newUrl = $event" />
+            <a
+              class="mb-3"
+              data-tooltip-placement="top"
+              data-tooltip-target="tooltip-preview"
+              :disabled="!isValidUrl"
+              :href="newUrl"
+              rel="noopener noreferrer"
+              target="_blank">
+              <external-link-icon
+                class="duration-150 ease-expo h-6 transition w-6"
+                :class="!isValidUrl ? 'cursor-not-allowed text-gray-300' : 'text-gray-500 hover:text-primary cursor-pointer'" />
+            </a>
+            <gc-tooltip
+              id="tooltip-preview"
+              label="Visit link" />
+          </div>
+        </div>
+      </template>
+      <template #actions>
+        <gc-button
+          :disabled="submitting"
+          label="Cancel"
+          size="sm"
+          variant="secondary"
+          @click="[ isAddUrlModalOpen = false, activeRow = undefined, activeCategoryId = undefined ]" />
+        <gc-button
+          data-tooltip-placement="top"
+          data-tooltip-target="tooltip-add"
+          :disabled="submitting || !isValidUrl"
+          label="Add Items"
+          :loading="submitting"
+          size="sm"
+          @click="[
+            $store.updateItem(activeRow as RowItem, 'url', newUrl, activeCategoryId as number),
+            isAddUrlModalOpen = false
+          ]" />
+        <gc-tooltip
+          id="tooltip-add"
+          label="Not a valid URL" />
+      </template>
+    </gc-modal>
   </div>
 </template>

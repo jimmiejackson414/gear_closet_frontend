@@ -77,17 +77,17 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
        * Updates the item with the new value.
        */
       async updateItem (item, key, value, categoryId) {
-        console.log(`updateItem: ${item}, ${key}, ${value}, ${categoryId}`);
         const $appStore = useAppStore();
         try {
           const supabase = useSupabaseClient<Database>();
+
+          if (key === 'url') { value = prependProtocol(value as string);}
           const { data: updatedItem, error } = await supabase.from('items')
             .update({
               [key]: value,
             })
             .eq('id', item.id)
             .select();
-            console.log({ updatedItem, error });
 
           if (error || !updatedItem) {
             $appStore.notifyNegative('There was an error updating the item.');
