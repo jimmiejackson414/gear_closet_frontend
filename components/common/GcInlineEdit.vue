@@ -9,6 +9,7 @@
     type?: string;
     size?: 'sm' | 'md' | 'lg';
     inputClasses?: string;
+    spanClasses?: string;
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -18,6 +19,7 @@
     type: 'text',
     size: 'md',
     inputClasses: 'w-fit',
+    spanClasses: undefined,
   });
 
   const emits = defineEmits(['handleUpdate']);
@@ -59,7 +61,8 @@
     :class="inputClasses">
     <span
       v-show="!isEditing"
-      class="cursor-pointer duration-100 ease-snap flex items-center group py-1.5 transition"
+      class="cursor-pointer duration-100 ease-snap flex items-center group py-1.5 transition-all"
+      :class="[ spanClasses, { 'border border-transparent hover:border-gray-300 min-h-[34px] rounded-lg': !modelValue } ]"
       @click="toggleEditing"
       @keydown="toggleEditing"
       @trigger="toggleEditing">

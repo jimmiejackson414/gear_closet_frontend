@@ -35,36 +35,28 @@
         <nuxt-link
           class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
           :class="isActiveRoute(link) ? 'bg-gray-100' : ''"
-          data-tooltip-placement="right"
-          :data-tooltip-target="`tooltip-${link.title.toLowerCase()}`"
           :disabled="link.disabled"
           :to="link.to">
           <component
             :is="link.icon"
+            v-tippy="{ content: link.title, placement: 'right', offset: [0, 30]}"
             :color="iconColor(link)"
             :size="24" />
         </nuxt-link>
-        <gc-tooltip
-          :id="`tooltip-${link.title.toLowerCase()}`"
-          :label="link.title" />
       </li>
 
       <li class="grow" />
 
       <li class="cursor-pointer">
         <span
+          v-tippy="{ content: 'Logout', placement: 'right' }"
           class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
-          data-tooltip-placement="right"
-          data-tooltip-target="tooltip-logout"
           @click="handleLogout">
           <component
             :is="LogOutIcon"
             :color="tailwind.theme.colors['grey']"
             :size="24" />
         </span>
-        <gc-tooltip
-          id="tooltip-logout"
-          label="Logout" />
       </li>
     </ul>
   </div>

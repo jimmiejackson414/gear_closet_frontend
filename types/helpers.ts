@@ -5,6 +5,7 @@ export type ExtendedCategoryItem = Tables<'category_items'> & {
 };
 
 export type ExtendedCategory = Tables<'categories'> & {
+  [key: string]: any;
   category_items: ExtendedCategoryItem[];
 };
 

@@ -15,6 +15,7 @@
   const $appStore = useAppStore();
   const $store = useClosetStore();
   const { data, pageLoading } = storeToRefs($store);
+  const activeCategoryId = ref<number | undefined>(undefined);
 
   watch(data, async (newVal) => {
     if (newVal.selectedPack?.categories.length && !pageLoading.value) {
@@ -177,8 +178,45 @@
         $appStore.notifyNegative('There was an error creating the category.');
       }
     } catch (err) {
-      console.log({ err });
       $appStore.notifyNegative('There was an error creating the category.');
+    } finally {
+      submitting.value = false;
+    }
+  };
+
+  /**
+   * Updates a category.
+   */
+  interface UpdateCategoryPayload {
+    field: keyof ExtendedCategory;
+    value: string;
+  }
+  const updateCategory = async ({ field, value }: UpdateCategoryPayload) => {
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      const { data: updatedCategory, error } = await supabase
+        .from('categories')
+        .update({
+          [field]: value,
+        })
+        .eq('id', activeCategoryId.value as number)
+        .select();
+
+      if (updatedCategory && !error) {
+        // Find the category
+        const category = (data.value.selectedPack as ExtendedPack).categories.find(c => c.id === Number(activeCategoryId.value));
+
+        if (category) {
+          // Update the category
+          category[field] = value;
+        }
+        $appStore.notifyPositive('Category updated successfully.');
+      } else {
+        $appStore.notifyNegative('There was an error updating the category.');
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error updating the category.');
     } finally {
       submitting.value = false;
     }
@@ -197,8 +235,41 @@
     cookie.value = encrypt(pack.value);
   };
 
-
+  /**
+   * Delete pack
+   */
   const isDeletePackModalOpen = ref(false);
+  const deletePack = async () => {
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      const { error } = await supabase
+        .from('packs')
+        .delete()
+        .eq('id', data.value.selectedPack?.id as number);
+
+      if (!error) {
+        // Find the index of the pack in the allPacks array
+        const packIndex = data.value.allPacks.findIndex(p => p.id === data.value.selectedPack?.id);
+
+        // Remove the pack from the allPacks array
+        if (packIndex !== -1) {
+          data.value.allPacks.splice(packIndex, 1);
+        }
+
+        // Remove the pack from the selectedPack
+        data.value.selectedPack = undefined;
+        $appStore.notifyPositive('Pack deleted successfully.');
+      } else {
+        $appStore.notifyNegative('There was an error deleting the pack.');
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error deleting the pack.');
+    } finally {
+      submitting.value = false;
+      isDeletePackModalOpen.value = false;
+    }
+  };
 
   /**
    * Add URL to item
@@ -206,7 +277,6 @@
   const newUrl = ref('');
   const isAddUrlModalOpen = ref(false);
   const activeRow = ref<RowItem | undefined>(undefined);
-  const activeCategoryId = ref<number | undefined>(undefined);
   const handleInitialAddUrl = (row: RowItem, categoryId: number) => {
     isAddUrlModalOpen.value = true;
     activeRow.value = row;
@@ -227,44 +297,40 @@
   /**
    * Remove category from pack
    */
+  const removeItemCheckbox = ref(false);
   const isRemoveCategoryModalOpen = ref(false);
-  // TODO: Pass in categoryId
-  const removeCategory = async (removeFromCloset = false, categoryId: number) => {
+  const removeCategory = async () => {
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
+      let closetError = null;
 
       // Remove category from pack
       const { error } = await supabase
         .from('categories')
         .delete()
-        .eq('id', categoryId);
+        .eq('id', activeCategoryId.value as number);
 
-      if (!error) {
+      // If removeFromCloset is true, remove items from closet as well
+      if (removeItemCheckbox.value) {
+        const result = await supabase
+          .from('items')
+          .delete()
+          .match({ category_id: activeCategoryId.value });
+        closetError = result.error;
+      }
+
+      if (!error && !closetError) {
         // Find the index of the category in the pack
-        const categoryIndex = (data.value.selectedPack as ExtendedPack).categories.findIndex(c => c.id === categoryId);
+        const categoryIndex = (data.value.selectedPack as ExtendedPack).categories.findIndex(c => c.id === activeCategoryId.value);
 
         // Remove the category from the pack
         if (categoryIndex !== -1) {
           (data.value.selectedPack as ExtendedPack).categories.splice(categoryIndex, 1);
         }
-        $appStore.notifyPositive('Category removed from pack successfully.');
-
-        // If removeFromCloset is true, remove items from closet as well
-        if (removeFromCloset) {
-          const { error: closetError } = await supabase
-            .from('items')
-            .delete()
-            .match({ category_id: categoryId });
-
-          if (closetError) {
-            $appStore.notifyNegative('There was an error removing the items from the closet.');
-          } else {
-            $appStore.notifyPositive('Items removed from closet successfully.');
-          }
-        }
+        $appStore.notifyPositive('Category and its items removed successfully.');
       } else {
-        $appStore.notifyNegative('There was an error removing the category from the pack.');
+        $appStore.notifyNegative('There was an error removing the category or its items.');
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error removing the category.');
@@ -278,55 +344,51 @@
    * Remove item from pack
    */
   const isRemoveItemModalOpen = ref(false);
-  const removeItemCheckbox = ref(false);
-  // TODO: Pass in categoryId and itemId
-  const removeItem = async (removeFromCloset = false, categoryId = '', itemId = '') => {
+  const removeItem = async () => {
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
+      let closetError = null;
 
       // Remove item from category
       const { error } = await supabase
         .from('category_items')
         .delete()
-        .match({ category_id: categoryId, item_id: itemId });
+        .match({ category_id: activeCategoryId.value, item_id: activeRow.value?.id });
 
-      if (!error) {
+      // If removeFromCloset is true, remove item from closet as well
+      if (removeItemCheckbox.value) {
+        const result = await supabase
+          .from('items')
+          .delete()
+          .match({ id: activeRow.value?.id });
+        closetError = result.error;
+      }
+
+      if (!error && !closetError) {
         // Find the category
-        const category = (data.value.selectedPack as ExtendedPack).categories.find(c => c.id === Number(categoryId));
+        const category = (data.value.selectedPack as ExtendedPack).categories.find(c => c.id === Number(activeCategoryId.value));
 
         if (category) {
           // Find the index of the category_item in the category
-          const categoryItemIndex = category.category_items.findIndex(category_item => category_item.item.id === Number(itemId));
+          const categoryItemIndex = category.category_items.findIndex(category_item => category_item.item.id === Number(activeRow.value?.id));
 
           // Remove the category_item from the category
           if (categoryItemIndex !== -1) {
             category.category_items.splice(categoryItemIndex, 1);
           }
         }
-        $appStore.notifyPositive('Item removed from category successfully.');
-
-        // If removeFromCloset is true, remove item from closet as well
-        if (removeFromCloset) {
-          const { error: closetError } = await supabase
-            .from('items')
-            .delete()
-            .match({ id: itemId });
-
-          if (closetError) {
-            $appStore.notifyNegative('There was an error removing the item from the closet.');
-          } else {
-            $appStore.notifyPositive('Item removed from closet successfully.');
-          }
-        }
+        $appStore.notifyPositive('Item removed successfully.');
       } else {
-        $appStore.notifyNegative('There was an error removing the item from the category.');
+        $appStore.notifyNegative('There was an error removing the item.');
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error removing the item.');
     } finally {
       submitting.value = false;
       isRemoveItemModalOpen.value = false;
+      activeRow.value = undefined;
+      activeCategoryId.value = undefined;
     }
   };
 
@@ -470,9 +532,9 @@
                   <pack-items-table
                     :category="item"
                     @handle-add-url="handleInitialAddUrl"
-                    @handle-delete-modal="isDeletePackModalOpen = true"
                     @handle-remove-category="isRemoveCategoryModalOpen = true"
-                    @handle-remove-item="isRemoveItemModalOpen = true" />
+                    @handle-remove-item="[ activeCategoryId = item.id, activeRow = $event, isRemoveItemModalOpen = true ]"
+                    @handle-update-category="($event: UpdateCategoryPayload) => { activeCategoryId = item.id, updateCategory($event) }" />
                 </div>
               </dynamic-scroller-item>
             </template>
@@ -527,12 +589,8 @@
                   Private
                 </p>
                 <info-icon
-                  class="h-4 w-4"
-                  data-tooltip-placement="right"
-                  data-tooltip-target="tooltip-private" />
-                <gc-tooltip
-                  id="tooltip-private"
-                  label="Private packs cannot be viewed by other users. This setting can be changed later." />
+                  v-tippy="{ content: 'Private packs cannot be viewed by other users. This setting can be changed later.' }"
+                  class="h-4 w-4" />
               </div>
             </gc-toggle>
             <gc-toggle
@@ -544,12 +602,8 @@
                   Allow Comments
                 </p>
                 <info-icon
-                  class="h-4 w-4"
-                  data-tooltip-placement="right"
-                  data-tooltip-target="tooltip-comments" />
-                <gc-tooltip
-                  id="tooltip-comments"
-                  label="Allow users you share this pack with list to make comments? This setting can be changed later." />
+                  v-tippy="{ content: 'Allow users you share this pack with list to make comments? This setting can be changed later.' }"
+                  class="h-4 w-4" />
               </div>
             </gc-toggle>
           </div>
@@ -588,12 +642,8 @@
               <div class="flex items-center gap-2">
                 Import pack items (optional)
                 <info-icon
-                  class="h-4 w-4"
-                  data-tooltip-placement="top"
-                  data-tooltip-target="tooltip-import" />
-                <gc-tooltip
-                  id="tooltip-import"
-                  label="Uploading a CSV will automatically add them to your pack." />
+                  v-tippy="{ content: 'Uploading a CSV will automatically add them to your pack.'}"
+                  class="h-4 w-4" />
               </div>
             </template>
             <template #help-text>
@@ -640,15 +690,11 @@
                 :prepend-icon="LinkIcon"
                 readonly />
               <button
+                v-tippy="{ content: 'Copy link' }"
                 class="cursor-pointer duration-150 ease-snap flex justify-center justify-self-end items-center h-8 mb-2 rounded-full transition w-8"
-                data-tooltip-placement="top"
-                data-tooltip-target="tooltip-share"
                 @click="copyToClipboard">
                 <copy-icon class="cursor-pointer duration-150 ease-expo h-6 text-gray-500 hover:text-primary transition w-6" />
               </button>
-              <gc-tooltip
-                id="tooltip-share"
-                label="Copy link" />
             </div>
           </div>
         </div>
@@ -683,12 +729,8 @@
             :checked="removeItemCheckbox"
             label="Remove items from closet?" />
           <info-icon
-            class="h-4 w-4"
-            data-tooltip-placement="top"
-            data-tooltip-target="tooltip-remove-category" />
-          <gc-tooltip
-            id="tooltip-remove-category"
-            label="Checking this will remove all items from the category as well as your closet." />
+            v-tippy="{ content: 'Checking this will remove all items from the category as well as your closet.' }"
+            class="h-4 w-4" />
         </div>
       </template>
       <template #actions>
@@ -709,6 +751,45 @@
     </gc-modal>
 
     <!-- Delete Pack Modal -->
+    <gc-modal
+      :is-open="isDeletePackModalOpen"
+      title="Delete Pack"
+      @handle-cancel="isDeletePackModalOpen = false">
+      <template #default>
+        <div>
+          <p class="font-bold mb-0 text-base">
+            Are you sure you want to delete this pack?
+          </p>
+          <p class="!font-bold mb-4 text-base text-danger">
+            This action cannot be undone!
+          </p>
+        </div>
+        <div class="flex items-center gap-4">
+          <gc-checkbox
+            id="remove-item-checkbox"
+            :checked="removeItemCheckbox"
+            label="Remove from closet?" />
+          <info-icon
+            v-tippy="{ content: 'Checking this will remove all items from your closet as well.'}"
+            class="h-4 w-4" />
+        </div>
+      </template>
+      <template #actions>
+        <gc-button
+          :disabled="submitting"
+          label="Cancel"
+          size="sm"
+          variant="secondary"
+          @click="isDeletePackModalOpen = false" />
+        <gc-button
+          :disabled="submitting"
+          label="Delete Pack"
+          :loading="submitting"
+          size="sm"
+          variant="danger"
+          @click="deletePack" />
+      </template>
+    </gc-modal>
 
     <!-- Remove Item Modal -->
     <gc-modal
@@ -730,12 +811,8 @@
             :checked="removeItemCheckbox"
             label="Remove from closet?" />
           <info-icon
-            class="h-4 w-4"
-            data-tooltip-placement="top"
-            data-tooltip-target="tooltip-remove-item" />
-          <gc-tooltip
-            id="tooltip-remove-item"
-            label="Unchecking this will keep the item in your closet to add later" />
+            v-tippy="{ content: 'Checking this will remove the item from your closet as well.'}"
+            class="h-4 w-4" />
         </div>
       </template>
       <template #actions>
@@ -775,9 +852,8 @@
               :prepend-icon="LinkIcon"
               @update:model-value="newUrl = $event" />
             <a
+              v-tippy="{ content: 'Visit link' }"
               class="mb-3"
-              data-tooltip-placement="top"
-              data-tooltip-target="tooltip-preview"
               :disabled="!isValidUrl"
               :href="newUrl"
               rel="noopener noreferrer"
@@ -786,9 +862,6 @@
                 class="duration-150 ease-expo h-6 transition w-6"
                 :class="!isValidUrl ? 'cursor-not-allowed text-gray-300' : 'text-gray-500 hover:text-primary cursor-pointer'" />
             </a>
-            <gc-tooltip
-              id="tooltip-preview"
-              label="Visit link" />
           </div>
         </div>
       </template>
@@ -800,8 +873,7 @@
           variant="secondary"
           @click="[ isAddUrlModalOpen = false, activeRow = undefined, activeCategoryId = undefined ]" />
         <gc-button
-          data-tooltip-placement="top"
-          data-tooltip-target="tooltip-add"
+          v-tippy="{ content: !isValidUrl ? 'Not a valid URL' : undefined }"
           :disabled="submitting || !isValidUrl"
           label="Add Items"
           :loading="submitting"
@@ -810,9 +882,6 @@
             $store.updateItem(activeRow as RowItem, 'url', newUrl, activeCategoryId as number),
             isAddUrlModalOpen = false
           ]" />
-        <gc-tooltip
-          id="tooltip-add"
-          label="Not a valid URL" />
       </template>
     </gc-modal>
   </div>

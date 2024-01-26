@@ -411,32 +411,44 @@ CREATE OR REPLACE FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) R
         'allow_comments', pack.allow_comments,
         'categories', (
           SELECT COALESCE(json_agg(json_build_object(
-            'id', c.id,
-            'created_at', c.created_at,
-            'name', c.name,
-            'unit', c.unit,
-            'slug', c.slug,
-            'pack_id', c.pack_id,
-            'updated_at', c.updated_at,
-            'category_items', (
-              SELECT COALESCE(json_agg(row_to_json(t) ORDER BY t.position), '[]'::JSON)
-              FROM (
-                SELECT 
-                  ci.id,
-                  ci.category_id,
-                  ci.item_id,
-                  ci.position,
-                  ci.created_at,
-                  ci.updated_at,
-                  row_to_json(i.*) AS item
-                FROM category_items ci
-                JOIN items i ON ci.item_id = i.id
-                WHERE ci.category_id = c.id
-              ) t
-            )
+            'id', sub.id,
+            'created_at', sub.created_at,
+            'name', sub.name,
+            'unit', sub.unit,
+            'slug', sub.slug,
+            'pack_id', sub.pack_id,
+            'updated_at', sub.updated_at,
+            'category_items', sub.category_items
           )), '[]'::JSON)
-          FROM categories c
-          WHERE c.pack_id = dynamic_pack_id
+          FROM (
+            SELECT 
+              c.id,
+              c.created_at,
+              c.name,
+              c.unit,
+              c.slug,
+              c.pack_id,
+              c.updated_at,
+              (
+                SELECT COALESCE(json_agg(row_to_json(t) ORDER BY t.position), '[]'::JSON)
+                FROM (
+                  SELECT 
+                    ci.id,
+                    ci.category_id,
+                    ci.item_id,
+                    ci.position,
+                    ci.created_at,
+                    ci.updated_at,
+                    row_to_json(i.*) AS item
+                  FROM category_items ci
+                  JOIN items i ON ci.item_id = i.id
+                  WHERE ci.category_id = c.id
+                ) t
+              ) AS category_items
+            FROM categories c
+            WHERE c.pack_id = dynamic_pack_id
+            ORDER BY c.created_at
+          ) AS sub
         )
       ),
       'packs', user_packs

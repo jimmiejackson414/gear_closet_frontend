@@ -18,7 +18,7 @@
   }
 
   const props = defineProps<Props>();
-  const emit = defineEmits(['update:modelValue', 'handleRemoveCategory', 'handleAddUrl', 'handleRemoveItem']);
+  const emit = defineEmits(['handleUpdateCategory', 'handleRemoveCategory', 'handleAddUrl', 'handleRemoveItem']);
   const $store = useClosetStore();
 
   const columns: Column[] = [
@@ -50,7 +50,7 @@
         :model-value="category.name"
         :name="`category_name_${category.id}}`"
         size="sm"
-        @handle-update="emit('update:modelValue', $event)">
+        @handle-update="emit('handleUpdateCategory', { field: 'name', value: $event })">
         <p class="!font-bold text-base">
           {{ category.name }}
         </p>
@@ -97,6 +97,7 @@
                 :model-value="row.name"
                 :name="`item_name_${row.id}}`"
                 size="sm"
+                span-classes="min-w-[5rem]"
                 @handle-update="$store.updateItem(row, 'name', $event, category.id)">
                 <p class="!font-medium text-gray-900">
                   {{ row.name }}
@@ -109,6 +110,7 @@
                 :model-value="row.generic_type"
                 :name="`item_generic_type_${row.id}}`"
                 size="sm"
+                span-classes="min-w-[6rem]"
                 @handle-update="$store.updateItem(row, 'generic_type', $event, category.id)">
                 <p class="!font-medium text-gray-500">
                   {{ row.generic_type }}
@@ -146,6 +148,7 @@
                   :model-value="row.weight"
                   :name="`item_weight_${row.id}`"
                   size="sm"
+                  span-classes="justify-center min-w-[3rem]"
                   @handle-update="$store.updateItem(row, 'weight', Number($event), category.id)">
                   {{ row.weight }}
                 </gc-inline-edit>
@@ -154,6 +157,7 @@
             <td class="px-6 py-4">
               <div class="flex justify-center items-center">
                 <gc-inline-edit
+                  class="justify-center min-w-[3rem]"
                   hide-edit-btn
                   :model-value="(row.price ?? 0) / 100"
                   :name="`item_price_${row.id}`"
@@ -164,12 +168,13 @@
               </div>
             </td>
             <td class="px-6 py-4">
-              <div class="flex justify-center items-center max-w-[3rem] mx-auto">
+              <div class="flex justify-center items-center max-w-[4rem] mx-auto">
                 <gc-inline-edit
                   hide-edit-btn
                   :model-value="row.quantity"
                   :name="`item_quantity_${row.id}`"
                   size="sm"
+                  span-classes="min-w-[3rem] justify-center"
                   @handle-update="$store.updateItem(row, 'quantity', Number($event), category.id)">
                   {{ row.quantity }}
                 </gc-inline-edit>
@@ -179,29 +184,21 @@
               <div class="grid grid-cols-[auto,auto] gap-4 justify-end items-center relative">
                 <!-- Add URL -->
                 <button
+                  v-tippy="{ content: row.url ? 'Modify URL' : 'Add URL' }"
                   class="cursor-pointer duration-150 ease-snap flex justify-center justify-self-end items-center h-8 rounded-full transition w-8"
                   :class="row.url ? 'bg-warning hover:bg-warning/70' : 'bg-transparent hover:bg-gray-200'"
-                  data-tooltip-placement="top"
-                  data-tooltip-target="tooltip-url"
                   @click="emit('handleAddUrl', row, category.id)">
                   <link-icon
                     class="h-5 w-5 "
                     :class="row.url ? 'text-white' : 'text-dark-grey'" />
                 </button>
-                <gc-tooltip
-                  id="tooltip-url"
-                  label="Add URL" />
                 <!-- Remove From Category -->
                 <button
+                  v-tippy="{ content: 'Remove from category' }"
                   class="justify-self-end"
-                  data-tooltip-placement="top"
-                  data-tooltip-target="tooltip-remove"
-                  @click="emit('handleRemoveItem', row, category.id)">
+                  @click="emit('handleRemoveItem', row)">
                   <trash-icon class="duration-150 ease-snap h-5 text-gray-500 hover:text-danger transition w-5" />
                 </button>
-                <gc-tooltip
-                  id="tooltip-remove"
-                  label="Remove from category" />
               </div>
             </td>
           </tr>
