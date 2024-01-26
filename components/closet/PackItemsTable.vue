@@ -18,7 +18,12 @@
   }
 
   const props = defineProps<Props>();
-  const emit = defineEmits(['handleUpdateCategory', 'handleRemoveCategory', 'handleAddUrl', 'handleRemoveItem']);
+  const emit = defineEmits([
+    'handleUpdateCategory',
+    'handleRemoveCategory',
+    'handleAddUrl',
+    'handleRemoveItem',
+  ]);
   const $store = useClosetStore();
 
   const columns: Column[] = [
