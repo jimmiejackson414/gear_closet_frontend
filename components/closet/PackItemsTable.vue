@@ -1,7 +1,9 @@
 <script lang='ts' setup>
+  import { DragHandle, SlickList, SlickItem } from 'vue-slicksort';
   import { AppleIcon, GripVerticalIcon, LinkIcon, ShirtIcon, TrashIcon } from 'lucide-vue-next';
+  import { useAppStore } from '@/stores/app';
   import type { ExtendedCategory } from '@/types/helpers';
-  import type { Item } from '@/types';
+  import type { Database, Item } from '@/types';
 
   interface Column {
     name: string;
@@ -38,12 +40,33 @@
     { name: 'actions', label: 'Actions', align: 'right' },
   ];
 
-  const rows = computed<RowItem[]>(() => {
-    return props.category.category_items.map(categoryItem => ({
+  const rows = ref<RowItem[]>([]);
+  watch(() => props.category.category_items, (newVal) => {
+    rows.value = newVal.map(categoryItem => ({
       ...categoryItem?.item,
       position: categoryItem.position || 0,
     }));
-  });
+  }, { immediate: true });
+
+  const $appStore = useAppStore();
+  const onSortEnd = async () => {
+    rows.value.forEach((row, index) => { row.position = index + 1; });
+
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const payload = rows.value.map((row, index) => ({
+        category_id: props.category.id,
+        item_id: row.id,
+        position: index + 1,
+      }))
+        .filter((row, index) => row.position !== rows.value[index].position);
+      // TODO: Create RPC function
+      const { error } = await supabase.rpc('update_item_positions', { items: payload });
+      if (error) throw error;
+    } catch (err: any) {
+      $appStore.notifyNegative('Error updating item position');
+    }
+  };
 </script>
 
 <template>
@@ -86,14 +109,25 @@
             </th>
           </tr>
         </thead>
-        <tbody>
-          <tr
-            v-for="(row, index) in rows"
-            :key="index"
-            class="bg-white hover:bg-gray-50 border-b last:border-0 duration-150 ease-expo group transition">
-            <th class="px-2 py-4">
+        <slick-list
+          v-model:list="rows"
+          axis="y"
+          lock-axis="y"
+          tag="tbody"
+          :transition-duration="250"
+          use-drag-handle
+          @sort-end="onSortEnd">
+          <slick-item
+            v-for="( row, i ) in rows"
+            :key="row.id"
+            class="bg-white hover:bg-gray-50 border-b last:border-0 duration-150 ease-expo group transition"
+            :index="i"
+            tag="tr">
+            <drag-handle
+              class="px-2 py-4"
+              tag="th">
               <grip-vertical-icon class="cursor-move group-hover:opacity-100 h-4 opacity-0 text-gray-400 w-4" />
-            </th>
+            </drag-handle>
             <th
               class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap"
               scope="row">
@@ -206,8 +240,8 @@
                 </button>
               </div>
             </td>
-          </tr>
-        </tbody>
+          </slick-item>
+        </slick-list>
       </table>
     </div>
   </div>
