@@ -23,7 +23,7 @@
     <div v-else>
       <div class="flex justify-start items-center mb-4 py-4">
         <calendar-check-icon class="h-6 mr-6 text-primary w-6" />
-        <p class="font-bold text-base">
+        <p class="!font-bold text-base">
           Invitations <span class="font-normal text-grey">({{ data.length || 0 }})</span>
         </p>
       </div>

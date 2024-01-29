@@ -1,7 +1,6 @@
-import { DragHandle, SlickList, SlickItem } from 'vue-slicksort';
+import { plugin as Slicksort, HandleDirective } from 'vue-slicksort';
 
 export default defineNuxtPlugin((nuxtApp) => {
-  nuxtApp.vueApp.component('SlickList', SlickList);
-  nuxtApp.vueApp.component('SlickItem', SlickItem);
-  nuxtApp.vueApp.component('SlickHandle', DragHandle);
+  nuxtApp.vueApp.use(Slicksort);
+  nuxtApp.vueApp.directive('handle', HandleDirective);
 });

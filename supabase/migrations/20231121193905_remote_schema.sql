@@ -30,6 +30,12 @@ CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
+CREATE TYPE category_item_position AS (
+  category_id INT,
+  item_id INT,
+  new_position INT
+);
+
 CREATE TYPE "public"."question_type" AS (
   question_id integer,
   question text
@@ -592,6 +598,20 @@ CREATE OR REPLACE FUNCTION "public"."create_category_and_item"(
   END;
 $$;
 ALTER FUNCTION "public"."create_category_and_item"(TEXT, BIGINT, JSONB) OWNER TO "postgres";
+
+CREATE OR REPLACE FUNCTION update_positions(records category_item_position[])
+RETURNS VOID AS $$
+DECLARE
+  r category_item_position;
+BEGIN
+  FOREACH r IN ARRAY records
+  LOOP
+    UPDATE category_items
+    SET position = r.new_position
+    WHERE category_id = r.category_id AND item_id = r.item_id;
+  END LOOP;
+END;
+$$ LANGUAGE plpgsql;
 
 SET default_tablespace = '';
 

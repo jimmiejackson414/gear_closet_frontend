@@ -27,6 +27,8 @@
       const { data: pageData, error } = await supabase.from('profiles')
         .select('trip_friends!trip_friends_profile_id_fkey(*), friends!friends_friend_id_fkey(*), trips(*)')
         .eq('id', user.value!.id)
+        .gte('trips.starting_date', new Date()
+          .toISOString())
         .single();
 
       if (!pageData || error) {

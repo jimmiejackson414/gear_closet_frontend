@@ -1174,16 +1174,7 @@ export interface Database {
           p_pack_id: number;
           p_items: Json;
         };
-        Returns: {
-          id: number;
-          name: string;
-          slug: string;
-          unit: string;
-          pack_id: number;
-          created_at: string;
-          updated_at: string;
-          category_items: Json;
-        }[];
+        Returns: Json;
       };
       create_poll: {
         Args: {
@@ -1219,6 +1210,12 @@ export interface Database {
           answers: string[];
         };
         Returns: Json;
+      };
+      update_positions: {
+        Args: {
+          records: Database["public"]["CompositeTypes"]["category_item_position"][];
+        };
+        Returns: undefined;
       };
     };
     Enums: {
@@ -1262,6 +1259,11 @@ export interface Database {
       answer_type: {
         answer_id: number;
         answer: string;
+      };
+      category_item_position: {
+        category_id: number;
+        item_id: number;
+        new_position: number;
       };
       question_type: {
         question_id: number;
@@ -1775,6 +1777,11 @@ export type ArgsUpdatePoll =
   Database["public"]["Functions"]["update_poll"]["Args"];
 export type ReturnTypeUpdatePoll =
   Database["public"]["Functions"]["update_poll"]["Returns"];
+
+export type ArgsUpdatePosition =
+  Database["public"]["Functions"]["update_positions"]["Args"];
+export type ReturnTypeUpdatePosition =
+  Database["public"]["Functions"]["update_positions"]["Returns"];
 
 // Schema: storage
 // Tables

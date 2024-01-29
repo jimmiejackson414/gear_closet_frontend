@@ -50,18 +50,22 @@
 
   const $appStore = useAppStore();
   const onSortEnd = async () => {
-    rows.value.forEach((row, index) => { row.position = index + 1; });
-
     try {
       const supabase = useSupabaseClient<Database>();
-      const payload = rows.value.map((row, index) => ({
-        category_id: props.category.id,
-        item_id: row.id,
-        position: index + 1,
-      }))
-        .filter((row, index) => row.position !== rows.value[index].position);
-      // TODO: Create RPC function
-      const { error } = await supabase.rpc('update_item_positions', { items: payload });
+      await nextTick();
+
+      const originalPositions = rows.value.map(row => row.position);
+      const updatedRows = rows.value.map((row, index) => ({ ...row, position: index + 1 }));
+
+      const payload = updatedRows.map((row, index) => {
+        return {
+          category_id: props.category.id,
+          item_id: row.id,
+          new_position: index + 1,
+        };
+      })
+        .filter((row, index) => row.new_position !== originalPositions[index]);
+      const { error } = await supabase.rpc('update_positions', { records: payload });
       if (error) throw error;
     } catch (err: any) {
       $appStore.notifyNegative('Error updating item position');
@@ -111,7 +115,10 @@
         </thead>
         <slick-list
           v-model:list="rows"
+          :accept="true"
           axis="y"
+          :dragged-setting-duration="150"
+          group="category-table"
           lock-axis="y"
           tag="tbody"
           :transition-duration="250"
