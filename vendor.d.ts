@@ -1,4 +1,5 @@
 declare module 'flowbite-datepicker/DateRangePicker';
+declare module 'vue3-smooth-dnd';
 
 // Type definitions for vue-virtual-scroller
 // Project: https://github.com/Akryum/vue-virtual-scroller/
