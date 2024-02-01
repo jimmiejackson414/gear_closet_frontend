@@ -1,6 +1,6 @@
 <script lang='ts' setup>
-  import { DragHandle, SlickList, SlickItem } from 'vue-slicksort';
-  import { AppleIcon, GripVerticalIcon, LinkIcon, ShirtIcon, TrashIcon } from 'lucide-vue-next';
+  import EasyDataTable, { type Header, type HeaderItemClassNameFunction } from 'vue3-easy-data-table';
+  import { AppleIcon, GripVerticalIcon, LinkIcon, PlusIcon, ShirtIcon, TrashIcon } from 'lucide-vue-next';
   import { useAppStore } from '@/stores/app';
   import type { ExtendedCategory } from '@/types/helpers';
   import type { Database, Item } from '@/types';
@@ -29,21 +29,27 @@
   ]);
   const $store = useClosetStore();
 
-  const columns: Column[] = [
-    { name: 'drag', label: '', align: 'left' },
-    { name: 'name', label: 'Name', align: 'left' },
-    { name: 'generic_type', label: 'Description', align: 'left' },
-    { name: 'consumable', label: 'Consumable', align: 'center' },
-    { name: 'worn', label: 'Worn', align: 'center' },
-    { name: 'weight', label: 'Weight', align: 'center' },
-    { name: 'price', label: 'Price', align: 'center' },
-    { name: 'quantity', label: 'Quantity', align: 'center' },
-    { name: 'actions', label: 'Actions', align: 'right' },
+  const headerItemClassNameFunction: HeaderItemClassNameFunction = (header: Header): string => {
+    if (header.value === 'drag') return 'px-2 py-3 w-4';
+    else if (header.value === 'actions') return 'text-right px-6 py-3';
+    else if (header.value === 'name' || header.value === 'generic_type') return 'px-6 py-3 text-left';
+    return 'px-6 py-3 text-center';
+  };
+  const columns: Header[] = [
+    { value: 'drag', text: '', width: 16 },
+    { value: 'name', text: 'Name' },
+    { value: 'generic_type', text: 'Description' },
+    { value: 'consumable', text: 'Consumable' },
+    { value: 'worn', text: 'Worn' },
+    { value: 'weight', text: 'Weight' },
+    { value: 'price', text: 'Price' },
+    { value: 'quantity', text: 'Quantity' },
+    { value: 'actions', text: 'Actions' },
   ];
 
-  const rows = ref<RowItem[]>([]);
+  const data = ref<RowItem[]>([]);
   watch(() => props.category.category_items, (newVal) => {
-    rows.value = newVal.map(categoryItem => ({
+    data.value = newVal.map(categoryItem => ({
       ...categoryItem?.item,
       position: categoryItem.position || 0,
       category_item_id: categoryItem.id,
@@ -61,8 +67,8 @@
     try {
       await nextTick();
 
-      const originalPositions = rows.value.map(row => row.position);
-      const updatedRows = rows.value.map((row, index) => ({ ...row, position: index + 1 }));
+      const originalPositions = data.value.map(row => row.position);
+      const updatedRows = data.value.map((row, index) => ({ ...row, position: index + 1 }));
 
       const payload = updatedRows.map((row, index) => {
         return {
@@ -93,13 +99,13 @@
 
   const onSortRemove = ({ oldIndex }: { oldIndex: number }) => {
     // Get the removed item based on the oldIndex
-    const removedItem = rows.value[oldIndex];
+    const removedItem = data.value[oldIndex];
     if (!removedItem) {
       console.error('The removed item is undefined');
       return;
     }
     // Update the positions of the remaining items and persist the changes
-    const updatedRows = rows.value.filter(row => row.id !== removedItem.id)
+    const updatedRows = data.value.filter(row => row.id !== removedItem.id)
       .map((row, index) => ({ ...row, position: index + 1 }));
     const payload = updatedRows.map((row, index) => ({
       category_item_id: row.category_item_id,
@@ -109,10 +115,14 @@
     }));
     updatePositions(payload);
   };
+
+  const createItem = () => {
+    console.log(`addItem`);
+  };
 </script>
 
 <template>
-  <div class="!bg-gray-100 !shadow-none card card-aside">
+  <div class="!bg-gray-100 !shadow-none card card-aside mb-6">
     <div class="flex justify-between items-center">
       <gc-inline-edit
         class="mb-3"
@@ -132,40 +142,23 @@
         @click="emit('handleRemoveCategory', category)" />
     </div>
 
-    <!-- Table to display items of a category -->
     <div class="overflow-x-auto relative rounded-b-2xl">
-      <ul>
-        <li class="bg-gray-100 grid grid-cols-[auto,1fr,1fr,130px,87px,96px,82px,108px,116px] text-gray-700 text-xs uppercase">
-          <div
-            v-for="column in columns"
-            :key="column.name"
-            class="px-6 py-3">
-            {{ column.label }}
-          </div>
-        </li>
-      </ul>
-      <slick-list
-        v-model:list="rows"
-        :accept="true"
-        axis="y"
-        :distance="1"
-        group="category-table"
-        lock-axis="y"
-        tag="ul"
-        use-drag-handle
-        use-window-as-scroll-container
-        @sort-end="onSortEnd"
-        @sort-insert="onSortInsert"
-        @sort-remove="onSortRemove">
-        <slick-item
-          v-for="( row, i ) in rows"
-          :key="row.id"
-          class="bg-white hover:bg-gray-50 border-b last:border-0 duration-150 ease-expo grid grid-cols-[auto,1fr,1fr,130px,87px,96px,82px,108px,116px] group transition"
-          :index="i"
-          tag="li">
-          <drag-handle class="flex items-center px-2 py-4">
+      <easy-data-table
+        body-row-class-name="bg-white hover:bg-gray-50 border-b last:border-0 duration-150 ease-expo group transition"
+        :header-item-class-name="headerItemClassNameFunction"
+        :headers="columns"
+        hide-footer
+        :items="data"
+        table-class-name="text-gray-500 text-left text-sm w-full [&_table]:w-full">
+        <!-- Drag -->
+        <template #item-drag="">
+          <div class="flex items-center px-2 py-4">
             <grip-vertical-icon class="cursor-move group-hover:opacity-100 h-4 opacity-0 text-gray-400 w-4" />
-          </drag-handle>
+          </div>
+        </template>
+
+        <!-- Name -->
+        <template #item-name="row">
           <div class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap">
             <gc-inline-edit
               hide-edit-btn
@@ -179,6 +172,10 @@
               </p>
             </gc-inline-edit>
           </div>
+        </template>
+
+        <!-- Generic Type -->
+        <template #item-generic_type="row">
           <div class="px-6 py-4">
             <gc-inline-edit
               hide-edit-btn
@@ -192,6 +189,10 @@
               </p>
             </gc-inline-edit>
           </div>
+        </template>
+
+        <!-- Consumable -->
+        <template #item-consumable="row">
           <div class="px-6 py-4">
             <div class="flex justify-center items-center">
               <button
@@ -204,6 +205,10 @@
               </button>
             </div>
           </div>
+        </template>
+
+        <!-- Worn -->
+        <template #item-worn="row">
           <div class="px-6 py-4">
             <div class="flex justify-center items-center">
               <button
@@ -216,6 +221,10 @@
               </button>
             </div>
           </div>
+        </template>
+
+        <!-- Weight -->
+        <template #item-weight="row">
           <div class="px-6 py-4">
             <div class="flex justify-center items-center max-w-[4rem] mx-auto">
               <gc-inline-edit
@@ -229,6 +238,10 @@
               </gc-inline-edit>
             </div>
           </div>
+        </template>
+
+        <!-- Price -->
+        <template #item-price="row">
           <div class="px-6 py-4">
             <div class="flex justify-center items-center">
               <gc-inline-edit
@@ -242,6 +255,10 @@
               </gc-inline-edit>
             </div>
           </div>
+        </template>
+
+        <!-- Quantity -->
+        <template #item-quantity="row">
           <div class="px-6 py-4">
             <div class="flex justify-center items-center max-w-[4rem] mx-auto">
               <gc-inline-edit
@@ -255,9 +272,12 @@
               </gc-inline-edit>
             </div>
           </div>
+        </template>
+
+        <!-- Actions -->
+        <template #item-actions="row">
           <div class="px-6 py-4 text-right">
             <div class="grid grid-cols-[auto,auto] gap-4 justify-end items-center relative">
-              <!-- Add URL -->
               <button
                 v-tippy="{ content: row.url ? 'Modify URL' : 'Add URL' }"
                 class="cursor-pointer duration-150 ease-snap flex justify-center justify-self-end items-center h-8 rounded-full transition w-8"
@@ -267,7 +287,6 @@
                   class="h-5 w-5 "
                   :class="row.url ? 'text-white' : 'text-dark-grey'" />
               </button>
-              <!-- Remove From Category -->
               <button
                 v-tippy="{ content: 'Remove from category' }"
                 class="justify-self-end"
@@ -276,8 +295,18 @@
               </button>
             </div>
           </div>
-        </slick-item>
-      </slick-list>
+        </template>
+      </easy-data-table>
+      <div class="flex justify-end py-3">
+        <gc-button
+          outlined
+          size="sm"
+          variant="positive"
+          @click="createItem">
+          <plus-icon class="h-4 mr-3 w-4" />
+          New Item
+        </gc-button>
+      </div>
     </div>
   </div>
 </template>

@@ -151,7 +151,7 @@
   /**
    * Creates a new default category.
    */
-  const createCategory = async () => {
+  const createDefaultCategory = async () => {
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
@@ -182,6 +182,13 @@
     } finally {
       submitting.value = false;
     }
+  };
+
+  /**
+   * Creates a category.
+   */
+  const createCategory = async () => {
+    console.log(`createCategory`);
   };
 
   /**
@@ -292,7 +299,6 @@
     const urlRegex = /^(https?:\/\/)?(www\.)?[^.\s]+\.[^\s]*$/gm;
     isValidUrl.value = urlRegex.test(newValue);
   }, { immediate: true });
-
 
   /**
    * Remove category from pack
@@ -506,7 +512,7 @@
             <gc-button
               label="Get started"
               size="sm"
-              @click="createCategory" />
+              @click="createDefaultCategory" />
             <gc-button
               label="Upload CSV"
               outlined
@@ -517,30 +523,27 @@
       </div>
       <div v-else>
         <pack-summary />
-        <div class="mt-8">
-          <!-- <dynamic-scroller
-            class="h-100"
-            :items="data.selectedPack.categories"
-            :min-item-size="122">
-            <template #default="{ item, index, active }">
-              <dynamic-scroller-item
-                :active="active"
-                :data-index="index"
-                :item="item"
-                :size-dependencies="[item.worn]"> -->
-          <div class="py-3">
-            <pack-items-table
-              v-for="item in data.selectedPack.categories"
-              :key="item.id"
-              :category="item"
-              @handle-add-url="handleInitialAddUrl"
-              @handle-remove-category="isRemoveCategoryModalOpen = true"
-              @handle-remove-item="[ activeCategoryId = item.id, activeRow = $event, isRemoveItemModalOpen = true ]"
-              @handle-update-category="($event: UpdateCategoryPayload) => { activeCategoryId = item.id, updateCategory($event) }" />
+        <div class="mt-10">
+          <div class="flex justify-between items-center mb-4">
+            <h6 class="text-xl">
+              Pack Details
+            </h6>
+            <gc-button
+              outlined
+              size="sm"
+              @click="createCategory">
+              <plus-icon class="h-4 mr-2 text-primary w-4" />
+              Add Category
+            </gc-button>
           </div>
-          <!-- </dynamic-scroller-item>
-            </template>
-          </dynamic-scroller> -->
+          <pack-items-table
+            v-for="item in data.selectedPack.categories"
+            :key="item.id"
+            :category="item"
+            @handle-add-url="handleInitialAddUrl"
+            @handle-remove-category="isRemoveCategoryModalOpen = true"
+            @handle-remove-item="[ activeCategoryId = item.id, activeRow = $event, isRemoveItemModalOpen = true ]"
+            @handle-update-category="($event: UpdateCategoryPayload) => { activeCategoryId = item.id, updateCategory($event) }" />
         </div>
       </div>
     </div>
