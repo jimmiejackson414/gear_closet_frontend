@@ -18,7 +18,7 @@
   const activeCategoryId = ref<number | undefined>(undefined);
 
   watch(data, async (newVal) => {
-    if (newVal.selectedPack?.categories.length && !pageLoading.value) {
+    if (newVal.selectedPack?.categories?.length && !pageLoading.value) {
       await nextTick();
       initTooltips();
     }
@@ -491,7 +491,7 @@
 
     <!-- Pack Summary & Tables -->
     <div v-else-if="data.selectedPack && !pageLoading">
-      <div v-if="!data.selectedPack.categories.length">
+      <div v-if="!data.selectedPack.categories?.length">
         <gc-empty-state>
           <h5 class="font-bold mb-2 text-base-lg">
             Successfully created your new {{ data.selectedPack.name }} pack!
@@ -518,7 +518,7 @@
       <div v-else>
         <pack-summary />
         <div class="mt-8">
-          <dynamic-scroller
+          <!-- <dynamic-scroller
             class="h-100"
             :items="data.selectedPack.categories"
             :min-item-size="122">
@@ -527,18 +527,20 @@
                 :active="active"
                 :data-index="index"
                 :item="item"
-                :size-dependencies="[item.worn]">
-                <div class="py-3">
-                  <pack-items-table
-                    :category="item"
-                    @handle-add-url="handleInitialAddUrl"
-                    @handle-remove-category="isRemoveCategoryModalOpen = true"
-                    @handle-remove-item="[ activeCategoryId = item.id, activeRow = $event, isRemoveItemModalOpen = true ]"
-                    @handle-update-category="($event: UpdateCategoryPayload) => { activeCategoryId = item.id, updateCategory($event) }" />
-                </div>
-              </dynamic-scroller-item>
+                :size-dependencies="[item.worn]"> -->
+          <div class="py-3">
+            <pack-items-table
+              v-for="item in data.selectedPack.categories"
+              :key="item.id"
+              :category="item"
+              @handle-add-url="handleInitialAddUrl"
+              @handle-remove-category="isRemoveCategoryModalOpen = true"
+              @handle-remove-item="[ activeCategoryId = item.id, activeRow = $event, isRemoveItemModalOpen = true ]"
+              @handle-update-category="($event: UpdateCategoryPayload) => { activeCategoryId = item.id, updateCategory($event) }" />
+          </div>
+          <!-- </dynamic-scroller-item>
             </template>
-          </dynamic-scroller>
+          </dynamic-scroller> -->
         </div>
       </div>
     </div>

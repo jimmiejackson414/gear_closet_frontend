@@ -1014,6 +1014,7 @@ export interface Database {
           accepted_invite_on: string | null;
           created_at: string | null;
           id: number;
+          invite_token: string | null;
           invited_by_id: string | null;
           profile_id: string | null;
           status: Database["public"]["Enums"]["trip_friend_status"];
@@ -1024,6 +1025,7 @@ export interface Database {
           accepted_invite_on?: string | null;
           created_at?: string | null;
           id?: number;
+          invite_token?: string | null;
           invited_by_id?: string | null;
           profile_id?: string | null;
           status?: Database["public"]["Enums"]["trip_friend_status"];
@@ -1034,6 +1036,7 @@ export interface Database {
           accepted_invite_on?: string | null;
           created_at?: string | null;
           id?: number;
+          invite_token?: string | null;
           invited_by_id?: string | null;
           profile_id?: string | null;
           status?: Database["public"]["Enums"]["trip_friend_status"];
@@ -1215,7 +1218,7 @@ export interface Database {
         Args: {
           records: Database["public"]["CompositeTypes"]["category_item_position"][];
         };
-        Returns: undefined;
+        Returns: Json[];
       };
     };
     Enums: {
@@ -1261,6 +1264,7 @@ export interface Database {
         answer: string;
       };
       category_item_position: {
+        category_item_id: number;
         category_id: number;
         item_id: number;
         new_position: number;

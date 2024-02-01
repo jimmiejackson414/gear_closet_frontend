@@ -30,11 +30,13 @@ CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
 
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
-CREATE TYPE category_item_position AS (
+CREATE TYPE "public"."category_item_position" AS (
+  category_item_id INT,
   category_id INT,
   item_id INT,
   new_position INT
 );
+ALTER TYPE "public"."category_item_position" OWNER TO "postgres";
 
 CREATE TYPE "public"."question_type" AS (
   question_id integer,
@@ -599,19 +601,31 @@ CREATE OR REPLACE FUNCTION "public"."create_category_and_item"(
 $$;
 ALTER FUNCTION "public"."create_category_and_item"(TEXT, BIGINT, JSONB) OWNER TO "postgres";
 
-CREATE OR REPLACE FUNCTION update_positions(records category_item_position[])
-RETURNS VOID AS $$
+CREATE OR REPLACE FUNCTION "public"."update_positions"(records public.category_item_position[])
+RETURNS SETOF json AS $$
 DECLARE
-  r category_item_position;
+  r public.category_item_position;
+  i integer;
+  updated_record json;
 BEGIN
-  FOREACH r IN ARRAY records
+  FOR i IN 1..array_length(records, 1)
   LOOP
-    UPDATE category_items
-    SET position = r.new_position
-    WHERE category_id = r.category_id AND item_id = r.item_id;
+    r := records[i];
+    UPDATE public.category_items
+    SET position = r.new_position, category_id = r.category_id
+    WHERE id = r.category_item_id;
+
+    SELECT row_to_json(category_items) INTO updated_record
+    FROM public.category_items
+    WHERE id = r.category_item_id;
+
+    RETURN NEXT updated_record;
   END LOOP;
+  RETURN;
 END;
 $$ LANGUAGE plpgsql;
+
+ALTER FUNCTION "public"."update_positions"(records public.category_item_position[]) OWNER TO "postgres";
 
 SET default_tablespace = '';
 
@@ -1431,6 +1445,10 @@ GRANT ALL ON FUNCTION "public"."import_csv_data"("csv_data" JSONB, "p_pack_id" B
 GRANT ALL ON FUNCTION "public"."create_category_and_item"("p_name" TEXT, "p_pack_id" BIGINT, "p_items" JSONB) TO "anon";
 GRANT ALL ON FUNCTION "public"."create_category_and_item"("p_name" TEXT, "p_pack_id" BIGINT, "p_items" JSONB) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."create_category_and_item"("p_name" TEXT, "p_pack_id" BIGINT, "p_items" JSONB) TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."update_positions"(records public.category_item_position[]) TO "anon";
+GRANT ALL ON FUNCTION "public"."update_positions"(records public.category_item_position[]) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."update_positions"(records public.category_item_position[]) TO "service_role";
 
 GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "anon";
 GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "authenticated";

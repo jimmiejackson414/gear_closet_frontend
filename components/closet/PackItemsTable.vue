@@ -12,6 +12,7 @@
   }
 
   export interface RowItem extends Item {
+    category_item_id: number;
     position: number;
   }
   
@@ -45,6 +46,7 @@
     rows.value = newVal.map(categoryItem => ({
       ...categoryItem?.item,
       position: categoryItem.position || 0,
+      category_item_id: categoryItem.id,
     }));
   }, { immediate: true });
 
@@ -56,7 +58,6 @@
   };
 
   const onSortEnd = async () => {
-    console.log(`onSortEnd`);
     try {
       await nextTick();
 
@@ -65,6 +66,7 @@
 
       const payload = updatedRows.map((row, index) => {
         return {
+          category_item_id: row.category_item_id,
           category_id: props.category.id,
           item_id: row.id,
           new_position: index + 1,
@@ -79,14 +81,17 @@
   };
 
   const onSortInsert = ({ newIndex, value }: { newIndex: number, value: RowItem }) => {
-    console.log('onSortInsert: ', { newIndex, value });
-    // Update the position of the inserted item and persist the changes
     value.position = newIndex + 1;
-    updatePositions([{ category_id: props.category.id, item_id: value.id, new_position: newIndex + 1 }]);
+    const payload = [{
+      category_item_id: value.category_item_id,
+      category_id: props.category.id,
+      item_id: value.id,
+      new_position: newIndex + 1,
+    }];
+    updatePositions(payload);
   };
 
   const onSortRemove = ({ oldIndex }: { oldIndex: number }) => {
-    console.log('onSortRemove: ', oldIndex);
     // Get the removed item based on the oldIndex
     const removedItem = rows.value[oldIndex];
     if (!removedItem) {
@@ -96,13 +101,12 @@
     // Update the positions of the remaining items and persist the changes
     const updatedRows = rows.value.filter(row => row.id !== removedItem.id)
       .map((row, index) => ({ ...row, position: index + 1 }));
-    const payload = updatedRows.map((row, index) => {
-      return {
-        category_id: props.category.id,
-        item_id: row.id,
-        new_position: index + 1,
-      };
-    });
+    const payload = updatedRows.map((row, index) => ({
+      category_item_id: row.category_item_id,
+      category_id: props.category.id,
+      item_id: row.id,
+      new_position: index + 1,
+    }));
     updatePositions(payload);
   };
 </script>
@@ -144,10 +148,12 @@
         v-model:list="rows"
         :accept="true"
         axis="y"
+        :distance="1"
         group="category-table"
         lock-axis="y"
         tag="ul"
         use-drag-handle
+        use-window-as-scroll-container
         @sort-end="onSortEnd"
         @sort-insert="onSortInsert"
         @sort-remove="onSortRemove">
