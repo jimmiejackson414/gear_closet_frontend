@@ -7,7 +7,7 @@
   import { Theme } from '@/types';
   import type { ExtendedPack, SelectOption, ParsedResults, ExtendedCategory } from '@/types/helpers';
   import type { RowItem } from '@/components/closet/PackItemsTable.vue';
-  import type { Database } from '@/types';
+  import type { Database, InsertCategory } from '@/types';
 
   definePageMeta({ layout: 'page-layout' });
 
@@ -185,10 +185,48 @@
   };
 
   /**
-   * Creates a category.
+   * Optimistically creates a category.
    */
   const createCategory = async () => {
-    console.log(`createCategory`);
+    try {
+      // This is the category for the server request
+      const newCategory: InsertCategory = {
+        name: '',
+        pack_id: data.value.selectedPack?.id as number,
+      };
+
+      // This is the category for the optimistic update
+      const optimisticCategory = {
+        name: '' as string,
+        pack_id: data.value.selectedPack?.id as number,
+        slug: '',
+        unit: '',
+        id: 0, // or some temporary id
+        created_at: new Date()
+          .toISOString(),
+        updated_at: new Date()
+          .toISOString(),
+        category_items: [],
+      };
+
+      data.value.selectedPack?.categories.unshift(optimisticCategory);
+
+      const supabase = useSupabaseClient<Database>();
+      const { data: createdCategory, error: categoryError } = await supabase.from('categories')
+        .insert([newCategory])
+        .select();
+      if (categoryError) throw categoryError;
+
+      // replace the temporary category with the new category
+      const newCategoryWithId = {
+        ...optimisticCategory,
+        id: createdCategory[0].id,
+      };
+      data.value.selectedPack?.categories.splice(0, 1, newCategoryWithId);
+    } catch (err) {
+      data.value.selectedPack?.categories.shift();
+      $appStore.notifyNegative('Error creating category');
+    }
   };
 
   /**
@@ -320,7 +358,7 @@
       // If removeFromCloset is true, remove items from closet as well
       if (removeItemCheckbox.value) {
         const result = await supabase
-          .from('items')
+          .from('category_items')
           .delete()
           .match({ category_id: activeCategoryId.value });
         closetError = result.error;
@@ -334,7 +372,7 @@
         if (categoryIndex !== -1) {
           (data.value.selectedPack as ExtendedPack).categories.splice(categoryIndex, 1);
         }
-        $appStore.notifyPositive('Category and its items removed successfully.');
+        $appStore.notifyPositive(`Category ${removeItemCheckbox.value ? 'and its items' : ''} removed successfully.`);
       } else {
         $appStore.notifyNegative('There was an error removing the category or its items.');
       }
@@ -541,7 +579,7 @@
             :key="item.id"
             :category="item"
             @handle-add-url="handleInitialAddUrl"
-            @handle-remove-category="isRemoveCategoryModalOpen = true"
+            @handle-remove-category="[ activeCategoryId = item.id, isRemoveCategoryModalOpen = true ]"
             @handle-remove-item="[ activeCategoryId = item.id, activeRow = $event, isRemoveItemModalOpen = true ]"
             @handle-update-category="($event: UpdateCategoryPayload) => { activeCategoryId = item.id, updateCategory($event) }" />
         </div>
@@ -718,7 +756,7 @@
     <gc-modal
       :is-open="isRemoveCategoryModalOpen"
       title="Remove Category from Pack"
-      @handle-cancel="[ isRemoveCategoryModalOpen = false, removeItemCheckbox = false]">
+      @handle-cancel="[ isRemoveCategoryModalOpen = false, removeItemCheckbox = false, activeCategoryId = undefined ]">
       <template #default>
         <div>
           <p class="font-bold mb-0 text-base">
@@ -731,7 +769,7 @@
         <div class="flex items-center gap-4">
           <gc-checkbox
             id="remove-item-checkbox"
-            :checked="removeItemCheckbox"
+            v-model="removeItemCheckbox"
             label="Remove items from closet?" />
           <info-icon
             v-tippy="{ content: 'Checking this will remove all items from the category as well as your closet.' }"
@@ -772,7 +810,7 @@
         <div class="flex items-center gap-4">
           <gc-checkbox
             id="remove-item-checkbox"
-            :checked="removeItemCheckbox"
+            v-model="removeItemCheckbox"
             label="Remove from closet?" />
           <info-icon
             v-tippy="{ content: 'Checking this will remove all items from your closet as well.'}"
@@ -813,7 +851,7 @@
         <div class="flex items-center gap-4">
           <gc-checkbox
             id="remove-item-checkbox"
-            :checked="removeItemCheckbox"
+            v-model="removeItemCheckbox"
             label="Remove from closet?" />
           <info-icon
             v-tippy="{ content: 'Checking this will remove the item from your closet as well.'}"

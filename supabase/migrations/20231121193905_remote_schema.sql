@@ -455,7 +455,7 @@ CREATE OR REPLACE FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) R
               ) AS category_items
             FROM categories c
             WHERE c.pack_id = dynamic_pack_id
-            ORDER BY c.created_at
+            ORDER BY c.created_at DESC
           ) AS sub
         )
       ),

@@ -208,9 +208,9 @@
                     <div class="flex items-center">
                       <gc-checkbox
                         :id="`item-${item.id}`"
-                        :checked="item.completed"
+                        :model-value="item.completed"
                         strike-through
-                        @update="e => updateShoppingItem(item, { completed: e })" />
+                        @update:model-value="e => updateShoppingItem(item, { completed: e })" />
                     </div>
                   </td>
                   <th
@@ -289,9 +289,9 @@
                     <div class="flex items-center">
                       <gc-checkbox
                         :id="`item-${item.id}`"
-                        :checked="item.completed"
+                        :model-value="item.completed"
                         strike-through
-                        @update="e => updateShoppingItem(item, { completed: e })" />
+                        @update:model-value="e => updateShoppingItem(item, { completed: e })" />
                     </div>
                   </td>
                   <th

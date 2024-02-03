@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import Dinero from 'dinero.js';
 import convert from 'convert';
-import type { Tables } from '@/types';
+import type { InsertItem, Item, Tables } from '@/types';
 import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '@/types/helpers';
 import type { Currency } from 'dinero.js';
 import type { Mass } from 'convert';
@@ -211,3 +211,16 @@ export const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: nu
 };
 
 export const generateUniqueToken = () => uuidv4();
+
+export const generateItem = (): InsertItem => ({
+    consumable: false,
+    generic_type: '',
+    name: '',
+    price: 0,
+    quantity: 0,
+    slug: '',
+    unit: 'oz',
+    url: '',
+    weight: '0',
+    worn: false,
+});

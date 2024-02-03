@@ -201,8 +201,8 @@
                     <div class="flex items-center">
                       <gc-checkbox
                         :id="`todo-${todo.id}`"
-                        :checked="todo.completed"
-                        @update="e => updateTodo(todo, { completed: e })" />
+                        :model-value="todo.completed"
+                        @update:model-value="e => updateTodo(todo, { completed: e })" />
                     </div>
                   </td>
                   <th
@@ -260,8 +260,8 @@
                     <div class="flex items-center">
                       <gc-checkbox
                         :id="`todo-${todo.id}`"
-                        :checked="todo.completed"
-                        @update="e => updateTodo(todo, { completed: e })" />
+                        :model-value="todo.completed"
+                        @update:model-value="e => updateTodo(todo, { completed: e })" />
                     </div>
                   </td>
                   <th

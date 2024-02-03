@@ -291,9 +291,9 @@
             @update:model-value="e => activeDetail!.value = e" />
           <gc-checkbox
             id="has-url"
-            :checked="detailHasUrl"
             label="Link to URL?"
-            @update="updateDetailHasUrl" />
+            :model-value="detailHasUrl"
+            @update:model-value="updateDetailHasUrl" />
           <gc-input
             v-if="detailHasUrl"
             class="w-full"
