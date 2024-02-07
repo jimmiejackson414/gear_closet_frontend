@@ -31,12 +31,12 @@
   const { data } = storeToRefs($store);
 
   // define item header classes
-  // const headerItemClassNameFunction: HeaderItemClassNameFunction = (header: Header): string => {
-  //   if (header.value === 'drag') return 'px-2 py-3 w-4';
-  //   else if (header.value === 'actions') return 'text-right px-6 py-3';
-  //   else if (header.value === 'name' || header.value === 'generic_type') return 'px-6 py-3 text-left';
-  //   return 'px-6 py-3 text-center';
-  // };
+  const headerClasses = (header: Column): string => {
+    if (header.name === 'drag') return 'px-2 py-3 w-8';
+    else if (header.name === 'actions') return 'text-right pl-6 pr-4 py-3';
+    else if (header.name === 'name' || header.name === 'generic_type') return 'pr-6 pl-4 py-3 text-left';
+    return 'px-6 py-3 text-center';
+  };
 
   // define table columns
   const columns: Column[] = [
@@ -222,7 +222,11 @@
           <div
             v-for="column in columns"
             :key="column.name"
-            class="px-6 py-3">
+            :class="[headerClasses(column), {
+              'text-left': column.align === 'left',
+              'text-center': column.align === 'center',
+              'text-right': column.align === 'right',
+            }]">
             {{ column.label }}
           </div>
         </li>
@@ -247,12 +251,12 @@
           :index="i"
           tag="li">
           <!-- Drag -->
-          <drag-handle class="flex items-center px-2 py-4">
+          <drag-handle class="flex items-center p-2">
             <grip-vertical-icon class="cursor-move group-hover:opacity-100 h-4 opacity-0 text-gray-400 w-4" />
           </drag-handle>
 
           <!-- Name -->
-          <div class="font-medium px-6 py-4 text-gray-900 whitespace-nowrap">
+          <div class="font-medium px-4 py-2 text-gray-900 whitespace-nowrap">
             <gc-inline-edit
               hide-edit-btn
               :model-value="row.name"
@@ -267,7 +271,7 @@
           </div>
 
           <!-- Generic Type -->
-          <div class="px-6 py-4">
+          <div class="px-4 py-2">
             <gc-inline-edit
               hide-edit-btn
               :model-value="row.generic_type"
@@ -282,8 +286,8 @@
           </div>
 
           <!-- Consumable -->
-          <div class="px-6 py-4">
-            <div class="flex justify-center items-center">
+          <div class="px-4 py-2">
+            <div class="flex justify-center items-center h-full">
               <button
                 class="cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
                 :class="row.consumable ? 'bg-info hover:bg-info/70' : 'bg-transparent hover:bg-gray-200'"
@@ -296,8 +300,8 @@
           </div>
 
           <!-- Worn -->
-          <div class="px-6 py-4">
-            <div class="flex justify-center items-center">
+          <div class="px-4 py-2">
+            <div class="flex justify-center items-center h-full">
               <button
                 class="cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
                 :class="row.worn ? 'bg-positive hover:bg-positive/70' : 'bg-transparent hover:bg-gray-200'"
@@ -310,7 +314,7 @@
           </div>
 
           <!-- Weight -->
-          <div class="px-6 py-4">
+          <div class="px-4 py-2">
             <div class="flex justify-center items-center max-w-[4rem] mx-auto">
               <gc-inline-edit
                 hide-edit-btn
@@ -325,7 +329,7 @@
           </div>
 
           <!-- Price -->
-          <div class="px-6 py-4">
+          <div class="px-4 py-2">
             <div class="flex justify-center items-center">
               <gc-inline-edit
                 class="justify-center min-w-[3rem]"
@@ -340,7 +344,7 @@
           </div>
 
           <!-- Quantity -->
-          <div class="px-6 py-4">
+          <div class="px-4 py-2">
             <div class="flex justify-center items-center max-w-[4rem] mx-auto">
               <gc-inline-edit
                 hide-edit-btn
@@ -355,8 +359,8 @@
           </div>
 
           <!-- Actions -->
-          <div class="px-6 py-4 text-right">
-            <div class="grid grid-cols-[auto,auto] gap-4 justify-end items-center relative">
+          <div class="px-4 py-2 text-right">
+            <div class="grid grid-cols-[auto,auto] gap-4 justify-end h-full items-center relative">
               <button
                 v-tippy="{ content: row.url ? 'Modify URL' : 'Add URL' }"
                 class="cursor-pointer duration-150 ease-snap flex justify-center justify-self-end items-center h-8 rounded-full transition w-8"
