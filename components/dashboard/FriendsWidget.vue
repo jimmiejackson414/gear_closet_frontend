@@ -97,7 +97,7 @@
 </script>
 
 <template>
-  <div class="bg-white p-4 rounded-2xl shadow-light">
+  <div class="!bg-white card card-aside">
     <gc-skeleton
       v-if="loading"
       avatar
@@ -106,7 +106,7 @@
       <div class="flex justify-start items-center mb-4 py-4">
         <users-icon class="h-6 mr-6 text-primary w-6" />
         <nuxt-link
-          class="duration-150 ease-in-out font-bold text-base hover:text-primary"
+          class="!font-bold duration-150 ease-in-out text-base hover:text-primary"
           :to="{ name: 'friends' }">
           Friends
         </nuxt-link>

@@ -23,7 +23,12 @@ export default defineNuxtConfig({
   },
 
   build: {
-    transpile: ['@vuepic/vue-datepicker'],
+    transpile: [
+      '@vuepic/vue-datepicker',
+      'echarts',
+      'zrender',
+      'tslib',
+    ],
   },
 
   components: [
@@ -35,6 +40,10 @@ export default defineNuxtConfig({
 
   devServer: {
     port: 8000,
+  },
+
+  devtools: {
+    enabled: true,
   },
 
   head: {
@@ -59,11 +68,16 @@ export default defineNuxtConfig({
     ],
   },
 
+  headlessui: {
+    prefix: 'Headless',
+  },
+
   modules: [
     '@nuxtjs/supabase',
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss',
     '@vueuse/nuxt',
+    'nuxt-headlessui',
   ],
 
   optimizeDeps: {
@@ -105,5 +119,13 @@ export default defineNuxtConfig({
   typescript: {
     typeCheck: true,
     include: ['vendor.d.ts'],
+    tsConfig: {
+      compilerOptions: {
+        paths: {
+          '@': ['.'],
+          '@/*': ['./*'],
+        },
+      },
+    },
   },
 });

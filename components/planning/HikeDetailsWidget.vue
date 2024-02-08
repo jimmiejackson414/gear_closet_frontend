@@ -133,10 +133,10 @@
 </script>
 
 <template>
-  <div class="bg-white px-8 py-4 rounded-4xl shadow-light">
+  <div class="card card-main">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
       <mountain-icon class="h-6 mr-6 text-primary w-6" />
-      <p class="font-bold text-base">
+      <p class="!font-bold text-base">
         Hike Details
       </p>
       <gc-button
@@ -249,7 +249,7 @@
             @update:model-value="e => activeDetail!.value = e" />
           <gc-checkbox
             id="has-url"
-            :checked="detailHasUrl"
+            v-model="detailHasUrl"
             label="Link to URL?"
             @update="updateDetailHasUrl" />
           <gc-input

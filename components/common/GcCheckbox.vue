@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   interface Props {
     id: string;
-    checked: boolean;
+    modelValue: boolean;
     label?: string | null;
     strikeThrough?: boolean;
   }
@@ -11,10 +11,10 @@
     strikeThrough: false,
   });
 
-  const emits = defineEmits(['update']);
+  const emits = defineEmits(['update:modelValue']);
 
   const handleChange = (event: Event) => {
-    emits('update', (event.target as HTMLInputElement).checked);
+    emits('update:modelValue', (event.target as HTMLInputElement).checked);
   };
 </script>
 
@@ -22,7 +22,7 @@
   <div class="cursor-pointer flex items-center">
     <input
       :id="id"
-      :checked="checked"
+      :checked="modelValue"
       class="bg-gray-100 border-gray-300 cursor-pointer h-4 rounded text-positive w-4 focus:ring-2 focus:ring-positive"
       type="checkbox"
       value=""

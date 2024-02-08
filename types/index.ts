@@ -82,7 +82,7 @@ export interface Database {
           id: number;
           name: string | null;
           pack_id: number | null;
-          slug: string;
+          slug: string | null;
           unit: string | null;
           updated_at: string;
         };
@@ -91,7 +91,7 @@ export interface Database {
           id?: number;
           name?: string | null;
           pack_id?: number | null;
-          slug: string;
+          slug?: string | null;
           unit?: string | null;
           updated_at?: string;
         };
@@ -100,7 +100,7 @@ export interface Database {
           id?: number;
           name?: string | null;
           pack_id?: number | null;
-          slug?: string;
+          slug?: string | null;
           unit?: string | null;
           updated_at?: string;
         };
@@ -416,7 +416,7 @@ export interface Database {
           name: string | null;
           private: boolean;
           profile_id: string;
-          slug: string;
+          slug: string | null;
           theme: Database["public"]["Enums"]["theme"] | null;
           updated_at: string | null;
         };
@@ -427,7 +427,7 @@ export interface Database {
           name?: string | null;
           private?: boolean;
           profile_id: string;
-          slug: string;
+          slug?: string | null;
           theme?: Database["public"]["Enums"]["theme"] | null;
           updated_at?: string | null;
         };
@@ -438,7 +438,7 @@ export interface Database {
           name?: string | null;
           private?: boolean;
           profile_id?: string;
-          slug?: string;
+          slug?: string | null;
           theme?: Database["public"]["Enums"]["theme"] | null;
           updated_at?: string | null;
         };
@@ -1014,6 +1014,7 @@ export interface Database {
           accepted_invite_on: string | null;
           created_at: string | null;
           id: number;
+          invite_token: string | null;
           invited_by_id: string | null;
           profile_id: string | null;
           status: Database["public"]["Enums"]["trip_friend_status"];
@@ -1024,6 +1025,7 @@ export interface Database {
           accepted_invite_on?: string | null;
           created_at?: string | null;
           id?: number;
+          invite_token?: string | null;
           invited_by_id?: string | null;
           profile_id?: string | null;
           status?: Database["public"]["Enums"]["trip_friend_status"];
@@ -1034,6 +1036,7 @@ export interface Database {
           accepted_invite_on?: string | null;
           created_at?: string | null;
           id?: number;
+          invite_token?: string | null;
           invited_by_id?: string | null;
           profile_id?: string | null;
           status?: Database["public"]["Enums"]["trip_friend_status"];
@@ -1121,7 +1124,7 @@ export interface Database {
           ending_point: string | null;
           id: number;
           name: string | null;
-          profile_id: string;
+          profile_id: string | null;
           slug: string | null;
           starting_date: string | null;
           starting_point: string | null;
@@ -1134,7 +1137,7 @@ export interface Database {
           ending_point?: string | null;
           id?: number;
           name?: string | null;
-          profile_id: string;
+          profile_id?: string | null;
           slug?: string | null;
           starting_date?: string | null;
           starting_point?: string | null;
@@ -1147,7 +1150,7 @@ export interface Database {
           ending_point?: string | null;
           id?: number;
           name?: string | null;
-          profile_id?: string;
+          profile_id?: string | null;
           slug?: string | null;
           starting_date?: string | null;
           starting_point?: string | null;
@@ -1168,6 +1171,14 @@ export interface Database {
       [_ in never]: never;
     };
     Functions: {
+      create_category_and_item: {
+        Args: {
+          p_name: string;
+          p_pack_id: number;
+          p_items: Json;
+        };
+        Returns: Json;
+      };
       create_poll: {
         Args: {
           trip_id: number;
@@ -1176,9 +1187,22 @@ export interface Database {
         };
         Returns: Json;
       };
+      get_closet_page_data: {
+        Args: {
+          p_pack_id: number;
+        };
+        Returns: Json;
+      };
       get_planning_page_data: {
         Args: {
           p_trip_id: number;
+        };
+        Returns: Json;
+      };
+      import_csv_data: {
+        Args: {
+          csv_data: Json;
+          p_pack_id: number;
         };
         Returns: Json;
       };
@@ -1189,6 +1213,12 @@ export interface Database {
           answers: string[];
         };
         Returns: Json;
+      };
+      update_positions: {
+        Args: {
+          records: Database["public"]["CompositeTypes"]["category_item_position"][];
+        };
+        Returns: Json[];
       };
     };
     Enums: {
@@ -1232,6 +1262,12 @@ export interface Database {
       answer_type: {
         answer_id: number;
         answer: string;
+      };
+      category_item_position: {
+        category_item_id: number;
+        category_id: number;
+        item_id: number;
+        new_position: number;
       };
       question_type: {
         question_id: number;
@@ -1716,20 +1752,40 @@ export type InsertTrip = Database["public"]["Tables"]["trips"]["Insert"];
 export type UpdateTrip = Database["public"]["Tables"]["trips"]["Update"];
 
 // Functions
+export type ArgsCreateCategoryAndItem =
+  Database["public"]["Functions"]["create_category_and_item"]["Args"];
+export type ReturnTypeCreateCategoryAndItem =
+  Database["public"]["Functions"]["create_category_and_item"]["Returns"];
+
 export type ArgsCreatePoll =
   Database["public"]["Functions"]["create_poll"]["Args"];
 export type ReturnTypeCreatePoll =
   Database["public"]["Functions"]["create_poll"]["Returns"];
+
+export type ArgsGetClosetPageDatum =
+  Database["public"]["Functions"]["get_closet_page_data"]["Args"];
+export type ReturnTypeGetClosetPageDatum =
+  Database["public"]["Functions"]["get_closet_page_data"]["Returns"];
 
 export type ArgsGetPlanningPageDatum =
   Database["public"]["Functions"]["get_planning_page_data"]["Args"];
 export type ReturnTypeGetPlanningPageDatum =
   Database["public"]["Functions"]["get_planning_page_data"]["Returns"];
 
+export type ArgsImportCsvDatum =
+  Database["public"]["Functions"]["import_csv_data"]["Args"];
+export type ReturnTypeImportCsvDatum =
+  Database["public"]["Functions"]["import_csv_data"]["Returns"];
+
 export type ArgsUpdatePoll =
   Database["public"]["Functions"]["update_poll"]["Args"];
 export type ReturnTypeUpdatePoll =
   Database["public"]["Functions"]["update_poll"]["Returns"];
+
+export type ArgsUpdatePosition =
+  Database["public"]["Functions"]["update_positions"]["Args"];
+export type ReturnTypeUpdatePosition =
+  Database["public"]["Functions"]["update_positions"]["Returns"];
 
 // Schema: storage
 // Tables

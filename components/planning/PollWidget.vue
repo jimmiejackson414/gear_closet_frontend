@@ -140,49 +140,41 @@
 </script>
 
 <template>
-  <div class="bg-grey-50 px-8 py-4 rounded-2xl shadow-light">
+  <div class="card card-aside">
     <div class="flex justify-between items-center py-4">
       <div class="flex items-center">
         <vote-icon class="h-6 mr-6 text-primary w-6" />
-        <p class="font-bold text-base">
+        <p class="!font-bold text-base">
           Poll
         </p>
       </div>
-      <span
+      <div
         v-if="canAccessSettings"
-        class="relative">
-        <gc-button
-          v-if="!pageLoading && data.poll"
-          ref="settingsBtnRef"
-          class="justify-self-end"
-          :icon="SettingsIcon"
-          round
-          size="sm"
-          @click="isSettingsOpen = !isSettingsOpen" />
-        <fade-transition>
-          <div
-            v-if="isSettingsOpen"
-            ref="settingsDropdownRef"
-            class="absolute top-full right-0 bg-white border divide-gray-100 duration-300 max-w-sm mt-2 rounded-lg shadow transition-all w-max z-20">
-            <ul>
-              <li class="bg-white hover:bg-gray-50 duration-100 transition-[background]">
-                <button
-                  class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-center hover:text-primary"
-                  @click="modalState = 'edit'; isPollDialogOpen = true">
-                  Edit Poll
-                </button>
-              </li>
-              <li class="bg-white hover:bg-gray-50 duration-100 transition-[background]">
-                <button
-                  class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-center hover:text-danger-dark text-danger"
-                  @click="isDeleteConfirmOpen = true">
-                  Delete Poll
-                </button>
-              </li>
-            </ul>
+        class="flex">
+        <headless-menu
+          as="div"
+          class="inline-block relative text-left">
+          <div class="bg-primary flex justify-center items-center h-6 rounded-full w-6">
+            <headless-menu-button class="duration-150 ease-snap focus-visible:ring-2 focus-visible:ring-white/0 font-medium inline-flex justify-center outline-none focus:outline-none px-0 py-2 rounded-md text-sm text-white">
+              <settings-icon class="h-4 w-4" />
+            </headless-menu-button>
           </div>
-        </fade-transition>
-      </span>
+          <zoom-transition>
+            <headless-menu-items class="absolute right-0 bg-white divide-gray-100 divide-y mt-2 origin-top-right ring-1 ring-black/5 rounded-md shadow-lg w-56 z-10 focus:outline-none">
+              <headless-menu-item @click="[ modalState = 'edit', isPollDialogOpen = true ]">
+                <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-dark-grey hover:bg-gray-100">
+                  Edit Poll
+                </p>
+              </headless-menu-item>
+              <headless-menu-item @click="isDeleteConfirmOpen = true">
+                <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-danger hover:bg-gray-100">
+                  Delete Poll
+                </p>
+              </headless-menu-item>
+            </headless-menu-items>
+          </zoom-transition>
+        </headless-menu>
+      </div>
     </div>
     <gc-skeleton v-if="pageLoading" />
     <gc-empty-state v-else-if="!pageLoading && !data.poll">
@@ -237,7 +229,7 @@
             for="answer">
             Answers
             <div
-              v-for="(answer, index) in modalForm.answers"
+              v-for="(_answer, index) in modalForm.answers"
               :key="index"
               class="w-full">
               <gc-input

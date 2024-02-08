@@ -1,7 +1,7 @@
 import { Theme } from '@/types';
 
 export interface Option {
-  text: string;
+  label: string;
   value: Theme;
   colors: string[];
 }
@@ -183,7 +183,7 @@ export const HueCircle19 = [
   '#4f7cba',
 ];
 
-export const findTheme = (theme: string | undefined): Array<string> => {
+export const findTheme = (theme: Theme | string | undefined): Array<string> => {
   switch (theme) {
     case Theme.BLUE6:
       return Blue6;
@@ -226,25 +226,25 @@ export const findTheme = (theme: string | undefined): Array<string> => {
 
 const generateThemeOptions = (): Array<Option> => {
   const office = [
-    { text: Theme.BLUE6, value: Theme.BLUE6, colors: Blue6 },
-    { text: Theme.BLUEGREEN6, value: Theme.BLUEGREEN6, colors: BlueGreen6 },
-    { text: Theme.BREEZE6, value: Theme.BREEZE6, colors: Breeze6 },
-    { text: Theme.CELESTIAL6, value: Theme.CELESTIAL6, colors: Celestial6 },
-    { text: Theme.CIRCUIT6, value: Theme.CIRCUIT6, colors: Circuit6 },
-    { text: Theme.DAMASK6, value: Theme.DAMASK6, colors: Damask6 },
-    { text: Theme.DEPTH6, value: Theme.DEPTH6, colors: Depth6 },
-    { text: Theme.FLOW6, value: Theme.FLOW6, colors: Flow6 },
-    { text: Theme.FORTE6, value: Theme.FORTE6, colors: Forte6 },
-    { text: Theme.GENESIS6, value: Theme.GENESIS6, colors: Genesis6 },
-    { text: Theme.IONBOARDROOM6, value: Theme.IONBOARDROOM6, colors: IonBoardroom6 },
-    { text: Theme.KILTER6, value: Theme.KILTER6, colors: Kilter6 },
+    { label: Theme.BLUE6, value: Theme.BLUE6, colors: Blue6 },
+    { label: Theme.BLUEGREEN6, value: Theme.BLUEGREEN6, colors: BlueGreen6 },
+    { label: Theme.BREEZE6, value: Theme.BREEZE6, colors: Breeze6 },
+    { label: Theme.CELESTIAL6, value: Theme.CELESTIAL6, colors: Celestial6 },
+    { label: Theme.CIRCUIT6, value: Theme.CIRCUIT6, colors: Circuit6 },
+    { label: Theme.DAMASK6, value: Theme.DAMASK6, colors: Damask6 },
+    { label: Theme.DEPTH6, value: Theme.DEPTH6, colors: Depth6 },
+    { label: Theme.FLOW6, value: Theme.FLOW6, colors: Flow6 },
+    { label: Theme.FORTE6, value: Theme.FORTE6, colors: Forte6 },
+    { label: Theme.GENESIS6, value: Theme.GENESIS6, colors: Genesis6 },
+    { label: Theme.IONBOARDROOM6, value: Theme.IONBOARDROOM6, colors: IonBoardroom6 },
+    { label: Theme.KILTER6, value: Theme.KILTER6, colors: Kilter6 },
   ];
 
   const tableau = [
-    { text: Theme.TABLEAU10, value: Theme.TABLEAU10, colors: Tableau10 },
-    { text: Theme.COLORBLIND10, value: Theme.COLORBLIND10, colors: ColorBlind10 },
-    { text: Theme.JEWELBRIGHT9, value: Theme.JEWELBRIGHT9, colors: JewelBright9 },
-    { text: Theme.HUECIRCLE19, value: Theme.HUECIRCLE19, colors: HueCircle19 },
+    { label: Theme.TABLEAU10, value: Theme.TABLEAU10, colors: Tableau10 },
+    { label: Theme.COLORBLIND10, value: Theme.COLORBLIND10, colors: ColorBlind10 },
+    { label: Theme.JEWELBRIGHT9, value: Theme.JEWELBRIGHT9, colors: JewelBright9 },
+    { label: Theme.HUECIRCLE19, value: Theme.HUECIRCLE19, colors: HueCircle19 },
   ];
 
   return [office, tableau].flat();

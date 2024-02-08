@@ -5,6 +5,7 @@ export type ExtendedCategoryItem = Tables<'category_items'> & {
 };
 
 export type ExtendedCategory = Tables<'categories'> & {
+  [key: string]: any;
   category_items: ExtendedCategoryItem[];
 };
 
@@ -45,4 +46,22 @@ export type ForumLatestPosts = {
 export type SelectOption = {
   label: string;
   value: string | number;
+}
+
+// Closet page CSV import results
+export type ParsedResults = {
+  data: any[];
+  errors: string[];
+  meta: {
+    aborted: boolean;
+    cursor: number;
+    delimiter: string;
+    fields: string[];
+    linebreak: string;
+    truncated: boolean;
+  }
+}
+
+export type ImportClosetCsvResponse = {
+  categories: ExtendedCategory[];
 }

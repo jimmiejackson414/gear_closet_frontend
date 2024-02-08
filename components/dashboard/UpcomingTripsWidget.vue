@@ -27,7 +27,8 @@
       .diff(trip.created_at, 'day');
     const elapsedTimeInDays = dayjs()
       .diff(trip.created_at, 'day');
-    const percentage = (elapsedTimeInDays / tripDurationInDays) * 100;
+    let percentage = (elapsedTimeInDays / tripDurationInDays) * 100;
+    percentage = Math.min(percentage, 100);
     return { width: `${percentage}%` };
   };
 
@@ -41,7 +42,7 @@
 </script>
 
 <template>
-  <div class="bg-white p-4 rounded-2xl shadow-light">
+  <div class="!bg-white card card-aside">
     <gc-skeleton
       v-if="loading"
       avatar
@@ -49,7 +50,7 @@
     <div v-else>
       <div class="flex justify-start items-center py-4">
         <footprints-icon class="h-6 mr-6 text-primary w-6" />
-        <p class="font-bold text-base">
+        <p class="!font-bold text-base">
           Upcoming Trips <span class="font-normal text-grey">({{ data.length || 0 }})</span>
         </p>
       </div>
@@ -87,7 +88,7 @@
         v-else
         class="flex justify-center items-center flex-col">
         <p class="mb-4 text-base text-center">
-          You haven't created any trips yet!
+          You don't have any upcoming trips yet!
         </p>
         <gc-button
           label="Get Started"

@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import Dinero from 'dinero.js';
 import convert from 'convert';
-import type { Tables } from '@/types';
+import type { InsertItem, Item, Tables } from '@/types';
 import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '@/types/helpers';
 import type { Currency } from 'dinero.js';
 import type { Mass } from 'convert';
@@ -10,14 +10,14 @@ interface FriendlyUsernameOptions {
   includeTrailName?: boolean;
 }
 
-export const buildImageSrc = (url: string | undefined | null): string | undefined => {
+export const buildImageSrc = (url: string | undefined | null) => {
   if (!url) return undefined;
   const runtimeConfig = useRuntimeConfig();
   const cloudName = runtimeConfig.public.CLOUDINARY_CLOUD_NAME as string;
   return `https://res.cloudinary.com/${cloudName}/image/upload/${url}`;
 };
 
-export const calculateCategoryWeight = (category: ExtendedCategory): number => {
+export const calculateCategoryWeight = (category: ExtendedCategory) => {
   if (!category || !category.category_items?.length) return 0;
 
   return (category.category_items).reduce(
@@ -117,7 +117,7 @@ export const calculatePackWeights = (pack: ExtendedPack) => {
   return data;
 };
 
-export const capitalize = (text: string | undefined | null): string => {
+export const capitalize = (text: string | undefined | null) => {
   if (!text) return '';
 
   const splitStr = text.toLowerCase()
@@ -130,7 +130,7 @@ export const capitalize = (text: string | undefined | null): string => {
   return splitStr.join(' ');
 };
 
-export const completedOnboarding = (user: ExtendedUser | null | undefined, page: string): boolean => {
+export const completedOnboarding = (user: ExtendedUser | null | undefined, page: string) => {
   if (!user || !user.onboarding_steps) return false;
   return user.onboarding_steps.some(step => step?.page === page);
 };
@@ -138,7 +138,7 @@ export const completedOnboarding = (user: ExtendedUser | null | undefined, page:
 export const convertCurrency = (
   num: number,
   currency = 'USD' as Currency,
-): string => Dinero({ amount: Number(num), currency })
+) => Dinero({ amount: Number(num), currency })
   .toFormat('$0,0.00');
 
 export const getPagination = (page: number, pageSize: number): { from: number, to: number } => {
@@ -168,25 +168,38 @@ export const friendlyUsername = (user: Tables<'profiles'> | null | undefined, op
   return user.email;
 };
 
-export const generateRandomNumber = (max = 5000): number => (Math.random() * max);
+export const generateRandomNumber = (max = 5000) => (Math.random() * max);
 
-export const isValidEmail = (val: string): boolean => {
+export const isValidEmail = (val: string) => {
   const regPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
   return regPattern.test(val);
 };
 
-export const prependProtocol = (url: string): string => {
+export const prependProtocol = (url: string) => {
   let u = url;
-  const pattern = /^((http|https):\/\/)/;
-  if (!pattern.test(u)) {
+  const protocolPattern = /^((http|https):\/\/)/;
+  const wwwPattern = /^((http|https):\/\/www\.)/;
+
+  if (!protocolPattern.test(u)) {
     u = `https://${u}`;
   }
+
+  if (!wwwPattern.test(u)) {
+    const protocol = u.match(protocolPattern);
+    if (protocol) {
+      u = u.replace(protocolPattern, `${protocol[0]}www.`);
+    }
+  }
+
   return u;
 };
 
-export const truncate = (str: string, num = 100): string => (num > str.length ? str : `${str.substring(0, num)}...`);
+export const truncate = (str: string | null | undefined, num = 100) => {
+  if (!str) return '';
+  return num >= str.length ? str : `${str.substring(0, num)}...`;
+};
 
-export const validateEmail = (email: string): boolean => /\S+@\S+\.\S+/.test(email);
+export const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
 
 export const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) => {
   let timeoutId: NodeJS.Timeout | null = null;
@@ -201,3 +214,16 @@ export const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: nu
 };
 
 export const generateUniqueToken = () => uuidv4();
+
+export const generateItem = (): InsertItem => ({
+    consumable: false,
+    generic_type: '',
+    name: '',
+    price: 0,
+    quantity: 0,
+    slug: '',
+    unit: 'oz',
+    url: '',
+    weight: '0',
+    worn: false,
+});
