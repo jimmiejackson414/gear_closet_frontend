@@ -213,7 +213,33 @@
             },
           })),
         },
+        grid: {
+          bottom: '30%',
+        },
         loading: pageLoading.value,
+        media: [
+          {
+            query: {
+              maxWidth: 600,
+            },
+            option: {
+              legend: {
+                orient: 'horizontal',
+                left: 'center',
+                top: 'bottom',
+              },
+              grid: {
+                bottom: '20%',
+              },
+              series: [
+                {
+                  center: ['50%', '40%'],
+                  radius: ['40%', '120%'],
+                },
+              ],
+            },
+          },
+        ],
         series: [
           {
             name: 'Pack Categories',
@@ -320,7 +346,7 @@
         Selected Pack: 
         <span class="font-black">{{ data.pack?.name }}</span>
       </h5>
-      <div class="h-[200px] lg:h-[375px] mb-4 mt-0 mx-auto w-full">
+      <div class="h-[400px] mb-4 mt-0 mx-auto w-full">
         <client-only>
           <v-chart
             ref="chartRef"
