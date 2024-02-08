@@ -219,7 +219,8 @@
             name: 'Pack Categories',
             type: 'pie',
             radius: ['40%', '90%'],
-            center: ['50%', '50%'],
+            center: ['80%', '50%'],
+            left: 'center',
             height: '100%',
             data: data.value.pack?.categories?.map(c => ({
               name: c.name,
