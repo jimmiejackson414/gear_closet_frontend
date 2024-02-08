@@ -304,25 +304,46 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
     END IF;
 
     -- Fetch trip packs data using dynamic_trip_id along with associated pack details
-    SELECT COALESCE(json_agg(json_build_object(
-      'pack', row_to_json(pack.*),
-      'categories', (
-        SELECT COALESCE(json_agg(json_build_object(
-          'category', row_to_json(c.*),
-          'category_items', (
-            SELECT COALESCE(json_agg(json_build_object(
-              'category_item', row_to_json(ci.*),
-              'item', row_to_json(i.*)
-            )), '[]'::JSON)
-            FROM category_items ci
-            JOIN items i ON ci.item_id = i.id
-            WHERE ci.category_id = c.id
-          )
-        )), '[]'::JSON)
-        FROM categories c
-        WHERE c.pack_id = tp.pack_id
+    SELECT (COALESCE(json_agg(
+      json_build_object(
+        'id', pack.id,
+        'name', pack.name,
+        'slug', pack.slug,
+        'created_at', pack.created_at,
+        'updated_at', pack.updated_at,
+        'profile_id', pack.profile_id,
+        'theme', pack.theme,
+        'private', pack.private,
+        'allow_comments', pack.allow_comments,
+        'categories', (
+          SELECT COALESCE(json_agg(json_build_object(
+            'id', c.id,
+            'created_at', c.created_at,
+            'name', c.name,
+            'unit', c.unit,
+            'slug', c.slug,
+            'pack_id', c.pack_id,
+            'updated_at', c.updated_at,
+            'category_items', (
+              SELECT COALESCE(json_agg(json_build_object(
+                'id', ci.id,
+                'category_id', ci.category_id,
+                'item_id', ci.item_id,
+                'position', ci.position,
+                'created_at', ci.created_at,
+                'updated_at', ci.updated_at,
+                'item', row_to_json(i.*)
+              )), '[]'::JSON)
+              FROM category_items ci
+              JOIN items i ON ci.item_id = i.id
+              WHERE ci.category_id = c.id
+            )
+          )), '[]'::JSON)
+          FROM categories c
+          WHERE c.pack_id = pack.id
+        )
       )
-    )), '[]'::JSON) INTO trip_packs_data
+    ), '[]'::JSON) -> 0) INTO trip_packs_data
     FROM trip_packs tp
     JOIN packs pack ON tp.pack_id = pack.id
     WHERE tp.profile_id = auth.uid()
@@ -375,7 +396,7 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
     -- Output the result
     RETURN jsonb_build_object(
       'trips', trips_data,
-      'trip_packs', trip_packs_data,
+      'pack', trip_packs_data,
       'trip_details', trip_details_data,
       'todos', todos_data,
       'shopping_items', shopping_items_data,

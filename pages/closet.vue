@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { initTooltips } from 'flowbite';
   import { useClipboard } from '@vueuse/core';
   import Papa, { type ParseResult } from 'papaparse';
   import { CopyIcon, ExternalLinkIcon, LinkIcon, InfoIcon, PlusIcon, SettingsIcon } from 'lucide-vue-next';
@@ -16,13 +15,6 @@
   const $store = useClosetStore();
   const { data, pageLoading } = storeToRefs($store);
   const activeCategoryId = ref<number | undefined>(undefined);
-
-  watch(data, async (newVal) => {
-    if (newVal.selectedPack?.categories?.length && !pageLoading.value) {
-      await nextTick();
-      initTooltips();
-    }
-  }, { deep: true });
 
   const packOptions = computed(() => data.value.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
   

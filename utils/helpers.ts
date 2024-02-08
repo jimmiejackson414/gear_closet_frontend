@@ -194,7 +194,10 @@ export const prependProtocol = (url: string) => {
   return u;
 };
 
-export const truncate = (str: string, num = 100) => (num > str.length ? str : `${str.substring(0, num)}...`);
+export const truncate = (str: string | null | undefined, num = 100) => {
+  if (!str) return '';
+  return num >= str.length ? str : `${str.substring(0, num)}...`;
+};
 
 export const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
 
