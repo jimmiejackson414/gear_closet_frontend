@@ -1,4 +1,4 @@
-import type { Tables } from '@/types';
+import type { Profile, Tables } from '@/types';
 
 export type ExtendedCategoryItem = Tables<'category_items'> & {
   item: Tables<'items'>
@@ -25,6 +25,20 @@ export type ExtendedPoll = Tables<'polls'> & {
   question: Tables<'questions'>;
   answers: Tables<'answers'>[];
   votes: Tables<'profile_answers'>[];
+}
+
+export type ExtendedReply = Tables<'replies'> & {
+  profile: Profile;
+}
+
+export type ExtendedComment = Tables<'comments'> & {
+  profile: Profile;
+  replies: ExtendedReply[];
+}
+
+export interface PublicPack extends ExtendedPack {
+  profile: Profile;
+  comments: ExtendedComment[];
 }
 
 export type ForumPost = {

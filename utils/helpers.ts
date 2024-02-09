@@ -1,7 +1,7 @@
 import { v4 as uuidv4 } from 'uuid';
 import Dinero from 'dinero.js';
 import convert from 'convert';
-import type { InsertItem, Item, Tables } from '@/types';
+import type { InsertItem, Profile, Tables } from '@/types';
 import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '@/types/helpers';
 import type { Currency } from 'dinero.js';
 import type { Mass } from 'convert';
@@ -156,7 +156,7 @@ export const initials = (user: Tables<'profiles'>| null | undefined) => {
   return firstInitial && lastInitial ? `${firstInitial}${lastInitial}` : base;
 };
 
-export const friendlyUsername = (user: Tables<'profiles'> | null | undefined, options?: FriendlyUsernameOptions) => {
+export const friendlyUsername = (user: Profile | null | undefined, options?: FriendlyUsernameOptions) => {
   if (!user) return initials(user);
   if (options?.includeTrailName && user.trail_name) {
     return `${user.first_name} "${user.trail_name}" ${user.last_name}`;
