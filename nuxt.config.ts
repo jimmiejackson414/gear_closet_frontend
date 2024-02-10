@@ -128,4 +128,10 @@ export default defineNuxtConfig({
       },
     },
   },
+
+  vite: {
+    optimizeDeps: {
+      include: ['@vueup/vue-quill'],
+    },
+  },
 });

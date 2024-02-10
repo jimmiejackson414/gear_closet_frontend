@@ -3,16 +3,15 @@
   import { AppleIcon, ShirtIcon } from 'lucide-vue-next';
   import tailwind from '@/utils/tailwind';
   import type { Database } from '@/types';
-  import type { PublicPack } from '@/types/helpers';
+  import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
   import type { Column } from '@/components/closet/PackItemsTable.vue';
 
   definePageMeta({ layout: 'public-layout' });
 
-  const $appStore = useAppStore();
-
   /**
    * Fetches the pack data.
    */
+  const $appStore = useAppStore();
   const $route = useRoute();
   const pack = ref<PublicPack | undefined>(undefined);
   const fetchPack = async () => {
@@ -36,6 +35,8 @@
           )
         `)
         .eq('slug', $route.params.slug)
+        .order('created_at', { referencedTable: 'comments', ascending: false })
+        .order('created_at', { referencedTable: 'comments.replies', ascending: false })
         .returns<PublicPack | undefined>()
         .maybeSingle();
 
@@ -52,7 +53,6 @@
    * Instantiates the tabs component
    */
   const activeTab = ref('tables');
-  // let tabs: TabsInterface | null = null;
   const instantiateTabs = () => {
     const tabsElement = document?.getElementById('default-tab') as HTMLElement;
     if (tabsElement) {
@@ -101,6 +101,66 @@
     else if (header.name === 'actions') return 'text-right pl-6 pr-4 py-3';
     else if (header.name === 'name' || header.name === 'generic_type') return 'pr-6 pl-4 py-3 text-left';
     return 'px-6 py-3 text-center';
+  };
+
+  const user = useSupabaseUser();
+
+  /**
+   * Adds a comment to the pack
+   */
+  const quillEditorRef = ref<any | null>(null);
+  const submitting = ref(false);
+  const addComment = async () => {
+    const text = quillEditorRef.value?.getText()
+      .trim();
+    if (!text) return;
+
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      // insert comment
+      const { data, error } = await supabase
+        .from('comments')
+        .insert({
+          pack_id: pack.value?.id as number,
+          profile_id: user.value?.id as string,
+          text,
+        })
+        .select();
+
+      if (error || !data) throw error;
+
+      // retrieve extended comment data
+      const { data: comment, error: commentError } = await supabase
+        .from('comments')
+        .select(`
+          *,
+          profile:profiles (first_name, last_name, trail_name, image),
+          replies(*,
+            profile:profiles (first_name, last_name, trail_name, image)
+          )
+        `)
+        .eq('id', data?.[0]?.id as number)
+        .order('created_at', { referencedTable: 'replies', ascending: false })
+        .maybeSingle();
+
+      if (!comment || commentError) throw commentError;
+      pack.value?.comments?.unshift(comment as ExtendedComment);
+      quillEditorRef.value?.setText('');
+      $appStore.notifyPositive('Comment successfully added!');
+    } catch (error) {
+      $appStore.notifyNegative('Failed to add comment');
+    } finally {
+      submitting.value = false;
+    }
+  };
+
+  /**
+   * Adds a reply to a comment
+   */
+  const handleAddReply = (reply: ExtendedReply) => {
+    const comment = pack.value?.comments?.find((c) => c.id === reply.comment_id);
+    if (comment) comment.replies = [reply, ...comment.replies];
   };
 </script>
 
@@ -254,10 +314,34 @@
               </p>
             </gc-empty-state>
             <div v-else>
+              <div
+                v-if="!!user"
+                class="flex items-end flex-col px-6">
+                <p class="my-2 text-gray-500 text-sm">
+                  Commenting as <span class="font-bold">{{ friendlyUsername(pack.profile) }}</span>
+                </p>
+                <client-only>
+                  <quill-editor
+                    ref="quillEditorRef"
+                    class="custom-editor"
+                    :enable="!submitting"
+                    :options="{ modules: { toolbar: false } }"
+                    placeholder="Add a comment"
+                    theme="snow" />
+                </client-only>
+                <gc-button
+                  class="mt-2"
+                  :disabled="submitting"
+                  label="Submit"
+                  :loading="submitting"
+                  size="sm"
+                  @click="addComment" />
+              </div>
               <public-pack-comment
                 v-for="comment in pack?.comments"
                 :key="comment.id"
-                :comment="comment" />
+                :comment="comment"
+                @handle-add-reply="handleAddReply" />
             </div>
           </div>
         </div>

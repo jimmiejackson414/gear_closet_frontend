@@ -20,15 +20,15 @@
   const sizeClass = computed(() => {
     switch (props.size) {
     case 'sm':
-      return 'h-8 w-8';
+      return 'h-8 w-8 min-w-8 min-h-8';
     case 'md':
-      return 'h-12 w-12';
+      return 'h-12 w-12 min-w-12 min-h-12';
     case 'lg':
-      return 'h-16 w-16';
+      return 'h-16 w-16 min-w-16 min-h-16';
     case 'xl':
-      return 'h-20 w-20';
+      return 'h-20 w-20 min-w-20 min-h-20';
     default:
-      return 'h-12 w-12';
+      return 'h-12 w-12 min-w-12 min-h-12';
     }
   });
 </script>
@@ -39,13 +39,13 @@
     alt="User Avatar"
     class="rounded-full"
     :class="[ sizeClass, { 'border-2 border-white': props.border } ]"
-    src="https://placehold.co/100x100">
-  <span
+    :src="buildImageSrc(profile?.image)">
+  <div
     v-else
-    class="bg-gray-200 inline-flex justify-center items-center overflow-hidden relative rounded-full"
+    class="bg-gray-200 flex-shrink-0 justify-center items-center inline-flex overflow-hidden relative rounded-full"
     :class="[ sizeClass, { 'border-2 border-white': props.border } ]">
     <span class="font-medium text-gray-600">
       {{ initials(profile) }}
     </span>
-  </span>
+  </div>
 </template>

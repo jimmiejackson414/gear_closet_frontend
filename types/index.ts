@@ -159,6 +159,7 @@ export interface Database {
       comments: {
         Row: {
           created_at: string | null;
+          deleted_at: string | null;
           id: number;
           pack_id: number;
           profile_id: string;
@@ -167,6 +168,7 @@ export interface Database {
         };
         Insert: {
           created_at?: string | null;
+          deleted_at?: string | null;
           id?: number;
           pack_id: number;
           profile_id: string;
@@ -175,6 +177,7 @@ export interface Database {
         };
         Update: {
           created_at?: string | null;
+          deleted_at?: string | null;
           id?: number;
           pack_id?: number;
           profile_id?: string;
@@ -759,6 +762,7 @@ export interface Database {
         Row: {
           comment_id: number;
           created_at: string | null;
+          deleted_at: string | null;
           id: number;
           profile_id: string;
           text: string | null;
@@ -767,6 +771,7 @@ export interface Database {
         Insert: {
           comment_id: number;
           created_at?: string | null;
+          deleted_at?: string | null;
           id?: number;
           profile_id: string;
           text?: string | null;
@@ -775,6 +780,7 @@ export interface Database {
         Update: {
           comment_id?: number;
           created_at?: string | null;
+          deleted_at?: string | null;
           id?: number;
           profile_id?: string;
           text?: string | null;

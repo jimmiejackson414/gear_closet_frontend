@@ -5,7 +5,7 @@
   import type { ExtendedNotification } from '@/types/helpers';
 
   interface Props {
-    pageTitle: string;
+    pageTitle?: string;
   }
   
   withDefaults(defineProps<Props>(), {
@@ -44,7 +44,9 @@
           {{ welcomeMessage }}
         </client-only>
       </p>
-      <h1 class="mt-4 text-3xl">
+      <h1
+        v-if="pageTitle"
+        class="mt-4 text-3xl">
         {{ pageTitle }}
       </h1>
     </div>

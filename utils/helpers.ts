@@ -1,3 +1,4 @@
+import { Cloudinary } from '@cloudinary/url-gen';
 import { v4 as uuidv4 } from 'uuid';
 import Dinero from 'dinero.js';
 import convert from 'convert';
@@ -13,8 +14,13 @@ interface FriendlyUsernameOptions {
 export const buildImageSrc = (url: string | undefined | null) => {
   if (!url) return undefined;
   const runtimeConfig = useRuntimeConfig();
-  const cloudName = runtimeConfig.public.CLOUDINARY_CLOUD_NAME as string;
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${url}`;
+  const cloudName = runtimeConfig.public.cloudinaryCloudName as string;
+  const cld = new Cloudinary({
+    cloud: { cloudName },
+    url: { secure: true },
+  });
+  return cld.image(url)
+    .toURL();
 };
 
 export const calculateCategoryWeight = (category: ExtendedCategory) => {
