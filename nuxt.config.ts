@@ -112,7 +112,7 @@ export default defineNuxtConfig({
 
   supabase: {
     redirectOptions: {
-      exclude: ['/register', 'terms-and-conditions', '/forgot-password'],
+      exclude: ['/register', '/terms-and-conditions', '/forgot-password', '/p/packs/*'],
     },
   },
 
@@ -126,6 +126,12 @@ export default defineNuxtConfig({
           '@/*': ['./*'],
         },
       },
+    },
+  },
+
+  vite: {
+    optimizeDeps: {
+      include: ['@vueup/vue-quill'],
     },
   },
 });

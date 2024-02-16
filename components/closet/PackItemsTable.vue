@@ -5,7 +5,7 @@
   import type { ExtendedCategory } from '@/types/helpers';
   import type { Database, Item } from '@/types';
 
-  interface Column {
+  export interface Column {
     name: string;
     label: string;
     align: string;

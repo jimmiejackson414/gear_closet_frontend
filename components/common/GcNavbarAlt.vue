@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { RouterLink } from 'vue-router';
   import GcLogo from '@/components/icons/GcLogo.vue';
 
   interface Props {

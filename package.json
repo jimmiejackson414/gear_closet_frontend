@@ -49,6 +49,7 @@
     "@pinia/nuxt": "^0.5.1",
     "@stripe/stripe-js": "^2.2.1",
     "@vuepic/vue-datepicker": "^7.4.0",
+    "@vueup/vue-quill": "^1.2.0",
     "convert": "^4.14.0",
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.10",

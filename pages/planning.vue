@@ -125,13 +125,6 @@
             </div>
             <zoom-transition>
               <headless-menu-items class="absolute right-0 bg-white divide-gray-100 divide-y mt-2 origin-top-right ring-1 ring-black/5 rounded-md shadow-lg w-56 focus:outline-none">
-                <headless-menu-item
-                  class="border-b border-gray-300"
-                  disabled>
-                  <p class="!text-xs block font-bold px-4 py-2 rounded-t-lg text-eyebrow text-grey">
-                    Settings
-                  </p>
-                </headless-menu-item>
                 <headless-menu-item @click="leaveTrip">
                   <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-dark-grey hover:bg-gray-100">
                     Leave Trip

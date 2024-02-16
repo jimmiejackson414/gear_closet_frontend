@@ -36,7 +36,7 @@
           class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
           :class="isActiveRoute(link) ? 'bg-gray-100' : ''"
           :disabled="link.disabled"
-          :to="link.to">
+          :to="{ name: link.to }">
           <component
             :is="link.icon"
             v-tippy="{ content: link.title, placement: 'right', offset: [0, 30]}"

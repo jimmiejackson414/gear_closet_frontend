@@ -1,7 +1,8 @@
+import { Cloudinary } from '@cloudinary/url-gen';
 import { v4 as uuidv4 } from 'uuid';
 import Dinero from 'dinero.js';
 import convert from 'convert';
-import type { InsertItem, Item, Tables } from '@/types';
+import type { InsertItem, Profile, Tables } from '@/types';
 import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '@/types/helpers';
 import type { Currency } from 'dinero.js';
 import type { Mass } from 'convert';
@@ -13,8 +14,13 @@ interface FriendlyUsernameOptions {
 export const buildImageSrc = (url: string | undefined | null) => {
   if (!url) return undefined;
   const runtimeConfig = useRuntimeConfig();
-  const cloudName = runtimeConfig.public.CLOUDINARY_CLOUD_NAME as string;
-  return `https://res.cloudinary.com/${cloudName}/image/upload/${url}`;
+  const cloudName = runtimeConfig.public.cloudinaryCloudName as string;
+  const cld = new Cloudinary({
+    cloud: { cloudName },
+    url: { secure: true },
+  });
+  return cld.image(url)
+    .toURL();
 };
 
 export const calculateCategoryWeight = (category: ExtendedCategory) => {
@@ -156,7 +162,7 @@ export const initials = (user: Tables<'profiles'>| null | undefined) => {
   return firstInitial && lastInitial ? `${firstInitial}${lastInitial}` : base;
 };
 
-export const friendlyUsername = (user: Tables<'profiles'> | null | undefined, options?: FriendlyUsernameOptions) => {
+export const friendlyUsername = (user: Profile | null | undefined, options?: FriendlyUsernameOptions) => {
   if (!user) return initials(user);
   if (options?.includeTrailName && user.trail_name) {
     return `${user.first_name} "${user.trail_name}" ${user.last_name}`;
