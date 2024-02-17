@@ -219,9 +219,16 @@
     return total;
   });
 
-  const updateCategoryUnit = async (val: SelectOption) => {
+  const updateCategoryUnit = (val: SelectOption) => {
     localCategoryUnit.value = val.value as string;
     emit('handleUpdateCategory', { field: 'unit', value: val.value });
+  };
+
+  /**
+   * Optimistically update the item
+   */
+  const updateItem = async (val: SelectOption) => {
+    console.log({ val });
   };
 </script>
 
@@ -355,6 +362,13 @@
                 @handle-update="$store.updateItem(row, 'weight', Number($event), category.id)">
                 {{ row.weight }}
               </gc-inline-edit>
+              <gc-select
+                hide-border
+                :model-value="row.unit"
+                name="weight-total-unit-select"
+                :options="weightOptions"
+                size="xs"
+                @update:model-value="updateItem" />
             </div>
           </div>
 
