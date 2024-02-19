@@ -111,7 +111,7 @@
           {{ selectedOption }}
         </p>
         <div
-          class="flex ml-auto"
+          class="flex items-center ml-auto"
           :class="{ 'pointer-events-none': ( disabled || loading ) }">
           <x-circle-icon
             v-show="clearable && modelValue && !loading"
@@ -123,7 +123,7 @@
             class="h-[22px] mr-2 w-[22px]"
             color="primary" />
           <chevron-down-icon
-            class="duration-150 ease-in-out font-bold h-[22px] transition-transform"
+            class="duration-150 ease-in-out font-bold h-auto transition-transform"
             :class="[ open ? 'rotate-180' : 'rotate-0', ( disabled || loading ) ? 'text-dark-grey' : 'text-light-primary' ]" />
         </div>
       </headless-listbox-button>

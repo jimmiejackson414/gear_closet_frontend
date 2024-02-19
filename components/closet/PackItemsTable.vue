@@ -223,13 +223,6 @@
     localCategoryUnit.value = val.value as string;
     emit('handleUpdateCategory', { field: 'unit', value: val.value });
   };
-
-  /**
-   * Optimistically update the item
-   */
-  const updateItem = async (val: SelectOption) => {
-    console.log({ val });
-  };
 </script>
 
 <template>
@@ -368,7 +361,7 @@
                 name="weight-total-unit-select"
                 :options="weightOptions"
                 size="xs"
-                @update:model-value="updateItem" />
+                @update:model-value="$store.updateItem(row, 'unit', $event.value, category.id)" />
             </div>
           </div>
 
