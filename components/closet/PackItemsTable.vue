@@ -1,8 +1,9 @@
 <script lang='ts' setup>
   import { DragHandle, SlickList, SlickItem } from 'vue-slicksort';
   import { AppleIcon, GripVerticalIcon, LinkIcon, PlusIcon, ShirtIcon, TrashIcon } from 'lucide-vue-next';
+  import convert, { type Mass } from 'convert';
   import { useAppStore } from '@/stores/app';
-  import type { ExtendedCategory } from '@/types/helpers';
+  import type { ExtendedCategory, SelectOption } from '@/types/helpers';
   import type { Database, Item } from '@/types';
 
   export interface Column {
@@ -193,10 +194,36 @@
       $appStore.notifyNegative('Error creating item');
     }
   };
+
+  const localCategoryUnit = ref(props.category.unit);
+  const weightOptions = ['oz', 'lb', 'g', 'kg'].map(unit => ({ label: unit, value: unit }));
+  const computedWeightTotal = computed(() => {
+    const total = calculateCategoryWeight(props.category);
+    const weight = convert(total, 'mg')
+      .to(props.category.unit as Mass)
+      .toFixed(2);
+    return parseFloat(weight)
+      .toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
+  });
+
+  const computedPriceTotal = computed(() => {
+    const total = (calculateCategoryPrice(props.category) / 100);
+    return total.toLocaleString('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    });
+  });
+
+  const computedQuantityTotal = computed(() => calculateCategoryQuantity(props.category));
+
+  const updateCategoryUnit = (val: SelectOption) => {
+    localCategoryUnit.value = val.value as string;
+    emit('handleUpdateCategory', { field: 'unit', value: val.value });
+  };
 </script>
 
 <template>
-  <div class="!bg-gray-100 !shadow-none card card-aside mb-6">
+  <div class="!bg-gray-100 !shadow-none card card-aside mb-6 overflow-y-visible">
     <div class="flex justify-between items-center">
       <gc-inline-edit
         class="mb-3"
@@ -218,7 +245,7 @@
 
     <div class="overflow-x-auto relative rounded-b-2xl">
       <ul>
-        <li class="bg-gray-100 grid grid-cols-[auto,1fr,1fr,130px,87px,96px,82px,108px,116px] text-gray-700 text-xs uppercase">
+        <li class="bg-gray-100 grid grid-cols-[auto,1fr,1fr,130px,87px,160px,82px,108px,116px] text-gray-700 text-xs uppercase">
           <div
             v-for="column in columns"
             :key="column.name"
@@ -247,7 +274,7 @@
         <slick-item
           v-for="( row, i ) in rows"
           :key="row.id"
-          class="bg-white hover:bg-gray-50 border-b last:border-0 duration-150 ease-expo grid grid-cols-[auto,1fr,1fr,130px,87px,96px,82px,108px,116px] group transition"
+          class="bg-white hover:bg-gray-50 border-b duration-150 ease-expo grid grid-cols-[auto,1fr,1fr,130px,87px,160px,82px,108px,116px] group transition first:rounded-t-xl"
           :index="i"
           tag="li">
           <!-- Drag -->
@@ -325,6 +352,13 @@
                 @handle-update="$store.updateItem(row, 'weight', Number($event), category.id)">
                 {{ row.weight }}
               </gc-inline-edit>
+              <gc-select
+                hide-border
+                :model-value="row.unit"
+                name="weight-total-unit-select"
+                :options="weightOptions"
+                size="xs"
+                @update:model-value="$store.updateItem(row, 'unit', $event.value, category.id)" />
             </div>
           </div>
 
@@ -380,6 +414,47 @@
           </div>
         </slick-item>
       </slick-list>
+
+      <!-- Totals Row -->
+      <div class="bg-white rounded-b-xl">
+        <div class="grid grid-cols-[auto,1fr,1fr,130px,87px,160px,82px,108px,116px] items-center text-xs uppercase">
+          <div class="px-2 py-2 w-8" />
+          <div class="px-4 py-2 text-left">
+            <p class="font-bold text-gray-900">
+              Totals
+            </p>
+          </div>
+          <div class="px-4 py-2 text-left" />
+          <div class="px-4 py-2 text-left" />
+          <div class="px-4 py-2 text-left" />
+          <div class="px-4 py-2 text-center">
+            <div class="flex justify-center items-center gap-2">
+              <p class="font-bold text-gray-900">
+                {{ computedWeightTotal }}
+              </p>
+              <gc-select
+                hide-border
+                :model-value="localCategoryUnit"
+                name="weight-total-unit-select"
+                :options="weightOptions"
+                size="xs"
+                @update:model-value="updateCategoryUnit" />
+            </div>
+          </div>
+          <div class="px-4 py-2 text-center">
+            <p class="font-bold text-gray-900">
+              {{ computedPriceTotal }}
+            </p>
+          </div>
+          <div class="px-4 py-2 text-center">
+            <p class="font-bold text-gray-900">
+              {{ computedQuantityTotal }}
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Create item button -->
       <div
         v-if="rows.length > 0"
         class="flex justify-end py-3">

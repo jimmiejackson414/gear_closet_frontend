@@ -29,20 +29,35 @@
         </span>
       </li>
       <li
-        v-for="link in drawerLinks"
+        v-for="link in drawerLinks()"
         :key="link.to"
         class="cursor-pointer">
-        <nuxt-link
-          class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
-          :class="isActiveRoute(link) ? 'bg-gray-100' : ''"
-          :disabled="link.disabled"
-          :to="{ name: link.to }">
-          <component
-            :is="link.icon"
-            v-tippy="{ content: link.title, placement: 'right', offset: [0, 30]}"
-            :color="iconColor(link)"
-            :size="24" />
-        </nuxt-link>
+        <template v-if="link.external">
+          <a
+            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
+            :href="link.to"
+            rel="noopener noreferrer"
+            target="_blank">
+            <component
+              :is="link.icon"
+              v-tippy="{ content: link.title, placement: 'right', offset: [0, 30]}"
+              :color="iconColor(link)"
+              :size="24" />
+          </a>
+        </template>
+        <template v-else>
+          <nuxt-link
+            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
+            :class="isActiveRoute(link) ? 'bg-gray-100' : ''"
+            :disabled="link.disabled"
+            :to="{ name: link.to }">
+            <component
+              :is="link.icon"
+              v-tippy="{ content: link.title, placement: 'right', offset: [0, 30]}"
+              :color="iconColor(link)"
+              :size="24" />
+          </nuxt-link>
+        </template>
       </li>
 
       <li class="grow" />
