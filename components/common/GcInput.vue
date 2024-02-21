@@ -81,7 +81,7 @@
 
     // determine properties based on disabled prop and error state
     hasError.value ? classes.push('border-danger') : classes.push('border-gray-300');
-    props.disabled ? classes.push('bg-gray-100 pointer-events-none') : classes.push('bg-white pointer-events-auto');
+    props.disabled ? classes.push('bg-gray-100 pointer-events-none text-gray-400') : classes.push('bg-white pointer-events-auto');
 
     // override padding based on prependIcon prop
     if (props.prependIcon) { classes.push('ps-9'); }
