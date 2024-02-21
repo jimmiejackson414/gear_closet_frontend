@@ -214,10 +214,7 @@
     });
   });
 
-  const computedQuantityTotal = computed(() => {
-    const total = calculateCategoryQuantity(props.category);
-    return total;
-  });
+  const computedQuantityTotal = computed(() => calculateCategoryQuantity(props.category));
 
   const updateCategoryUnit = (val: SelectOption) => {
     localCategoryUnit.value = val.value as string;
