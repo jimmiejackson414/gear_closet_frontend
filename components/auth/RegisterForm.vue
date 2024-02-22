@@ -27,6 +27,7 @@
     ],
     password: [
       (val: string) => (val && val.length > 0) || 'Password is required',
+      (val: string) => (val && val.length >= 8) || 'Password must be at least 8 characters',
     ],
     passwordConfirm: [
       (val: string) => (val && val.length > 0) || 'Confirm Password is required',

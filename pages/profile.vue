@@ -1,40 +1,20 @@
 <script lang='ts' setup>
   import { Tabs } from 'flowbite';
-  import { SubscriptionLevel } from '@/types';
+  import { ChevronDownIcon } from 'lucide-vue-next';
+  import { SubscriptionLevel, type Database, MeasuringSystem, type Profile } from '@/types';
   import type { InstanceOptions, TabsOptions, TabItem } from 'flowbite';
+  import type { SelectOption } from '@/types/helpers';
 
   definePageMeta({ layout: 'page-layout' });
 
   const $store = useUserStore();
   const $appStore = useAppStore();
+  const $subscriptionStore = useSubscriptionStore();
 
   const { loading } = storeToRefs($appStore);
   const { profile } = storeToRefs($store);
+  const { subscription, loading: fetching } = storeToRefs($subscriptionStore);
   const submitting = ref(false);
-
-  /* Form Validation */
-  const fieldErrors = ref<Record<string, string>>({});
-  const rules = {
-    email: [
-      (val: string): boolean | string => (val && val.length > 0) || 'Email is required',
-      (val: string): boolean | string => isValidEmail(val) || 'Not a valid email',
-    ],
-    firstName: [
-      (val: string) => (val && val.length > 0) || 'First Name is required',
-    ],
-    lastName: [
-      (val: string) => (val && val.length > 0) || 'Last Name is required',
-    ],
-    password: [
-      (val: string) => (val && val.length > 0) || 'Password is required',
-    ],
-    passwordConfirm: [
-      (val: string) => (val && val.length > 0) || 'Confirm Password is required',
-      (val: string) => (newPassword.value === val) || 'Must match password',
-    ],
-  };
-
-  // const { fieldErrors, validateForm, validateFieldOnBlur } = useValidate(form, rules);
 
   /**
    * Handles adding a file from the avatar upload component.
@@ -62,11 +42,43 @@
   /**
    * Updates a user's profile.
    */
+  const profileForm = reactive({
+    firstName: profile.value?.first_name,
+    lastName: profile.value?.last_name,
+    trailName: profile.value?.trail_name,
+    measuringSystem: profile.value?.measuring_system,
+  });
   const isProfileDisabled = computed(() => {
     return submitting.value || !profile.value?.email || !profile.value?.first_name || !profile.value?.last_name;
   });
-  const updateProfile = () => {
-    console.log('Update profile');
+  const updateProfile = async () => {
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      const { data, error } = await supabase.from('profiles')
+        .update({
+          first_name: profileForm.firstName,
+          last_name: profileForm.lastName,
+          trail_name: profileForm.trailName,
+          measuring_system: profileForm.measuringSystem,
+        })
+        .eq('id', profile.value!.id)
+        .select();
+
+      if (error) { $appStore.notifyNegative('An error occurred while updating your profile.'); }
+
+      else {
+        profile.value!.first_name = data[0].first_name;
+        profile.value!.last_name = data[0].last_name;
+        profile.value!.trail_name = data[0].trail_name;
+        profile.value!.measuring_system = data[0].measuring_system;
+        $appStore.notifyPositive('Successfully updated your profile!');
+      }
+    } catch (err) {
+      $appStore.notifyNegative('An error occurred while updating your profile.');
+    } finally {
+      submitting.value = false;
+    }
   };
 
   /**
@@ -77,9 +89,52 @@
   const isSettingsDisabled = computed(() => {
     return submitting.value || !newPassword.value || !newPasswordConfirm.value || newPassword.value !== newPasswordConfirm.value;
   });
-  const updatePassword = () => {
-    console.log('Update password');
+  const updatePassword = async () => {
+    if (newPassword.value !== newPasswordConfirm.value) {
+      $appStore.notifyNegative('Passwords do not match.');
+      return;
+    }
+
+    if (newPassword.value?.length && newPassword.value.length < 8) {
+      $appStore.notifyNegative('Password must be at least 8 characters.');
+      return;
+    }
+
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword.value,
+      });
+
+      if (error) { $appStore.notifyNegative('An error occurred while updating your password.'); }
+      else {
+        $appStore.notifyPositive('Successfully updated your password!');
+        newPassword.value = '';
+        newPasswordConfirm.value = '';
+      }
+    } catch (err) {
+      console.log({ err });
+      $appStore.notifyNegative('An error occurred while updating your password.');
+    } finally {
+      submitting.value = false;
+    }
   };
+
+  /**
+   * Updates a user's billing method.
+   */
+  const updateBillingMethod = () => {
+    console.log('Update billing method');
+  };
+
+  /**
+   * Manages a user's subscription.
+   */
+  const manageSubscription = () => {
+    console.log('Manage subscription');
+  };
+
 
   /* 
   * Instantiates the tabs component.
@@ -106,9 +161,12 @@
         },
       ];
       const options: TabsOptions = {
-        defaultTabId: activeTab.value,
+        defaultTabId: 'profile',
         activeClasses: 'text-primary font-bold hover:text-primary !border-primary border-primary border-b-2',
         inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
+        onShow: (_tabs, tab) => {
+          activeTab.value = tab.id;
+        },
       };
       const instanceOptions: InstanceOptions = {
         id: 'tabs-group',
@@ -117,7 +175,6 @@
       return new Tabs(tabsElement, tabElements, options, instanceOptions);
     }
   };
-
   watch([() => loading.value], async (newValues) => {
     const [newPageLoading] = newValues;
 
@@ -126,6 +183,13 @@
       instantiateTabs();
     }
   }, { immediate: true });
+
+  // fetch the subscription if the active tab is the subscription tab
+  watch(activeTab, (newTab) => {
+    if (newTab === 'subscription') {
+      $subscriptionStore.fetchSubscription();
+    }
+  });
 
   useHead({
     title: 'Profile | Gear Closet',
@@ -212,16 +276,7 @@
             role="tabpanel">
             <div class="auto-rows-auto grid grid-cols-1 gap-6">
               <gc-input
-                autocomplete="email"
-                class="w-full"
-                :disabled="submitting || loading"
-                label="Email"
-                :model-value="profile!.email"
-                name="email"
-                placeholder="Email"
-                required />
-              <gc-input
-                v-model="profile!.first_name"
+                v-model="profileForm.firstName"
                 autocomplete="given-name"
                 class="w-full"
                 :disabled="submitting || loading"
@@ -230,7 +285,7 @@
                 placeholder="Tom"
                 required />
               <gc-input
-                v-model="profile!.last_name"
+                v-model="profileForm.lastName"
                 autocomplete="family-name"
                 class="w-full"
                 :disabled="submitting || loading"
@@ -239,12 +294,21 @@
                 placeholder="Jones"
                 required />
               <gc-input
-                v-model="profile!.trail_name"
+                v-model="profileForm.trailName"
                 class="w-full"
                 :disabled="submitting || loading"
                 label="Trail Name"
                 name="trailName"
                 required />
+              <gc-select
+                :disabled="submitting || loading"
+                label="Preferred measurement system"
+                :model-value="profileForm.measuringSystem"
+                :options="[
+                  { label: 'Imperial (lbs, oz)', value: MeasuringSystem.IMPERIAL },
+                  { label: 'Metric (kgs, g)', value: MeasuringSystem.METRIC }
+                ]"
+                @update:model-value="(val: SelectOption) => profileForm.measuringSystem = ( val.value as MeasuringSystem )" />
               <gc-button
                 class="justify-self-end"
                 :disabled="isProfileDisabled"
@@ -264,7 +328,6 @@
                 autocomplete="current-password"
                 class="w-full"
                 :disabled="submitting"
-                :error="fieldErrors.password"
                 label="New Password"
                 name="password"
                 password-toggle
@@ -276,7 +339,6 @@
                 autocomplete="confirm-password"
                 class="w-full"
                 :disabled="submitting"
-                :error="fieldErrors.passwordConfirm"
                 label="Confirm New Password"
                 name="passwordConfirm"
                 password-toggle
@@ -296,8 +358,77 @@
             aria-labelledby="subscription-tab"
             class="bg-gray-50 hidden p-4 rounded-lg"
             role="tabpanel">
-            <div class="auto-rows-auto grid grid-cols-1 gap-6">
-              Subscription Tab
+            <div
+              v-if="fetching"
+              class="flex justify-center">
+              <gc-spinner variant="primary" />
+            </div>
+            <div
+              v-else
+              class="auto-rows-auto grid grid-cols-1 gap-6">
+              <div>
+                <p class="font-bold text-sm">
+                  Payment Methods
+                </p>
+                <ul>
+                  <li>
+                    Mastercard ending in 1234
+                  </li>
+                  <li>
+                    Visa ending in 5678
+                  </li>
+                </ul>
+                <gc-button
+                  class="mt-2"
+                  label="Update billing method"
+                  outlined
+                  size="sm"
+                  @click="updateBillingMethod" />
+              </div>
+              <div>
+                <p class="font-bold text-sm">
+                  Next Billing Date
+                </p>
+                <p class="text-base">
+                  01/01/2025
+                </p>
+              </div>
+              <div>
+                <headless-disclosure v-slot="{ open }">
+                  <headless-disclosure-button class="flex justify-start focus-visible:outline-none gap-4 py-2 text-left w-full">
+                    <p class="font-bold text-sm">
+                      Billing History
+                    </p>
+                    <chevron-down-icon
+                      class="h-5 text-primary w-5"
+                      :class="open ? 'rotate-180 transform transition-all' : ''" />
+                  </headless-disclosure-button>
+                  <fade-transition>
+                    <headless-disclosure-panel>
+                      <ul>
+                        <li>
+                          12/01/2024 - $9.99 (Life Membership)
+                        </li>
+                        <li>
+                          11/01/2024 - $9.99 (Life Membership)
+                        </li>
+                      </ul>
+                    </headless-disclosure-panel>
+                  </fade-transition>
+                </headless-disclosure>
+              </div>
+              <div>
+                <p class="font-bold text-sm">
+                  Current Subscription: LIFE
+                </p>
+                <gc-button
+                  class="mt-2"
+                  label="Manage Subscription"
+                  outlined
+                  size="sm"
+                  variant="positive"
+                  @click="manageSubscription" />
+              </div>
             </div>
           </div>
         </div>
