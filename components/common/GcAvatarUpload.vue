@@ -8,7 +8,7 @@
   import FilePondPluginImageCrop from 'filepond-plugin-image-crop';
   import FilePondPluginImageResize from 'filepond-plugin-image-resize';
   import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
-  import { type FilePondErrorDescription, FilePondFile } from 'filepond';
+  import type { FilePondErrorDescription, FilePondFile } from 'filepond';
 
   import 'filepond/dist/filepond.min.css';
   import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';

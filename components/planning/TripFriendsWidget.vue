@@ -30,7 +30,6 @@
         .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
         .neq('id', selectedTrip.value?.profile_id)
         .limit(10);
-      console.log({ friends, error });
 
       if (friends?.length && !error) {
         searchResults.value = friends.map(f => ({
@@ -194,7 +193,7 @@
         variant="secondary"
         @click="[isInviteModalOpen = false, friendsToInvite = []]" />
       <gc-button
-        :disabled="submitting"
+        :disabled="submitting || (!friendsToInvite.length && !emailsToInvite.length)"
         label="Invite"
         :loading="submitting"
         size="sm"

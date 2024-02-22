@@ -17,10 +17,10 @@ const readPemFiles = (): any => {
 export default defineNuxtConfig({
   ...readPemFiles(),
 
-  app: {
-    layoutTransition: { name: 'layout', mode: 'out-in' },
-    pageTransition: { name: 'page', mode: 'out-in' },
-  },
+  // app: {
+  //   layoutTransition: { name: 'layout', mode: 'out-in' },
+  //   pageTransition: { name: 'page', mode: 'out-in' },
+  // },
 
   build: {
     transpile: [

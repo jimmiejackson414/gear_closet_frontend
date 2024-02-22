@@ -86,7 +86,7 @@
       ];
       const options: TabsOptions = {
         defaultTabId: activeTab.value,
-        activeClasses: 'text-primary hover:text-primary !border-primary border-primary border-b-2',
+        activeClasses: 'text-primary font-bold hover:text-primary !border-primary border-primary border-b-2',
         inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
       };
       const instanceOptions: InstanceOptions = {

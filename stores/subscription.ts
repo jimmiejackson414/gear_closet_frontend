@@ -1,9 +1,11 @@
 import { defineStore } from 'pinia';
-import { SubscriptionLevel } from '@/types';
+import { getStripe } from '@/lib/stripe';
+import { SubscriptionLevel, type Database } from '@/types';
 
 type State = {
   subscription: any | null;
   subscriptionError: any | null;
+  loading: boolean;
 }
 
 type Getters = {
@@ -22,6 +24,7 @@ export const useSubscriptionStore = defineStore<'subscription', State, Getters, 
     return {
       subscription: null,
       subscriptionError: null,
+      loading: false,
     };
   },
 
@@ -45,18 +48,49 @@ export const useSubscriptionStore = defineStore<'subscription', State, Getters, 
       // return createFreeSubscription as CreateFreeSubscriptionResponse;
     },
     async fetchSubscription () {
-      // const client = useClient();
-      // const sdk = getSdk(client);
+      const $appStore = useAppStore();
 
-      // const { subscription } = await sdk.Subscription();
+      try {
+        this.loading = true;
+        const supabase = useSupabaseClient<Database>();
+        const user = useSupabaseUser();
 
-      // if (subscription && !subscription.errors) {
-      //   this.subscription = subscription.data as SubscriptionResponseData;
-      //   this.subscriptionError = null;
-      // } else {
-      //   this.subscription = null;
-      //   this.subscriptionError = subscription?.errors as BaseError;
-      // }
+      // fetch customer data from supabase
+        const { data, error } = await supabase.from('profiles')
+          .select('*, customers!inner(*), subscriptions!inner(*)')
+          .eq('id', user.value!.id)
+          .maybeSingle();
+
+        if (error || !data) throw error;
+
+        // fetch subscriptions from stripe
+        // const stripe = getStripe();
+        // const subId = data.subscriptions?.[0]?.stripe_subscription_id;
+        // const sub = await stripe.subscriptions.retrieve(subId, {
+        //   expand: ['latest_invoice.charge', 'latest_invoice.lines.data.price', 'default_payment_method', 'items.data.price.product'],
+        // });
+
+        // if (!sub) throw error;
+
+        // fetch invoices from Stripe
+        // const invoices = await stripe.invoices.list({
+        //   customer: data.customers?.[0]?.stripe_customer_id,
+        //   limit: 20,
+        //   expand: ['data.charge.payment_method_details.card'],
+        // });
+
+        this.subscription = {
+          ...data,
+          // subscriptions: data.subscriptions,
+          // invoices: invoices.data,
+          // stripeSubscription: sub,
+        };
+      } catch (err) {
+        console.log({ err });
+        $appStore.notifyNegative('Error fetching subscription data');
+      } finally {
+        this.loading = false;
+      }
     },
 
     async manageSubscription () {

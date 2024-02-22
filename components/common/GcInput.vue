@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  import { EyeIcon, EyeOffIcon } from 'lucide-vue-next';
   import type { Icon } from 'lucide-vue-next';
 
   interface Props {
@@ -81,7 +82,7 @@
 
     // determine properties based on disabled prop and error state
     hasError.value ? classes.push('border-danger') : classes.push('border-gray-300');
-    props.disabled ? classes.push('bg-gray-100 pointer-events-none') : classes.push('bg-white pointer-events-auto');
+    props.disabled ? classes.push('bg-gray-100 pointer-events-none text-gray-400') : classes.push('bg-white pointer-events-auto');
 
     // override padding based on prependIcon prop
     if (props.prependIcon) { classes.push('ps-9'); }
@@ -92,7 +93,7 @@
 
 <template>
   <div class="w-fit">
-    <div class="flex flex-col gap-2">
+    <div class="flex flex-col gap-2 relative">
       <label
         v-if="label"
         class="font-bold text-grey text-sm"
@@ -120,43 +121,15 @@
       </div>
       <button
         v-if="passwordToggle"
-        class="absolute top-0 end-0 p-3.5 rounded-e-md"
+        class="absolute bottom-0.5 end-0 px-3.5 py-2.5 rounded-e-md"
         type="button"
         @click="togglePasswordVisibility">
-        <svg
-          class="flex-shrink-0 h-3.5 text-gray-400 w-3.5"
-          fill="none"
-          height="24"
-          stroke="currentColor"
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          stroke-width="2"
-          viewBox="0 0 24 24"
-          width="24">
-          <path
-            class="hs-password-active:hidden"
-            d="M9.88 9.88a3 3 0 1 0 4.24 4.24" />
-          <path
-            class="hs-password-active:hidden"
-            d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68" />
-          <path
-            class="hs-password-active:hidden"
-            d="M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61" />
-          <line
-            class="hs-password-active:hidden"
-            x1="2"
-            x2="22"
-            y1="2"
-            y2="22" />
-          <path
-            class="hidden hs-password-active:block"
-            d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
-          <circle
-            class="hidden hs-password-active:block"
-            cx="12"
-            cy="12"
-            r="3" />
-        </svg>
+        <eye-icon
+          v-if="!showPassword"
+          class="h-6 text-gray-400 w-5" />
+        <eye-off-icon
+          v-if="showPassword"
+          class="h-6 text-gray-400 w-5" />
       </button>
     </div>
     <p
