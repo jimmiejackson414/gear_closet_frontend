@@ -175,6 +175,7 @@
       return new Tabs(tabsElement, tabElements, options, instanceOptions);
     }
   };
+
   watch([() => loading.value], async (newValues) => {
     const [newPageLoading] = newValues;
 

@@ -60,7 +60,6 @@ export const useSubscriptionStore = defineStore<'subscription', State, Getters, 
           .select('*, customers!inner(*), subscriptions!inner(*)')
           .eq('id', user.value!.id)
           .maybeSingle();
-          console.log({ data, error });
 
         if (error || !data) throw error;
 
