@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import { Tabs } from 'flowbite';
   import { ChevronDownIcon } from 'lucide-vue-next';
-  import { SubscriptionLevel, type Database, MeasuringSystem, type Profile } from '@/types';
+  import { SubscriptionLevel, type Database, MeasuringSystem } from '@/types';
   import type { InstanceOptions, TabsOptions, TabItem } from 'flowbite';
   import type { SelectOption } from '@/types/helpers';
 

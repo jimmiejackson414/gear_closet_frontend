@@ -197,7 +197,7 @@
           flags suspect transactions. Every transaction is assigned a
           fraud potential score based on the following criteria:
         </p>
-        <ul className="q-mb-sm">
+        <ul class="q-mb-sm">
           <li>
             <p class="mb-4 text-sm">
               An AVS match of the cardholder's billing address and zip
@@ -264,7 +264,7 @@
           valid telephone number is required for all orders) for the
           purpose of:
         </p>
-        <ol className="q-mb-sm">
+        <ol class="q-mb-sm">
           <li>
             <p class="mb-4 text-sm">
               Confirm your cardholder billing information and CSC/CVC
