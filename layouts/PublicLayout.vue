@@ -6,6 +6,13 @@
 
   const user = useSupabaseUser();
   const isLoggedIn = computed(() => !!user.value);
+
+  const $store = useUserStore();
+  watch(isLoggedIn, (newValue) => {
+    if (newValue) {
+      $store.fetchProfile();
+    }
+  }, { immediate: true });
 </script>
 
 <template>

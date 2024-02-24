@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+// import { searchExistingImages, destroyExisting, upload } from '@/lib/cloudinary';
 import { useAppStore } from '@/stores/app';
 import type {
   Database,
@@ -19,6 +20,7 @@ type Actions = {
   fetchNotification (id: number | string): void;
   subscribeToNotifications(): void;
   markAllAsRead(): void;
+  updateAvatar(file: File): Promise<{ success: boolean }>;
 };
 
 export const useUserStore = defineStore<'user', State, Getters, Actions>(
@@ -128,6 +130,18 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
         if (data) {
           this.notifications = data;
+        }
+      },
+
+      async updateAvatar (file) {
+        try {
+          const supabase = useSupabaseClient<Database>();
+          const user = useSupabaseUser();
+          const { data, error } = await supabase.storage.from('avatars')
+            .upload(`${user.value!.id}/${file.name}`, file, { upsert: true });
+          return (data && !error) ? { success: true } : { success: false };
+        } catch (err) {
+          return { success: false };
         }
       },
     },

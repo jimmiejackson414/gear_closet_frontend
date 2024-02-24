@@ -1,7 +1,18 @@
 <script lang="ts" setup>
+  import { storeToRefs } from 'pinia';
   import type { Database } from '@/types';
 
   const supabase = useSupabaseClient<Database>();
+
+  // if profile and profile has no onboarding_date, redirect to onboarding
+  const $store = useUserStore();
+  const { profile } = storeToRefs($store);
+  const $router = useRouter();
+  watch(profile, (newProfile) => {
+    if (newProfile && !newProfile?.onboard_date) {
+      $router.push('/onboarding');
+    }
+  }, { immediate: true });
 
   supabase.auth.onAuthStateChange((event) => {
     if (event === 'SIGNED_OUT') {

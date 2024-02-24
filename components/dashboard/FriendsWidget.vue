@@ -118,7 +118,7 @@
           border
           :profile="user" />
         <nuxt-link
-          class="bg-dark-grey hover:bg-gray-600 border-2 border-white flex justify-center items-center font-medium h-12 rounded-full text-white text-xs w-12 z-10"
+          class="bg-dark-grey hover:bg-dark-grey/75 border-2 border-white flex justify-center items-center flex-shrink-0 font-medium h-12 min-w-12 rounded-full text-white text-xs w-12 z-10"
           :to="{ name: 'friends' }">
           +99
         </nuxt-link>

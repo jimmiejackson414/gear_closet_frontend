@@ -82,7 +82,7 @@
 
     // determine properties based on disabled prop and error state
     hasError.value ? classes.push('border-danger') : classes.push('border-gray-300');
-    props.disabled ? classes.push('bg-gray-100 pointer-events-none text-gray-400') : classes.push('bg-white pointer-events-auto');
+    props.disabled ? classes.push('bg-gray-100 pointer-events-none text-gray-400') : classes.push('bg-white pointer-events-auto text-dark-grey');
 
     // override padding based on prependIcon prop
     if (props.prependIcon) { classes.push('ps-9'); }
@@ -108,7 +108,7 @@
           :id="name"
           ref="inputRef"
           :autocomplete="autocomplete"
-          class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 peer py-2.5 rounded-lg text-dark-grey w-full focus:outline-none focus:ring-0 placeholder:!text-gray-400"
+          class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 peer py-2.5 rounded-lg w-full focus:outline-none focus:ring-0 placeholder:!text-gray-400"
           :class="computedClasses"
           :disabled="disabled"
           :placeholder="placeholder"

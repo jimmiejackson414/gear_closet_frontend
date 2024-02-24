@@ -56,7 +56,7 @@
           </div>
           <!-- Modal body -->
           <div class="px-4 md:px-5 py-4 space-y-4">
-            <slot />
+            <slot name="content" />
           </div>
           <!-- Modal footer -->
           <div class="border-t border-transparent flex justify-between items-center pb-2 pt-4 px-4 md:px-5 rounded-b">

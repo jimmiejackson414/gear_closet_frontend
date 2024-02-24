@@ -1,8 +1,7 @@
-import { Cloudinary } from '@cloudinary/url-gen';
 import { v4 as uuidv4 } from 'uuid';
 import Dinero from 'dinero.js';
 import convert from 'convert';
-import type { InsertItem, Profile, Tables } from '@/types';
+import type { Database, InsertItem, Profile, Tables } from '@/types';
 import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '@/types/helpers';
 import type { Currency } from 'dinero.js';
 import type { Mass } from 'convert';
@@ -13,14 +12,10 @@ interface FriendlyUsernameOptions {
 
 export const buildImageSrc = (url: string | undefined | null) => {
   if (!url) return undefined;
-  const runtimeConfig = useRuntimeConfig();
-  const cloudName = runtimeConfig.public.cloudinaryCloudName as string;
-  const cld = new Cloudinary({
-    cloud: { cloudName },
-    url: { secure: true },
-  });
-  return cld.image(url)
-    .toURL();
+  const supabase = useSupabaseClient<Database>();
+  const { data } = supabase.storage.from('avatars')
+    .getPublicUrl(url);
+  return data?.publicUrl ?? undefined;
 };
 
 export const calculateCategoryWeight = (category: ExtendedCategory) => {
