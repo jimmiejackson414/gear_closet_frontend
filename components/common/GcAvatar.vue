@@ -4,7 +4,7 @@
   interface Props {
     profile?: Profile;
     border?: boolean;
-    size?: 'sm' | 'md' | 'lg' | 'xl';
+    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -19,6 +19,8 @@
 
   const sizeClass = computed(() => {
     switch (props.size) {
+    case 'xs':
+      return 'h-6 w-6 min-w-6 min-h-6';
     case 'sm':
       return 'h-8 w-8 min-w-8 min-h-8';
     case 'md':

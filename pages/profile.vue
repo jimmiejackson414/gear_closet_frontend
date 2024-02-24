@@ -135,7 +135,6 @@
     console.log('Manage subscription');
   };
 
-
   /* 
   * Instantiates the tabs component.
   */

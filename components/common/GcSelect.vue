@@ -98,15 +98,15 @@
       @update:model-value="(value: any) => emit('update:modelValue', value)">
       <headless-listbox-button
         ref="trigger"
-        class="appearance-none bg-white flex items-center peer rounded-lg text-dark-grey w-full focus:border-primary focus:outline-none focus:ring-0"
+        class="appearance-none bg-white flex items-center peer rounded-lg w-full focus:border-primary focus:outline-none focus:ring-0"
         :class="[
           computedClasses,
-          ( disabled || loading ) ? 'border-grey cursor-auto' : 'border-gray-300 cursor-pointer', customClasses,
+          ( disabled || loading ) ? 'border-grey-300 pointer-events-none' : 'border-gray-300 cursor-pointer', customClasses,
           { 'border-danger !bg-danger-light' : required && !!error },
         ]">
         <p
           v-if="displayPlaceholder"
-          :class="( disabled || loading ) ? 'text-gray-200' : 'text-gray-400'">
+          :class="( disabled || loading ) ? 'text-gray-400' : 'text-dark-grey'">
           {{ placeholder }}
         </p>
         <template v-else-if="$slots.selected">
@@ -117,7 +117,7 @@
         <p
           v-else
           class="text-base"
-          :class="( disabled || loading ) ? 'text-dark-grey' : 'text-dark-grey'">
+          :class="( disabled || loading ) ? 'text-gray-400' : 'text-dark-grey'">
           {{ selectedOption }}
         </p>
         <div
@@ -134,7 +134,7 @@
             color="primary" />
           <chevron-down-icon
             class="duration-150 ease-in-out font-bold h-auto transition-transform"
-            :class="[ open ? 'rotate-180' : 'rotate-0', ( disabled || loading ) ? 'text-dark-grey' : 'text-light-primary' ]" />
+            :class="[ open ? 'rotate-180' : 'rotate-0', ( disabled || loading ) ? 'text-gray-400' : 'text-light-primary' ]" />
         </div>
       </headless-listbox-button>
       <teleport to="body">

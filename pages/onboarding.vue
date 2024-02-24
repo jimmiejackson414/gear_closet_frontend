@@ -2,8 +2,9 @@
   import { CheckCircleIcon, BookUserIcon, HeartIcon } from 'lucide-vue-next';
   import { getStripe } from '@/lib/stripe';
   import type { FilePondFile } from 'filepond';
-  import { SubscriptionLevel, type Database } from '@/types';
+  import { SubscriptionLevel, MeasuringSystem, type Database } from '@/types';
   import { Modal, type InstanceOptions, type ModalInterface, type ModalOptions } from 'flowbite';
+  import type { SelectOption } from '@/types/helpers';
 
   definePageMeta({ layout: 'public-layout' });
 
@@ -17,19 +18,26 @@
   const avatarFile = ref<any>(null);
   const uploadError = ref(false);
   const uploadedAvatar = computed(() => avatarFile.value !== null);
+
   const handleAddAvatar = (file: FilePondFile) => {
     uploadError.value = false;
     avatarFile.value = file;
+    submitting.value = false;
   };
+
   const handleRemoveAvatar = () => {
     avatarFile.value = null;
   };
+
   const handleAvatarError = () => {
     uploadError.value = true;
   };
-  const handleUploadAvatar = () => {
+
+  const handleUploadAvatar = async () => {
     if (uploadedAvatar.value) {
-      console.log(`handleUploadAvatar`);
+      const { success } = await $store.updateAvatar(avatarFile.value.file);
+      if (success) step.value = 2;
+      else uploadError.value = true;
     } else {
       step.value = 2;
     }
@@ -40,6 +48,7 @@
     first_name: '',
     last_name: '',
     trail_name: '',
+    measuring_system: MeasuringSystem.IMPERIAL,
     city: '',
     state: '',
     country: '',
@@ -62,7 +71,7 @@
       if (!validateForm()) return;
 
       const supabase = useSupabaseClient<Database>();
-      const { error } = await supabase.from('users')
+      const { error } = await supabase.from('profiles')
         .update({
           first_name: account.first_name,
           last_name: account.last_name,
@@ -71,7 +80,8 @@
           state: account.state,
           country: account.country,
         })
-        .eq('id', profile.value?.id);
+        .eq('id', profile.value!.id)
+        .select();
 
       if (error) {
         console.error({ error });
@@ -116,33 +126,44 @@
     submitting.value = true;
 
     try {
+      const supabase = useSupabaseClient<Database>();
+      await supabase.from('profiles')
+        .update({
+          subscription_level: SubscriptionLevel.LIFE,
+          onboard_date: new Date()
+            .toISOString(),
+        })
+        .eq('id', profile.value!.id)
+        .select();
+      $router.push({ name: 'index' });
       // if free plan, manually create customer and subscription in stripe and push to dashboard
-      if (subscriptionLevel === SubscriptionLevel.FREE || subscriptionLevel === SubscriptionLevel.LIFE) {
-        const res = await $subscriptionStore.createFreeSubscription(subscriptionLevel, profile.value?.email as string);
+      // if (subscriptionLevel === SubscriptionLevel.FREE || subscriptionLevel === SubscriptionLevel.LIFE) {
+      //   const res = await $subscriptionStore.createFreeSubscription(subscriptionLevel, profile.value?.email as string);
 
-        if (res.subscription && !res.errors) {
-          $router.push({ name: 'dashboard' });
-        } else {
-          submitError.value = true;
-        }
-      } else {
-        // if upgrading, create checkout session and redirect to stripe checkout
-        const { session } = await $subscriptionStore.createCheckoutSession(subscriptionLevel);
-        const stripe = await getStripe();
-        stripe?.redirectToCheckout({
-          sessionId: session?.id as string,
-        });
-      }
+      //   if (res.subscription && !res.errors) {
+      //     $router.push({ name: 'dashboard' });
+      //   } else {
+      //     submitError.value = true;
+      //   }
+      // } else {
+      // if upgrading, create checkout session and redirect to stripe checkout
+      //   const { session } = await $subscriptionStore.createCheckoutSession(subscriptionLevel);
+      //   const stripe = await getStripe();
+      //   stripe?.redirectToCheckout({
+      //     sessionId: session?.id as string,
+      //   });
+      // }
       // $store.sendWelcomeEmail();
-      submitting.value = false;
     } catch (error) {
       console.error({ error });
+    } finally {
       submitting.value = false;
     }
   };
 
   const handleOpenTempModal = () => {
     const $targetEl = document.querySelector('#onboarding-alert-modal') as HTMLElement;
+    console.log({ $targetEl });
     const options: ModalOptions = {
       placement: 'center',
       backdrop: 'static',
@@ -168,18 +189,26 @@
     }
   });
 
-  watch(step, () => {
+  watch(step, async () => {
     if (step.value === 3) {
+      await nextTick();
       handleOpenTempModal();
     }
+  });
+
+  useHead({
+    title: 'Onboarding | Gear Closet',
+    meta: [
+      {
+        name: 'description',
+        content: 'Welcome to your Gear Closet, let\'s get started!',
+      },
+    ],
   });
 </script>
 
 <template>
   <div class="px-6 md:px-14 py-9">
-    <!-- <page-layout
-      align-logo="center"
-      minimal> -->
     <div class="flex justify-center mb-8">
       <h6 class="text-2xl text-center">
         Onboarding
@@ -259,10 +288,15 @@
           <p class="font-bold text-base text-center">
             1. Upload a profile picture
           </p>
+          <gc-alert
+            v-if="uploadError"
+            class="!w-fit mt-6 mx-auto"
+            message="There was an error uploading your avatar.<br>Please try again later, or update from your profile settings." />
           <gc-avatar-upload
             class="h-full max-h-[350px] max-w-[350px] mt-6 mx-auto w-full"
             @handle-add-file="handleAddAvatar"
             @handle-error="handleAvatarError"
+            @handle-process-start="submitting = true"
             @handle-remove-file="handleRemoveAvatar" />
           <gc-button
             class="self-end"
@@ -284,7 +318,7 @@
           <gc-input
             v-model="account.first_name"
             autocomplete="given-name"
-            class="md:col-span-3"
+            class="!w-full md:col-span-3"
             :disabled="submitting"
             :error="fieldErrors.first_name"
             label="First name"
@@ -296,7 +330,7 @@
           <gc-input
             v-model="account.last_name"
             autocomplete="family-name"
-            class="md:col-span-3"
+            class="!w-full md:col-span-3"
             :disabled="submitting"
             :error="fieldErrors.last_name"
             label="Last Name"
@@ -307,38 +341,50 @@
           <!-- Trail Name -->
           <gc-input
             v-model="account.trail_name"
-            class="md:col-span-6"
+            class="!w-full md:col-span-3"
             :disabled="submitting"
             label="Trail Name (optional)"
             name="trail_name" />
+
+          <!-- Measuring System -->
+          <gc-select
+            class="!w-full md:col-span-3"
+            :disabled="submitting"
+            label="Preferred measurement system"
+            :model-value="account.measuring_system"
+            :options="[
+              { label: 'Imperial (lbs, oz)', value: MeasuringSystem.IMPERIAL },
+              { label: 'Metric (kgs, g)', value: MeasuringSystem.METRIC }
+            ]"
+            @update:model-value="(val: SelectOption) => account.measuring_system = ( val.value as MeasuringSystem )" />
 
           <!-- City, State, Country -->
           <gc-input
             v-model="account.city"
             autocomplete="address-level2"
-            class="md:col-span-2"
+            class="!w-full md:col-span-2"
             :disabled="submitting"
-            label="City"
+            label="City (optional)"
             name="city" />
 
           <gc-input
             v-model="account.state"
             autocomplete="address-level1"
-            class="md:col-span-2"
+            class="!w-full md:col-span-2"
             :disabled="submitting"
-            label="State/Province"
+            label="State/Province (optional)"
             name="state" />
 
           <gc-input
             v-model="account.country"
             autocomplete="country"
-            class="md:col-span-2"
+            class="!w-full md:col-span-2"
             :disabled="submitting"
-            label="Country"
+            label="Country (optional)"
             name="country" />
         </div>
         <gc-button
-          class="mt-6 self-center"
+          class="mt-6 self-center md:self-end"
           :disabled="submitting"
           label="Next"
           :loading="submitting"
@@ -377,8 +423,7 @@
       :cancel-button="false"
       :closeable="false"
       :is-open="step === 3"
-      title="Promotional Period"
-      @handle-continue="() => handleFinishOnboarding(SubscriptionLevel.LIFE)">
+      title="Promotional Period">
       <template #content>
         <p class="text-base">
           For a limited time, enjoy a free <b>LIFETIME</b> membership on us as a thank you for being one of our first members!
@@ -387,7 +432,14 @@
           Click the Continue button to get started.
         </p>
       </template>
+      <template #actions>
+        <div class="flex justify-end w-full">
+          <gc-button
+            label="Finish"
+            size="sm"
+            @click="() => handleFinishOnboarding(SubscriptionLevel.LIFE)" />
+        </div>
+      </template>
     </gc-modal>
-    <!-- </page-layout> -->
   </div>
 </template>

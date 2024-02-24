@@ -16,6 +16,9 @@
     await supabase.auth.signOut();
     $router.push({ name: 'login' });
   };
+
+  const $store = useUserStore();
+  const { profile } = storeToRefs($store);
 </script>
 
 <template>
@@ -51,8 +54,13 @@
             :class="isActiveRoute(link) ? 'bg-gray-100' : ''"
             :disabled="link.disabled"
             :to="{ name: link.to }">
+            <gc-avatar
+              v-if="profile?.image && link.to === 'profile'"
+              :profile="profile"
+              size="xs" />
             <component
               :is="link.icon"
+              v-else
               v-tippy="{ content: link.title, placement: 'right', offset: [0, 30]}"
               :color="iconColor(link)"
               :size="24" />

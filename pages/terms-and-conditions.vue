@@ -384,7 +384,7 @@
           You agree not to submit, upload or post to a chat/message board
           any content which:
         </p>
-        <ol className="q-mb-sm">
+        <ol class="q-mb-sm">
           <li>
             <p class="mb-4 text-sm">
               libels, defames, invades privacy, or is obscene, profane,

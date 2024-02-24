@@ -1,4 +1,4 @@
-// import { Cloudinary } from '@cloudinary/url-gen';
+import { Cloudinary } from '@cloudinary/url-gen';
 import type { Database, Tables } from '@/types';
 
 

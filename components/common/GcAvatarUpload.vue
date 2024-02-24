@@ -1,6 +1,5 @@
 <script lang='ts' setup>
   import vueFilePond, { type VueFilePondComponent } from 'vue-filepond'; 
-  import { Cloudinary } from '@cloudinary/url-gen';
   import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
   import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
   import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
@@ -9,6 +8,7 @@
   import FilePondPluginImageResize from 'filepond-plugin-image-resize';
   import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
   import type { FilePondErrorDescription, FilePondFile } from 'filepond';
+  import type { Database } from '@/types';
 
   import 'filepond/dist/filepond.min.css';
   import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
@@ -23,21 +23,15 @@
     FilePondPluginImageTransform,
   ) as VueFilePondComponent;
 
-  const runtimeConfig = useRuntimeConfig();
-  const cld = new Cloudinary({
-    cloud: { cloudName: runtimeConfig.public.cloudinaryCloudName },
-    url: { secure: true },
-  });
-
   interface Props {
-    file?: string;
+    file?: string | null;
   }
 
   const props = withDefaults(defineProps<Props>(), {
     file: undefined,
   });
 
-  const emits = defineEmits(['handleError', 'handleAddFile', 'handleRemoveFile']);
+  const emits = defineEmits(['handleError', 'handleAddFile', 'handleRemoveFile', 'handleProcessStart']);
 
   const pondRef = ref<any>(undefined);
   const loadedExistingFile = ref(false);
@@ -61,10 +55,13 @@
 
   onMounted(() => {
     if (props.file && pondRef.value) {
-      loadedExistingFile.value = true;
-      const img = cld.image(props.file)
-        .toURL();
-      pondRef.value.addFile(img);
+      const supabase = useSupabaseClient<Database>();
+      const { data } = supabase.storage.from('avatars')
+        .getPublicUrl(props.file);
+      if (data) {
+        pondRef.value.addFile(data);
+        loadedExistingFile.value = true;
+      }
     }
   });
 </script>
@@ -88,6 +85,7 @@
     style-load-indicator-position="center bottom"
     style-panel-layout="compact circle"
     @addfile="handleAddFile"
+    @addfilestart="$emit('handleProcessStart')"
     @error="handleError"
     @removefile="handleRemoveFile" />
 </template>
