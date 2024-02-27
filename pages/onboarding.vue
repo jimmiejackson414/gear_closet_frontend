@@ -163,7 +163,6 @@
 
   const handleOpenTempModal = () => {
     const $targetEl = document.querySelector('#onboarding-alert-modal') as HTMLElement;
-    console.log({ $targetEl });
     const options: ModalOptions = {
       placement: 'center',
       backdrop: 'static',
@@ -183,8 +182,9 @@
     modal.show();
   };
 
-  onMounted(() => {
+  onMounted(async () => {
     if (step.value === 3) {
+      await nextTick();
       handleOpenTempModal();
     }
   });

@@ -179,6 +179,44 @@ $$;
 
 ALTER FUNCTION "public"."handle_new_user"() OWNER TO "postgres";
 
+CREATE OR REPLACE FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) RETURNS "json"
+  LANGUAGE "plpgsql" SECURITY DEFINER
+  AS $$
+  DECLARE
+    trip_friends JSON;
+    trips JSON;
+    friends JSON;
+  BEGIN
+    -- Fetch trip_friends
+    SELECT COALESCE(json_agg(row_to_json(tf.*)), '[]'::JSON) INTO trip_friends
+    FROM trip_friends tf
+    WHERE tf.profile_id = p_user_id;
+
+    -- Fetch trips
+    SELECT COALESCE(json_agg(row_to_json(t.*)), '[]'::JSON) INTO trips
+    FROM trips t
+    WHERE t.profile_id = p_user_id
+    AND t.starting_date >= NOW();
+
+    -- Fetch friends with associated profiles
+    SELECT COALESCE(json_agg(json_build_object(
+        'friend', row_to_json(f.*),
+        'profile', row_to_json(p.*)
+    )), '[]'::JSON) INTO friends
+    FROM friends f
+    JOIN profiles p ON f.friend_id = p.id
+    WHERE f.profile_id = p_user_id;
+
+    -- Output the result
+    RETURN json_build_object(
+        'trip_friends', trip_friends,
+        'trips', trips,
+        'friends', friends
+    );
+  END;
+$$;
+ALTER FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) OWNER TO "postgres";
+
 CREATE OR REPLACE FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[])
   RETURNS "json"
   LANGUAGE plpgsql SECURITY DEFINER
@@ -370,14 +408,13 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
       'friend_trip_packs', (
         SELECT COALESCE(json_agg(row_to_json(tp.*)), '[]'::JSON)
         FROM trip_packs tp
-        WHERE tp.profile_id = tf.profile_id
+        WHERE tp.profile_id = tf.friend_id
           AND (p_trip_id = 0 OR tp.trip_id = dynamic_trip_id)
       )
     )), '[]'::JSON) INTO friends_data
     FROM trip_friends tf
-    JOIN profiles p ON tf.profile_id = p.id
-    WHERE tf.profile_id = auth.uid()
-      AND tf.profile_id != auth.uid();  -- Filter out the user itself
+    JOIN profiles p ON tf.friend_id = p.id  -- Join on friend_id instead of profile_id
+    WHERE tf.invited_by_id = auth.uid();  -- Select only the records where the authenticated user is the inviter
 
     -- Fetch poll data
     SELECT json_build_object(
@@ -1134,6 +1171,12 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "location" "jsonb"
 );
 
+ALTER TABLE ONLY "public"."friends"
+    ADD CONSTRAINT "friends_profile_id_unique" UNIQUE ("profile_id");
+
+ALTER TABLE ONLY "public"."friends"
+    ADD CONSTRAINT "friends_friend_id_unique" UNIQUE ("friend_id");
+
 ALTER TABLE "public"."profiles" OWNER TO "postgres";
 
 ALTER TABLE ONLY "public"."answers"
@@ -1452,6 +1495,10 @@ GRANT ALL ON FUNCTION "public"."generate_slug"() TO "service_role";
 GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "anon";
 GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."handle_new_user"() TO "service_role";
+
+GRANT ALL ON FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) TO "anon";
+GRANT ALL ON FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) TO "authenticated";
+GRANT ALL ON FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) TO "service_role";
 
 GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "anon";
 GRANT ALL ON FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) TO "authenticated";

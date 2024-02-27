@@ -1,6 +1,5 @@
 <script lang='ts' setup>
-  import { ref } from 'vue';
-  
+  definePageMeta({ layout: 'page-layout' });
 </script>
 
 <template>

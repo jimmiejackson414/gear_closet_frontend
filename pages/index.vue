@@ -1,10 +1,11 @@
 <script lang='ts' setup>
   import type { Database, Tables } from '@/types';
+  import type { ExtendedFriend } from '@/types/helpers';
 
   definePageMeta({ layout: 'dashboard-layout' });
 
   interface DashboardData {
-    friends: Tables<'friends'>[];
+    friends: ExtendedFriend[];
     trips: Tables<'trips'>[];
     trip_friends: Tables<'trip_friends'>[];
   }
@@ -24,12 +25,11 @@
     try {
       const user = useSupabaseUser();
 
-      const { data: pageData, error } = await supabase.from('profiles')
-        .select('trip_friends!trip_friends_profile_id_fkey(*), friends!friends_friend_id_fkey(*), trips(*)')
-        .eq('id', user.value!.id)
-        .gte('trips.starting_date', new Date()
-          .toISOString())
-        .single();
+      const { data: pageData, error } = await supabase
+        .rpc('get_dashboard_data', {
+          p_user_id: user.value!.id,
+        })
+        .returns<DashboardData>();
 
       if (!pageData || error) {
         $store.notifyNegative('An error occurred while loading your account.');

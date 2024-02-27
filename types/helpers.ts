@@ -17,6 +17,10 @@ export type ExtendedUser = Tables<'profiles'> & {
   onboarding_steps: Tables<'onboarding_steps'>[];
 };
 
+export type ExtendedFriend = Tables<'friends'> & {
+  profile: Profile;
+};
+
 export type ExtendedNotification = Tables<'notifications'> & {
   sender: Tables<'profiles'>;
 }

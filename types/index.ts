@@ -259,7 +259,7 @@ export interface Database {
           {
             foreignKeyName: "friends_friend_id_fkey";
             columns: ["friend_id"];
-            isOneToOne: false;
+            isOneToOne: true;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
@@ -1199,6 +1199,12 @@ export interface Database {
         };
         Returns: Json;
       };
+      get_dashboard_data: {
+        Args: {
+          p_user_id: string;
+        };
+        Returns: Json;
+      };
       get_planning_page_data: {
         Args: {
           p_trip_id: number;
@@ -1772,6 +1778,11 @@ export type ArgsGetClosetPageDatum =
   Database["public"]["Functions"]["get_closet_page_data"]["Args"];
 export type ReturnTypeGetClosetPageDatum =
   Database["public"]["Functions"]["get_closet_page_data"]["Returns"];
+
+export type ArgsGetDashboardDatum =
+  Database["public"]["Functions"]["get_dashboard_data"]["Args"];
+export type ReturnTypeGetDashboardDatum =
+  Database["public"]["Functions"]["get_dashboard_data"]["Returns"];
 
 export type ArgsGetPlanningPageDatum =
   Database["public"]["Functions"]["get_planning_page_data"]["Args"];
