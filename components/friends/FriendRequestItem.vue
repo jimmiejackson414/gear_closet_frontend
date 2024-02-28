@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import dayjs, { type Dayjs } from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
-  import type { Database } from '@/types';
+  import { FriendRequestStatus, type Database } from '@/types';
   import type { ExtendedFriend } from '@/types/helpers';
 
   dayjs.extend(relativeTime);
@@ -24,12 +24,26 @@
       submittingAccept.value = true;
       const acceptedAt = new Date()
         .toISOString();
-      const { data, error } = await supabase.from('friends')
-        .update({ invite_accepted_on: acceptedAt })
+      // update friend request status
+      const { data, error } = await supabase.from('friend_invitations')
+        .update({
+          status: FriendRequestStatus.ACCEPTED,
+          request_responded_at: acceptedAt,
+        })
         .eq('id', props.friend.id)
         .select();
 
       if (!data || error) throw new Error();
+
+      // Insert new records into the 'friends' table
+      const { data: insertData, error: insertError } = await supabase
+        .from('friends')
+        .insert([
+          { profile_id: data[0].recipient_id, friend_id: data[0].sender_id },
+          { profile_id: data[0].sender_id, friend_id: data[0].recipient_id },
+        ]);
+
+      if (!insertData || insertError) throw new Error();
 
       $appStore.notifyPositive('Friend request accepted.');
       emits('accept', { ...props.friend, invite_accepted_on: acceptedAt });
@@ -50,9 +64,14 @@
     const supabase = useSupabaseClient<Database>();
     try {
       submittingDecline.value = true;
-      const { error } = await supabase.from('friends')
-        .delete()
-        .eq('id', props.friend.id);
+      const { error } = await supabase.from('friend_invitations')
+        .update({
+          status: FriendRequestStatus.DECLINED,
+          request_responded_at: new Date()
+            .toISOString(),
+        })
+        .eq('id', props.friend.id)
+        .select();
 
       if (error) throw new Error();
 
@@ -83,7 +102,7 @@
         size="xl" />
       <div class="flex flex-col">
         <p class="font-bold text-dark-grey">
-          {{ friendlyUsername(friend.profile) }}
+          {{ friendlyUsername(friend.profile, { includeTrailName: true }) }}
         </p>
         <p class="text-gray-500 text-sm">
           {{ mutualFriends }}

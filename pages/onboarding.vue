@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { CheckCircleIcon, BookUserIcon, HeartIcon } from 'lucide-vue-next';
-  import { getStripe } from '@/lib/stripe';
+  // import { getStripe } from '@/lib/stripe';
   import type { FilePondFile } from 'filepond';
   import { SubscriptionLevel, MeasuringSystem, type Database } from '@/types';
   import { Modal, type InstanceOptions, type ModalInterface, type ModalOptions } from 'flowbite';

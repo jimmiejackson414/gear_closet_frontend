@@ -227,6 +227,54 @@ export interface Database {
           },
         ];
       };
+      friend_invitations: {
+        Row: {
+          created_at: string | null;
+          id: number;
+          recipient_id: string | null;
+          request_responded_at: string | null;
+          request_sent_at: string | null;
+          sender_id: string | null;
+          status: Database["public"]["Enums"]["friend_request_status"] | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          created_at?: string | null;
+          id?: number;
+          recipient_id?: string | null;
+          request_responded_at?: string | null;
+          request_sent_at?: string | null;
+          sender_id?: string | null;
+          status?: Database["public"]["Enums"]["friend_request_status"] | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          created_at?: string | null;
+          id?: number;
+          recipient_id?: string | null;
+          request_responded_at?: string | null;
+          request_sent_at?: string | null;
+          sender_id?: string | null;
+          status?: Database["public"]["Enums"]["friend_request_status"] | null;
+          updated_at?: string | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "friend_invitations_recipient_id_fkey";
+            columns: ["recipient_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "friend_invitations_sender_id_fkey";
+            columns: ["sender_id"];
+            isOneToOne: false;
+            referencedRelation: "profiles";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       friends: {
         Row: {
           created_at: string | null;
@@ -259,7 +307,7 @@ export interface Database {
           {
             foreignKeyName: "friends_friend_id_fkey";
             columns: ["friend_id"];
-            isOneToOne: true;
+            isOneToOne: false;
             referencedRelation: "profiles";
             referencedColumns: ["id"];
           },
@@ -1234,6 +1282,7 @@ export interface Database {
       };
     };
     Enums: {
+      friend_request_status: "PENDING" | "ACCEPTED" | "DECLINED";
       measuring_system: "IMPERIAL" | "METRIC";
       pricing_plan_interval: "day" | "week" | "month" | "year";
       pricing_type: "one_time" | "recurring";
@@ -1557,6 +1606,12 @@ export type ReturnTypeGraphql =
 
 // Schema: public
 // Enums
+export enum FriendRequestStatus {
+  PENDING = "PENDING",
+  ACCEPTED = "ACCEPTED",
+  DECLINED = "DECLINED",
+}
+
 export enum MeasuringSystem {
   IMPERIAL = "IMPERIAL",
   METRIC = "METRIC",
@@ -1665,6 +1720,13 @@ export type InsertCustomer =
   Database["public"]["Tables"]["customers"]["Insert"];
 export type UpdateCustomer =
   Database["public"]["Tables"]["customers"]["Update"];
+
+export type FriendInvitation =
+  Database["public"]["Tables"]["friend_invitations"]["Row"];
+export type InsertFriendInvitation =
+  Database["public"]["Tables"]["friend_invitations"]["Insert"];
+export type UpdateFriendInvitation =
+  Database["public"]["Tables"]["friend_invitations"]["Update"];
 
 export type Friend = Database["public"]["Tables"]["friends"]["Row"];
 export type InsertFriend = Database["public"]["Tables"]["friends"]["Insert"];
