@@ -18,8 +18,14 @@ export type ExtendedUser = Tables<'profiles'> & {
 };
 
 export type ExtendedFriend = Tables<'friends'> & {
-  profile: Profile;
+  profile?: Profile;
+  friend: Profile;
 };
+
+export type ExtendedFriendInvite = Tables<'friend_invitations'> & {
+  recipient: Profile;
+  sender: Profile;
+}
 
 export type ExtendedNotification = Tables<'notifications'> & {
   sender: Tables<'profiles'>;

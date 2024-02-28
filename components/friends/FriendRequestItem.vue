@@ -2,12 +2,12 @@
   import dayjs, { type Dayjs } from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import { FriendRequestStatus, type Database } from '@/types';
-  import type { ExtendedFriend } from '@/types/helpers';
+  import type { ExtendedFriendInvite } from '@/types/helpers';
 
   dayjs.extend(relativeTime);
 
   interface Props {
-    friend: ExtendedFriend;
+    friend: ExtendedFriendInvite;
   } 
 
   const props = defineProps<Props>();
@@ -36,14 +36,14 @@
       if (!data || error) throw new Error();
 
       // Insert new records into the 'friends' table
-      const { data: insertData, error: insertError } = await supabase
+      const { error: insertError } = await supabase
         .from('friends')
         .insert([
           { profile_id: data[0].recipient_id, friend_id: data[0].sender_id },
           { profile_id: data[0].sender_id, friend_id: data[0].recipient_id },
         ]);
 
-      if (!insertData || insertError) throw new Error();
+      if (insertError) throw new Error();
 
       $appStore.notifyPositive('Friend request accepted.');
       emits('accept', { ...props.friend, invite_accepted_on: acceptedAt });
@@ -98,11 +98,11 @@
   <div class="bg-gray-50 duration-200 ease-snap my-4 px-8 py-4 rounded-2xl shadow-light hover:shadow-xl transition w-fit">
     <div class="grid grid-cols-[auto,1fr] gap-4 items-center">
       <gc-avatar
-        :profile="friend.profile"
+        :profile="friend.sender"
         size="xl" />
       <div class="flex flex-col">
         <p class="font-bold text-dark-grey">
-          {{ friendlyUsername(friend.profile, { includeTrailName: true }) }}
+          {{ friendlyUsername(friend.sender, { includeTrailName: true }) }}
         </p>
         <p class="text-gray-500 text-sm">
           {{ mutualFriends }}

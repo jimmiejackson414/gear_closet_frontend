@@ -206,13 +206,9 @@ CREATE OR REPLACE FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) RETUR
     WHERE t.profile_id = p_user_id
     AND t.starting_date >= NOW();
 
-    -- Fetch friends with associated profiles
-    SELECT COALESCE(json_agg(json_build_object(
-        'friend', row_to_json(f.*),
-        'profile', row_to_json(p.*)
-    )), '[]'::JSON) INTO friends
+    -- Fetch friends
+    SELECT COALESCE(json_agg(row_to_json(f.*)), '[]'::JSON) INTO friends
     FROM friends f
-    JOIN profiles p ON f.friend_id = p.id
     WHERE f.profile_id = p_user_id;
 
     -- Output the result

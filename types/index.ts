@@ -280,8 +280,6 @@ export interface Database {
           created_at: string | null;
           friend_id: string | null;
           id: number;
-          invite_accepted_on: string | null;
-          invite_sent_on: string | null;
           profile_id: string | null;
           updated_at: string | null;
         };
@@ -289,8 +287,6 @@ export interface Database {
           created_at?: string | null;
           friend_id?: string | null;
           id?: number;
-          invite_accepted_on?: string | null;
-          invite_sent_on?: string | null;
           profile_id?: string | null;
           updated_at?: string | null;
         };
@@ -298,8 +294,6 @@ export interface Database {
           created_at?: string | null;
           friend_id?: string | null;
           id?: number;
-          invite_accepted_on?: string | null;
-          invite_sent_on?: string | null;
           profile_id?: string | null;
           updated_at?: string | null;
         };

@@ -13,7 +13,7 @@
   });
 
   const computedUsers = computed(() => {
-    return props.data.map((user) => user.profile)
+    return props.data.map((user) => user.friend)
       .slice(0, 5);
   });
 </script>

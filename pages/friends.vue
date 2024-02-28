@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { FriendRequestStatus, type Database, type Profile } from '@/types';
-  import type { ExtendedFriend } from '@/types/helpers';
+  import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
   import { SearchIcon } from 'lucide-vue-next';
 
   definePageMeta({ layout: 'page-layout' });
@@ -10,7 +10,7 @@
   /**
    * Fetch friend requests and current friends
    */
-  const requests = ref<ExtendedFriend[]>([]);
+  const requests = ref<ExtendedFriendInvite[]>([]);
   const currentFriends = ref<ExtendedFriend[]>([]);
   const fetchFriendPage = async () => {
     try {
@@ -23,7 +23,7 @@
         .select('*, sender:profiles!sender_id(*), recipient:profiles!recipient_id(*)')
         .eq('recipient_id', user.value!.id)
         .eq('status', FriendRequestStatus.PENDING)
-        .returns<ExtendedFriend[]>();
+        .returns<ExtendedFriendInvite[]>();
 
       if (requestsData?.length && !requestsError) {
         requests.value = requestsData;
@@ -32,8 +32,8 @@
       // Fetch current friends
       const { data: friendsData, error: friendsError } = await supabase
         .from('friends')
-        .select('*, profile:profiles!profile_id(*), friend:profiles!friend_id(*)')
-        .or(`profile_id.eq.${user.value!.id},friend_id.eq.${user.value!.id}`)
+        .select('*, friend:profiles!friend_id(*)')
+        .eq('profile_id', user.value!.id)
         .returns<ExtendedFriend[]>();
 
       if (friendsData?.length && !friendsError) {
@@ -132,6 +132,7 @@
           Friend Requests ({{ requests.length }})
         </p>
         <gc-button
+          class="ml-4"
           :disabled="!requests.length || showAllRequests || requests.length < 5"
           ghost
           label="See All"
@@ -184,6 +185,7 @@
               Results ({{ results.length }})
             </p>
             <gc-button
+              class="ml-4"
               :disabled="!results.length || showAllResults || results.length < 5"
               ghost
               label="See All"
@@ -213,6 +215,7 @@
           All Friends ({{ currentFriends.length }})
         </p>
         <gc-button
+          class="ml-4"
           :disabled="!currentFriends.length || showAllFriends || currentFriends.length < 21"
           ghost
           label="See All"
