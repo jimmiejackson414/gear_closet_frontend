@@ -1171,11 +1171,7 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "location" "jsonb"
 );
 
-ALTER TABLE ONLY "public"."friends"
-    ADD CONSTRAINT "friends_profile_id_unique" UNIQUE ("profile_id");
-
-ALTER TABLE ONLY "public"."friends"
-    ADD CONSTRAINT "friends_friend_id_unique" UNIQUE ("friend_id");
+ALTER TABLE "public"."friends" ADD CONSTRAINT "unique_friendship" UNIQUE ("friend_id", "profile_id");
 
 ALTER TABLE "public"."profiles" OWNER TO "postgres";
 

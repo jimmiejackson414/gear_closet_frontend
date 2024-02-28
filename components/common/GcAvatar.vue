@@ -39,7 +39,7 @@
   <img
     v-if="hasImage"
     alt="User Avatar"
-    class="rounded-full"
+    class="object-cover rounded-full"
     :class="[ sizeClass, { 'border-2 border-white': props.border } ]"
     :src="buildImageSrc(profile?.image)">
   <div

@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { ArrowDownUpIcon, SearchIcon, UsersRoundIcon } from 'lucide-vue-next';
+  import { SearchIcon, UsersRoundIcon } from 'lucide-vue-next';
   import type { SelectOption } from '@/types/helpers';
   import { TripFriendStatus, type Database, type Profile } from '@/types';
 
@@ -11,7 +11,6 @@
   const selectedFriend = ref<SelectOption | undefined>(undefined);
   const friendsToInvite = shallowRef<Profile[]>([]);
 
-  const inviteByEmail = ref(false);
   const emailsToInvite = ref<string[]>([]);
 
   /**
