@@ -84,7 +84,7 @@
           :loading="loading" />
       </div>
       <div class="col-span-12">
-        <!-- <forums-widget /> -->
+        <forums-widget />
       </div>
     </div>
   </div>

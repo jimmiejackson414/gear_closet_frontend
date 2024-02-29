@@ -1,3 +1,4 @@
+import { SubscriptionLevel, type Profile } from '@/types';
 import { DoorOpen,  Home, ListTodo, MessagesSquare, Users, UserCircle2 } from 'lucide-vue-next';
 import type { Icon } from 'lucide-vue-next';
 
@@ -10,8 +11,14 @@ export type LinkItem = {
   external: boolean;
 }
 
-export const drawerLinks = () => {
+export const drawerLinks = (profile: Profile | null) => {
   const config = useRuntimeConfig();
+
+  const hasForumAccess = computed(() => {
+    if (!profile) return false;
+    return profile?.subscription_level === SubscriptionLevel.ANNUAL || profile?.subscription_level === SubscriptionLevel.MONTHLY || profile?.subscription_level === SubscriptionLevel.LIFE;
+  });
+
   return [
     {
       to: 'index',
@@ -49,7 +56,7 @@ export const drawerLinks = () => {
       to: config.public.forumsUrl,
       title: 'Forums',
       icon: MessagesSquare,
-      disabled: false,
+      disabled: !hasForumAccess.value,
       requiresSubscription: true,
       external: true,
     },

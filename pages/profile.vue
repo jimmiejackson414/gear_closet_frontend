@@ -114,7 +114,6 @@
         newPasswordConfirm.value = '';
       }
     } catch (err) {
-      console.log({ err });
       $appStore.notifyNegative('An error occurred while updating your password.');
     } finally {
       submitting.value = false;

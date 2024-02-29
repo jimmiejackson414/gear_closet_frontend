@@ -96,6 +96,8 @@ export default defineNuxtConfig({
     cloudinaryApiKey: process.env.NUXT_CLOUDINARY_API_KEY,
     cloudinaryApiSecret: process.env.NUXT_CLOUDINARY_API_SECRET,
     sendgridApiKey: process.env.NUXT_SENDGRID_API_KEY,
+    forumsApiKey: process.env.NUXT_PUBLIC_FORUMS_API_KEY,
+    forumsApiUsername: process.env.NUXT_PUBLIC_FORUMS_API_USERNAME,
 
     public: {
       cloudinaryCloudName: process.env.NUXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -104,8 +106,6 @@ export default defineNuxtConfig({
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_KEY,
       forumsUrl: process.env.NUXT_PUBLIC_FORUMS_URL,
-      forumsApiKey: process.env.NUXT_PUBLIC_FORUMS_API_KEY,
-      forumsApiUsername: process.env.NUXT_PUBLIC_FORUMS_API_USERNAME,
       cookieKey: process.env.NUXT_COOKIE_KEY,
     },
   },

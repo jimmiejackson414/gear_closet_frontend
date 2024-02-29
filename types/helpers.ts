@@ -52,15 +52,20 @@ export interface PublicPack extends ExtendedPack {
 }
 
 export type ForumPost = {
+  avatar_template: string;
+  category_id: number;
+  cooked: string;
+  created_at: string;
+  display_username: string;
   id: number;
   name: string;
-  username: string;
-  created_at: string;
-  updated_at: string;
+  raw: string;
+  reads: number;
   reply_count: number;
-  topic_title: string;
   topic_slug: string;
-  display_username: string;
+  topic_title: string;
+  updated_at: string;
+  username: string;
 }
 
 export type ForumLatestPosts = {
