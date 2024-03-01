@@ -1,5 +1,6 @@
 <script lang='ts' setup>
   import { LogOutIcon } from 'lucide-vue-next';
+  import type { Profile } from '@/types';
 
   const $route = useRoute();
 
@@ -32,15 +33,16 @@
         </span>
       </li>
       <li
-        v-for="link in drawerLinks()"
+        v-for="link in drawerLinks(profile as Profile)"
         :key="link.to"
-        class="cursor-pointer">
+        :class="link.disabled ? 'cursor-not-allowed' : 'cursor-pointer'">
         <template v-if="link.external">
           <a
             class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
-            :href="link.to"
+            :href="link.disabled ? undefined : link.to"
             rel="noopener noreferrer"
-            target="_blank">
+            target="_blank"
+            @click="link.disabled && $event.preventDefault()">
             <component
               :is="link.icon"
               v-tippy="{ content: link.title, placement: 'right', offset: [0, 30]}"
@@ -51,7 +53,7 @@
         <template v-else>
           <nuxt-link
             class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
-            :class="isActiveRoute(link) ? 'bg-gray-100' : ''"
+            :class="[isActiveRoute(link) ? 'bg-gray-100' : '']"
             :disabled="link.disabled"
             :to="{ name: link.to }">
             <gc-avatar

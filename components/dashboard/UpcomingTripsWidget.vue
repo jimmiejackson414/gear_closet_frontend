@@ -76,7 +76,7 @@
                 </p>
                 <div class="bg-gray-200 h-2.5 rounded-full w-full">
                   <div
-                    class="bg-gradient-to-r from-positive-light to-primary h-2.5 rounded-full"
+                    class="bg-gradient-to-r from-positive-light to-positive h-2.5 rounded-full"
                     :style="calculatedProgress(trip)" />
                 </div>
               </div>

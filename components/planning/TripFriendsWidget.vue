@@ -1,7 +1,7 @@
 <script lang='ts' setup>
-  import { ArrowDownUpIcon, SearchIcon, UsersRoundIcon } from 'lucide-vue-next';
+  import { SearchIcon, UsersRoundIcon } from 'lucide-vue-next';
   import type { SelectOption } from '@/types/helpers';
-  import { TripFriendStatus, type Database, type Profile, type InsertTripFriend } from '@/types';
+  import { TripFriendStatus, type Database, type Profile } from '@/types';
 
   const $store = usePlanningStore();
   const $appStore = useAppStore();
@@ -9,10 +9,8 @@
 
   const isInviteModalOpen = ref(false);
   const selectedFriend = ref<SelectOption | undefined>(undefined);
-  const friendsToInvite = ref<Profile[]>([]);
+  const friendsToInvite = shallowRef<Profile[]>([]);
 
-  const inviteByEmail = ref(false);
-  const newEmail = ref<string | undefined>(undefined);
   const emailsToInvite = ref<string[]>([]);
 
   /**
@@ -25,15 +23,15 @@
       searching.value = true;
       const supabase = useSupabaseClient<Database>();
       const { data: friends, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`)
-        .neq('id', selectedTrip.value?.profile_id)
+        .from('friends')
+        .select('*, profile:profiles!profile_id(*)')
+        .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`, { referencedTable: 'profiles' })
+        .neq('profile_id', selectedTrip.value?.profile_id)
         .limit(10);
 
       if (friends?.length && !error) {
         searchResults.value = friends.map(f => ({
-          label: friendlyUsername(f),
+          label: friendlyUsername(f.profile[0] as Profile),
           value: f.id,
         }));
       }
@@ -53,34 +51,25 @@
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
-      const existingFriendsPayload = (friendsToInvite.value as Profile[]).map(f => ({
+      const existingFriendsPayload = friendsToInvite.value.map((f: Profile) => ({
         trip_id: selectedTripId.value,
         profile_id: f.id,
         status: TripFriendStatus.PENDING,
         invited_by_id: user.value?.id,
-      })) as InsertTripFriend[];
-      
-      const newFriendsPayload = emailsToInvite.value.map((email: string) => {
-        const token = generateUniqueToken();
-        // sendInvitationEmail(email, token); // TODO: Implement this
-        return {
-          trip_id: selectedTripId.value,
-          status: TripFriendStatus.PENDING,
-          invited_by_id: user.value?.id,
-          invite_token: token,
-        };
-      }) as InsertTripFriend[];
-      const { data: invitedFriends, error } = await supabase.from('trip_invites')
-        .insert([...existingFriendsPayload, ...newFriendsPayload])
+      }));
+      const { data: invitedFriends, error } = await supabase.from('trip_friends')
+        .insert(existingFriendsPayload)
         .select();
 
       if (invitedFriends?.length && !error) {
         $appStore.notifyPositive('Successfully invited friends to trip!');
+        data.value.friends.push(...invitedFriends);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error inviting friends to the trip.');
     } finally {
       submitting.value = false;
+      isInviteModalOpen.value = false;
     }
   };
 </script>
@@ -114,13 +103,12 @@
     :is-open="isInviteModalOpen"
     title="Invite Friends"
     @handle-cancel="isInviteModalOpen = false">
-    <template #default>
+    <template #content>
       <p class="text-base text-gray">
-        Invite existing friends to your trip, or invite new friends to join Gear Closet!
+        Invite existing friends to your trip and get started planning!
       </p>
       <div class="flex flex-col">
         <gc-autocomplete
-          v-if="!inviteByEmail"
           :disabled="searching || submitting"
           :loading="searching"
           :model-value="selectedFriend"
@@ -129,33 +117,7 @@
           placeholder="Search for a friend"
           :prepend-icon="SearchIcon"
           @update:model-value="searchForFriends($event)" />
-        <div
-          v-else
-          class="relative">
-          <input
-            v-model="newEmail"
-            class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 p-2.5 pe-16 peer py-2.5 rounded-lg text-base text-dark-grey w-full focus:outline-none focus:ring-0 placeholder:!text-gray-400"
-            :class="{ 'bg-gray-100 pointer-events-none': searching || submitting }"
-            :disabled="searching || submitting"
-            placeholder="Enter an email address"
-            type="email"
-            @keydown.enter="[emailsToInvite.push(newEmail as string), newEmail = '']">
-          <gc-button
-            class="-translate-y-1/2 absolute top-1/2 right-2 transform"
-            label="Add"
-            outlined
-            size="sm"
-            variant="positive"
-            @click="[emailsToInvite.push(newEmail as string), newEmail = '']" />
-        </div>
-        <gc-button
-          class="mt-2 self-start"
-          ghost
-          size="sm"
-          @click="inviteByEmail = !inviteByEmail">
-          <arrow-down-up-icon class="h-4 mr-2 w-4" />
-          {{ inviteByEmail ? 'Search for a friend' : 'Invite by email' }}
-        </gc-button>
+        
         <p class="font-bold mt-6 text-eyebrow">
           Friends to invite:
         </p>

@@ -1,99 +1,21 @@
 <script lang='ts' setup>
   import { UsersIcon } from 'lucide-vue-next';
-  import type { Friend, Profile } from '@/types'; 
+  import type { ExtendedFriend } from '@/types/helpers'; 
 
   interface Props {
-    data: Friend[];
+    data: ExtendedFriend[];
     loading: boolean;
   }
 
-  withDefaults(defineProps<Props>(), {
+  const props = withDefaults(defineProps<Props>(), {
     data: () => [],
     loading: false,
   });
 
-  const tempUsers = [
-    {
-      id: "010af8bd-60c6-4c8a-8e0a-864c055e0a93",
-      email: "jimmiejackson414@gmail.com",
-      first_name: null,
-      last_name: null,
-      trail_name: null,
-      image: null,
-      role: "USER",
-      subscription_level: "ANNUAL",
-      measuring_system: "IMPERIAL",
-      onboard_date: null,
-      address_1: null,
-      address_2: null,
-      city: null,
-      state: null,
-      country: null,
-      created_at: "2023-12-20 22:45:38.953507+00",
-      updated_at: "2023-12-20 22:45:38.953507+00",
-      location: null,
-    },
-    {
-      id: "010af8bd-60c6-4c8a-8e0a-864c055e0a93",
-      email: "jimmiejackson414@gmail.com",
-      first_name: null,
-      last_name: null,
-      trail_name: null,
-      image: null,
-      role: "USER",
-      subscription_level: "ANNUAL",
-      measuring_system: "IMPERIAL",
-      onboard_date: null,
-      address_1: null,
-      address_2: null,
-      city: null,
-      state: null,
-      country: null,
-      created_at: "2023-12-20 22:45:38.953507+00",
-      updated_at: "2023-12-20 22:45:38.953507+00",
-      location: null,
-    },
-    {
-      id: "010af8bd-60c6-4c8a-8e0a-864c055e0a93",
-      email: "jimmiejackson414@gmail.com",
-      first_name: null,
-      last_name: null,
-      trail_name: null,
-      image: null,
-      role: "USER",
-      subscription_level: "ANNUAL",
-      measuring_system: "IMPERIAL",
-      onboard_date: null,
-      address_1: null,
-      address_2: null,
-      city: null,
-      state: null,
-      country: null,
-      created_at: "2023-12-20 22:45:38.953507+00",
-      updated_at: "2023-12-20 22:45:38.953507+00",
-      location: null,
-    },
-    {
-      id: "010af8bd-60c6-4c8a-8e0a-864c055e0a93",
-      email: "jimmiejackson414@gmail.com",
-      first_name: null,
-      last_name: null,
-      trail_name: null,
-      image: null,
-      role: "USER",
-      subscription_level: "ANNUAL",
-      measuring_system: "IMPERIAL",
-      onboard_date: null,
-      address_1: null,
-      address_2: null,
-      city: null,
-      state: null,
-      country: null,
-      created_at: "2023-12-20 22:45:38.953507+00",
-      updated_at: "2023-12-20 22:45:38.953507+00",
-      location: null,
-    },
-  ] as Profile[];
+  const computedUsers = computed(() => {
+    return props.data.map((user) => user.friend)
+      .slice(0, 5);
+  });
 </script>
 
 <template>
@@ -108,20 +30,34 @@
         <nuxt-link
           class="!font-bold duration-150 ease-in-out text-base hover:text-primary"
           :to="{ name: 'friends' }">
-          Friends
+          Friends ({{ data.length }})
         </nuxt-link>
       </div>
       <div class="-space-x-3 flex">
-        <gc-avatar
-          v-for="user in tempUsers"
-          :key="user.id"
-          border
-          :profile="user" />
-        <nuxt-link
-          class="bg-dark-grey hover:bg-dark-grey/75 border-2 border-white flex justify-center items-center flex-shrink-0 font-medium h-12 min-w-12 rounded-full text-white text-xs w-12 z-10"
-          :to="{ name: 'friends' }">
-          +99
-        </nuxt-link>
+        <div v-if="computedUsers.length">
+          <gc-avatar
+            v-for="user in computedUsers"
+            :key="user.id"
+            border
+            :profile="user" />
+          <nuxt-link
+            v-if="computedUsers.length > 5"
+            class="bg-dark-grey hover:bg-dark-grey/75 border-2 border-white flex justify-center items-center flex-shrink-0 font-medium h-12 min-w-12 rounded-full text-white text-xs w-12 z-10"
+            :to="{ name: 'friends' }">
+            {{ `+${computedUsers.length - 5}` }}
+          </nuxt-link>
+        </div>
+        <div
+          v-else
+          class="flex justify-center items-center flex-col">
+          <p class="mb-4 text-base text-center">
+            You haven't connected with any friends yet!
+          </p>
+          <gc-button
+            label="Get Started"
+            size="sm"
+            :to="{ name: 'friends'}" />
+        </div>
       </div>
     </div>
   </div>

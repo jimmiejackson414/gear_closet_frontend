@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { CheckCircleIcon, BookUserIcon, HeartIcon } from 'lucide-vue-next';
-  import { getStripe } from '@/lib/stripe';
+  // import { getStripe } from '@/lib/stripe';
   import type { FilePondFile } from 'filepond';
   import { SubscriptionLevel, MeasuringSystem, type Database } from '@/types';
   import { Modal, type InstanceOptions, type ModalInterface, type ModalOptions } from 'flowbite';
@@ -163,7 +163,6 @@
 
   const handleOpenTempModal = () => {
     const $targetEl = document.querySelector('#onboarding-alert-modal') as HTMLElement;
-    console.log({ $targetEl });
     const options: ModalOptions = {
       placement: 'center',
       backdrop: 'static',
@@ -183,8 +182,9 @@
     modal.show();
   };
 
-  onMounted(() => {
+  onMounted(async () => {
     if (step.value === 3) {
+      await nextTick();
       handleOpenTempModal();
     }
   });

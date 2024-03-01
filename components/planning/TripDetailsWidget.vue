@@ -59,7 +59,6 @@
         data.value.trip_details.push(newDetail[0]);
       }
     } catch (err) {
-      console.log({ err });
       $appStore.notifyNegative('There was an error creating a new detail.');
     }
   };

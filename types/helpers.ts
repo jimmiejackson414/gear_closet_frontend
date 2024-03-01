@@ -17,6 +17,16 @@ export type ExtendedUser = Tables<'profiles'> & {
   onboarding_steps: Tables<'onboarding_steps'>[];
 };
 
+export type ExtendedFriend = Tables<'friends'> & {
+  profile?: Profile;
+  friend: Profile;
+};
+
+export type ExtendedFriendInvite = Tables<'friend_invitations'> & {
+  recipient: Profile;
+  sender: Profile;
+}
+
 export type ExtendedNotification = Tables<'notifications'> & {
   sender: Tables<'profiles'>;
 }
@@ -42,19 +52,42 @@ export interface PublicPack extends ExtendedPack {
 }
 
 export type ForumPost = {
+  avatar_template: string;
+  category_id: number;
+  cooked: string;
+  created_at: string;
+  display_username: string;
   id: number;
   name: string;
-  username: string;
-  created_at: string;
-  updated_at: string;
+  raw: string;
+  reads: number;
   reply_count: number;
-  topic_title: string;
   topic_slug: string;
-  display_username: string;
+  topic_title: string;
+  updated_at: string;
+  username: string;
+  categoryColor?: string;
 }
 
 export type ForumLatestPosts = {
   latest_posts: ForumPost[];
+}
+
+export type ForumCategory = {
+  id: number;
+  name: string;
+  color: string;
+  slug: string;
+  topic_count: number;
+  post_count: number;
+  description: string;
+  topic_url: string;
+}
+
+export type ForumCategories = {
+  category_list: {
+    categories: ForumCategory[];
+  }
 }
 
 export type SelectOption = {
