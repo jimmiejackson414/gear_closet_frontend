@@ -1,29 +1,42 @@
 <script lang='ts' setup>
   import { MessagesSquareIcon } from 'lucide-vue-next';
-  import type { ForumLatestPosts, ForumPost } from '@/types/helpers';
+  import type { ForumCategory, ForumPost } from '@/types/helpers';
   import { SubscriptionLevel } from '@/types';
   import { LockIcon } from 'lucide-vue-next';
 
   interface ForumResponse {
-    body: ForumLatestPosts;
+    latest_posts: ForumPost[];
+    categories: ForumCategory[];
   }
   
   const loading = ref(false);
-  const posts = ref<ForumPost[] | undefined>(undefined);
+  const posts = ref<ForumPost[]>([]);
+  const categories = ref<ForumCategory[]>([]);
 
   // fetch latest posts from forums api
   const fetchForums = async () => {
     loading.value = true;
     try {
-      const { data, error } = await useFetch('/api/forumPosts');
+      const { data, error } = await useFetch<ForumResponse>('/api/forumPosts');
 
-      if (error.value || !data.value?.data.latest_posts.length) {
+      if (error.value) {
         throw new Error('Error fetching forum posts');
       }
 
-      posts.value = data.value.data.latest_posts;
+      if (data.value) {
+        posts.value = data.value.latest_posts.map(post => {
+          const category = data.value!.categories.find(category => category.id === post.category_id);
+          return {
+            ...post,
+            categoryColor: category ? category.color : 'bg-info',
+          };
+        });
+        categories.value = data.value?.categories || [];
+      }
     } catch (err) {
-      posts.value = undefined;
+      console.log(`catch`);
+      posts.value = [];
+      categories.value = [];
     } finally {
       loading.value = false;
     }
@@ -54,18 +67,38 @@
       avatar
       :lines="3" /> 
     <div v-else>
-      <ul
-        v-if="posts"
-        class="divide-light-grey divide-y">
-        <forum-post
-          v-for="post in posts"
-          :key="post.id"
-          :has-forum-access="hasForumAccess"
-          :post="post" />
-      </ul>
+      <div
+        v-if="posts.length"
+        class="grid lg:grid-cols-2 grid-cols-1 gap-8 lg:gap-0">
+        <div class="border-gray-200 border-r pr-8">
+          <forum-post
+            v-for="post in posts"
+            :key="post.id"
+            :has-forum-access="hasForumAccess"
+            :post="post" />
+        </div>
+        <div class="grid grid-cols-2 gap-4 pl-8">
+          <div
+            v-for="category in categories"
+            :key="category.id"
+            class="border border-gray-200 grid grid-cols-[auto,1fr] gap-4 items-center p-4 rounded-2xl">
+            <span
+              class="h-3 rounded-full w-3"
+              :style="{ backgroundColor: `#${category.color}` }" />
+            <div class="flex justify-center flex-col">
+              <p class="!font-bold">
+                {{ category.name }}
+              </p>
+              <p class="text-gray-400">
+                {{ category.topic_count }} topics
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
       <div v-else>
         <p class="text-base text-center">
-          Error occurred fetching latest forum posts.
+          Error occurred fetching forum posts.
         </p>
       </div>
     </div>

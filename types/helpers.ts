@@ -66,10 +66,28 @@ export type ForumPost = {
   topic_title: string;
   updated_at: string;
   username: string;
+  categoryColor?: string;
 }
 
 export type ForumLatestPosts = {
   latest_posts: ForumPost[];
+}
+
+export type ForumCategory = {
+  id: number;
+  name: string;
+  color: string;
+  slug: string;
+  topic_count: number;
+  post_count: number;
+  description: string;
+  topic_url: string;
+}
+
+export type ForumCategories = {
+  category_list: {
+    categories: ForumCategory[];
+  }
 }
 
 export type SelectOption = {
