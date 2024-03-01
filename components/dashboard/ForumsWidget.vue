@@ -89,7 +89,7 @@
               <p class="!font-bold">
                 {{ category.name }}
               </p>
-              <p class="text-gray-400">
+              <p class="text-grey">
                 {{ category.topic_count }} topics
               </p>
             </div>

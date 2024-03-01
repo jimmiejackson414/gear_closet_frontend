@@ -41,10 +41,10 @@
       </p>
     </div>
     <div class="flex justify-end flex-col">
-      <p class="text-gray-400 text-right text-sm">
+      <p class="text-grey text-right text-sm">
         {{ post.reply_count }} read{{ post.reply_count !== 1 ? 's' : '' }}
       </p>
-      <p class="text-gray-400 text-right text-sm">
+      <p class="text-grey text-right text-sm">
         {{ post.username }}
       </p>
     </div>
