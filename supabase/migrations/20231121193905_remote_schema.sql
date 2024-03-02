@@ -758,7 +758,7 @@ CREATE TABLE IF NOT EXISTS "public"."comments" (
     "id" bigint NOT NULL,
     "text" "text",
     "profile_id" "uuid" NOT NULL,
-    "pack_id" bigint NOT NULL
+    "pack_id" bigint NOT NULL,
     "deleted_at" timestamp with time zone DEFAULT "now"(),
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"(),
