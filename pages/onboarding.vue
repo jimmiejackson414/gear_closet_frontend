@@ -101,6 +101,7 @@
     if (profile.value) {
       account.first_name = profile.value.first_name || '';
       account.last_name = profile.value.last_name || '';
+      account.trail_name = profile.value.trail_name || '';
     }
   }, { deep: true, immediate: true });
 

@@ -1,18 +1,18 @@
 import { defineStore } from 'pinia';
-// import { searchExistingImages, destroyExisting, upload } from '@/lib/cloudinary';
 import { useAppStore } from '@/stores/app';
 import type {
   Database,
-  Tables,
+  Profile,
+  Notification,
 } from '@/types';
 
 type State = {
-  profile: Tables<'profiles'>| null;
-  notifications: Tables<'notifications'>[];
+  profile: Profile | null;
+  notifications: Notification[];
 };
 
 type Getters = {
-  unreadNotifications(): Tables<'notifications'>[];
+  unreadNotifications(): Notification[];
 };
 
 type Actions = {

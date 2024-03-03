@@ -1,0 +1,46 @@
+import { serverSupabaseClient } from '#supabase/server';
+
+export default defineEventHandler(async (event) => {
+  try {
+    const controller = new AbortController();
+    const timeout = setTimeout(() => {
+      controller.abort();
+    }, 15000);
+
+
+    const supabase = await serverSupabaseClient(event);
+    const { data: session } = await supabase.auth.getSession();
+
+    if (!session?.session?.user) {
+      throw createError({
+        statusCode: 401,
+        statusMessage: 'Unauthorized',
+      });
+    }
+
+    const { data, error } = await supabase.from('profiles')
+      .select(`
+        *,
+        onboarding_steps(*),
+        notifications!notifications_profile_id_fkey(*, sender:sender_id(*))
+      `)
+      .eq('id', session.session.user.id)
+      .maybeSingle();
+
+      clearTimeout(timeout);
+
+      if (!data || error) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: 'An error occurred while fetching profile',
+        });
+      }
+
+      return { data };
+  } catch (err) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'An error occurred while fetching profile',
+    });
+  }
+});

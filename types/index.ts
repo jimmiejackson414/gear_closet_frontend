@@ -235,7 +235,7 @@ export interface Database {
           request_responded_at: string | null;
           request_sent_at: string | null;
           sender_id: string | null;
-          status: Database["public"]["Enums"]["friend_request_status"] | null;
+          status: Database["public"]["Enums"]["friend_request_status"];
           updated_at: string | null;
         };
         Insert: {
@@ -245,7 +245,7 @@ export interface Database {
           request_responded_at?: string | null;
           request_sent_at?: string | null;
           sender_id?: string | null;
-          status?: Database["public"]["Enums"]["friend_request_status"] | null;
+          status?: Database["public"]["Enums"]["friend_request_status"];
           updated_at?: string | null;
         };
         Update: {
@@ -255,7 +255,7 @@ export interface Database {
           request_responded_at?: string | null;
           request_sent_at?: string | null;
           sender_id?: string | null;
-          status?: Database["public"]["Enums"]["friend_request_status"] | null;
+          status?: Database["public"]["Enums"]["friend_request_status"];
           updated_at?: string | null;
         };
         Relationships: [
