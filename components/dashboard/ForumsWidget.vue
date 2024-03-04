@@ -34,7 +34,6 @@
         categories.value = data.value?.categories || [];
       }
     } catch (err) {
-      console.log(`catch`);
       posts.value = [];
       categories.value = [];
     } finally {

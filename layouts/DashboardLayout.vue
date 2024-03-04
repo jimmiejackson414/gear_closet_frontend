@@ -1,8 +1,5 @@
 <script lang='ts' setup>
   const $store = useAppStore();
-  const $userStore = useUserStore();
-
-  $userStore.fetchProfile();
 </script>
 
 <template>

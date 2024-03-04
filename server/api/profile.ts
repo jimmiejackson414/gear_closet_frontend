@@ -1,4 +1,5 @@
-import { serverSupabaseClient } from '#supabase/server';
+import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
+import type { Profile } from '~/types';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -9,9 +10,9 @@ export default defineEventHandler(async (event) => {
 
 
     const supabase = await serverSupabaseClient(event);
-    const { data: session } = await supabase.auth.getSession();
+    const user = await serverSupabaseUser(event);
 
-    if (!session?.session?.user) {
+    if (!user) {
       throw createError({
         statusCode: 401,
         statusMessage: 'Unauthorized',
@@ -24,7 +25,7 @@ export default defineEventHandler(async (event) => {
         onboarding_steps(*),
         notifications!notifications_profile_id_fkey(*, sender:sender_id(*))
       `)
-      .eq('id', session.session.user.id)
+      .eq('id', user!.id)
       .maybeSingle();
 
       clearTimeout(timeout);
@@ -36,7 +37,7 @@ export default defineEventHandler(async (event) => {
         });
       }
 
-      return { data };
+      return { data: data as Profile };
   } catch (err) {
     throw createError({
       statusCode: 500,

@@ -15,9 +15,6 @@
   const $store = useAppStore();
 
   const { loading } = storeToRefs($store);
-
-  const $userStore = useUserStore();
-  $userStore.fetchProfile();
 </script>
 
 <template>

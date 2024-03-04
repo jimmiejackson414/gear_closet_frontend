@@ -171,7 +171,7 @@ $$;
 CREATE OR REPLACE FUNCTION "public"."update_profile_image"() RETURNS TRIGGER AS $$
 BEGIN
   UPDATE "public"."profiles"
-  SET "image" = NEW.url
+  SET "image" = NEW.name
   WHERE "id" = (storage.foldername(NEW.name))[1]::uuid;
   RETURN NEW;
 END;

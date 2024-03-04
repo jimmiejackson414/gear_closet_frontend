@@ -1,6 +1,6 @@
 <script lang="ts" setup>
   import { storeToRefs } from 'pinia';
-  import type { Database, Profile } from '@/types';
+  import type { Database } from '@/types';
 
   const supabase = useSupabaseClient<Database>();
 
@@ -9,19 +9,15 @@
   const { profile } = storeToRefs($store);
   const $router = useRouter();
   useAsyncData(async () => {
-    // TODO: Fix this to replace commented out code in watcher
-    const response = await $fetch<Profile | null>('/api/profile');
-    profile.value = response;
+    const { data } = await $fetch('/api/profile', {
+      headers: useRequestHeaders(['cookie']),
+    });
+    profile.value = data as any;
 
     if (profile.value && !profile.value.onboard_date) {
       $router.push('/onboarding');
     }
   });
-  // watch(profile, (newProfile) => {
-  //   if (newProfile && !newProfile?.onboard_date) {
-  //     $router.push('/onboarding');
-  //   }
-  // }, { immediate: true });
 
   supabase.auth.onAuthStateChange((event) => {
     if (event === 'SIGNED_OUT') {

@@ -1,6 +1,7 @@
 <script lang='ts' setup>
   import { AtSignIcon, LockIcon } from 'lucide-vue-next';
   import type { Provider } from '@supabase/supabase-js';
+  import type { Profile } from '@/types';
 
   const supabase = useSupabaseClient();
   const form = reactive({
@@ -38,7 +39,17 @@
         return;
       }
 
-      $router.push({ name: 'index' });
+      // Fetch the user's profile
+      const profile = await $fetch<Profile | null>('/api/profile', {
+        headers: useRequestHeaders(['cookie']),
+      });
+
+      // If the user has not completed onboarding, redirect them to the onboarding page
+      if (profile && !profile.onboard_date) {
+        $router.push('/onboarding');
+      } else {
+        $router.push({ name: 'index' });
+      }
     } catch (error) {
       if (error instanceof Error) {
         loginError.value = error.message;
@@ -46,7 +57,7 @@
     } finally {
       submitting.value = false;
     }
-  };  
+  };
 
   const handleOAuthSignin = async (provider: Provider) => {
     try {

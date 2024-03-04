@@ -162,8 +162,12 @@
     }
   };
 
-  const handleOpenTempModal = () => {
+  const handleOpenTempModal = async () => {
+    await nextTick();
+
     const $targetEl = document.querySelector('#onboarding-alert-modal') as HTMLElement;
+    if (!$targetEl) return;
+
     const options: ModalOptions = {
       placement: 'center',
       backdrop: 'static',
@@ -183,19 +187,12 @@
     modal.show();
   };
 
-  onMounted(async () => {
-    if (step.value === 3) {
-      await nextTick();
-      handleOpenTempModal();
-    }
-  });
-
   watch(step, async () => {
     if (step.value === 3) {
       await nextTick();
       handleOpenTempModal();
     }
-  });
+  }, { immediate: true });
 
   useHead({
     title: 'Onboarding | Gear Closet',
