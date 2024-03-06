@@ -4,45 +4,21 @@
   import { SubscriptionLevel } from '@/types';
   import { LockIcon } from 'lucide-vue-next';
 
-  interface ForumResponse {
-    latest_posts: ForumPost[];
-    categories: ForumCategory[];
+  interface Props {
+    data: {
+      latest_posts: ForumPost[];
+      categories: ForumCategory[];
+    };
+    loading: boolean;
   }
-  
-  const loading = ref(false);
-  const posts = ref<ForumPost[]>([]);
-  const categories = ref<ForumCategory[]>([]);
 
-  // fetch latest posts from forums api
-  const fetchForums = async () => {
-    loading.value = true;
-    try {
-      const { data, error } = await useFetch<ForumResponse>('/api/forumPosts');
-
-      if (error.value) {
-        throw new Error('Error fetching forum posts');
-      }
-
-      if (data.value) {
-        posts.value = data.value.latest_posts.map(post => {
-          const category = data.value!.categories.find(category => category.id === post.category_id);
-          return {
-            ...post,
-            categoryColor: category ? category.color : 'bg-info',
-          };
-        });
-        categories.value = data.value?.categories || [];
-      }
-    } catch (err) {
-      console.log(`catch`);
-      posts.value = [];
-      categories.value = [];
-    } finally {
-      loading.value = false;
-    }
-  };
-  
-  onMounted(() => fetchForums());
+  withDefaults(defineProps<Props>(), {
+    data: () => ({
+      latest_posts: [],
+      categories: [],
+    }),
+    loading: false,
+  });
 
   const $store = useUserStore();
   const hasForumAccess = computed(() => {
@@ -68,18 +44,18 @@
       :lines="3" /> 
     <div v-else>
       <div
-        v-if="posts.length"
+        v-if="data.latest_posts.length"
         class="grid lg:grid-cols-2 grid-cols-1 gap-8 lg:gap-0">
         <div class="border-gray-200 border-r pr-8">
           <forum-post
-            v-for="post in posts"
+            v-for="post in data.latest_posts"
             :key="post.id"
             :has-forum-access="hasForumAccess"
             :post="post" />
         </div>
         <div class="grid grid-cols-2 gap-4 pl-8">
           <div
-            v-for="category in categories"
+            v-for="category in data.categories"
             :key="category.id"
             class="border border-gray-200 grid grid-cols-[auto,1fr] gap-4 items-center p-4 rounded-2xl">
             <span

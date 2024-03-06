@@ -6,7 +6,7 @@
   import { Modal, type InstanceOptions, type ModalInterface, type ModalOptions } from 'flowbite';
   import type { SelectOption } from '@/types/helpers';
 
-  definePageMeta({ layout: 'public-layout' });
+  definePageMeta({ layout: 'page-layout' });
 
   // global
   const step = ref(1);
@@ -101,6 +101,7 @@
     if (profile.value) {
       account.first_name = profile.value.first_name || '';
       account.last_name = profile.value.last_name || '';
+      account.trail_name = profile.value.trail_name || '';
     }
   }, { deep: true, immediate: true });
 
@@ -161,8 +162,12 @@
     }
   };
 
-  const handleOpenTempModal = () => {
+  const handleOpenTempModal = async () => {
+    await nextTick();
+
     const $targetEl = document.querySelector('#onboarding-alert-modal') as HTMLElement;
+    if (!$targetEl) return;
+
     const options: ModalOptions = {
       placement: 'center',
       backdrop: 'static',
@@ -182,19 +187,12 @@
     modal.show();
   };
 
-  onMounted(async () => {
-    if (step.value === 3) {
-      await nextTick();
-      handleOpenTempModal();
-    }
-  });
-
   watch(step, async () => {
     if (step.value === 3) {
       await nextTick();
       handleOpenTempModal();
     }
-  });
+  }, { immediate: true });
 
   useHead({
     title: 'Onboarding | Gear Closet',
