@@ -20,6 +20,7 @@ type Actions = {
   fetchNotification (id: number | string): void;
   subscribeToNotifications(): void;
   markAllAsRead(): void;
+  deleteAvatar(): Promise<{ success: boolean }>
   updateAvatar(file: File): Promise<{ success: boolean }>;
 };
 
@@ -133,10 +134,49 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         }
       },
 
+      async deleteAvatar () {
+        try {
+          const supabase = useSupabaseClient<Database>();
+          const user = useSupabaseUser();
+
+           // get the list of files in the user's avatar directory
+          const { data: files, error: listError } = await supabase.storage.from('avatars')
+          .list(`${user.value!.id}/`);
+
+          if (listError) return { success: false };
+
+          // if there are any files in the directory, delete them
+          if (files?.length > 0) {
+            const { error: deleteError } = await supabase.storage.from('avatars')
+              .remove([`${user.value!.id}/${files[0].name}`]);
+            if (deleteError) return { success: false };
+          }
+
+          return { success: true };
+        } catch (err) {
+          return { success: false };
+        }
+      },
+
       async updateAvatar (file) {
         try {
           const supabase = useSupabaseClient<Database>();
           const user = useSupabaseUser();
+
+          // get the list of files in the user's avatar directory
+          const { data: files, error: listError } = await supabase.storage.from('avatars')
+            .list(`${user.value!.id}/`);
+
+          if (listError) return { success: false };
+
+          // if there are any files in the dictory, delete them
+          if (files?.length > 0) {
+            const { error: deleteError } = await supabase.storage.from('avatars')
+              .remove([`${user.value!.id}/${files[0].name}`]);
+            if (deleteError) return { success: false };
+          }
+
+          // upload the new file
           const { data, error } = await supabase.storage.from('avatars')
             .upload(`${user.value!.id}/${file.name}`, file, { upsert: true });
           return (data && !error) ? { success: true } : { success: false };

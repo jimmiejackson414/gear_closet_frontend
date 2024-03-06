@@ -170,15 +170,22 @@ $$;
 
 CREATE OR REPLACE FUNCTION "public"."update_profile_image"() RETURNS TRIGGER AS $$
 BEGIN
-  UPDATE "public"."profiles"
-  SET "image" = NEW.name
-  WHERE "id" = (storage.foldername(NEW.name))[1]::uuid;
-  RETURN NEW;
+  IF (TG_OP = 'INSERT') THEN
+    UPDATE "public"."profiles"
+    SET "image" = NEW.name
+    WHERE "id" = (storage.foldername(NEW.name))[1]::uuid;
+    RETURN NEW;
+  ELSIF (TG_OP = 'DELETE') THEN
+    UPDATE "public"."profiles"
+    SET "image" = NULL
+    WHERE "id" = (storage.foldername(OLD.name))[1]::uuid;
+    RETURN OLD;
+  END IF;
 END;
 $$ LANGUAGE plpgsql;
 
-CREATE TRIGGER update_profile_image_after_insert
-AFTER INSERT ON storage.objects
+CREATE TRIGGER update_profile_image_after_insert_or_delete
+AFTER INSERT OR DELETE ON storage.objects
 FOR EACH ROW
 EXECUTE FUNCTION "public"."update_profile_image"();
 

@@ -20,23 +20,23 @@
    * Handles adding a file from the avatar upload component.
    * @param file The file to remove.
    */
+  const newAvatarFile = ref<any>(undefined);
   const handleAddFile = (file: File) => {
-    console.log('File added', file);
+    newAvatarFile.value = file;
   };
 
   /**
    * Handles removing a file from the avatar upload component.
    */
   const handleRemoveFile = () => {
-    console.log('File removed');
+    newAvatarFile.value = undefined;
   };
 
   /**
    * Handles an error from the avatar upload component.
-   * @param e The error event.
    */
-  const handleError = (e: Event) => {
-    console.error('Error', e);
+  const handleError = () => {
+    $appStore.notifyNegative('An error occurred while uploading your avatar.');
   };
 
   /**
@@ -55,6 +55,18 @@
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
+
+      // upload the new avatar
+      if (newAvatarFile.value) {
+        const { success } = await $store.updateAvatar(newAvatarFile.value.file);
+        if (!success) $appStore.notifyNegative('An error occurred while updating your avatar.');
+      } else {
+        // delete the user's avatar
+        const { success } = await $store.deleteAvatar();
+        if (!success) $appStore.notifyNegative('An error occurred while deleting your avatar.');
+      }
+      
+      // update the user's profile
       const { data, error } = await supabase.from('profiles')
         .update({
           first_name: profileForm.firstName,
@@ -66,7 +78,6 @@
         .select();
 
       if (error) { $appStore.notifyNegative('An error occurred while updating your profile.'); }
-
       else {
         profile.value!.first_name = data[0].first_name;
         profile.value!.last_name = data[0].last_name;
@@ -173,15 +184,14 @@
       return new Tabs(tabsElement, tabElements, options, instanceOptions);
     }
   };
+  onMounted(() => instantiateTabs());
 
-  watch([() => loading.value], async (newValues) => {
-    const [newPageLoading] = newValues;
-
-    if (!newPageLoading) {
-      await nextTick();
-      instantiateTabs();
+  const profileAvatar = computed(() => {
+    if (profile.value?.image) {
+      return buildImageSrc(profile.value.image);
     }
-  }, { immediate: true });
+    return undefined;
+  });
 
   // fetch the subscription if the active tab is the subscription tab
   watch(activeTab, (newTab) => {
@@ -205,7 +215,7 @@
   <div class="max-w-full lg:max-w-5xl mx-auto py-8 w-full">
     <div class="grid lg:grid-cols-[400px,1fr] grid-cols-1 gap-6 lg:gap-14">
       <gc-avatar-upload
-        :file="(profile!.image as string)"
+        :file="profileAvatar"
         @handle-add-file="handleAddFile"
         @handle-error="handleError"
         @handle-remove-file="handleRemoveFile" />

@@ -8,7 +8,6 @@
   import FilePondPluginImageResize from 'filepond-plugin-image-resize';
   import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
   import type { FilePondErrorDescription, FilePondFile } from 'filepond';
-  import type { Database } from '@/types';
 
   import 'filepond/dist/filepond.min.css';
   import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
@@ -53,17 +52,30 @@
     if (!error) emits('handleRemoveFile');
   };
 
-  onMounted(() => {
-    if (props.file && pondRef.value) {
-      const supabase = useSupabaseClient<Database>();
-      const { data } = supabase.storage.from('avatars')
-        .getPublicUrl(props.file);
-      if (data) {
-        pondRef.value.addFile(data);
-        loadedExistingFile.value = true;
-      }
+  const initialFiles = computed(() => {
+    if (props.file) {
+      return [{
+        source: props.file,
+        options: {
+          type: 'local',
+        },
+      }];
     }
+    return [];
   });
+
+  const serverOptions = {
+    load: (source: string, load: (blob: Blob) => void) => {
+      fetch(source)
+        .then(response => response.blob())
+        .then(blob => {
+          load(blob);
+          if (props.file) {
+            loadedExistingFile.value = true;
+          }
+        });
+    },
+  };
 </script>
 
 <template>
@@ -73,6 +85,7 @@
     :allow-file-encode="true"
     :allow-multiple="false"
     class="filepond-upload"
+    :files="initialFiles"
     image-crop-aspect-ratio="1:1"
     :image-preview-height="170"
     image-preview-max-file-size="2MB"
@@ -81,6 +94,7 @@
     label-idle="Drag & Drop your picture<br/>or <span class='filepond--label-action'>Browse</span>"
     :max-files="1"
     name="avatar-upload"
+    :server="serverOptions"
     style-button-remove-item-position="center bottom"
     style-load-indicator-position="center bottom"
     style-panel-layout="compact circle"
