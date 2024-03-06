@@ -13,8 +13,8 @@ export default defineEventHandler(async () => {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'api-key': config.forumsApiKey,
-        'api-username': 'system',
+        'Api-Key': config.forumsApiKey,
+        'Api-Username': 'system',
       },
       signal: controller.signal,
     });
@@ -23,8 +23,8 @@ export default defineEventHandler(async () => {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
-        'api-key': config.forumsApiKey,
-        'api-username': 'system',
+        'Api-Key': config.forumsApiKey,
+        'Api-Username': 'system',
       },
       signal: controller.signal,
     });

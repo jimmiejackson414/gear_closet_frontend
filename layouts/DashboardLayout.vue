@@ -1,10 +1,27 @@
 <script lang='ts' setup>
-  const $store = useAppStore();
+  import type { Profile } from '@/types';
+
+
+  const $store = useUserStore();
+  const { profile } = storeToRefs($store);
+
+  const { data, error } = await useFetch<Profile | null>('/api/profile', {
+    headers: useRequestHeaders(['cookie']),
+  });
+
+  profile.value = data.value as any;
+
+  const $router = useRouter();
+  if (!error.value && data.value && !data.value.onboard_date) {
+    $router.push('/onboarding');
+  }
+
+  const $appStore = useAppStore();
 </script>
 
 <template>
   <div>
-    <gc-loading-wrapper v-if="$store.loading" />
+    <gc-loading-wrapper v-if="$appStore.loading" />
     <div v-else>
       <gc-drawer />
       <div class="min-h-screen">

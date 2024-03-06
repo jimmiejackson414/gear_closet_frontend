@@ -1,24 +1,7 @@
 <script lang="ts" setup>
-  import { storeToRefs } from 'pinia';
   import type { Database } from '@/types';
 
   const supabase = useSupabaseClient<Database>();
-
-  // if profile and profile has no onboarding_date, redirect to onboarding
-  const $store = useUserStore();
-  const { profile } = storeToRefs($store);
-  const $router = useRouter();
-  useAsyncData(async () => {
-    const { data } = await $fetch('/api/profile', {
-      headers: useRequestHeaders(['cookie']),
-    });
-    profile.value = data as any;
-
-    if (profile.value && !profile.value.onboard_date) {
-      $router.push('/onboarding');
-    }
-  });
-
   supabase.auth.onAuthStateChange((event) => {
     if (event === 'SIGNED_OUT') {
       supabase.removeAllChannels();

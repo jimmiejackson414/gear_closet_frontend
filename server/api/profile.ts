@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
         });
       }
 
-      return { data: data as Profile };
+      return data as Profile;
   } catch (err) {
     throw createError({
       statusCode: 500,

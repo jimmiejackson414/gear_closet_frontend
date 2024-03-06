@@ -6,7 +6,7 @@
   import { Modal, type InstanceOptions, type ModalInterface, type ModalOptions } from 'flowbite';
   import type { SelectOption } from '@/types/helpers';
 
-  definePageMeta({ layout: 'public-layout' });
+  definePageMeta({ layout: 'page-layout' });
 
   // global
   const step = ref(1);

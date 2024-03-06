@@ -1,4 +1,6 @@
 <script lang='ts' setup>
+  import type { Profile } from '@/types';
+
   interface Props {
     alignLogo?: 'start' | 'center' | 'end';
     minimal?: boolean;
@@ -12,9 +14,22 @@
   });
 
   const $route = useRoute();
-  const $store = useAppStore();
+  const $router = useRouter();
+  const $store = useUserStore();
+  const $appStore = useAppStore();
 
-  const { loading } = storeToRefs($store);
+  const { loading } = storeToRefs($appStore);
+  const { profile } = storeToRefs($store);
+
+  const { data, error } = await useFetch<Profile | null>('/api/profile', {
+    headers: useRequestHeaders(['cookie']),
+  });
+
+  profile.value = data.value as any;
+
+  if (!error.value && data.value && !data.value.onboard_date) {
+    $router.push('/onboarding');
+  }
 </script>
 
 <template>
