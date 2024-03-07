@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import vueFilePond, { type VueFilePondComponent } from 'vue-filepond'; 
+  import vueFilePond, { type VueFilePondComponent } from 'vue-filepond';
   import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
   import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
   import FilePondPluginFileEncode from 'filepond-plugin-file-encode';

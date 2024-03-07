@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { getStripe } from '@/lib/stripe';
 import { SubscriptionLevel, type Database } from '@/types';
 
 type State = {

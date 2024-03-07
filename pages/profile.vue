@@ -65,7 +65,7 @@
         const { success } = await $store.deleteAvatar();
         if (!success) $appStore.notifyNegative('An error occurred while deleting your avatar.');
       }
-      
+
       // update the user's profile
       const { data, error } = await supabase.from('profiles')
         .update({
@@ -145,7 +145,7 @@
     console.log('Manage subscription');
   };
 
-  /* 
+  /*
   * Instantiates the tabs component.
   */
   const activeTab = ref('profile'); // profile, settings, subscription

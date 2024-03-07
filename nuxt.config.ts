@@ -78,6 +78,7 @@ export default defineNuxtConfig({
     '@nuxtjs/tailwindcss',
     '@vueuse/nuxt',
     'nuxt-headlessui',
+    '@fixers/nuxt-stripe',
   ],
 
   optimizeDeps: {
@@ -98,6 +99,8 @@ export default defineNuxtConfig({
     sendgridApiKey: process.env.NUXT_SENDGRID_API_KEY,
     forumsApiKey: process.env.NUXT_PUBLIC_FORUMS_API_KEY,
     forumsApiUsername: process.env.NUXT_PUBLIC_FORUMS_API_USERNAME,
+    stripeWebhookSecret: process.env.NUXT_STRIPE_WEBHOOK_SECRET,
+    stripeSecret: process.env.NUXT_STRIPE_SECRET,
 
     public: {
       cloudinaryCloudName: process.env.NUXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -107,7 +110,12 @@ export default defineNuxtConfig({
       supabaseKey: process.env.SUPABASE_KEY,
       forumsUrl: process.env.NUXT_PUBLIC_FORUMS_URL,
       cookieKey: process.env.NUXT_COOKIE_KEY,
+      stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
     },
+  },
+
+  stripe: {
+    publishableKey: process.env.NUXT_STRIPE_PUBLISHABLE_KEY,
   },
 
   supabase: {
