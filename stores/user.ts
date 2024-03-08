@@ -1,17 +1,14 @@
 import { defineStore } from 'pinia';
 import { useAppStore } from '@/stores/app';
-import type {
-  Database,
-  Profile,
-  Notification,
-} from '@/types';
+import { SubscriptionLevel, type Database, type Notification } from '@/types';
+import type { ProfileApiResponse } from '@/types/helpers';
 
 type State = {
-  profile: Profile | null;
-  notifications: Notification[];
+  profile: ProfileApiResponse | null;
 };
 
 type Getters = {
+  hasForumAccess(): boolean;
   unreadNotifications(): Notification[];
 };
 
@@ -30,13 +27,15 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
     state () {
       return {
         profile: null,
-        notifications: [],
       };
     },
 
     getters: {
+      hasForumAccess () {
+        return this.profile?.subscriptions[0].prices.identifier === SubscriptionLevel.ANNUAL || this.profile?.subscriptions[0].prices.identifier === SubscriptionLevel.MONTHLY || this.profile?.subscriptions[0].prices.identifier === SubscriptionLevel.LIFE;
+      },
       unreadNotifications () {
-        return this.notifications.filter(n => !n.read_on_date);
+        return this.profile!.notifications.filter(n => !n.read_on_date);
       },
     },
 
@@ -67,14 +66,14 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
           if (!data || error) {
             this.profile = null;
-            this.notifications = [];
+            this.profile!.notifications = [];
             $store.loading = false;
             $store.notifyNegative('An error occurred while loading your account.');
             return;
           }
 
           this.profile = data as any;
-          this.notifications = (data).notifications;
+          this.profile!.notifications = (data).notifications;
           $store.loading = false;
         } catch (err) {
           console.error({ err });
@@ -92,8 +91,8 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           .single();
 
         if (data) {
-          const i = this.notifications.findIndex(n => n.id === id);
-          this.notifications[i] = data;
+          const i = this.profile!.notifications.findIndex(n => n.id === id);
+          this.profile!.notifications[i] = data;
         }
       },
 
@@ -130,7 +129,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         }
 
         if (data) {
-          this.notifications = data;
+          this.profile!.notifications = data;
         }
       },
 

@@ -9,11 +9,9 @@
 
   const $store = useUserStore();
   const $appStore = useAppStore();
-  const $subscriptionStore = useSubscriptionStore();
 
   const { loading } = storeToRefs($appStore);
   const { profile } = storeToRefs($store);
-  const { subscription, loading: fetching } = storeToRefs($subscriptionStore);
   const submitting = ref(false);
 
   /**
@@ -193,12 +191,15 @@
     return undefined;
   });
 
-  // fetch the subscription if the active tab is the subscription tab
-  watch(activeTab, (newTab) => {
-    if (newTab === 'subscription') {
-      $subscriptionStore.fetchSubscription();
-    }
-  });
+  /**
+   * Deletes a user's account.
+   */
+  const deleteAccountModalOpen = ref(false);
+  const acceptsDeleteAccount = ref(false);
+  const deleteAccount = () => {
+    console.log(`TODO: delete account`);
+    deleteAccountModalOpen.value = false;
+  };
 
   useHead({
     title: 'Profile | Gear Closet',
@@ -229,7 +230,7 @@
           <p class="mb-4 text-lg">
             {{ friendlyUsername((profile as any), { includeTrailName: false }) }}
           </p>
-          <gc-subscription-pill :subscription="(profile!.subscription_level as SubscriptionLevel)" />
+          <gc-subscription-pill :subscription="(profile!.subscriptions[0].prices.identifier as SubscriptionLevel)" />
         </div>
         <div class="border-b border-gray-200">
           <ul
@@ -253,19 +254,6 @@
               class="me-2"
               role="presentation">
               <button
-                id="settings-tab"
-                aria-controls="group"
-                aria-selected="false"
-                class="border-b-2 hover:border-gray-300 border-transparent inline-block p-4 rounded-t-lg hover:text-gray-600"
-                role="tab"
-                type="button">
-                Settings
-              </button>
-            </li>
-            <li
-              class="me-2"
-              role="presentation">
-              <button
                 id="subscription-tab"
                 aria-controls="group"
                 aria-selected="false"
@@ -273,6 +261,19 @@
                 role="tab"
                 type="button">
                 Subscription
+              </button>
+            </li>
+            <li
+              class="me-2"
+              role="presentation">
+              <button
+                id="settings-tab"
+                aria-controls="group"
+                aria-selected="false"
+                class="border-b-2 hover:border-gray-300 border-transparent inline-block p-4 rounded-t-lg hover:text-gray-600"
+                role="tab"
+                type="button">
+                Settings
               </button>
             </li>
           </ul>
@@ -327,48 +328,12 @@
           </div>
 
           <div
-            id="settings"
-            aria-labelledby="settings-tab"
-            class="bg-gray-50 hidden p-4 rounded-lg"
-            role="tabpanel">
-            <div class="auto-rows-auto grid grid-cols-1 gap-6">
-              <gc-input
-                v-model="newPassword"
-                autocomplete="current-password"
-                class="w-full"
-                :disabled="submitting"
-                label="New Password"
-                name="password"
-                password-toggle
-                placeholder="Password"
-                required
-                type="password" />
-              <gc-input
-                v-model="newPasswordConfirm"
-                autocomplete="confirm-password"
-                class="w-full"
-                :disabled="submitting"
-                label="Confirm New Password"
-                name="passwordConfirm"
-                password-toggle
-                placeholder="Confirm password"
-                required
-                type="password" />
-              <gc-button
-                class="justify-self-end"
-                :disabled="isSettingsDisabled"
-                label="Update"
-                @click="updatePassword" />
-            </div>
-          </div>
-
-          <div
             id="subscription"
             aria-labelledby="subscription-tab"
             class="bg-gray-50 hidden p-4 rounded-lg"
             role="tabpanel">
             <div
-              v-if="fetching"
+              v-if="loading"
               class="flex justify-center">
               <gc-spinner variant="primary" />
             </div>
@@ -440,8 +405,83 @@
               </div>
             </div>
           </div>
+
+          <div
+            id="settings"
+            aria-labelledby="settings-tab"
+            class="bg-gray-50 hidden p-4 rounded-lg"
+            role="tabpanel">
+            <div class="auto-rows-auto grid grid-cols-1 gap-6">
+              <gc-input
+                v-model="newPassword"
+                autocomplete="current-password"
+                class="w-full"
+                :disabled="submitting"
+                label="New Password"
+                name="password"
+                password-toggle
+                placeholder="Password"
+                required
+                type="password" />
+              <gc-input
+                v-model="newPasswordConfirm"
+                autocomplete="confirm-password"
+                class="w-full"
+                :disabled="submitting"
+                label="Confirm New Password"
+                name="passwordConfirm"
+                password-toggle
+                placeholder="Confirm password"
+                required
+                type="password" />
+              <div class="flex justify-between items-center">
+                <gc-button
+                  label="Delete Account"
+                  variant="danger"
+                  @click="deleteAccountModalOpen = true" />
+                <gc-button
+                  :disabled="isSettingsDisabled"
+                  label="Update"
+                  @click="updatePassword" />
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
+
+    <gc-modal
+      :is-open="deleteAccountModalOpen"
+      size="sm"
+      title="Delete Account"
+      @handle-cancel="deleteAccountModalOpen = false">
+      <template #content>
+        <p class="font-bold text-danger">
+          Are you sure you want to delete your account?
+        </p>
+        <p class="text-base">
+          This action cannot be undone, and you will no longer have access to your account, data, or the Gear Closet Forums.
+        </p>
+        <gc-checkbox
+          id="accepts-delete-account"
+          v-model="acceptsDeleteAccount"
+          class="mt-4"
+          label="I understand the consequences of deleting my account."
+          required
+          variant="danger" />
+        <div class="flex justify-between pt-8">
+          <gc-button
+            ghost
+            label="Cancel"
+            variant="secondary"
+            @click="deleteAccountModalOpen = false" />
+          <gc-button
+            :disabled="!acceptsDeleteAccount"
+            label="Delete Account"
+            variant="danger"
+            @click="deleteAccount" />
+        </div>
+      </template>
+    </gc-modal>
   </div>
 </template>

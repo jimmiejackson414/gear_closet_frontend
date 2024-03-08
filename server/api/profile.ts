@@ -1,5 +1,5 @@
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
-import type { Profile } from '~/types';
+import type { ProfileApiResponse } from '~/types/helpers';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -23,9 +23,11 @@ export default defineEventHandler(async (event) => {
       .select(`
         *,
         onboarding_steps(*),
-        notifications!notifications_profile_id_fkey(*, sender:sender_id(*))
+        notifications!notifications_profile_id_fkey(*, sender:sender_id(*)),
+        subscriptions!subscriptions_profile_id_fkey(*, prices!subscriptions_price_id_fkey(*))
       `)
       .eq('id', user!.id)
+      .returns<ProfileApiResponse>()
       .maybeSingle();
 
       clearTimeout(timeout);
@@ -37,7 +39,7 @@ export default defineEventHandler(async (event) => {
         });
       }
 
-      return data as Profile;
+      return data;
   } catch (err) {
     throw createError({
       statusCode: 500,

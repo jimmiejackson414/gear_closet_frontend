@@ -1,4 +1,3 @@
-import { SubscriptionLevel, type Profile } from '@/types';
 import { DoorOpen,  Home, ListTodo, MessagesSquare, Users, UserCircle2 } from 'lucide-vue-next';
 import type { Icon } from 'lucide-vue-next';
 
@@ -11,13 +10,11 @@ export type LinkItem = {
   external: boolean;
 }
 
-export const drawerLinks = (profile: Profile | null) => {
+export const drawerLinks = () => {
   const config = useRuntimeConfig();
 
-  const hasForumAccess = computed(() => {
-    if (!profile) return false;
-    return profile?.subscription_level === SubscriptionLevel.ANNUAL || profile?.subscription_level === SubscriptionLevel.MONTHLY || profile?.subscription_level === SubscriptionLevel.LIFE;
-  });
+  const $store = useUserStore();
+  const { hasForumAccess } = storeToRefs($store);
 
   return [
     {

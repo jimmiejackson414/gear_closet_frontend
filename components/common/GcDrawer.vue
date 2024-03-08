@@ -33,7 +33,7 @@
         </span>
       </li>
       <li
-        v-for="link in drawerLinks(profile as Profile)"
+        v-for="link in drawerLinks()"
         :key="link.to"
         :class="link.disabled ? 'cursor-not-allowed' : 'cursor-pointer'">
         <template v-if="link.external">

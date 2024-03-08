@@ -32,7 +32,7 @@
   });
 
   // const emit = defineEmits(['click']);
-  
+
   const classList = computed(() => {
     let classes = ['btn'];
 
@@ -103,6 +103,6 @@
       class="text-white" />
     <span v-else>
       {{ label }}
-    </span> 
+    </span>
   </button>
 </template>

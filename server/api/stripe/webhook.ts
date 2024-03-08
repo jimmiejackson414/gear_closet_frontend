@@ -1,15 +1,21 @@
 import { defineStripeWebhook } from '#stripe';
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
-import { Database, InsertSubscription, SubscriptionStatus } from '@/types';
+import { serverSupabaseClient } from '#supabase/server';
+import { type Database, SubscriptionStatus, SubscriptionLevel } from '@/types';
+
+const throwError = (msg?: string) => {
+  throw createError({
+    statusCode: 500,
+    statusMessage: msg || 'A Stripe error occurred.',
+  });
+};
 
 /**
  * @param event - the H3 event
  * @param stipe - the Stripe instance
  * @param stripeEvent - the Stripe Webhook event
  */
-export default defineStripeWebhook(async ({ event, stripe, stripeEvent }) => {
+export default defineStripeWebhook(async ({ event, stripeEvent }) => {
   const supabase = await serverSupabaseClient<Database>(event);
-  const user = await serverSupabaseUser(event);
 
   switch (stripeEvent.type) {
     /**
@@ -17,11 +23,23 @@ export default defineStripeWebhook(async ({ event, stripe, stripeEvent }) => {
     * @see {@link https://docs.stripe.com/api/events/types#event_types-customer.created}
     */
     case 'customer.created': {
-      console.log('***** STRIPE EVENT: customer.created *****');
+      try {
+        const customer = stripeEvent.data.object;
+        console.log('***** STRIPE EVENT: customer.created *****', customer);
 
-      const customer = stripeEvent.data.object;
-      console.log('Customer created:', customer);
-      // Insert the customer into your 'customers' table
+        const { data, error } = await supabase
+          .from('customers')
+          .insert({
+            stripe_customer_id: customer.id,
+            profile_id: customer.metadata.profile_id,
+          })
+          .select();
+          console.log({ data, error });
+
+        if (error || !data) throw throwError('An error occurred while creating a customer');
+      } catch (err) {
+        throw throwError('A catch error occurred while creating a customer');
+      }
       break;
     }
 
@@ -30,24 +48,24 @@ export default defineStripeWebhook(async ({ event, stripe, stripeEvent }) => {
     * @see {@link https://docs.stripe.com/api/events/types#event_types-customer.deleted}
     */
     case 'customer.deleted': {
-      console.log('***** STRIPE EVENT: customer.deleted *****');
+      try {
+        const customer = stripeEvent.data.object;
+        console.log('***** STRIPE EVENT: customer.deleted *****', customer);
 
-      const customer = stripeEvent.data.object;
-      console.log('Customer deleted:', customer);
-      // Delete the customer from your 'customers' table
-      break;
-    }
+        const { data, error } = await supabase
+          .from('customers')
+          .update({
+            deleted_at: new Date()
+              .toISOString(),
+          })
+          .match({ stripe_customer_id: customer.id, profile_id: customer.metadata.profil_id })
+          .select();
+        console.log({ data, error });
 
-    /**
-    * Occurs whenever any property of a customer changes.
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-customer.updated}
-    */
-    case 'customer.updated': {
-      console.log('***** STRIPE EVENT: customer.updated *****');
-
-      const customer = stripeEvent.data.object;
-      console.log('Customer updated:', customer);
-      // Update the customer in your 'customers' table
+        if (error || !data) throw throwError('An error occurred while deleting a customer');
+      } catch (err) {
+        throw throwError('A catch error occurred while deleting a customer');
+      }
       break;
     }
 
@@ -57,42 +75,31 @@ export default defineStripeWebhook(async ({ event, stripe, stripeEvent }) => {
     */
     case 'customer.subscription.created': {
       try {
-      console.log('***** STRIPE EVENT: customer.subscription.created *****');
+        const subscription = stripeEvent.data.object;
+        console.log('***** STRIPE EVENT: customer.subscription.created *****');
 
-      const subscription = stripeEvent.data.object;
-      console.log('Customer subscription created:', subscription);
+        const { data, error } = await supabase
+          .from('subscriptions')
+          .insert({
+            profile_id: subscription.metadata.profile_id,
+            stripe_subscription_id: subscription.id,
+            status: subscription.status as SubscriptionStatus,
+            metadata: subscription.metadata,
+            price_id: subscription.items.data[0].price.id,
+            quantity: subscription.items.data[0].quantity,
+            cancel_at_period_end: subscription.cancel_at_period_end,
+            current_period_start: new Date(subscription.current_period_start * 1000)
+              .toISOString(),
+            current_period_end: new Date(subscription.current_period_end * 1000)
+              .toISOString(),
+            cancel_at: subscription.cancel_at ? new Date(subscription.cancel_at * 1000)
+              .toISOString() : null,
+          })
+          .select();
 
-      const payload: InsertSubscription = {
-        profile_id: user!.id as string,
-        stripe_subscription_id: subscription.id,
-        status: subscription.status as SubscriptionStatus,
-        metadata: subscription.metadata,
-        price_id: subscription.items.data[0].price.id,
-        quantity: subscription.items.data[0].quantity,
-        cancel_at_period_end: subscription.cancel_at_period_end,
-        current_period_start: new Date(subscription.current_period_start * 1000)
-          .toISOString(),
-        current_period_end: new Date(subscription.current_period_end * 1000)
-          .toISOString(),
-        cancel_at: subscription.cancel_at ? new Date(subscription.cancel_at * 1000)
-          .toISOString() : null,
-      };
-      const { data, error } = await supabase
-        .from('subscriptions')
-        .insert(payload)
-        .select();
-
-        if (error || !data) {
-          throw createError({
-            statusCode: 400,
-            statusMessage: 'An error occurred while inserting subscription',
-          });
-        }
+        if (error || !data) throw throwError('An error occurred while inserting subscription');
       } catch (error) {
-        throw createError({
-          statusCode: 400,
-          statusMessage: 'An error occurred while inserting subscription',
-        });
+        throw throwError('A catch error occurred while inserting subscription');
       }
 
       break;
@@ -103,11 +110,32 @@ export default defineStripeWebhook(async ({ event, stripe, stripeEvent }) => {
     * @see {@link https://docs.stripe.com/api/events/types#event_types-customer.subscription.updated}
     */
     case 'customer.subscription.updated': {
-      console.log('***** STRIPE EVENT: customer.subscription.updated *****');
+      try {
+        const subscription = stripeEvent.data.object;
+        console.log('***** STRIPE EVENT: customer.subscription.updated *****');
 
-      const subscription = stripeEvent.data.object;
-      console.log('Customer subscription updated:', subscription);
-      // Update the subscription in your 'subscriptions' table
+        const { data, error } = await supabase
+          .from('subscriptions')
+          .update({
+            status: subscription.status as SubscriptionStatus,
+            metadata: subscription.metadata,
+            price_id: subscription.items.data[0].price.id,
+            quantity: subscription.items.data[0].quantity,
+            cancel_at_period_end: subscription.cancel_at_period_end,
+            current_period_start: new Date(subscription.current_period_start * 1000)
+              .toISOString(),
+            current_period_end: new Date(subscription.current_period_end * 1000)
+              .toISOString(),
+            cancel_at: subscription.cancel_at ? new Date(subscription.cancel_at * 1000)
+              .toISOString() : null,
+          })
+          .match({ stripe_subscription_id: subscription.id, profile_id: subscription.metadata.profile_id })
+          .select();
+
+        if (error || !data) throw throwError('An error occurred while updating subscription');
+      } catch (err) {
+        throw throwError('A catch error occurred while updating subscription');
+      }
       break;
     }
 
@@ -116,50 +144,25 @@ export default defineStripeWebhook(async ({ event, stripe, stripeEvent }) => {
     * @see {@link https://docs.stripe.com/api/events/types#event_types-customer.subscription.deleted}
     */
     case 'customer.subscription.deleted': {
-      console.log('***** STRIPE EVENT: customer.subscription.deleted *****');
+      try {
+        const subscription = stripeEvent.data.object;
+        console.log('***** STRIPE EVENT: customer.subscription.deleted *****', subscription);
 
-      const subscription = stripeEvent.data.object;
-      console.log('Customer subscription deleted:', subscription);
-      // Delete the subscription from your 'subscriptions' table
-      break;
-    }
+        const { data, error } = await supabase
+          .from('subscriptions')
+          .update({
+            status: subscription.status as SubscriptionStatus,
+            canceled_at: new Date()
+              .toISOString(),
+          })
+          .match({ stripe_subscription_id: subscription.id, profile_id: subscription.metadata.profile_id })
+          .select();
+        console.log({ data, error });
 
-    /**
-    * Occurs whenever an invoice payment attempt succeeds.
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-invoice.payment_succeeded}
-    */
-    case 'invoice.payment_succeeded': {
-      console.log('***** STRIPE EVENT: invoice.payment_succeeded *****');
-
-      const invoice = stripeEvent.data.object;
-      console.log('Invoice payment succeeded:', invoice);
-      // Add the invoice to the customer's payment history
-      break;
-    }
-
-    /**
-    * Occurs whenever an invoice payment attempt fails, due either to a declined payment or to the lack of a stored payment method.
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-invoice.payment_failed}
-    */
-    case 'invoice.payment_failed': {
-      console.log('***** STRIPE EVENT: invoice.payment_failed *****');
-
-      const invoice = stripeEvent.data.object;
-      console.log('Invoice payment failed:', invoice);
-      // Notify the customer that their payment failed
-      break;
-    }
-
-    /**
-    * Occurs whenever a new payment method is attached to a customer.
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-payment_method.attached}
-    */
-    case 'payment_method.attached': {
-      console.log('***** STRIPE EVENT: payment_method.attached *****');
-
-      const paymentMethod = stripeEvent.data.object;
-      console.log('PaymentMethod was attached to a Customer:', paymentMethod);
-      // Attach the PaymentMethod to a Customer
+        if (error || !data) throw throwError('An error occurred while deleting subscription');
+      } catch (err) {
+        throw throwError('A catch error occurred while deleting subscription');
+      }
       break;
     }
 
@@ -168,11 +171,28 @@ export default defineStripeWebhook(async ({ event, stripe, stripeEvent }) => {
     * @see {@link https://docs.stripe.com/api/events/types#event_types-product.created}
     */
     case 'product.created': {
-      console.log('***** STRIPE EVENT: product.created *****');
+      try {
+        const product = stripeEvent.data.object;
+        console.log('***** STRIPE EVENT: product.created *****', product);
 
-      const product = stripeEvent.data.object;
-      console.log('Product created:', product);
-      // Insert the new product into your database
+        const { data, error } = await supabase
+          .from('products')
+          .insert({
+            id: product.id,
+            active: product.active,
+            name: product.name.toUpperCase() as SubscriptionLevel,
+            description: product.description,
+            image: product.images[0],
+            metadata: product.metadata,
+            environment: product.livemode ? 'production' : 'test',
+          })
+          .select();
+        console.log({ data, error });
+
+        if (error || !data) throw throwError('An error occurred while inserting product');
+      } catch (err) {
+        throw throwError('A catch error occurred while inserting product');
+      }
       break;
     }
 
@@ -181,11 +201,28 @@ export default defineStripeWebhook(async ({ event, stripe, stripeEvent }) => {
     * @see {@link https://docs.stripe.com/api/events/types#event_types-product.updated}
     */
     case 'product.updated': {
-      console.log('***** STRIPE EVENT: product.updated *****');
+      try {
+        const product = stripeEvent.data.object;
+        console.log('***** STRIPE EVENT: product.updated *****', product);
 
-      const product = stripeEvent.data.object;
-      console.log('Product updated:', product);
-      // Update the product in your database
+        const { data, error } = await supabase
+          .from('products')
+          .update({
+            active: product.active,
+            name: product.name.toUpperCase() as SubscriptionLevel,
+            description: product.description,
+            image: product.images[0],
+            metadata: product.metadata,
+            environment: product.livemode ? 'production' : 'test',
+          })
+          .match({ id: product.id })
+          .select();
+        console.log({ data, error });
+
+        if (error || !data) throw throwError('An error occurred while updating product');
+      } catch (err) {
+        throw throwError('A catch error occurred while updating product');
+      }
       break;
     }
 
@@ -194,11 +231,20 @@ export default defineStripeWebhook(async ({ event, stripe, stripeEvent }) => {
     * @see {@link https://docs.stripe.com/api/events/types#event_types-product.deleted}
     */
     case 'product.deleted': {
-      console.log('***** STRIPE EVENT: product.deleted *****');
+      try {
+        const product = stripeEvent.data.object;
+        console.log('***** STRIPE EVENT: product.deleted *****', product);
 
-      const product = stripeEvent.data.object;
-      console.log('Product deleted:', product);
-      // Delete the product in your database
+        const { error } = await supabase
+          .from('products')
+          .delete()
+          .match({ id: product.id });
+        console.log({ error });
+
+        if (error) throw throwError('An error occurred while deleting product');
+      } catch (err) {
+        throw throwError('A catch error occurred while deleting product');
+      }
       break;
     }
 
@@ -207,11 +253,32 @@ export default defineStripeWebhook(async ({ event, stripe, stripeEvent }) => {
     * @see {@link https://docs.stripe.com/api/events/types#event_types-price.created}
     */
     case 'price.created': {
-      console.log('***** STRIPE EVENT: price.created *****');
+      try {
+        const price = stripeEvent.data.object;
+        console.log('***** STRIPE EVENT: price.created *****', price);
 
-      const price = stripeEvent.data.object;
-      console.log('Price created:', price);
-      // Insert the new price into your database
+        const { data, error } = await supabase
+          .from('prices')
+          .insert({
+            id: price.id,
+            product_id: price.product as string,
+            active: price.active,
+            description: price.nickname,
+            unit_amount: price.unit_amount,
+            currency: price.currency,
+            type: price.type,
+            interval: price.recurring?.interval,
+            interval_count: price.recurring?.interval_count,
+            metadata: price.metadata,
+            environment: price.livemode ? 'production' : 'test',
+          })
+          .select();
+        console.log({ data, error });
+
+        if (error || !data) throw throwError('An error occurred while inserting price');
+      } catch (err) {
+        throw throwError('A catch error occurred while inserting price');
+      }
       break;
     }
 
@@ -220,11 +287,31 @@ export default defineStripeWebhook(async ({ event, stripe, stripeEvent }) => {
     * @see {@link https://docs.stripe.com/api/events/types#event_types-price.updated}
     */
     case 'price.updated': {
-      console.log('***** STRIPE EVENT: price.updated *****');
+      try {
+        const price = stripeEvent.data.object;
+        console.log('***** STRIPE EVENT: price.updated *****', price);
 
-      const price = stripeEvent.data.object;
-      console.log('Price updated:', price);
-      // Update the price in your database
+        const { data, error } = await supabase
+          .from('prices')
+          .update({
+            product_id: price.product as string,
+            active: price.active,
+            description: price.nickname,
+            unit_amount: price.unit_amount,
+            currency: price.currency,
+            type: price.type,
+            interval: price.recurring?.interval,
+            interval_count: price.recurring?.interval_count,
+            metadata: price.metadata,
+            environment: price.livemode ? 'production' : 'test',
+          })
+          .match({ id: price.id })
+          .select();
+
+        if (error || !data) throw throwError('An error occurred while updating price');
+      } catch (err) {
+        throw throwError('A catch error occurred while updating price');
+      }
       break;
     }
 
@@ -233,11 +320,20 @@ export default defineStripeWebhook(async ({ event, stripe, stripeEvent }) => {
     * @see {@link https://docs.stripe.com/api/events/types#event_types-price.deleted}
     */
     case 'price.deleted': {
-      console.log('***** STRIPE EVENT: price.deleted *****');
+      try {
+        const price = stripeEvent.data.object;
+        console.log('***** STRIPE EVENT: price.deleted *****', price);
 
-      const price = stripeEvent.data.object;
-      console.log('Price deleted:', price);
-      // Delete the price in your database
+        const { error } = await supabase
+          .from('prices')
+          .delete()
+          .match({ id: price.id });
+        console.log({ error });
+
+        if (error) throw throwError('An error occurred while deleting price');
+      } catch (err) {
+        throw throwError('A catch error occurred while deleting price');
+      }
       break;
     }
 

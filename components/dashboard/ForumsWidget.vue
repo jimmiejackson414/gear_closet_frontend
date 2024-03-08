@@ -1,7 +1,6 @@
 <script lang='ts' setup>
   import { MessagesSquareIcon } from 'lucide-vue-next';
   import type { ForumCategory, ForumPost } from '@/types/helpers';
-  import { SubscriptionLevel } from '@/types';
   import { LockIcon } from 'lucide-vue-next';
 
   interface Props {
@@ -21,9 +20,7 @@
   });
 
   const $store = useUserStore();
-  const hasForumAccess = computed(() => {
-    return $store.profile?.subscription_level === SubscriptionLevel.ANNUAL || $store.profile?.subscription_level === SubscriptionLevel.MONTHLY || $store.profile?.subscription_level === SubscriptionLevel.LIFE;
-  });
+  const { hasForumAccess } = storeToRefs($store);
 </script>
 
 <template>
@@ -41,7 +38,7 @@
     <gc-skeleton
       v-if="loading"
       avatar
-      :lines="3" /> 
+      :lines="3" />
     <div v-else>
       <div
         v-if="data.latest_posts.length"
