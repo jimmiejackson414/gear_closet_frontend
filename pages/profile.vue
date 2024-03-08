@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  import type { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
   import dayjs from 'dayjs';
   import utc from 'dayjs/plugin/utc';
   import { Tabs } from 'flowbite';
@@ -122,8 +123,71 @@
   /**
    * Updates a user's billing method.
    */
-  const updateBillingMethod = () => {
-    console.log('Update billing method');
+  const { createClient: createStripeClient } = useStripe();
+  const isUpdatePaymentModalOpen = ref(false);
+  const acceptsUpdatePayment = ref(false);
+  const cardElementRef = ref<HTMLElement | null>(null);
+  const cardValid = ref(false);
+  let stripe: Stripe | null = null;
+  let elements: StripeElements | null = null;
+  let cardElement: StripeCardElement | null = null;
+
+  const updatePaymentMethod = async () => {
+    if (!cardValid.value) {
+      $appStore.notifyNegative('Please enter a valid card.');
+      return;
+    }
+
+    if (stripe && cardElement) {
+      try {
+        const { error, paymentMethod } = await stripe.createPaymentMethod({
+          type: 'card',
+          card: cardElement,
+        });
+
+        if (error) {
+          $appStore.notifyNegative('An error occurred while updating your payment method.');
+        } else {
+          console.log(`paymentMethod`, paymentMethod);
+        }
+      } catch (err) {
+        $appStore.notifyNegative('An error occurred while updating your payment method.');
+      }
+    }
+  };
+
+  const setupCardElement = async () => {
+    stripe = await createStripeClient();
+    if (stripe) {
+      elements = stripe.elements();
+      if (elements && cardElementRef.value) {
+        cardElement = elements.create('card', {
+          classes: {
+            base: 'h-12 py-3.5 px-4 rounded-lg w-full border border-gray-300 focus:border-primary',
+            invalid: 'border-red-500',
+          },
+          style: {
+            base: {
+              color: '#32325d', // Text color
+              fontFamily: '"Lato", Helvetica, sans-serif', // Font family
+              fontSmoothing: 'antialiased', // Font smoothing
+              fontSize: '16px', // Font size
+              '::placeholder': {
+                color: '#aab7c4', // Placeholder text color
+              },
+            },
+            invalid: {
+              color: '#fa755a', // Text color when the element's input is invalid
+              iconColor: '#fa755a', // Icon color when the element's input is invalid
+            },
+          },
+        });
+        cardElement.on('change', (event) => {
+          cardValid.value = !event.error;
+        });
+        cardElement.mount(cardElementRef.value);
+      }
+    }
   };
 
   /**
@@ -380,7 +444,7 @@
                   label="Update billing method"
                   outlined
                   size="sm"
-                  @click="updateBillingMethod" />
+                  @click="isUpdatePaymentModalOpen = true" />
               </div>
               <div>
                 <p class="font-bold text-sm">
@@ -485,6 +549,35 @@
       </div>
     </div>
 
+    <!-- Update Payment Method Modal -->
+    <gc-modal
+      :is-open="isUpdatePaymentModalOpen"
+      title="Update Payment Method"
+      @handle-cancel="isUpdatePaymentModalOpen = false"
+      @open="setupCardElement">
+      <template #content>
+        <div ref="cardElementRef" />
+        <p>By updating your payment method, all future subscription invoices will be paid using this card.</p>
+        <gc-checkbox
+          id="accepts-update-payment"
+          v-model="acceptsUpdatePayment"
+          label="I acknowledge this card will be used for future invoices."
+          required />
+        <div class="flex justify-between pt-8">
+          <gc-button
+            ghost
+            label="Cancel"
+            variant="secondary"
+            @click="isUpdatePaymentModalOpen = false" />
+          <gc-button
+            :disabled="!acceptsUpdatePayment"
+            label="Update Payment Method"
+            @click="updatePaymentMethod" />
+        </div>
+      </template>
+    </gc-modal>
+
+    <!-- Delete Account modal -->
     <gc-modal
       :is-open="deleteAccountModalOpen"
       size="sm"

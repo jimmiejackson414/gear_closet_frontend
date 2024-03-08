@@ -9,7 +9,7 @@
     isOpen: boolean;
   }
 
-  withDefaults(defineProps<Props>(), {
+  const props = withDefaults(defineProps<Props>(), {
     closeable: true,
     id: 'static-modal',
     title: '',
@@ -17,10 +17,15 @@
     isOpen: false,
   });
 
-  const emit = defineEmits(['handleCancel']);
+  const emit = defineEmits(['handleCancel', 'open']);
 
   const modalRef = ref(null);
   onClickOutside(modalRef, () => emit('handleCancel'));
+
+  // watch for when isOpen is true and emit the open event
+  watch(() => props.isOpen, (isOpen) => {
+    if (isOpen) { emit('open'); }
+  });
 </script>
 
 <template>
