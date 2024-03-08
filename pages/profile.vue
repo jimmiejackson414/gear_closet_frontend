@@ -3,7 +3,7 @@
   import { ChevronDownIcon } from 'lucide-vue-next';
   import { SubscriptionLevel, type Database, MeasuringSystem } from '@/types';
   import type { InstanceOptions, TabsOptions, TabItem } from 'flowbite';
-  import type { SelectOption } from '@/types/helpers';
+  import type { SelectOption, SubscriptionApiResponse } from '@/types/helpers';
 
   definePageMeta({ layout: 'page-layout' });
 
@@ -192,6 +192,33 @@
   });
 
   /**
+   * Fetch subscription information
+   */
+  const fetchingSubscriptionData = ref(false);
+  const subscriptionData = ref<SubscriptionApiResponse>();
+  const fetchSubscriptionData = async () => {
+    fetchingSubscriptionData.value = true;
+    try {
+      const response = await $fetch('/api/stripe/subscription');
+      if (!response) {
+        $appStore.notifyNegative('An error occurred while fetching your subscription data.');
+        return;
+      }
+      subscriptionData.value = response;
+    } catch (err) {
+      $appStore.notifyNegative('An error occurred while fetching your subscription data.');
+    } finally {
+      fetchingSubscriptionData.value = false;
+    }
+  };
+
+  watch(activeTab, (newTab) => {
+    if (newTab === 'subscription') {
+      fetchSubscriptionData();
+    }
+  });
+
+  /**
    * Deletes a user's account.
    */
   const deleteAccountModalOpen = ref(false);
@@ -279,6 +306,7 @@
           </ul>
         </div>
         <div id="default-tab-content">
+          <!-- Profile Tab Content -->
           <div
             id="profile"
             aria-labelledby="profile-tab"
@@ -327,13 +355,14 @@
             </div>
           </div>
 
+          <!-- Subscription Tab Content -->
           <div
             id="subscription"
             aria-labelledby="subscription-tab"
             class="bg-gray-50 hidden p-4 rounded-lg"
             role="tabpanel">
             <div
-              v-if="loading"
+              v-if="fetchingSubscriptionData"
               class="flex justify-center">
               <gc-spinner variant="primary" />
             </div>
@@ -406,6 +435,7 @@
             </div>
           </div>
 
+          <!-- Settings Tab Content -->
           <div
             id="settings"
             aria-labelledby="settings-tab"
