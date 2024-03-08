@@ -1,9 +1,13 @@
 <script lang='ts' setup>
+  import dayjs from 'dayjs';
+  import utc from 'dayjs/plugin/utc';
   import { Tabs } from 'flowbite';
-  import { ChevronDownIcon } from 'lucide-vue-next';
+  import { ChevronDownIcon, DownloadIcon } from 'lucide-vue-next';
   import { SubscriptionLevel, type Database, MeasuringSystem } from '@/types';
   import type { InstanceOptions, TabsOptions, TabItem } from 'flowbite';
   import type { SelectOption, SubscriptionApiResponse } from '@/types/helpers';
+
+  dayjs.extend(utc);
 
   definePageMeta({ layout: 'page-layout' });
 
@@ -52,7 +56,6 @@
   const updateProfile = async () => {
     try {
       submitting.value = true;
-      const supabase = useSupabaseClient<Database>();
 
       // upload the new avatar
       if (newAvatarFile.value) {
@@ -64,25 +67,12 @@
         if (!success) $appStore.notifyNegative('An error occurred while deleting your avatar.');
       }
 
-      // update the user's profile
-      const { data, error } = await supabase.from('profiles')
-        .update({
-          first_name: profileForm.firstName,
-          last_name: profileForm.lastName,
-          trail_name: profileForm.trailName,
-          measuring_system: profileForm.measuringSystem,
-        })
-        .eq('id', profile.value!.id)
-        .select();
-
-      if (error) { $appStore.notifyNegative('An error occurred while updating your profile.'); }
-      else {
-        profile.value!.first_name = data[0].first_name;
-        profile.value!.last_name = data[0].last_name;
-        profile.value!.trail_name = data[0].trail_name;
-        profile.value!.measuring_system = data[0].measuring_system;
-        $appStore.notifyPositive('Successfully updated your profile!');
-      }
+      $store.updateProfile(profile.value!.id, {
+        first_name: profileForm.firstName,
+        last_name: profileForm.lastName,
+        trail_name: profileForm.trailName,
+        measuring_system: profileForm.measuringSystem,
+      });
     } catch (err) {
       $appStore.notifyNegative('An error occurred while updating your profile.');
     } finally {
@@ -194,10 +184,15 @@
   /**
    * Fetch subscription information
    */
-  const fetchingSubscriptionData = ref(false);
-  const subscriptionData = ref<SubscriptionApiResponse>();
+  const fetchingSubscription = ref(false);
+  const subscriptionData = ref<SubscriptionApiResponse>({
+    paymentMethods: [],
+    nextBillingDate: 0,
+    invoices: [],
+    subscriptions: [],
+  });
   const fetchSubscriptionData = async () => {
-    fetchingSubscriptionData.value = true;
+    fetchingSubscription.value = true;
     try {
       const response = await $fetch('/api/stripe/subscription');
       if (!response) {
@@ -208,7 +203,7 @@
     } catch (err) {
       $appStore.notifyNegative('An error occurred while fetching your subscription data.');
     } finally {
-      fetchingSubscriptionData.value = false;
+      fetchingSubscription.value = false;
     }
   };
 
@@ -362,7 +357,7 @@
             class="bg-gray-50 hidden p-4 rounded-lg"
             role="tabpanel">
             <div
-              v-if="fetchingSubscriptionData"
+              v-if="fetchingSubscription"
               class="flex justify-center">
               <gc-spinner variant="primary" />
             </div>
@@ -374,11 +369,10 @@
                   Payment Methods
                 </p>
                 <ul>
-                  <li>
-                    Mastercard ending in 1234
-                  </li>
-                  <li>
-                    Visa ending in 5678
+                  <li
+                    v-for="method in subscriptionData?.paymentMethods"
+                    :key="method.id">
+                    {{ capitalize(method.card?.brand) || 'N/A' }} ending in {{ method.card?.last4 || 'N/A' }}
                   </li>
                 </ul>
                 <gc-button
@@ -393,7 +387,7 @@
                   Next Billing Date
                 </p>
                 <p class="text-base">
-                  01/01/2025
+                  {{ subscriptionData?.nextBillingDate ? dayjs.utc(subscriptionData.nextBillingDate * 1000).format('MMM DD, YYYY') : 'N/A' }}
                 </p>
               </div>
               <div>
@@ -409,12 +403,23 @@
                   <fade-transition>
                     <headless-disclosure-panel>
                       <ul>
-                        <li>
-                          12/01/2024 - $9.99 (Life Membership)
+                        <li
+                          v-for="invoice in subscriptionData.invoices"
+                          :key="invoice.id"
+                          class="flex justify-start items-center gap-8 mb-3">
+                          {{ dayjs.utc(invoice.created * 1000).format('MMM DD, YYYY') }} - ${{ (invoice.amount_paid / 100).toFixed(2) }} ({{ invoice.lines.data[0].plan?.nickname || 'N/A' }})
+                          <a
+                            v-tippy="'Download Invoice'"
+                            class="duration-200 ease-in-out text-gray-400 hover:text-primary transition-colors"
+                            :href="(invoice.invoice_pdf as string)"
+                            rel="noopener noreferrer"
+                            target="_blank">
+                            <download-icon class="h-4 w-4" />
+                          </a>
                         </li>
-                        <li>
+                        <!-- <li>
                           11/01/2024 - $9.99 (Life Membership)
-                        </li>
+                        </li> -->
                       </ul>
                     </headless-disclosure-panel>
                   </fade-transition>

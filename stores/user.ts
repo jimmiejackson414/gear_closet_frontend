@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { useAppStore } from '@/stores/app';
-import { SubscriptionLevel, type Database, type Notification } from '@/types';
+import { SubscriptionLevel, type Database, type Notification, type UpdateProfile } from '@/types';
 import type { ProfileApiResponse } from '@/types/helpers';
 
 type State = {
@@ -19,6 +19,7 @@ type Actions = {
   markAllAsRead(): void;
   deleteAvatar(): Promise<{ success: boolean }>
   updateAvatar(file: File): Promise<{ success: boolean }>;
+  updateProfile(id: string, profile: UpdateProfile): void;
 };
 
 export const useUserStore = defineStore<'user', State, Getters, Actions>(
@@ -181,6 +182,33 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           return (data && !error) ? { success: true } : { success: false };
         } catch (err) {
           return { success: false };
+        }
+      },
+
+      async updateProfile (id: string, profile: UpdateProfile) {
+        const $appStore = useAppStore();
+        try {
+          const supabase = useSupabaseClient<Database>();
+          const { data, error } = await supabase.from('profiles')
+            .update({
+              first_name: profile.first_name,
+              last_name: profile.last_name,
+              trail_name: profile.trail_name,
+              measuring_system: profile.measuring_system,
+            })
+            .eq('id', id)
+            .select();
+
+          if (error) { $appStore.notifyNegative('An error occurred while updating your profile.'); }
+          else {
+            this.profile!.first_name = data[0].first_name;
+            this.profile!.last_name = data[0].last_name;
+            this.profile!.trail_name = data[0].trail_name;
+            this.profile!.measuring_system = data[0].measuring_system;
+            $appStore.notifyPositive('Successfully updated your profile!');
+          }
+        } catch (err) {
+          $appStore.notifyNegative('An error occurred while updating your profile.');
         }
       },
     },
