@@ -18,6 +18,7 @@
   const { loading } = storeToRefs($appStore);
   const { profile } = storeToRefs($store);
   const submitting = ref(false);
+  const activeTab = ref('profile'); // profile, settings, subscription
 
   /**
    * Handles adding a file from the avatar upload component.
@@ -121,6 +122,39 @@
   };
 
   /**
+   * Fetch subscription information
+   */
+  const fetchingSubscription = ref(false);
+  const subscriptionData = ref<SubscriptionApiResponse>({
+    customer: undefined,
+    paymentMethods: [],
+    nextBillingDate: 0,
+    invoices: [],
+    subscriptions: [],
+  });
+  const fetchSubscriptionData = async () => {
+    fetchingSubscription.value = true;
+    try {
+      const response = await $fetch('/api/stripe/subscription');
+      if (!response) {
+        $appStore.notifyNegative('An error occurred while fetching your subscription data.');
+        return;
+      }
+      subscriptionData.value = response;
+    } catch (err) {
+      $appStore.notifyNegative('An error occurred while fetching your subscription data.');
+    } finally {
+      fetchingSubscription.value = false;
+    }
+  };
+
+  watch(activeTab, (newTab) => {
+    if (newTab === 'subscription') {
+      fetchSubscriptionData();
+    }
+  });
+
+  /**
    * Updates a user's billing method.
    */
   const { createClient: createStripeClient } = useStripe();
@@ -128,6 +162,7 @@
   const acceptsUpdatePayment = ref(false);
   const cardElementRef = ref<HTMLElement | null>(null);
   const cardValid = ref(false);
+  const submittingPaymentMethod = ref(false);
   let stripe: Stripe | null = null;
   let elements: StripeElements | null = null;
   let cardElement: StripeCardElement | null = null;
@@ -140,18 +175,32 @@
 
     if (stripe && cardElement) {
       try {
+        submittingPaymentMethod.value = true;
         const { error, paymentMethod } = await stripe.createPaymentMethod({
           type: 'card',
           card: cardElement,
         });
 
-        if (error) {
+        if (error || !paymentMethod) {
           $appStore.notifyNegative('An error occurred while updating your payment method.');
         } else {
-          console.log(`paymentMethod`, paymentMethod);
+          const response = await $fetch('/api/stripe/payment-method', {
+            method: 'POST',
+            body: JSON.stringify({ paymentMethodId: paymentMethod.id }),
+          });
+
+          if (!response.paymentMethods) {
+            $appStore.notifyNegative('An error occurred while updating your payment method.');
+          } else {
+            subscriptionData.value.paymentMethods = response.paymentMethods;
+            $appStore.notifyPositive('Successfully updated your payment method!');
+            isUpdatePaymentModalOpen.value = false;
+          }
         }
       } catch (err) {
         $appStore.notifyNegative('An error occurred while updating your payment method.');
+      } finally {
+        submittingPaymentMethod.value = false;
       }
     }
   };
@@ -168,17 +217,17 @@
           },
           style: {
             base: {
-              color: '#32325d', // Text color
-              fontFamily: '"Lato", Helvetica, sans-serif', // Font family
-              fontSmoothing: 'antialiased', // Font smoothing
-              fontSize: '16px', // Font size
+              color: '#32325d',
+              fontFamily: '"Lato", Helvetica, sans-serif',
+              fontSmoothing: 'antialiased',
+              fontSize: '16px',
               '::placeholder': {
-                color: '#aab7c4', // Placeholder text color
+                color: '#aab7c4',
               },
             },
             invalid: {
-              color: '#fa755a', // Text color when the element's input is invalid
-              iconColor: '#fa755a', // Icon color when the element's input is invalid
+              color: '#fa755a',
+              iconColor: '#fa755a',
             },
           },
         });
@@ -200,7 +249,6 @@
   /*
   * Instantiates the tabs component.
   */
-  const activeTab = ref('profile'); // profile, settings, subscription
   const instantiateTabs = () => {
     const tabsElement = document?.getElementById('tabs-group') as HTMLElement;
     if (tabsElement) {
@@ -245,37 +293,7 @@
     return undefined;
   });
 
-  /**
-   * Fetch subscription information
-   */
-  const fetchingSubscription = ref(false);
-  const subscriptionData = ref<SubscriptionApiResponse>({
-    paymentMethods: [],
-    nextBillingDate: 0,
-    invoices: [],
-    subscriptions: [],
-  });
-  const fetchSubscriptionData = async () => {
-    fetchingSubscription.value = true;
-    try {
-      const response = await $fetch('/api/stripe/subscription');
-      if (!response) {
-        $appStore.notifyNegative('An error occurred while fetching your subscription data.');
-        return;
-      }
-      subscriptionData.value = response;
-    } catch (err) {
-      $appStore.notifyNegative('An error occurred while fetching your subscription data.');
-    } finally {
-      fetchingSubscription.value = false;
-    }
-  };
 
-  watch(activeTab, (newTab) => {
-    if (newTab === 'subscription') {
-      fetchSubscriptionData();
-    }
-  });
 
   /**
    * Deletes a user's account.
@@ -316,7 +334,15 @@
           <p class="mb-4 text-lg">
             {{ friendlyUsername((profile as any), { includeTrailName: false }) }}
           </p>
-          <gc-subscription-pill :subscription="(profile!.subscriptions[0].prices.identifier as SubscriptionLevel)" />
+          <gc-pill
+            :copy="capitalize(profile!.subscriptions[0].prices.identifier) + ' Subscription'"
+            size="lg"
+            :variant="{
+              [SubscriptionLevel.FREE]: 'warning' as const,
+              [SubscriptionLevel.LIFE]: 'positive' as const,
+              [SubscriptionLevel.ANNUAL]: 'primary' as const,
+              [SubscriptionLevel.MONTHLY]: 'secondary' as const,
+            }[profile!.subscriptions[0].prices.identifier as keyof typeof SubscriptionLevel] || 'primary'" />
         </div>
         <div class="border-b border-gray-200">
           <ul
@@ -430,6 +456,18 @@
               class="auto-rows-auto grid grid-cols-1 gap-6">
               <div>
                 <p class="font-bold text-sm">
+                  Current Subscription: {{ capitalize(subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname) }}
+                </p>
+                <gc-button
+                  class="mt-4"
+                  label="Manage Subscription"
+                  outlined
+                  size="sm"
+                  variant="positive"
+                  @click="manageSubscription" />
+              </div>
+              <div>
+                <p class="font-bold text-sm">
                   Payment Methods
                 </p>
                 <ul>
@@ -437,10 +475,16 @@
                     v-for="method in subscriptionData?.paymentMethods"
                     :key="method.id">
                     {{ capitalize(method.card?.brand) || 'N/A' }} ending in {{ method.card?.last4 || 'N/A' }}
+                    <gc-pill
+                      v-if="method.id === subscriptionData?.customer?.invoice_settings.default_payment_method"
+                      class="ml-4"
+                      copy="default"
+                      size="sm"
+                      variant="secondary" />
                   </li>
                 </ul>
                 <gc-button
-                  class="mt-2"
+                  class="mt-4"
                   label="Update billing method"
                   outlined
                   size="sm"
@@ -481,25 +525,10 @@
                             <download-icon class="h-4 w-4" />
                           </a>
                         </li>
-                        <!-- <li>
-                          11/01/2024 - $9.99 (Life Membership)
-                        </li> -->
                       </ul>
                     </headless-disclosure-panel>
                   </fade-transition>
                 </headless-disclosure>
-              </div>
-              <div>
-                <p class="font-bold text-sm">
-                  Current Subscription: LIFE
-                </p>
-                <gc-button
-                  class="mt-2"
-                  label="Manage Subscription"
-                  outlined
-                  size="sm"
-                  variant="positive"
-                  @click="manageSubscription" />
               </div>
             </div>
           </div>
@@ -570,8 +599,9 @@
             variant="secondary"
             @click="isUpdatePaymentModalOpen = false" />
           <gc-button
-            :disabled="!acceptsUpdatePayment"
+            :disabled="!acceptsUpdatePayment || submittingPaymentMethod"
             label="Update Payment Method"
+            :loading="submittingPaymentMethod"
             @click="updatePaymentMethod" />
         </div>
       </template>

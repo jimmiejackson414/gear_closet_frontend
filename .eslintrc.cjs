@@ -24,6 +24,14 @@ module.exports = {
         'vue/multi-word-component-names': 'off',
       },
     },
+    {
+      files: ['**/*.js', '**/*.ts'],
+      excludedFiles: '*.vue',
+      rules: {
+        '@stylistic/js/indent': ['error', 2],
+        '@stylistic/js/linebreak-style': ['error', 'unix'],
+      },
+    },
   ],
 
   parser: 'vue-eslint-parser',

@@ -10,6 +10,7 @@ export type ProfileApiResponse = Tables<'profiles'> & {
 };
 
 export type SubscriptionApiResponse = {
+  customer?: Stripe.Customer;
   subscriptions: Stripe.Subscription[];
   nextBillingDate: number | null;
   paymentMethods: Stripe.PaymentMethod[];

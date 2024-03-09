@@ -27,23 +27,31 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    // fetch the customer from stripe
+    const stripeCustomer = await stripe.customers.retrieve(customer.stripe_customer_id);
+
+    // fetch the subscriptions
     const subscriptions = await stripe.subscriptions.list({
       customer: customer.stripe_customer_id,
     });
 
+    // get the next billing date
     const nextBillingDate = subscriptions.data[0]?.current_period_end ?? null;
 
+    // fetch the payment methods
     const paymentMethods = await stripe.paymentMethods.list({
       customer: customer.stripe_customer_id,
       type: 'card',
     });
 
+    // fetch the invoices
     const invoices = await stripe.invoices.list({
       customer: customer.stripe_customer_id,
       limit: 15,
     });
 
     return {
+      customer: stripeCustomer,
       subscriptions: subscriptions.data,
       nextBillingDate,
       paymentMethods: paymentMethods.data,
