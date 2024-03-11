@@ -1,10 +1,18 @@
+/**
+ * GET /api/stripe/subscription
+ * @summary Fetch the subscription details for the current user
+ */
 import Stripe from 'stripe';
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
+import type { SubscriptionApiResponse } from '@/types/helpers';
 
 const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string, {
   apiVersion: '2023-10-16',
 });
 
+/**
+ * @param event - the H3 event
+ */
 export default defineEventHandler(async (event) => {
   try {
     const supabase = await serverSupabaseClient(event);
@@ -23,18 +31,16 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Attach the payment method to the customer
-    const { paymentMethodId } = await readBody(event);
-    await stripe.paymentMethods.attach(paymentMethodId, {
+    // fetch the customer from stripe
+    const stripeCustomer = await stripe.customers.retrieve(customer.stripe_customer_id);
+
+    // fetch the subscriptions
+    const subscriptions = await stripe.subscriptions.list({
       customer: customer.stripe_customer_id,
     });
 
-    // set it as the default payment method
-    await stripe.customers.update(customer.stripe_customer_id, {
-      invoice_settings: {
-        default_payment_method: paymentMethodId,
-      },
-    });
+    // get the next billing date
+    const nextBillingDate = subscriptions.data[0]?.current_period_end ?? null;
 
     // fetch the payment methods
     const paymentMethods = await stripe.paymentMethods.list({
@@ -42,13 +48,23 @@ export default defineEventHandler(async (event) => {
       type: 'card',
     });
 
+    // fetch the invoices
+    const invoices = await stripe.invoices.list({
+      customer: customer.stripe_customer_id,
+      limit: 15,
+    });
+
     return {
+      customer: stripeCustomer,
+      subscriptions: subscriptions.data,
+      nextBillingDate,
       paymentMethods: paymentMethods.data,
-    };
+      invoices: invoices.data,
+    } as SubscriptionApiResponse;
   } catch (err) {
     throw createError({
       statusCode: 500,
-      statusMessage: 'Catch error attaching stripe payment method to customer',
+      statusMessage: 'Catch error fetching stripe subscription',
     });
   }
 });

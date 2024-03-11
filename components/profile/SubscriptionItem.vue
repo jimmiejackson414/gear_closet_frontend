@@ -6,15 +6,35 @@
 
   interface Props {
     plan: Tier;
+    selectedPlan?: SubscriptionLevel;
   }
 
   const props = defineProps<Props>();
 
-  const computedBorder = computed(() => ({
-    'border-t-4 border-positive': props.plan.value === SubscriptionLevel.MONTHLY,
-    'border-t-4 border-primary': props.plan.value === SubscriptionLevel.ANNUAL,
-    'border-t-4 border-warning': props.plan.value === SubscriptionLevel.FREE,
-  }));
+  const $store = useUserStore();
+  const { profile } = storeToRefs($store);
+
+  const computedBorder = computed(() => {
+    const classes = ['border-2', 'transition', 'duration-200', 'ease-snap border-t-8'];
+
+    // define the border top color based on the plan
+    if (props.plan.value === SubscriptionLevel.FREE) { classes.push('border-t-warning'); }
+    else if (props.plan.value === SubscriptionLevel.MONTHLY) { classes.push('border-t-positive'); }
+    else if (props.plan.value === SubscriptionLevel.ANNUAL) { classes.push('border-t-primary'); }
+
+    // apply the border color based on the selected plan and whether the plan is selected
+    if (props.selectedPlan !== undefined && props.plan.value === props.selectedPlan) {
+      if (props.plan.value === SubscriptionLevel.FREE) { classes.push('border-warning'); }
+      else if (props.plan.value === SubscriptionLevel.MONTHLY) { classes.push('border-positive'); }
+      else if (props.plan.value === SubscriptionLevel.ANNUAL) { classes.push('border-primary'); }
+    } else {
+      classes.push('border-transparent');
+    }
+
+    return classes;
+  });
+
+  const emit = defineEmits(['handle-select']);
 </script>
 
 <template>
@@ -52,9 +72,11 @@
       </div>
       <gc-button
         class="mt-auto self-center"
-        :disabled="plan.buttonDisabled"
+        :disabled="plan.buttonDisabled || (profile?.subscriptions[0]?.prices.identifier === plan.value)"
         :label="plan.buttonText"
-        size="sm" />
+        size="sm"
+        variant="positive"
+        @click="emit('handle-select', plan.value)" />
     </div>
   </div>
 </template>

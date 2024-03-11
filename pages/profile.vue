@@ -3,7 +3,7 @@
   import dayjs from 'dayjs';
   import utc from 'dayjs/plugin/utc';
   import { Tabs } from 'flowbite';
-  import { ChevronDownIcon, DownloadIcon } from 'lucide-vue-next';
+  import { ChevronDownIcon, DownloadIcon, CheckCircleIcon, HeartIcon } from 'lucide-vue-next';
   import { SubscriptionLevel, type Database, MeasuringSystem } from '@/types';
   import type { InstanceOptions, TabsOptions, TabItem } from 'flowbite';
   import type { SelectOption, SubscriptionApiResponse } from '@/types/helpers';
@@ -141,6 +141,14 @@
         return;
       }
       subscriptionData.value = response;
+
+      // set selectedPlan if the user has a subscription
+      if (response.subscriptions.length) {
+        const subscription = response.subscriptions[0];
+        if (subscription.items.data.length) {
+          selectedPlan.value = subscription.items.data[0].price.nickname?.toUpperCase() as SubscriptionLevel;
+        }
+      }
     } catch (err) {
       $appStore.notifyNegative('An error occurred while fetching your subscription data.');
     } finally {
@@ -243,11 +251,51 @@
    * Manages a user's subscription.
    */
   const isManageSubscriptionOpen = ref(false);
+  const step = ref(1);
+  const selectedPlan = ref<SubscriptionLevel | undefined>(undefined);
   const acceptsManageSubscription = ref(false);
   const submittingNewSubscription = ref(false);
-  const updateSubscription = () => {
-    console.log('TODO: Manage subscription');
+  const updateSubscription = async () => {
+    try {
+      submittingNewSubscription.value = true;
+      const response = await $fetch('/api/stripe/subscription', {
+        method: 'PUT',
+        body: JSON.stringify({ newPlan: selectedPlan.value }),
+      });
+
+      if (!response.ok) {
+        $appStore.notifyNegative('An error occurred while updating your subscription.');
+        return;
+      }
+
+      await fetchSubscriptionData();
+      isManageSubscriptionOpen.value = false;
+      $appStore.notifyPositive('Successfully updated your subscription!');
+    } catch (err) {
+      $appStore.notifyNegative('An error occurred while updating your subscription.');
+    } finally {
+      submittingNewSubscription.value = false;
+    }
   };
+
+  const isContinueDisabled = computed(() => {
+    return !selectedPlan.value || selectedPlan.value === subscriptionData.value.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase();
+  });
+
+  const stepTwoCopy = computed(() => {
+    const planLevels = { [SubscriptionLevel.FREE]: 1, [SubscriptionLevel.MONTHLY]: 2, [SubscriptionLevel.ANNUAL]: 3, [SubscriptionLevel.LIFE]: 4 };
+    const isUpgrading = planLevels[selectedPlan.value as SubscriptionLevel] > planLevels[subscriptionData.value.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() as SubscriptionLevel];
+    const isSwitchingPlans = (selectedPlan.value === SubscriptionLevel.MONTHLY && subscriptionData.value.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() === SubscriptionLevel.ANNUAL) ||
+      (selectedPlan.value === SubscriptionLevel.ANNUAL && subscriptionData.value.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() === SubscriptionLevel.MONTHLY);
+
+    if (isSwitchingPlans) {
+      return `You're about to switch to the ${capitalize(selectedPlan.value)} Plan. Your card on file will be charged immediately, and your next billing date will be updated to today. Note that the features remain the same, but the Annual plan offers about a 20% discount compared to the Monthly plan.`;
+    } else if (isUpgrading) {
+      return `By upgrading to the ${capitalize(selectedPlan.value)} Plan, you will gain access to additional features. Your card on file will be charged immediately, and your next billing date will be updated to today.`;
+    } else {
+      return `You're about to downgrade to the ${capitalize(selectedPlan.value)} Plan. Please note that you will lose access to some features, including the Gear Closet Forums. Your card on file will no longer be charged.`;
+    }
+  });
 
   /*
   * Instantiates the tabs component.
@@ -296,8 +344,6 @@
     return undefined;
   });
 
-
-
   /**
    * Deletes a user's account.
    */
@@ -343,8 +389,8 @@
             :variant="{
               [SubscriptionLevel.FREE]: 'warning' as const,
               [SubscriptionLevel.LIFE]: 'positive' as const,
-              [SubscriptionLevel.ANNUAL]: 'primary' as const,
-              [SubscriptionLevel.MONTHLY]: 'secondary' as const,
+              [SubscriptionLevel.ANNUAL]: 'positive' as const,
+              [SubscriptionLevel.MONTHLY]: 'primary' as const,
             }[profile!.subscriptions[0].prices.identifier as keyof typeof SubscriptionLevel] || 'primary'" />
         </div>
         <div class="border-b border-gray-200">
@@ -582,50 +628,128 @@
     </div>
 
     <!-- Manage Subscription Modal -->
-    TODO: Turn into stepper, step two confirms selection and user must accept terms
     <gc-modal
       id="manage-subscription-modal"
       :is-open="isManageSubscriptionOpen"
       size="xl"
       title="Manage Your Subscription"
-      @handle-cancel="isManageSubscriptionOpen = false">
+      @handle-cancel="[isManageSubscriptionOpen = false, selectedPlan = undefined, step = 1]">
       <template #content>
+        <!-- stepper nav -->
+        <ol class="flex justify-center items-center font-medium max-w-lg mx-auto text-center sm:text-base text-gray-500 text-sm w-full">
+          <li
+            class="duration-100 ease-in-out flex sm:after:content-[''] items-center text-primary transition-all after:border-4 after:border-b after:h-1 after:hidden after:mx-6 after:rounded-xl after:w-full sm:after:inline-block md:w-full xl:after:mx-10"
+            :class="[
+              step >= 2 ? 'after:border-primary-light' : 'after:border-gray-300'
+            ]">
+            <span class="flex after:content-['/'] items-center after:mx-2 after:text-gray-300 sm:after:hidden">
+              <span
+                class="me-2.5 p-2 rounded-full w-auto"
+                :class="step === 1 ? 'bg-primary-light' : 'bg-white'">
+                <check-circle-icon
+                  class="h-4 sm:h-5 w-4 sm:w-5"
+                  :color="tailwind.theme.colors['text-primary']"
+                  :stroke-width="3" />
+              </span>
+              Subscription
+            </span>
+          </li>
+          <li
+            class="duration-100 ease-in-out flex items-center transition-all"
+            :class="step === 2 ? 'text-primary' : 'text-dark-grey'">
+            <span
+              class="me-2 p-2 rounded-full w-auto"
+              :class="step === 2 ? 'bg-primary-light' : 'bg-white'">
+              <check-circle-icon
+                v-if="step === 2"
+                class="h-4 sm:h-5 w-4 sm:w-5"
+                :color="tailwind.theme.colors['primary']"
+                :stroke-width="3" />
+              <heart-icon
+                v-else
+                class="h-4 sm:h-5 w-4 sm:w-5"
+                :color="tailwind.theme.colors['grey']"
+                :stroke-width="3" />
+            </span>
+            Confirm
+          </li>
+        </ol>
+
+        <!-- stepper content -->
         <div
-          v-if="subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() === SubscriptionLevel.LIFE"
-          class="text-center">
-          <p class="!font-bold text-base-lg">
-            Good news!
-          </p>
-          <p>
-            You currently have a <span class="font-bold">free lifetime subscription</span> to Gear Closet.
-          </p>
-          <p>
-            This includes everything in the Annual subscription at no cost. You're all set!
-          </p>
-        </div>
-        <div class="grid lg:grid-cols-3 grid-cols-1 gap-4">
-          <subscription-item
-            v-for="tier in tiers"
-            :key="tier.title"
-            :plan="tier" />
+          v-if="step === 1"
+          class="!mt-0 flex justify-center flex-col max-w-4xl mx-auto px-8">
+          <div
+            v-if="subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() === SubscriptionLevel.LIFE"
+            class="my-8 text-center">
+            <p class="!font-bold text-base-lg">
+              Good news!
+            </p>
+            <p>
+              You currently have a <span class="font-bold">free lifetime subscription</span> to Gear Closet.
+            </p>
+            <p>
+              This includes everything in the Annual subscription at no cost. You're all set!
+            </p>
+          </div>
+          <div
+            v-else
+            class="my-8 text-center">
+            <p class="!font-bold text-base-lg">
+              Here's what you've got.
+            </p>
+            <p>
+              You're currently subscribed to the <span class="font-bold">{{ capitalize(subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname) }} Plan</span>.
+            </p>
+          </div>
+          <div class="grid lg:grid-cols-3 grid-cols-1 gap-4">
+            <subscription-item
+              v-for="tier in tiers"
+              :key="tier.title"
+              :plan="tier"
+              :selected-plan="selectedPlan"
+              @handle-select="selectedPlan = $event" />
+          </div>
+          <div class="pt-8">
+            <div class="flex justify-between items-center mt-4">
+              <gc-button
+                ghost
+                label="Cancel"
+                variant="secondary"
+                @click="[ isManageSubscriptionOpen = false, selectedPlan = undefined, step = 1 ]" />
+
+              <gc-button
+                :disabled="isContinueDisabled"
+                label="Continue"
+                @click="step === 1 ? step = 2 : updateSubscription" />
+            </div>
+          </div>
         </div>
 
-        <div class="pt-8">
-          <!-- <gc-checkbox
+        <div
+          v-if="step === 2"
+          class="!mt-0 flex justify-center flex-col max-w-4xl mx-auto px-8">
+          <p class="mb-3 mt-6 text-base">
+            You've selected the <span class="font-bold">{{ capitalize(selectedPlan) }} Plan</span>.
+          </p>
+          <p class="mb-3 text-base">
+            {{ stepTwoCopy }}
+          </p>
+          <gc-checkbox
             id="accepts-manage-subscription"
             v-model="acceptsManageSubscription"
-            class="mx-auto"
+            class="mt-4"
             label="I acknowledge the card I have on file will be used when updating my subscription."
-            required /> -->
+            required />
           <div class="flex justify-between items-center mt-4">
             <gc-button
               ghost
               label="Cancel"
               variant="secondary"
-              @click="isManageSubscriptionOpen = false" />
+              @click="[ isManageSubscriptionOpen = false, selectedPlan = undefined, step = 1 ]" />
             <gc-button
               :disabled="!acceptsManageSubscription || submittingNewSubscription"
-              label="Continue"
+              label="Update Subscription"
               :loading="submittingNewSubscription"
               @click="updateSubscription" />
           </div>

@@ -17,10 +17,10 @@
     isOpen: false,
   });
 
-  const emit = defineEmits(['handleCancel', 'open']);
+  const emit = defineEmits(['handle-cancel', 'open']);
 
   const modalRef = ref(null);
-  onClickOutside(modalRef, () => emit('handleCancel'));
+  onClickOutside(modalRef, () => emit('handle-cancel'));
 
   // watch for when isOpen is true and emit the open event
   watch(() => props.isOpen, (isOpen) => {
@@ -34,7 +34,7 @@
       v-if="isOpen"
       class="fixed top-0 right-0 left-0 md:inset-0 flex justify-center items-center h-[calc(100%-1rem)] max-h-full overflow-x-hidden overflow-y-auto p-4 w-full z-50"
       tabindex="-1"
-      @keydown.escape="emit('handleCancel')">
+      @keydown.escape="emit('handle-cancel')">
       <div class="bg-black fixed inset-0 opacity-50" />
       <div
         ref="modalRef"
@@ -55,7 +55,7 @@
             <button
               class="h-8 inline-flex justify-center items-center ms-auto rounded-full text-sm w-8"
               type="button"
-              @click="emit('handleCancel')">
+              @click="emit('handle-cancel')">
               <x-icon class="h-6 text-gray-400 hover:text-gray-900 w-6" />
               <span class="sr-only">Close modal</span>
             </button>

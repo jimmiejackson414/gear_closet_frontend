@@ -26,7 +26,7 @@ const tiers: Tier[] = [
     ],
     borderColor: tailwind.theme.colors.warning,
     buttonText: 'Select',
-    buttonDisabled: true,
+    buttonDisabled: false,
     value: SubscriptionLevel.FREE,
   },
   {
@@ -44,7 +44,7 @@ const tiers: Tier[] = [
     ],
     borderColor: tailwind.theme.colors.primary,
     buttonText: 'Select',
-    buttonDisabled: true,
+    buttonDisabled: false,
     value: SubscriptionLevel.ANNUAL,
   },
   {
@@ -60,7 +60,7 @@ const tiers: Tier[] = [
     ],
     borderColor: tailwind.theme.colors.positive,
     buttonText: 'Select',
-    buttonDisabled: true,
+    buttonDisabled: false,
     value: SubscriptionLevel.MONTHLY,
   },
 ];
