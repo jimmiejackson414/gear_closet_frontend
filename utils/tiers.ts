@@ -1,5 +1,4 @@
 import dinero from 'dinero.js';
-import type { Enums } from '@/types';
 import { SubscriptionLevel } from '@/types';
 
 export interface Tier {
@@ -10,9 +9,8 @@ export interface Tier {
   description: string[];
   borderColor: string;
   buttonText: string;
-  buttonVariant: string;
   buttonDisabled: boolean;
-  value: Enums<'subscription_level'>;
+  value: SubscriptionLevel;
 }
 
 const tiers: Tier[] = [
@@ -20,7 +18,7 @@ const tiers: Tier[] = [
     title: 'Free',
     price: dinero({ amount: 0, currency: 'USD' })
       .toFormat('$0,0.00'),
-    priceSubtitle: 'free forever',
+    priceSubtitle: 'for forever',
     description: [
       '1 Pack',
       '1 Trip',
@@ -28,8 +26,7 @@ const tiers: Tier[] = [
     ],
     borderColor: tailwind.theme.colors.warning,
     buttonText: 'Select',
-    buttonVariant: 'outlined',
-    buttonDisabled: false,
+    buttonDisabled: true,
     value: SubscriptionLevel.FREE,
   },
   {
@@ -46,9 +43,8 @@ const tiers: Tier[] = [
       '20% discount',
     ],
     borderColor: tailwind.theme.colors.primary,
-    buttonText: 'Coming soon!',
-    buttonVariant: 'unelevated',
-    buttonDisabled: false,
+    buttonText: 'Select',
+    buttonDisabled: true,
     value: SubscriptionLevel.ANNUAL,
   },
   {
@@ -63,9 +59,8 @@ const tiers: Tier[] = [
       'Email Support',
     ],
     borderColor: tailwind.theme.colors.positive,
-    buttonText: 'Coming soon!',
-    buttonVariant: 'outlined',
-    buttonDisabled: false,
+    buttonText: 'Select',
+    buttonDisabled: true,
     value: SubscriptionLevel.MONTHLY,
   },
 ];

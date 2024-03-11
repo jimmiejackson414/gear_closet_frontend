@@ -5,7 +5,7 @@
     closeable?: boolean;
     id?: string;
     title?: string;
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'sm' | 'md' | 'lg' | 'xl';
     isOpen: boolean;
   }
 
@@ -43,6 +43,7 @@
           'max-w-md': size === 'sm',
           'max-w-xl': size === 'md',
           'max-w-2xl': size === 'lg',
+          'max-w-4xl': size === 'xl',
         }">
         <!-- modal content -->
         <div class="bg-white relative rounded-lg shadow">

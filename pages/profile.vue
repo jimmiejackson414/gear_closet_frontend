@@ -242,8 +242,11 @@
   /**
    * Manages a user's subscription.
    */
-  const manageSubscription = () => {
-    console.log('Manage subscription');
+  const isManageSubscriptionOpen = ref(false);
+  const acceptsManageSubscription = ref(false);
+  const submittingNewSubscription = ref(false);
+  const updateSubscription = () => {
+    console.log('TODO: Manage subscription');
   };
 
   /*
@@ -464,7 +467,7 @@
                   outlined
                   size="sm"
                   variant="positive"
-                  @click="manageSubscription" />
+                  @click="isManageSubscriptionOpen = true" />
               </div>
               <div>
                 <p class="font-bold text-sm">
@@ -577,6 +580,58 @@
         </div>
       </div>
     </div>
+
+    <!-- Manage Subscription Modal -->
+    TODO: Turn into stepper, step two confirms selection and user must accept terms
+    <gc-modal
+      id="manage-subscription-modal"
+      :is-open="isManageSubscriptionOpen"
+      size="xl"
+      title="Manage Your Subscription"
+      @handle-cancel="isManageSubscriptionOpen = false">
+      <template #content>
+        <div
+          v-if="subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() === SubscriptionLevel.LIFE"
+          class="text-center">
+          <p class="!font-bold text-base-lg">
+            Good news!
+          </p>
+          <p>
+            You currently have a <span class="font-bold">free lifetime subscription</span> to Gear Closet.
+          </p>
+          <p>
+            This includes everything in the Annual subscription at no cost. You're all set!
+          </p>
+        </div>
+        <div class="grid lg:grid-cols-3 grid-cols-1 gap-4">
+          <subscription-item
+            v-for="tier in tiers"
+            :key="tier.title"
+            :plan="tier" />
+        </div>
+
+        <div class="pt-8">
+          <!-- <gc-checkbox
+            id="accepts-manage-subscription"
+            v-model="acceptsManageSubscription"
+            class="mx-auto"
+            label="I acknowledge the card I have on file will be used when updating my subscription."
+            required /> -->
+          <div class="flex justify-between items-center mt-4">
+            <gc-button
+              ghost
+              label="Cancel"
+              variant="secondary"
+              @click="isManageSubscriptionOpen = false" />
+            <gc-button
+              :disabled="!acceptsManageSubscription || submittingNewSubscription"
+              label="Continue"
+              :loading="submittingNewSubscription"
+              @click="updateSubscription" />
+          </div>
+        </div>
+      </template>
+    </gc-modal>
 
     <!-- Update Payment Method Modal -->
     <gc-modal
