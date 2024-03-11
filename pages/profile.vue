@@ -193,7 +193,7 @@
           $appStore.notifyNegative('An error occurred while updating your payment method.');
         } else {
           const response = await $fetch('/api/stripe/payment-method', {
-            method: 'POST',
+            method: 'PUT',
             body: JSON.stringify({ paymentMethodId: paymentMethod.id }),
           });
 

@@ -30,16 +30,16 @@ export default defineEventHandler(async (event) => {
       .returns<ProfileApiResponse>()
       .maybeSingle();
 
-      clearTimeout(timeout);
+    clearTimeout(timeout);
 
-      if (!data || error) {
-        throw createError({
-          statusCode: 400,
-          statusMessage: 'An error occurred while fetching profile',
-        });
-      }
+    if (!data || error) {
+      throw createError({
+        statusCode: 400,
+        statusMessage: 'An error occurred while fetching profile',
+      });
+    }
 
-      return data;
+    return data;
   } catch (err) {
     throw createError({
       statusCode: 500,
