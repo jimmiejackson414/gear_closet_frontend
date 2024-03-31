@@ -7,7 +7,7 @@
   interface Props {
     pageTitle?: string;
   }
-  
+
   withDefaults(defineProps<Props>(), {
     pageTitle: '',
   });

@@ -1,6 +1,5 @@
 <script lang='ts' setup>
   import { LogOutIcon } from 'lucide-vue-next';
-  import type { Profile } from '@/types';
 
   const $route = useRoute();
 
@@ -45,7 +44,7 @@
             @click="link.disabled && $event.preventDefault()">
             <component
               :is="link.icon"
-              v-tippy="{ content: link.title, placement: 'right', offset: [0, 30]}"
+              v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
               :color="iconColor(link)"
               :size="24" />
           </a>
@@ -63,7 +62,7 @@
             <component
               :is="link.icon"
               v-else
-              v-tippy="{ content: link.title, placement: 'right', offset: [0, 30]}"
+              v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
               :color="iconColor(link)"
               :size="24" />
           </nuxt-link>

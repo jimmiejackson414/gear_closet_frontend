@@ -7,7 +7,7 @@
   const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
   const submitting = ref(false);
 
-  const rules = { 
+  const rules = {
     password: [
       (val: string) => (val && val.length > 0) || 'Password is required',
     ],
@@ -83,6 +83,6 @@
         type="submit">
         Reset Password
       </gc-button>
-    </div> 
+    </div>
   </form>
 </template>

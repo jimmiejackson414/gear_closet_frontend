@@ -49,7 +49,7 @@
         .from('packs')
         .select('*')
         .eq('profile_id', user.value?.id as string);
-    
+
       if (packs?.length && !error) {
         packOptions.value = packs.map(p => ({
           label: p.name as string,
@@ -91,7 +91,7 @@
         .eq('id', selectedPackId.value as number)
         .returns<ExtendedPack | undefined>()
         .single();
-      
+
       if (pack && !error) {
         data.value.pack = pack;
       }
@@ -115,7 +115,7 @@
           profile_id: user.value?.id,
         }])
         .select();
-      
+
       if (error || !createdTripPack) {
         throw new Error('There was an error adding the pack to the trip.');
       } else {
@@ -144,7 +144,7 @@
         .eq('trip_id', selectedTripId.value as number)
         .eq('profile_id', user.value?.id as string)
         .select();
-      
+
       if (error || !updatedTripPack.length) {
         throw new Error('There was an error updating the trip pack.');
       } else {
@@ -173,7 +173,7 @@
         .update({ theme: selectedTheme.value })
         .eq('id', data.value.pack?.id as number)
         .select();
-      
+
       if (error || !pack) throw error;
       chartRef.value?.setOption({
         series: [{
@@ -343,7 +343,7 @@
     </gc-empty-state>
     <div v-else>
       <h5 class="text-base-lg">
-        Selected Pack: 
+        Selected Pack:
         <span class="font-black">{{ data.pack?.name }}</span>
       </h5>
       <div class="h-[400px] mb-4 mt-0 mx-auto w-full">

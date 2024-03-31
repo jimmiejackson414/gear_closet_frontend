@@ -18,12 +18,12 @@
 <template>
   <a
     class="bg-white flex items-center gap-4 p-2 rounded-2xl"
-    :class="{' hover:bg-gray-100 duration-150 ease-snap transition cursor-pointer': hasForumAccess }"
+    :class="{ ' hover:bg-gray-100 duration-150 ease-snap transition cursor-pointer': hasForumAccess }"
     :href="hasForumAccess ? `${$config.public.forumsUrl}/t/${post.topic_slug}` : undefined"
     target="_blank">
     <span
       class="h-3 rounded-full w-3"
-      :style="{ backgroundColor: `#${post.categoryColor}`}" />
+      :style="{ backgroundColor: `#${post.categoryColor}` }" />
     <img
       class="h-12 rounded-full w-12"
       :src="avatarSrc">

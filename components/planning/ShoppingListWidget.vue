@@ -46,7 +46,7 @@
 
   /**
    *  Updates a shopping item.
-   * @param shoppingItem 
+   * @param shoppingItem
    */
   const updateShoppingItem = async (shoppingItem: ShoppingListItem, payload: UpdateShoppingListItem) => {
     try {

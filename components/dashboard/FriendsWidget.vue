@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { UsersIcon } from 'lucide-vue-next';
-  import type { ExtendedFriend } from '@/types/helpers'; 
+  import type { ExtendedFriend } from '@/types/helpers';
 
   interface Props {
     data: ExtendedFriend[];
@@ -56,7 +56,7 @@
           <gc-button
             label="Get Started"
             size="sm"
-            :to="{ name: 'friends'}" />
+            :to="{ name: 'friends' }" />
         </div>
       </div>
     </div>

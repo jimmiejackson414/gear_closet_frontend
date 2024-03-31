@@ -51,6 +51,7 @@ module.exports = {
     '@stylistic/js/space-before-function-paren': ['error', 'always'],
 
     // Vue specific tweaks
+    'vue/object-curly-spacing': ['error', 'always'],
     'vue/component-name-in-template-casing': ['error', 'kebab-case'],
     'vue/no-v-html': 'off',
     'vue/html-closing-bracket-spacing': [

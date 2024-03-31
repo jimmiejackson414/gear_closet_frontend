@@ -72,6 +72,7 @@
   /**
    * Soft delete a comment
    */
+  // TODO: Implement deleteComment
   const isDeletingCommentId = ref<number | null>(null);
   const deleteComment = async () => {
     console.log(`deleteComment`);
@@ -97,7 +98,7 @@
       $appStore.notifyNegative('Failed to delete reply');
     } finally {
       isDeletingReplyId.value = null;
-    } 
+    }
   };
 </script>
 

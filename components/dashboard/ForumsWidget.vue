@@ -32,7 +32,7 @@
       </p>
       <lock-icon
         v-if="!hasForumAccess"
-        v-tippy="{ content: 'Upgrade to access the forums', placement: 'top', offset: [0, 10]}"
+        v-tippy="{ content: 'Upgrade to access the forums', placement: 'top', offset: [0, 10] }"
         class="h-4 ml-2 text-gray-400 w-4" />
     </div>
     <gc-skeleton

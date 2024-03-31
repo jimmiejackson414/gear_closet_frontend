@@ -119,6 +119,7 @@
   });
 
   // finish onboarding and send to dashboard
+  // TODO: handle stripe checkout session
   const $router = useRouter();
   const submitError = ref(false);
   const handleFinishOnboarding = async (subscriptionLevel: SubscriptionLevel) => {
@@ -234,7 +235,7 @@
         class="duration-100 ease-in-out flex after:content-[''] items-center transition-all after:border-4 after:border-b after:border-gray-300 after:h-1 after:hidden after:mx-6 after:rounded-xl after:w-full sm:after:inline-block md:w-full xl:after:mx-10"
         :class="[
           { 'text-dark-grey': step === 1 },
-          { 'text-primary': step >= 2},
+          { 'text-primary': step >= 2 },
           { 'after:border-primary-light': step >= 3 },
         ]">
         <span class="flex after:content-['/'] items-center after:mx-2 after:text-gray-300 sm:after:hidden">

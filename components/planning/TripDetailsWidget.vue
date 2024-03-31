@@ -65,7 +65,7 @@
 
   /**
    *  Updates a detail.
-   * @param detail 
+   * @param detail
    */
   const submitting = ref(false);
   const updateDetail = async () => {

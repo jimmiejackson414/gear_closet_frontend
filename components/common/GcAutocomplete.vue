@@ -13,7 +13,7 @@
     options: SelectOption[] | null;
     prependIcon?: Icon;
   }
-  
+
   const props = withDefaults(defineProps<Props>(), {
     disabled: false,
     loading: false,

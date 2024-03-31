@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import type { Profile } from '@/types';  
+  import type { Profile } from '@/types';
 
   interface Props {
     profile?: Profile;

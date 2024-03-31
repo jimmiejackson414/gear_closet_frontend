@@ -128,7 +128,7 @@
         @click="handleOAuthSignUp('google')">
         <img src="/images/google.png">
       </button>
-    </div> 
+    </div>
     <div clas="flex justify-center">
       <p class="my-4 text-center text-eyebrow uppercase">
         or

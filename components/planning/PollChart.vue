@@ -5,7 +5,7 @@
 
   interface Props {
     poll: ExtendedPoll;
-  } 
+  }
 
   const props = defineProps<Props>();
 
@@ -16,7 +16,7 @@
   const emits = defineEmits(['createAnswer', 'createVote']);
 
   const hasVoted = computed(() => props.poll.votes.some(v => v.profile_id === user.value?.id));
-  const totalVotes = computed(() => props.poll.votes.reduce((acc, _cur) => acc + 1, 0));
+  const totalVotes = computed(() => props.poll.votes.reduce((acc) => acc + 1, 0));
   const calcAnswers = computed(() => {
     if (totalVotes.value === 0) {
       return props.poll.answers.map(a => {
@@ -52,7 +52,7 @@
           poll_id: props.poll.id,
         })
         .select();
-    
+
       if (!error && newVote.length) { emits('createVote', newVote[0]); }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new vote.');
