@@ -45,7 +45,7 @@
         .update({ theme: selectedTheme.value })
         .eq('id', data.value.selectedPack?.id as number)
         .select();
-      
+
       if (error || !pack) throw error;
       chartRef.value?.setOption({
         series: [{
@@ -200,7 +200,7 @@
               </zoom-transition>
             </headless-menu>
           </div>
-        </div> 
+        </div>
         <div class="grid grid-cols-2 gap-6 h-full pb-4">
           <div
             v-for="detail in details"
@@ -219,7 +219,7 @@
       </div>
     </div>
   </div>
-  
+
   <!-- Change Theme Modal -->
   <gc-modal
     :is-open="isChangeThemeModalOpen"

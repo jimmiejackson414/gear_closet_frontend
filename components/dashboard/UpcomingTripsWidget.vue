@@ -5,12 +5,12 @@
   import type { Trip } from '@/types';
 
   dayjs.extend(relativeTime);
-  
+
   interface Props {
     data: Trip[];
     loading: boolean;
   }
-  
+
   withDefaults(defineProps<Props>(), {
     data: () => [],
     loading: false,

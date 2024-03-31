@@ -1,4 +1,21 @@
+import { Stripe } from 'stripe';
 import type { Profile, Tables } from '@/types';
+
+export type ProfileApiResponse = Tables<'profiles'> & {
+  onboarding_steps: Tables<'onboarding_steps'>[];
+  notifications: Tables<'notifications'>[];
+  subscriptions: Tables<'subscriptions'> & {
+    prices: Tables<'prices'>;
+  }[];
+};
+
+export type SubscriptionApiResponse = {
+  customer?: Stripe.Customer;
+  subscriptions: Stripe.Subscription[];
+  nextBillingDate: number | null;
+  paymentMethods: Stripe.PaymentMethod[];
+  invoices: Stripe.Invoice[];
+};
 
 export type ExtendedCategoryItem = Tables<'category_items'> & {
   item: Tables<'items'>

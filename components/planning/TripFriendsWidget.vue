@@ -117,7 +117,7 @@
           placeholder="Search for a friend"
           :prepend-icon="SearchIcon"
           @update:model-value="searchForFriends($event)" />
-        
+
         <p class="font-bold mt-6 text-eyebrow">
           Friends to invite:
         </p>

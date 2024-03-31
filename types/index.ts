@@ -203,16 +203,19 @@ export interface Database {
       };
       customers: {
         Row: {
+          deleted_at: string | null;
           id: string;
           profile_id: string;
           stripe_customer_id: string | null;
         };
         Insert: {
+          deleted_at?: string | null;
           id?: string;
           profile_id: string;
           stripe_customer_id?: string | null;
         };
         Update: {
+          deleted_at?: string | null;
           id?: string;
           profile_id?: string;
           stripe_customer_id?: string | null;
@@ -694,9 +697,6 @@ export interface Database {
           onboard_date: string | null;
           role: Database["public"]["Enums"]["user_role"] | null;
           state: string | null;
-          subscription_level:
-            | Database["public"]["Enums"]["subscription_level"]
-            | null;
           trail_name: string | null;
           updated_at: string | null;
         };
@@ -718,9 +718,6 @@ export interface Database {
           onboard_date?: string | null;
           role?: Database["public"]["Enums"]["user_role"] | null;
           state?: string | null;
-          subscription_level?:
-            | Database["public"]["Enums"]["subscription_level"]
-            | null;
           trail_name?: string | null;
           updated_at?: string | null;
         };
@@ -742,9 +739,6 @@ export interface Database {
           onboard_date?: string | null;
           role?: Database["public"]["Enums"]["user_role"] | null;
           state?: string | null;
-          subscription_level?:
-            | Database["public"]["Enums"]["subscription_level"]
-            | null;
           trail_name?: string | null;
           updated_at?: string | null;
         };

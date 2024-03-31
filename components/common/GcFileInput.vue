@@ -3,7 +3,7 @@
     helpText?: string;
     label?: string;
   }
-  
+
   withDefaults(defineProps<Props>(), {
     helpText: undefined,
     label: undefined,

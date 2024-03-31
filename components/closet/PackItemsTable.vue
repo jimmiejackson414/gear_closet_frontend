@@ -16,7 +16,7 @@
     category_item_id: number;
     position: number;
   }
-  
+
   interface Props {
     category: ExtendedCategory;
   }

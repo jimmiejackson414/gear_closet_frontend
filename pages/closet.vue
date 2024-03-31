@@ -17,7 +17,7 @@
   const activeCategoryId = ref<number | undefined>(undefined);
 
   const packOptions = computed(() => data.value.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
-  
+
   let identifier = 0;
   identifier = $route.query?.pack ? Number(decrypt($route.query.pack)) || 0 : identifier;
   await $store.fetchClosetPage(identifier);
@@ -677,7 +677,7 @@
               <div class="flex items-center gap-2">
                 Import pack items (optional)
                 <info-icon
-                  v-tippy="{ content: 'Uploading a CSV will automatically add them to your pack.'}"
+                  v-tippy="{ content: 'Uploading a CSV will automatically add them to your pack.' }"
                   class="h-4 w-4" />
               </div>
             </template>
@@ -805,7 +805,7 @@
             v-model="removeItemCheckbox"
             label="Remove from closet?" />
           <info-icon
-            v-tippy="{ content: 'Checking this will remove all items from your closet as well.'}"
+            v-tippy="{ content: 'Checking this will remove all items from your closet as well.' }"
             class="h-4 w-4" />
         </div>
       </template>
@@ -846,7 +846,7 @@
             v-model="removeItemCheckbox"
             label="Remove from closet?" />
           <info-icon
-            v-tippy="{ content: 'Checking this will remove the item from your closet as well.'}"
+            v-tippy="{ content: 'Checking this will remove the item from your closet as well.' }"
             class="h-4 w-4" />
         </div>
       </template>

@@ -20,8 +20,16 @@ module.exports = {
   overrides: [
     {
       files: ['./pages/**/*.vue'],
-      rules: { 
+      rules: {
         'vue/multi-word-component-names': 'off',
+      },
+    },
+    {
+      files: ['**/*.js', '**/*.ts'],
+      excludedFiles: '*.vue',
+      rules: {
+        '@stylistic/js/indent': ['error', 2],
+        '@stylistic/js/linebreak-style': ['error', 'unix'],
       },
     },
   ],
@@ -38,10 +46,12 @@ module.exports = {
     '@stylistic/js/linebreak-style': 'off',
     '@stylistic/js/newline-per-chained-call': [2, { ignoreChainWithDepth: 1 }],
     'object-shorthand': ['error', 'always'],
+    '@stylistic/js/no-trailing-spaces': 'warn',
     '@stylistic/js/semi': [2, 'always'],
     '@stylistic/js/space-before-function-paren': ['error', 'always'],
 
     // Vue specific tweaks
+    'vue/object-curly-spacing': ['error', 'always'],
     'vue/component-name-in-template-casing': ['error', 'kebab-case'],
     'vue/no-v-html': 'off',
     'vue/html-closing-bracket-spacing': [

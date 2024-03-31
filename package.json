@@ -9,9 +9,11 @@
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
     "typegen": "npx supabase gen types typescript --local public > ./types/index.ts && npx better-supabase-types -i ./types/index.ts -f -s",
+    "typecheck": "npx nuxi typecheck",
     "cert": "mkcert -key-file ./localhost-key.pem -cert-file ./localhost.pem localhost"
   },
   "devDependencies": {
+    "@fixers/nuxt-stripe": "^3.0.4",
     "@kalimahapps/eslint-plugin-tailwind": "^1.0.10",
     "@nuxt/devtools": "latest",
     "@nuxtjs/supabase": "^1.1.6",
@@ -48,7 +50,7 @@
     "@cloudinary/url-gen": "^1.14.0",
     "@headlessui/tailwindcss": "^0.2.0",
     "@pinia/nuxt": "^0.5.1",
-    "@stripe/stripe-js": "^2.2.1",
+    "@stripe/stripe-js": "^3.0.7",
     "@vuepic/vue-datepicker": "^7.4.0",
     "@vueup/vue-quill": "^1.2.0",
     "better-supabase-types": "^2.7.1",
@@ -70,6 +72,7 @@
     "lucide-vue-next": "^0.295.0",
     "papaparse": "^5.4.1",
     "pinia": "^2.1.7",
+    "stripe": "^14.19.0",
     "uuid": "^9.0.1",
     "v-onboarding": "^2.6.0",
     "vue-echarts": "^6.6.8",

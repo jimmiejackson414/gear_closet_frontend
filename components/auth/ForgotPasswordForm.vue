@@ -72,7 +72,7 @@
         type="submit">
         Send Reset Link
       </gc-button>
-    </div> 
+    </div>
     <div class="flex items-center flex-col mt-4">
       <p class="text-base">
         Remembered your password?

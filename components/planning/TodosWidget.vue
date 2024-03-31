@@ -45,7 +45,7 @@
 
   /**
    *  Updates a todo.
-   * @param todo 
+   * @param todo
    */
   const updateTodo = async (todo: Todo, payload: UpdateTodo) => {
     try {

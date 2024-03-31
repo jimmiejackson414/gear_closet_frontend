@@ -8,7 +8,7 @@
 
   interface Props {
     friend: ExtendedFriendInvite;
-  } 
+  }
 
   const props = defineProps<Props>();
   const emits = defineEmits(['accept', 'decline']);

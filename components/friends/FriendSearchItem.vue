@@ -1,10 +1,10 @@
 <script lang='ts' setup>
-  import dayjs, { type Dayjs } from 'dayjs';
+  import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import { FriendRequestStatus, type Database, type Profile } from '@/types';
 
   dayjs.extend(relativeTime);
-  
+
   interface Props {
     profile: Profile;
     requestPending: boolean;

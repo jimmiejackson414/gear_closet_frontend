@@ -25,7 +25,7 @@
     LegendComponent,
     GridComponent,
   ]);
-  
+
   interface Props {
     pack?: PublicPack;
   }
@@ -140,7 +140,7 @@
             Stats
           </p>
         </div>
-      </div> 
+      </div>
       <div class="grid grid-cols-2 gap-6 h-full pb-4">
         <div
           v-for="detail in details"

@@ -16,7 +16,7 @@
     try {
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
-      
+
       // Fetch friend requests
       const { data: requestsData, error: requestsError } = await supabase
         .from('friend_invitations')
@@ -136,7 +136,7 @@
           :disabled="!requests.length || showAllRequests || requests.length < 5"
           ghost
           label="See All"
-          @click="showAllRequests = true" />       
+          @click="showAllRequests = true" />
       </div>
       <div
         v-if="filteredRequests.length"
