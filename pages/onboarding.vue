@@ -119,9 +119,8 @@
   });
 
   // finish onboarding and send to dashboard
-  // TODO: handle stripe checkout session
   const $router = useRouter();
-  const submitError = ref(false);
+  const $appStore = useAppStore();
   const handleFinishOnboarding = async (subscriptionLevel: SubscriptionLevel) => {
     submitting.value = true;
 
@@ -129,30 +128,25 @@
       const supabase = useSupabaseClient<Database>();
       await supabase.from('profiles')
         .update({
-          subscription_level: SubscriptionLevel.LIFE,
           onboard_date: new Date()
             .toISOString(),
         })
         .eq('id', profile.value!.id)
         .select();
-      $router.push({ name: 'index' });
-      // if free plan, manually create customer and subscription in stripe and push to dashboard
-      // if (subscriptionLevel === SubscriptionLevel.FREE || subscriptionLevel === SubscriptionLevel.LIFE) {
-      //   const res = await $subscriptionStore.createFreeSubscription(subscriptionLevel, profile.value?.email as string);
 
-      //   if (res.subscription && !res.errors) {
-      //     $router.push({ name: 'dashboard' });
-      //   } else {
-      //     submitError.value = true;
-      //   }
-      // } else {
-      // if upgrading, create checkout session and redirect to stripe checkout
-      //   const { session } = await $subscriptionStore.createCheckoutSession(subscriptionLevel);
-      //   const stripe = await getStripe();
-      //   stripe?.redirectToCheckout({
-      //     sessionId: session?.id as string,
-      //   });
-      // }
+      const response = await $fetch('/api/stripe/subscription', {
+        method: 'PUT',
+        body: JSON.stringify({ newPlan: subscriptionLevel }),
+      });
+
+      if (!response.ok) {
+        $appStore.notifyNegative('There was an error upgrading your plan. Please contact customer support.');
+        return;
+      }
+
+      $appStore.notifyPositive('Successfully updated your subscription. Welcome to Gear Closet!');
+      $router.push({ name: 'index' });
+      // TODO: send welcome email
       // $store.sendWelcomeEmail();
     } catch (error) {
       console.error({ error });
@@ -411,7 +405,7 @@
           :disabled="submitting || !selectedPlan"
           :label="submitLabel"
           :loading="submitting"
-          @click="handleFinishOnboarding" />
+          @click="() => handleFinishOnboarding(selectedPlan?.value as SubscriptionLevel)" />
       </div>
     </fade-transition>
 

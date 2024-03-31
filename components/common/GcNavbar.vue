@@ -54,13 +54,13 @@
 
     <div class="relative">
       <button
-        class="duration-150 ease-in-out font-medium inline-flex items-center relative text-center hover:text-dark-grey text-gray-500 text-sm focus:outline-none"
+        class="!bg-white duration-150 ease-in-out font-medium inline-flex items-center p-4 relative rounded-full shadow-md text-center hover:text-dark-grey text-gray-500 text-sm focus:outline-none"
         type="button"
         @click="isDropdownOpen = !isDropdownOpen">
         <bell-ring-icon class="h-6 w-6" />
         <div
           v-if="shouldShowBadge"
-          class="absolute -top-1 bg-danger block border-2 border-white h-3 rounded-full start-3.5 w-3" />
+          class="absolute top-1 bg-danger block border-2 border-white end-1 h-3 rounded-full w-3" />
       </button>
       <fade-transition>
         <div
