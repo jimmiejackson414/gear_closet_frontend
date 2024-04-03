@@ -139,9 +139,9 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           const supabase = useSupabaseClient<Database>();
           const user = useSupabaseUser();
 
-           // get the list of files in the user's avatar directory
+          // get the list of files in the user's avatar directory
           const { data: files, error: listError } = await supabase.storage.from('avatars')
-          .list(`${user.value!.id}/`);
+            .list(`${user.value!.id}/`);
 
           if (listError) return { success: false };
 

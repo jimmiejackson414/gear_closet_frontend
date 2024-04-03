@@ -3,12 +3,7 @@ require('@rushstack/eslint-patch/modern-module-resolution');
 
 module.exports = {
   root: true,
-  'extends': [
-    'plugin:vue/vue3-strongly-recommended',
-    'eslint:recommended',
-    '@vue/eslint-config-typescript',
-    './.eslintrc-auto-import.json',
-  ],
+  'extends': ['plugin:vue/vue3-strongly-recommended', 'eslint:recommended', '@vue/eslint-config-typescript', './.eslintrc-auto-import.json', 'plugin:storybook/recommended'],
 
   parserOptions: {
     parser: '@typescript-eslint/parser',

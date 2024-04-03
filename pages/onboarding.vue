@@ -135,7 +135,7 @@
         .select();
 
       const response = await $fetch('/api/stripe/subscription', {
-        method: 'PUT',
+        method: 'POST',
         body: JSON.stringify({ newPlan: subscriptionLevel }),
       });
 
