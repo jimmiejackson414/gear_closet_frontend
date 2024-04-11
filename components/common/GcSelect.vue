@@ -13,6 +13,7 @@
     label?: string;
     loading?: boolean;
     modelValue?: string | string[] | number | null;
+    noOptionsCopy?: string;
     options: SelectOption[] | Option[] | null;
     placeholder?: string,
     required?: boolean;
@@ -28,6 +29,7 @@
     label: undefined,
     loading: false,
     modelValue: undefined,
+    noOptionsCopy: undefined,
     placeholder: 'Select an option',
     required: false,
     size: 'md',
@@ -147,7 +149,7 @@
               <headless-listbox-option>
                 <li class="cursor-default flex px-4 py-2 text-dark-grey">
                   <p class="text-base w-full">
-                    No options available
+                    {{ noOptionsCopy || 'No options available' }}
                   </p>
                 </li>
               </headless-listbox-option>

@@ -362,7 +362,7 @@
     :is-open="isAddPackModalOpen"
     :title="modalState === 'insert' ? 'Add a Pack' : 'Change Pack'"
     @handle-cancel="isAddPackModalOpen = false">
-    <template #default>
+    <template #content>
       <div class="flex items-start flex-col gap-4 w-full">
         <p class="text-base text-gray">
           {{ !fetchingPacks && !packOptions.length ? 'You haven\'t created any packs yet!' : 'Choose one of your existing packs to add to this trip, or create a new pack!' }}
@@ -408,7 +408,7 @@
     size="sm"
     title="Change Theme"
     @handle-cancel="isChangeThemeModalOpen = false">
-    <template #default>
+    <template #content>
       <div class="flex flex-col">
         <p class="mb-4 text-base">
           Change the theme associated with your pack.

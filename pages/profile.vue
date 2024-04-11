@@ -279,6 +279,8 @@
 
       await fetchSubscriptionData();
       isManageSubscriptionOpen.value = false;
+      acceptsManageSubscription.value = false;
+      step.value = 1;
       $appStore.notifyPositive('Successfully updated your subscription!');
     } catch (err) {
       $appStore.notifyNegative('An error occurred while updating your subscription.');

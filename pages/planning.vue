@@ -138,6 +138,7 @@
           :disabled="pageLoading"
           :model-value="selectedTripId"
           name="selected-trip-select"
+          no-options-copy="No trips found"
           :options="tripOptions"
           placeholder="Selected Trip"
           @update:model-value="handleSelectTrip" />
@@ -182,7 +183,7 @@
       :is-open="isCreateTripDialogOpen"
       title="Create a New Trip"
       @handle-cancel="isCreateTripDialogOpen = false">
-      <template #default>
+      <template #content>
         <div class="flex flex-col gap-6">
           <!-- Name -->
           <gc-input

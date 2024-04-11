@@ -473,20 +473,38 @@
             </div>
             <zoom-transition>
               <headless-menu-items class="absolute right-0 bg-white divide-gray-100 divide-y mt-2 origin-top-right ring-1 ring-black/5 rounded-md shadow-lg w-56 focus:outline-none">
-                <headless-menu-item @click="isUploadCsvModalOpen = true">
-                  <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-dark-grey hover:bg-gray-100">
-                    Import from CSV
-                  </p>
+                <headless-menu-item
+                  v-tippy="{ content: !data.selectedPack ? 'Please select a pack to import items.' : '' }"
+                  as="p"
+                  class="px-4 py-2 hover:bg-gray-100"
+                  :class="{
+                    'cursor-not-allowed opacity-50': !data.selectedPack,
+                  }"
+                  :disabled="!data.selectedPack"
+                  @click="isUploadCsvModalOpen = true">
+                  Import from CSV
                 </headless-menu-item>
-                <headless-menu-item @click="sharePackList">
-                  <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-dark-grey hover:bg-gray-100">
-                    Share pack list
-                  </p>
+                <headless-menu-item
+                  v-tippy="{ content: !data.selectedPack ? 'Please select a pack to share.' : '' }"
+                  as="p"
+                  class="px-4 py-2 hover:bg-gray-100"
+                  :class="{
+                    'cursor-not-allowed opacity-50': !data.selectedPack,
+                  }"
+                  :disabled="!data.selectedPack"
+                  @click="sharePackList">
+                  Share pack list
                 </headless-menu-item>
-                <headless-menu-item @click="isDeletePackModalOpen = true">
-                  <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-danger hover:bg-gray-100">
-                    Delete pack
-                  </p>
+                <headless-menu-item
+                  v-tippy="{ content: !data.selectedPack ? 'Please select a pack to delete.' : '' }"
+                  as="p"
+                  class="px-4 py-2 text-danger hover:bg-gray-100"
+                  :class="{
+                    'cursor-not-allowed opacity-50': !data.selectedPack,
+                  }"
+                  :disabled="!data.selectedPack"
+                  @click="isDeletePackModalOpen = true">
+                  Delete pack
                 </headless-menu-item>
               </headless-menu-items>
             </zoom-transition>
@@ -496,6 +514,7 @@
           :disabled="pageLoading"
           :model-value="(data.selectedPack?.id as number)"
           name="selected-trip-select"
+          no-options-copy="No packs found"
           :options="packOptions"
           placeholder="Selected Pack"
           size="sm"
@@ -590,7 +609,7 @@
       size="sm"
       title="Create a New Pack"
       @handle-cancel="isCreatePackDialogOpen = false">
-      <template #default>
+      <template #content>
         <div class="flex flex-col gap-6">
           <gc-input
             v-model="newPack.name"
@@ -669,9 +688,9 @@
     <!-- Upload from CSV -->
     <gc-modal
       :is-open="isUploadCsvModalOpen"
-      title="Upload from CSV"
+      title="Import from CSV"
       @handle-cancel="isUploadCsvModalOpen = false">
-      <template #default>
+      <template #content>
         <div class="flex items-center flex-col gap-4">
           <p class="mb-0 text-base text-gray">
             Upload a CSV file to automatically add items to your pack. Any items that already exist will not be affected.
@@ -716,7 +735,7 @@
       :is-open="isSharePackModalOpen"
       title="Share Pack List"
       @handle-cancel="isSharePackModalOpen = false">
-      <template #default>
+      <template #content>
         <div class="flex flex-col">
           <p class="mb-4 text-base">
             Share your pack list with other users by sending them the link below.
@@ -755,7 +774,7 @@
       :is-open="isRemoveCategoryModalOpen"
       title="Remove Category from Pack"
       @handle-cancel="[ isRemoveCategoryModalOpen = false, removeItemCheckbox = false, activeCategoryId = undefined ]">
-      <template #default>
+      <template #content>
         <div>
           <p class="font-bold mb-0 text-base">
             Are you sure you want to remove this category from this pack?
@@ -796,7 +815,7 @@
       :is-open="isDeletePackModalOpen"
       title="Delete Pack"
       @handle-cancel="isDeletePackModalOpen = false">
-      <template #default>
+      <template #content>
         <div>
           <p class="font-bold mb-0 text-base">
             Are you sure you want to delete this pack?
@@ -837,7 +856,7 @@
       :is-open="isRemoveItemModalOpen"
       title="Remove from Category"
       @handle-cancel="[ isRemoveItemModalOpen = false, removeItemCheckbox = false ]">
-      <template #default>
+      <template #content>
         <div>
           <p class="font-bold mb-0 text-base">
             Are you sure you want to remove this item from the category?
@@ -878,7 +897,7 @@
       :is-open="isAddUrlModalOpen"
       title="Add URL"
       @handle-cancel="[ isAddUrlModalOpen = false, activeRow = undefined, activeCategoryId = undefined ]">
-      <template #default>
+      <template #content>
         <p class="mb-4 text-base">
           Add a website URL to link to more information about this item.
         </p>

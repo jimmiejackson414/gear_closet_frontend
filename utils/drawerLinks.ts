@@ -7,6 +7,7 @@ export type LinkItem = {
   icon: Icon;
   disabled: boolean;
   requiresSubscription: boolean;
+  requiresSubscriptionCopy?: string;
   external: boolean;
 }
 
@@ -55,6 +56,7 @@ export const drawerLinks = () => {
       icon: MessagesSquare,
       disabled: !isPaidMember.value,
       requiresSubscription: true,
+      requiresSubscriptionCopy: 'The forums are only available to paid members.',
       external: true,
     },
     {
