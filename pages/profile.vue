@@ -6,7 +6,7 @@
   import { ChevronDownIcon, DownloadIcon, CheckCircleIcon, HeartIcon } from 'lucide-vue-next';
   import { SubscriptionLevel, type Database, MeasuringSystem } from '@/types';
   import type { InstanceOptions, TabsOptions, TabItem } from 'flowbite';
-  import type { SelectOption, SubscriptionApiResponse } from '@/types/helpers';
+  import type { SelectOption, SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
 
   dayjs.extend(utc);
 
@@ -142,6 +142,15 @@
       }
       subscriptionData.value = response;
 
+      const supabase = useSupabaseClient<Database>();
+      const { data: subscription } = await supabase.from('subscriptions')
+        .select('*, prices(*)')
+        .eq('profile_id', profile.value!.id)
+        .returns<SubscriptionType>()
+        .single();
+
+      if (subscription) profile.value!.subscriptions[0] = subscription;
+
       // set selectedPlan if the user has a subscription
       if (response.subscriptions.length) {
         const subscription = response.subscriptions[0];
@@ -270,6 +279,8 @@
 
       await fetchSubscriptionData();
       isManageSubscriptionOpen.value = false;
+      acceptsManageSubscription.value = false;
+      step.value = 1;
       $appStore.notifyPositive('Successfully updated your subscription!');
     } catch (err) {
       $appStore.notifyNegative('An error occurred while updating your subscription.');
@@ -739,7 +750,7 @@
             id="accepts-manage-subscription"
             v-model="acceptsManageSubscription"
             class="mt-4"
-            label="I acknowledge the card I have on file will be used when updating my subscription."
+            :label="selectedPlan !== SubscriptionLevel.FREE ? `I acknowledge the card I have on file will be used when updating my subscription.` : `I acknowledge that I will be downgrading to the Free Plan and will lose access to some features, including the Gear Closet Forums.`"
             required />
           <div class="flex justify-between items-center mt-4">
             <gc-button

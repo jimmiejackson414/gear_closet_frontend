@@ -20,7 +20,7 @@
   });
 
   const $store = useUserStore();
-  const { hasForumAccess } = storeToRefs($store);
+  const { isPaidMember } = storeToRefs($store);
 </script>
 
 <template>
@@ -31,7 +31,7 @@
         Latest From The Community
       </p>
       <lock-icon
-        v-if="!hasForumAccess"
+        v-if="!isPaidMember"
         v-tippy="{ content: 'Upgrade to access the forums', placement: 'top', offset: [0, 10] }"
         class="h-4 ml-2 text-gray-400 w-4" />
     </div>
@@ -47,7 +47,7 @@
           <forum-post
             v-for="post in data.latest_posts"
             :key="post.id"
-            :has-forum-access="hasForumAccess"
+            :has-forum-access="isPaidMember"
             :post="post" />
         </div>
         <div class="grid grid-cols-2 gap-4 pl-8">

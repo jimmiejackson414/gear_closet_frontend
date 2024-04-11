@@ -274,7 +274,7 @@
       :is-open="isEditDialogOpen"
       title="Edit Trip Detail"
       @handle-cancel="isEditDialogOpen = false">
-      <template #default>
+      <template #content>
         <div class="flex flex-col gap-6">
           <gc-input
             class="w-full"

@@ -7,6 +7,7 @@ export type LinkItem = {
   icon: Icon;
   disabled: boolean;
   requiresSubscription: boolean;
+  requiresSubscriptionCopy?: string;
   external: boolean;
 }
 
@@ -14,7 +15,7 @@ export const drawerLinks = () => {
   const config = useRuntimeConfig();
 
   const $store = useUserStore();
-  const { hasForumAccess } = storeToRefs($store);
+  const { isPaidMember } = storeToRefs($store);
 
   return [
     {
@@ -53,8 +54,9 @@ export const drawerLinks = () => {
       to: config.public.forumsUrl,
       title: 'Forums',
       icon: MessagesSquare,
-      disabled: !hasForumAccess.value,
+      disabled: !isPaidMember.value,
       requiresSubscription: true,
+      requiresSubscriptionCopy: 'The forums are only available to paid members.',
       external: true,
     },
     {

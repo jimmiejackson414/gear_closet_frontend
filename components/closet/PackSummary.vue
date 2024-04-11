@@ -226,7 +226,7 @@
     size="sm"
     title="Change Theme"
     @handle-cancel="isChangeThemeModalOpen = false">
-    <template #default>
+    <template #content>
       <div class="flex flex-col">
         <p class="mb-4 text-base">
           Change the theme associated with your pack.

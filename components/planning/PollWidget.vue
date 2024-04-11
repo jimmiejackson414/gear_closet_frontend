@@ -200,7 +200,7 @@
     :is-open="isPollDialogOpen"
     :title="modalTitle"
     @handle-cancel="isPollDialogOpen = false">
-    <template #default>
+    <template #content>
       <div class="flex flex-col">
         <p
           v-if="modalState === 'create'"
@@ -273,7 +273,7 @@
     :is-open="isDeleteConfirmOpen"
     size="sm"
     @handle-cancel="isDeleteConfirmOpen = false">
-    <template #default>
+    <template #content>
       <div class="flex justify-center items-center flex-col">
         <alert-circle-icon class="h-12 mb-4 text-danger w-12" />
         <p class="mb-2 text-base">

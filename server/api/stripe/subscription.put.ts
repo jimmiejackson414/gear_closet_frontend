@@ -7,6 +7,7 @@
 
 import Stripe from 'stripe';
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
+import type { Database } from '@/types';
 
 const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string, {
   apiVersion: '2023-10-16',
@@ -14,7 +15,7 @@ const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string, {
 
 export default defineEventHandler(async (event) => {
   try {
-    const supabase = await serverSupabaseClient(event);
+    const supabase = await serverSupabaseClient<Database>(event);
     const user = await serverSupabaseUser(event);
 
     // Fetch the user's subscription from your database
@@ -35,7 +36,7 @@ export default defineEventHandler(async (event) => {
 
     // Fetch the price ID for the new plan from your database
     const { data: price, error: priceError } = await supabase.from('prices')
-      .select('id')
+      .select('*')
       .eq('identifier', newPlan)
       .single();
 
@@ -47,17 +48,42 @@ export default defineEventHandler(async (event) => {
     }
 
     // Fetch the subscription from Stripe
-    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripe_subscription_id);
+    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripe_subscription_id as string);
 
     // Get the id of the first item
     const subscriptionItemId = stripeSubscription.items.data[0].id;
 
     // Update the subscription in Stripe
-    const updatedStripeSubscription = await stripe.subscriptions.update(subscription.stripe_subscription_id, {
+    const updatedStripeSubscription = await stripe.subscriptions.update(subscription.stripe_subscription_id as string, {
       items: [{ id: subscriptionItemId, price: price.id }],
     });
 
-    return { ok: !!updatedStripeSubscription };
+    // Update the subscription in Supabase
+    const { data: updatedSubscription, error: updatedSubscriptionError } = await supabase.from('subscriptions')
+      .update({
+        price_id: price.id,
+        current_period_start: new Date(updatedStripeSubscription.current_period_start)
+          .toISOString(),
+        current_period_end: new Date(updatedStripeSubscription.current_period_end)
+          .toISOString(),
+        ended_at: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at)
+          .toISOString() : null,
+        cancel_at_period_end: updatedStripeSubscription.cancel_at_period_end,
+        stripe_subscription_id: updatedStripeSubscription.id,
+      })
+      .eq('profile_id', user!.id)
+      .select();
+
+    if (updatedSubscriptionError || !updatedSubscription) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Error updating subscription',
+      });
+    }
+
+    return {
+      ok: !!updatedStripeSubscription,
+    };
   } catch (err) {
     throw createError({
       statusCode: 500,

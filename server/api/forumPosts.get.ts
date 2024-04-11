@@ -1,3 +1,8 @@
+/**
+ * @api {get} /forumPosts Get latest forum posts
+ * @apiName GetForumPosts
+ * @summary Fetch the latest forum posts
+ */
 import type { ForumLatestPosts, ForumCategories } from '@/types/helpers';
 
 export default defineEventHandler(async () => {

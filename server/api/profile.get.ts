@@ -1,3 +1,8 @@
+/**
+ * @api {get} /profile Get Profile
+ * @apiName GetProfile
+ * @summary Fetch the profile details for the current user
+ */
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { ProfileApiResponse } from '~/types/helpers';
 

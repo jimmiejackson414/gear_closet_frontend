@@ -44,7 +44,7 @@
             @click="link.disabled && $event.preventDefault()">
             <component
               :is="link.icon"
-              v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
+              v-tippy="{ content: (link.requiresSubscription && link.disabled ? link.requiresSubscriptionCopy : link.title), placement: 'right', offset: [0, 30] }"
               :color="iconColor(link)"
               :size="24" />
           </a>

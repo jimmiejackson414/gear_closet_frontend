@@ -1,5 +1,6 @@
 /**
- * GET /api/stripe/subscription
+ * @api {get} /api/stripe/subscription
+ * @apiName GetSubscription
  * @summary Fetch the subscription details for the current user
  */
 import Stripe from 'stripe';
