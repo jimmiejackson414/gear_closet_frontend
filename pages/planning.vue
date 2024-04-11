@@ -11,9 +11,11 @@
 
   const $route = useRoute();
   const $appStore = useAppStore();
+  const $userStore = useUserStore();
   const $store = usePlanningStore();
   const $cookie = useCookie('selectedTripId');
   const { data, pageLoading, selectedTripId } = storeToRefs($store);
+  const { isPaidMember } = storeToRefs($userStore);
 
   const tripOptions = computed(() => data.value.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
 
@@ -135,7 +137,7 @@
           </headless-menu>
         </div>
         <gc-select
-          :disabled="pageLoading"
+          :disabled="pageLoading || (!isPaidMember && data.trips.length > 0)"
           :model-value="selectedTripId"
           name="selected-trip-select"
           no-options-copy="No trips found"
@@ -144,13 +146,35 @@
           @update:model-value="handleSelectTrip" />
       </div>
 
-      <gc-button
-        label="New Trip"
-        size="sm"
-        @click="isCreateTripDialogOpen = true" />
+      <div v-tippy="{ content: !isPaidMember && data.trips.length > 0 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }">
+        <gc-button
+          :disabled="pageLoading || (!isPaidMember && data.trips.length > 0)"
+          label="New Trip"
+          size="sm"
+          @click="isCreateTripDialogOpen = true" />
+      </div>
     </div>
 
-    <div class="grid lg:grid-cols-[65%,35%] grid-cols-1 gap-6">
+    <div v-if="!data.trips.length && !pageLoading">
+      <gc-empty-state>
+        <h5 class="font-bold mb-3 text-base-lg">
+          You haven't created any trips yet!
+        </h5>
+        <p class="mb-4 text-base">
+          Click the button below to get started.
+        </p>
+        <gc-button
+          :disabled="!isPaidMember && data.trips.length > 0"
+          label="Create your first trip"
+          outlined
+          size="sm"
+          @click="isCreateTripDialogOpen = true" />
+      </gc-empty-state>
+    </div>
+
+    <div
+      v-else
+      class="grid lg:grid-cols-[65%,35%] grid-cols-1 gap-6">
       <div class="flex flex-col space-y-6">
         <!-- Pack Widget -->
         <pack-widget />

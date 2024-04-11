@@ -521,15 +521,16 @@
           @update:model-value="handleSelectPack" />
       </div>
 
-      <gc-button
-        v-tippy="{ content: !isPaidMember && data.allPacks.length > 0 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }"
-        class="self-center"
-        :disabled="!isPaidMember && data.allPacks.length > 0"
-        size="sm"
-        @click="isCreatePackDialogOpen = true">
-        <plus-icon class="h-4 mr-2 text-white w-4" />
-        New Pack
-      </gc-button>
+      <div v-tippy="{ content: !isPaidMember && data.allPacks.length > 0 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }">
+        <gc-button
+          class="self-center"
+          :disabled="!isPaidMember && data.allPacks.length > 0"
+          size="sm"
+          @click="isCreatePackDialogOpen = true">
+          <plus-icon class="h-4 mr-2 text-white w-4" />
+          New Pack
+        </gc-button>
+      </div>
     </div>
 
     <div v-if="!data.allPacks.length && !pageLoading">
@@ -543,7 +544,7 @@
         <gc-button
           v-tippy="{ content: !isPaidMember && data.allPacks.length > 0 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }"
           :disabled="!isPaidMember && data.allPacks.length > 0"
-          label="Create a new pack"
+          label="Create your first pack"
           outlined
           size="sm"
           @click="isCreatePackDialogOpen = true" />
@@ -591,14 +592,14 @@
               Add Category
             </gc-button>
           </div>
-          <pack-items-table
+          <!-- <pack-items-table
             v-for="item in data.selectedPack.categories"
             :key="item.id"
             :category="item"
             @handle-add-url="handleInitialAddUrl"
             @handle-remove-category="[ activeCategoryId = item.id, isRemoveCategoryModalOpen = true ]"
             @handle-remove-item="[ activeCategoryId = item.id, activeRow = $event, isRemoveItemModalOpen = true ]"
-            @handle-update-category="($event: UpdateCategoryPayload) => { activeCategoryId = item.id, updateCategory($event) }" />
+            @handle-update-category="($event: UpdateCategoryPayload) => { activeCategoryId = item.id, updateCategory($event) }" /> -->
         </div>
       </div>
     </div>
