@@ -1,3 +1,11 @@
+/**
+ * @api {get} /stripe/webhook Stripe Webhook
+ * @apiName StripeWebhook
+ * @param event - the H3 event
+ * @param stipe - the Stripe instance
+ * @param stripeEvent - the Stripe Webhook event
+ */
+
 import { defineStripeWebhook } from '#stripe';
 import { serverSupabaseClient } from '#supabase/server';
 import { type Database, SubscriptionStatus, SubscriptionLevel } from '@/types';
@@ -9,11 +17,6 @@ const throwError = (msg?: string) => {
   });
 };
 
-/**
- * @param event - the H3 event
- * @param stipe - the Stripe instance
- * @param stripeEvent - the Stripe Webhook event
- */
 export default defineStripeWebhook(async ({ event, stripeEvent }) => {
   const supabase = await serverSupabaseClient<Database>(event);
 

@@ -14,7 +14,7 @@ export const drawerLinks = () => {
   const config = useRuntimeConfig();
 
   const $store = useUserStore();
-  const { hasForumAccess } = storeToRefs($store);
+  const { isPaidMember } = storeToRefs($store);
 
   return [
     {
@@ -53,7 +53,7 @@ export const drawerLinks = () => {
       to: config.public.forumsUrl,
       title: 'Forums',
       icon: MessagesSquare,
-      disabled: !hasForumAccess.value,
+      disabled: !isPaidMember.value,
       requiresSubscription: true,
       external: true,
     },

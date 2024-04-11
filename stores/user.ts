@@ -8,7 +8,7 @@ type State = {
 };
 
 type Getters = {
-  hasForumAccess(): boolean;
+  isPaidMember(): boolean;
   unreadNotifications(): Notification[];
 };
 
@@ -32,7 +32,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
     },
 
     getters: {
-      hasForumAccess () {
+      isPaidMember () {
         return this.profile?.subscriptions[0].prices.identifier === SubscriptionLevel.ANNUAL || this.profile?.subscriptions[0].prices.identifier === SubscriptionLevel.MONTHLY || this.profile?.subscriptions[0].prices.identifier === SubscriptionLevel.LIFE;
       },
       unreadNotifications () {

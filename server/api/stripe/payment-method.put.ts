@@ -1,5 +1,6 @@
 /**
- * POST /api/stripe/payment-method
+ * @api {post} /api/stripe/payment-method
+ * @apiName AttachPaymentMethod
  * @summary Attach a new payment method to a customer
  * @param { PaymentMethod } paymentMethod.body.required - The payment method to attach
  */

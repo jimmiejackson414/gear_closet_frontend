@@ -146,8 +146,6 @@
 
       $appStore.notifyPositive('Successfully updated your subscription. Welcome to Gear Closet!');
       $router.push({ name: 'index' });
-      // TODO: send welcome email
-      // $store.sendWelcomeEmail();
     } catch (error) {
       console.error({ error });
     } finally {

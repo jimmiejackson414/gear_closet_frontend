@@ -12,8 +12,10 @@
 
   const $route = useRoute();
   const $appStore = useAppStore();
+  const $userStore = useUserStore();
   const $store = useClosetStore();
   const { data, pageLoading } = storeToRefs($store);
+  const { isPaidMember } = storeToRefs($userStore);
   const activeCategoryId = ref<number | undefined>(undefined);
 
   const packOptions = computed(() => data.value.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
@@ -501,7 +503,9 @@
       </div>
 
       <gc-button
+        v-tippy="{ content: !isPaidMember && data.allPacks.length > 0 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }"
         class="self-center"
+        :disabled="!isPaidMember && data.allPacks.length > 0"
         size="sm"
         @click="isCreatePackDialogOpen = true">
         <plus-icon class="h-4 mr-2 text-white w-4" />
@@ -518,6 +522,8 @@
           Click the button below to get started.
         </p>
         <gc-button
+          v-tippy="{ content: !isPaidMember && data.allPacks.length > 0 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }"
+          :disabled="!isPaidMember && data.allPacks.length > 0"
           label="Create a new pack"
           outlined
           size="sm"

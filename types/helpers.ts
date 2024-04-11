@@ -1,12 +1,14 @@
 import { Stripe } from 'stripe';
 import type { Profile, Tables } from '@/types';
 
+export type SubscriptionType = Tables<'subscriptions'> & {
+  prices: Tables<'prices'>;
+};
+
 export type ProfileApiResponse = Tables<'profiles'> & {
   onboarding_steps: Tables<'onboarding_steps'>[];
   notifications: Tables<'notifications'>[];
-  subscriptions: Tables<'subscriptions'> & {
-    prices: Tables<'prices'>;
-  }[];
+  subscriptions: SubscriptionType[];
 };
 
 export type SubscriptionApiResponse = {
