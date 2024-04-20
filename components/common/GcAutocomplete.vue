@@ -2,10 +2,10 @@
   import type { Icon } from 'lucide-vue-next';
   import type { SelectOption } from '@/types/helpers';
 
-  interface Props {
+  export interface Props {
     disabled?: boolean;
     loading?: boolean;
-    modelValue?: SelectOption | null;
+    modelValue?: SelectOption | SelectOption[] | null;
     nullable?: boolean;
     multiple?: boolean;
     placeholder?: string;
@@ -49,6 +49,8 @@
     else if (props.size === 'lg') { classes.push('p-4 sm:text-md'); }
 
     if (props.prependIcon) { classes.push('ps-9'); }
+
+    return classes;
   });
 </script>
 
@@ -61,7 +63,8 @@
     :display-value="(option: SelectOption) => option.label"
     :model-value="modelValue"
     :multiple="multiple"
-    :nullable="nullable">
+    :nullable="nullable"
+    @update:model-value="(option: SelectOption) => emit('update:modelValue', option)">
     <headless-combobox-input
       class="appearance-none bg-white border focus:border-primary border-1 border-gray-300 flex items-center gap-3 peer py-2.5 rounded-lg text-dark-grey w-full focus:outline-none focus:ring-0 placeholder:!text-gray-400"
       :class="computedClasses"
