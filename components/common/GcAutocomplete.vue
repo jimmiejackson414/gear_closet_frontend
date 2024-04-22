@@ -1,109 +1,115 @@
 <script lang='ts' setup>
-  import type { Icon } from 'lucide-vue-next';
+  import { type Icon, XIcon } from 'lucide-vue-next';
   import type { SelectOption } from '@/types/helpers';
 
   export interface Props {
     disabled?: boolean;
     loading?: boolean;
-    modelValue?: SelectOption | SelectOption[] | null;
     nullable?: boolean;
-    multiple?: boolean;
     placeholder?: string;
     size?: 'sm' | 'md' | 'lg';
-    options: SelectOption[] | null;
+    options: SelectOption[];
     prependIcon?: Icon;
+    required?: boolean;
   }
 
   const props = withDefaults(defineProps<Props>(), {
     disabled: false,
     loading: false,
-    modelValue: undefined,
+    modelValue: null,
     nullable: true,
-    multiple: false,
     size: 'md',
-    placeholder: '',
+    placeholder: 'Select an option',
     prependIcon: undefined,
+    required: false,
   });
 
-  const emit = defineEmits(['update:modelValue']);
+  const emit = defineEmits(['select', 'search']);
   const query = ref('');
 
-  // watch changes to the query and emit the new value
-  watch(query, (val: string) => {
-    emit('update:modelValue', val);
-  });
-
-  const filteredOptions = computed(() => {
-    return query.value === ''
-      ? props.options
-      : props.options?.filter(option => option.label.toLowerCase()
-        .includes(query.value.toLowerCase()));
+  // watch query and emit value
+  watch(query, (value) => {
+    if (value) emit('search', query);
   });
 
   const computedClasses = computed(() => {
     const classes = [];
 
     // determine padding based on size prop
-    if (props.size === 'sm') { classes.push('p-2 text-base'); }
-    else if (props.size === 'md') { classes.push('p-2.5 text-base'); }
-    else if (props.size === 'lg') { classes.push('p-4 sm:text-md'); }
+    if (props.size === 'sm') { classes.push('p-2 text-base h-8'); }
+    else if (props.size === 'md') { classes.push('p-2.5 text-base h-10'); }
+    else if (props.size === 'lg') { classes.push('p-4 sm:text-md h-12'); }
 
     if (props.prependIcon) { classes.push('ps-9'); }
+
+    if (props.loading) { classes.push('pe-9'); }
 
     return classes;
   });
 </script>
 
 <template>
-  <headless-combobox
-    v-slot="{ open }"
-    as="div"
-    class="relative"
-    :disabled="disabled || loading"
-    :display-value="(option: SelectOption) => option.label"
-    :model-value="modelValue"
-    :multiple="multiple"
-    :nullable="nullable"
-    @update:model-value="(option: SelectOption) => emit('update:modelValue', option)">
-    <headless-combobox-input
-      class="appearance-none bg-white border focus:border-primary border-1 border-gray-300 flex items-center gap-3 peer py-2.5 rounded-lg text-dark-grey w-full focus:outline-none focus:ring-0 placeholder:!text-gray-400"
-      :class="computedClasses"
-      :placeholder="placeholder"
-      @change="query = $event.target.value" />
-    <div class="-translate-y-1/2 absolute top-1/2 right-2 transform">
-      <gc-spinner
-        v-if="loading"
-        size="sm"
-        variant="primary" />
-    </div>
-    <fade-transition>
-      <div v-show="open">
-        <headless-combobox-options
-          class="absolute top-[50px] inset-0 bg-white border-grey drop-shadow-[1px_4px_6px_rgba(0,0,0,0.1)] focus-visible:outline-none h-fit max-h-[270px] overflow-y-scroll rounded-lg w-full z-30"
-          static>
-          <span v-if="!options?.length">
-            <headless-combobox-option>
-              <div class="cursor-default flex p-4 text-dark-gray">
-                <p class="text-base">
-                  No results found.
-                </p>
-              </div>
-            </headless-combobox-option>
-          </span>
-          <span v-else>
-            <headless-combobox-option
-              v-for="option in filteredOptions"
-              :key="option.value"
-              :value="option">
-              <div class="cursor-pointer duration-150 ease-in-out flex px-4 py-2 transition-all hover:bg-gray-100">
-                <p class="text-base w-full">
-                  {{ option.label }}
-                </p>
-              </div>
-            </headless-combobox-option>
-          </span>
-        </headless-combobox-options>
+  <div class="flex items-center w-full">
+    <div class="relative w-full">
+      <label
+        class="sr-only"
+        for="simple-search">Search</label>
+      <div class="relative">
+        <div
+          v-if="prependIcon"
+          class="absolute inset-y-0 flex items-center pointer-events-none ps-3 start-0">
+          <component
+            :is="prependIcon"
+            class="h-4 text-gray-500 w-4" />
+        </div>
+        <input
+          id="simple-search"
+          v-model="query"
+          class="bg-white block border focus:border-primary border-gray-300 py-2.5 rounded-lg text-dark-grey w-full placeholder:!text-gray-400"
+          :class="computedClasses"
+          :placeholder="placeholder"
+          :required="required"
+          type="text">
+        <div
+          v-if="loading"
+          class="-translate-y-1/2 absolute top-1/2 right-2 transform">
+          <gc-spinner
+            size="sm"
+            variant="primary" />
+        </div>
+        <button
+          v-else-if="query && nullable"
+          class="-translate-y-1/2 absolute top-1/2 right-2 transform"
+          @click="query = ''">
+          <x-icon class="h-4 text-gray-500 w-4" />
+        </button>
       </div>
-    </fade-transition>
-  </headless-combobox>
+      <fade-transition>
+        <div
+          v-show="query"
+          class="absolute bg-white divide-gray-100 divide-y mt-2 rounded-lg shadow w-full z-10">
+          <ul class="py-2 text-gray-700 text-sm">
+            <li
+              v-if="loading"
+              class="p-2">
+              Searching...
+            </li>
+            <li
+              v-else-if="!options.length"
+              class="p-2">
+              No results found.
+            </li>
+            <li
+              v-for="option in options"
+              v-else
+              :key="option.value"
+              class="inline-flex px-4 py-2 w-full hover:bg-gray-100"
+              @click="emit('select', option)">
+              {{ option.label }}
+            </li>
+          </ul>
+        </div>
+      </fade-transition>
+    </div>
+  </div>
 </template>

@@ -8,7 +8,7 @@ import Stripe from 'stripe';
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 
 const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2024-04-10',
 });
 
 export default defineEventHandler(async (event) => {

@@ -8,7 +8,7 @@ import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { SubscriptionApiResponse } from '@/types/helpers';
 
 const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string, {
-  apiVersion: '2023-10-16',
+  apiVersion: '2024-04-10',
 });
 
 /**

@@ -76,9 +76,9 @@
     const classes = [];
 
     // determine padding based on size prop
-    if (props.size === 'sm') { classes.push('p-2 text-base'); }
-    else if (props.size === 'md') { classes.push('p-2.5 text-base'); }
-    else if (props.size === 'lg') { classes.push('p-4 sm:text-md'); }
+    if (props.size === 'sm') { classes.push('p-2 text-base h-8'); }
+    else if (props.size === 'md') { classes.push('p-2.5 text-base h-10'); }
+    else if (props.size === 'lg') { classes.push('p-4 sm:text-md h-12'); }
 
     // determine properties based on disabled prop and error state
     hasError.value ? classes.push('border-danger') : classes.push('border-gray-300');

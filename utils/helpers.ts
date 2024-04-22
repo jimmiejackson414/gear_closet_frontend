@@ -217,14 +217,14 @@ export const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: nu
 export const generateUniqueToken = () => uuidv4();
 
 export const generateItem = (): InsertItem => ({
-    consumable: false,
-    generic_type: '',
-    name: '',
-    price: 0,
-    quantity: 0,
-    slug: '',
-    unit: 'oz',
-    url: '',
-    weight: '0',
-    worn: false,
+  consumable: false,
+  generic_type: '',
+  name: '',
+  price: 0,
+  quantity: 0,
+  slug: '',
+  unit: 'oz',
+  url: '',
+  weight: '0',
+  worn: false,
 });

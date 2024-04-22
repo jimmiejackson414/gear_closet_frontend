@@ -10,18 +10,17 @@ const meta: Meta<typeof GcAutocomplete> = {
   tags: ['autodocs'],
   argTypes: {
     disabled: { control: 'boolean' },
-    placeholder: { control: 'text' },
-    modelValue: { control: { type: 'none' } },
+    loading: { control: 'boolean' },
     nullable: { control: 'boolean' },
-    multiple: { control: 'boolean' },
+    placeholder: { control: 'text' },
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
     options: { control: { type: 'array' } },
     prependIcon: { control: { type: 'none' } },
+    required: { control: 'boolean' },
   },
   args: { // default values
     options: [{ label: 'Option 1', value: 'option1' }, { label: 'Option 2', value: 'option2' }] as SelectOption[],
     size: 'md',
-    modelValue: undefined,
   },
 };
 
@@ -35,6 +34,15 @@ const Template: StoryFn<Props> = (args: Props) => ({
   },
   template: '<GcAutocomplete v-bind="args" />',
 });
+
+export const FullExample: Story = {
+  ...Template,
+  name: 'Default',
+  args: {
+    placeholder: 'Select an option',
+    prependIcon: MailIcon,
+  },
+};
 
 export const Disabled: Story = {
   ...Template,
@@ -53,16 +61,7 @@ export const Loading: Story = {
 export const Nullable: Story = {
   ...Template,
   args: {
-    modelValue: { label: 'Option 1', value: 'option1' },
     nullable: true,
-  },
-};
-
-export const Multiple: Story = {
-  ...Template,
-  args: {
-    modelValue: [{ label: 'Option 1', value: 'option1' }],
-    multiple: true,
   },
 };
 
@@ -109,5 +108,12 @@ export const NoOptions: Story = {
   ...Template,
   args: {
     options: [],
+  },
+};
+
+export const Required: Story = {
+  ...Template,
+  args: {
+    required: true,
   },
 };
