@@ -40,7 +40,6 @@ const Template: StoryFn<Props> = (args: Props) => ({
 
 export const Default: Story = {
   ...Template,
-  name: 'Default',
   args: {
     label: 'Default',
   },

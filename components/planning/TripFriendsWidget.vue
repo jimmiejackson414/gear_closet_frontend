@@ -112,6 +112,7 @@
         <gc-autocomplete
           :disabled="searching || submitting"
           :loading="searching"
+          :model-value="searchQuery"
           :nullable="true"
           :options="searchResults"
           placeholder="Search for a friend"
@@ -135,14 +136,15 @@
             v-for="friend in friendsToInvite"
             :key="friend.id"
             class="flex items-center gap-4">
-            <gc-avatar :profile="(friend as Profile)" />
+            <gc-avatar
+              :initials="initials(friend)"
+              :url="buildImageSrc(friend.image)" />
             {{ friendlyUsername(friend as Profile) }}
           </li>
           <li
             v-for="email in emailsToInvite"
             :key="email"
             class="flex items-center gap-4">
-            <gc-avatar />
             {{ email }}
           </li>
         </ul>

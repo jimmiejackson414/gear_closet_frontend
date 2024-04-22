@@ -33,7 +33,6 @@
   });
 
   const inputRef = ref<HTMLInputElement | null>(null);
-  const showPassword = ref(false);
 
   const emit = defineEmits(['update:model-value', 'blur', 'enter']);
 
@@ -43,6 +42,7 @@
 
   defineExpose({ focusInput });
 
+  const showPassword = ref(false);
   const togglePasswordVisibility = () => {
     showPassword.value = !showPassword.value;
   };
@@ -66,9 +66,7 @@
     emit('enter', props.modelValue || undefined);
   };
 
-  const computedType = computed(() => {
-    return showPassword.value ? 'text' : props.type;
-  });
+  const computedType = computed(() => showPassword.value ? 'text' : props.type);
 
   const hasError = computed(() => !!props.error );
 
@@ -81,7 +79,7 @@
     else if (props.size === 'lg') { classes.push('p-4 sm:text-md h-12'); }
 
     // determine properties based on disabled prop and error state
-    hasError.value ? classes.push('border-danger') : classes.push('border-gray-300');
+    hasError.value ? classes.push('!border-danger') : classes.push('border-gray-300');
     props.disabled ? classes.push('bg-gray-100 pointer-events-none text-gray-400') : classes.push('bg-white pointer-events-auto text-dark-grey');
 
     // override padding based on prependIcon prop
@@ -108,8 +106,9 @@
           :id="name"
           ref="inputRef"
           :autocomplete="autocomplete"
-          class="appearance-none bg-transparent block border-1 focus:border-primary border-gray-300 peer py-2.5 rounded-lg w-full focus:outline-none focus:ring-0 placeholder:!text-gray-400"
+          class="appearance-none bg-transparent block border-1 focus:border-primary peer py-2.5 rounded-lg w-full focus:outline-none focus:ring-0 placeholder:!text-gray-400"
           :class="computedClasses"
+          data-testid="gc-input"
           :disabled="disabled"
           :placeholder="placeholder"
           :required="required"

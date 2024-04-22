@@ -39,7 +39,8 @@
             v-for="user in computedUsers"
             :key="user.id"
             border
-            :profile="user" />
+            :initials="initials(user)"
+            :url="buildImageSrc(user.image)" />
           <nuxt-link
             v-if="computedUsers.length > 5"
             class="bg-dark-grey hover:bg-dark-grey/75 border-2 border-white flex justify-center items-center flex-shrink-0 font-medium h-12 min-w-12 rounded-full text-white text-xs w-12 z-10"

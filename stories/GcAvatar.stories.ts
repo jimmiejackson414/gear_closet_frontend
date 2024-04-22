@@ -9,12 +9,12 @@ const meta: Meta<typeof GcAvatar> = {
   argTypes: {
     border: { control: 'boolean' },
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
-    profile: { control: { type: 'none' } },
+    url: { control: 'text' },
+    initials: { control: 'text' },
   },
   args: { // default values
-    // TODO: Fix or mock buildImageSrc
-    profile: {
-      "id":"61b66be5-d199-48d5-898a-c521dd6b59cc","email":"jimmiejackson414@gmail.com","first_name":"Jimmie","last_name":"Jackson","trail_name":"Walk 'n Eats","image":"61b66be5-d199-48d5-898a-c521dd6b59cc/17868.jpg","role":"USER","measuring_system":"IMPERIAL","onboard_date":"2024-03-04T00:17:46.769+00:00","address_1":null,"address_2":null,"city":"","state":"","country":"","created_at":"2024-03-02T23:43:33.212812+00:00","updated_at":"2024-03-08T18:01:09.869088+00:00","location":null},
+    url: 'https://avatar.iran.liara.run/public',
+    initials: 'GC',
     size: 'md',
   },
 };
@@ -32,12 +32,10 @@ const Template: StoryFn = () => ({
 
 export const Default: Story = {
   ...Template,
-  name: 'Default',
 };
 
 export const Border: Story = {
   ...Template,
-  name: 'Border',
   args: {
     border: true,
   },
@@ -83,13 +81,10 @@ export const ExtraLarge: Story = {
   },
 };
 
-// TODO: Initials version
 export const Initials: Story = {
   ...Template,
-  name: 'Initials',
   args: {
-    profile: {
-      image: null,
-    },
+    url: undefined,
   },
 };
+

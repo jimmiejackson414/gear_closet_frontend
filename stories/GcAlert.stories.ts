@@ -28,7 +28,6 @@ const Template: StoryFn = () => ({
 
 export const Default: Story = {
   ...Template,
-  name: 'Default',
   args: {
     message: 'This is a default message',
   },

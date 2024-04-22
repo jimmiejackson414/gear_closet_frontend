@@ -1,20 +1,16 @@
 <script lang='ts' setup>
-  import type { Profile } from '@/types';
-
   interface Props {
-    profile?: Profile;
     border?: boolean;
     size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+    url?: string;
+    initials?: string;
   }
 
   const props = withDefaults(defineProps<Props>(), {
     border: false,
-    profile: undefined,
+    url: undefined,
+    initials: undefined,
     size: 'md',
-  });
-
-  const hasImage = computed(() => {
-    return props.profile && props.profile.image !== null;
   });
 
   const sizeClass = computed(() => {
@@ -37,17 +33,17 @@
 
 <template>
   <img
-    v-if="hasImage"
+    v-if="url"
     alt="User Avatar"
     class="object-cover rounded-full"
     :class="[ sizeClass, { 'border-2 border-white': props.border } ]"
-    :src="buildImageSrc(profile?.image)">
+    :src="url">
   <div
     v-else
     class="bg-gray-200 flex-shrink-0 justify-center items-center inline-flex overflow-hidden relative rounded-full"
     :class="[ sizeClass, { 'border-2 border-white': props.border } ]">
     <span class="font-medium text-gray-600">
-      {{ initials(profile) }}
+      {{ initials }}
     </span>
   </div>
 </template>

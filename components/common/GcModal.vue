@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import { XIcon } from 'lucide-vue-next';
 
-  interface Props {
+  export interface Props {
     closeable?: boolean;
     id?: string;
     title?: string;

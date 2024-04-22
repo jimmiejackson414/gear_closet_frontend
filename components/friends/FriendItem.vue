@@ -14,8 +14,9 @@
     :to="{ name: 'p-friends-slug', params: { slug: friend.friend.id } }">
     <div class="flex justify-center items-center flex-col">
       <gc-avatar
-        :profile="friend.friend"
-        size="xl" />
+        :initials="initials(friend.friend)"
+        size="xl"
+        :url="buildImageSrc(friend.friend.image)" />
       <div class="flex items-center flex-col mt-4">
         <p class="font-bold text-center text-dark-grey">
           {{ friendlyUsername(friend.friend, { includeTrailName: true }) }}
