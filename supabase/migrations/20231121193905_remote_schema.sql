@@ -159,6 +159,24 @@ CREATE TYPE "public"."trip_details_type" AS ENUM (
 
 ALTER TYPE "public"."trip_details_type" OWNER TO "postgres";
 
+ALTER TABLE profiles
+ADD COLUMN fts tsvector GENERATED ALWAYS AS (
+  to_tsvector('simple', coalesce(first_name, '') || ' ' || coalesce(last_name, '') || ' ' || coalesce(email, '') || ' ' || coalesce(trail_name, ''))
+) STORED;
+
+CREATE INDEX profiles_fts ON profiles USING gin (fts); -- generate the index
+
+CREATE OR REPLACE FUNCTION "public"."search_profiles"(search_query text)
+RETURNS SETOF profiles AS $$
+BEGIN
+  RETURN QUERY SELECT *
+  FROM "public"."profiles"
+  WHERE to_tsvector('simple', coalesce(first_name, '') || ' ' || coalesce(last_name, '') || ' ' || coalesce(email, '') || ' ' || coalesce(trail_name, ''))
+  @@ to_tsquery('simple', search_query)
+  and ID <> '00000000-0000-0000-0000-000000000000'; -- Exclude the Admin user
+END; $$
+LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION "public"."generate_slug"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$

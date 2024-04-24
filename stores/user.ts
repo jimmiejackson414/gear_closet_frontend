@@ -33,7 +33,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
     getters: {
       isPaidMember () {
-        return this.profile?.subscriptions[0].prices.identifier === SubscriptionLevel.ANNUAL || this.profile?.subscriptions[0].prices.identifier === SubscriptionLevel.MONTHLY || this.profile?.subscriptions[0].prices.identifier === SubscriptionLevel.LIFE;
+        return this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.ANNUAL || this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.MONTHLY || this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.LIFE;
       },
       unreadNotifications () {
         return this.profile!.notifications.filter(n => !n.read_on_date);

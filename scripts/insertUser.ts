@@ -9,6 +9,7 @@ const supabase = createClient(supabaseUrl, supabaseKey);
 
 /**
  *
+ * @description Programmatically insert a user into the Supabase database
  * @param email
  * @param password
  * @example npx tsx scripts/insertUser.ts test@test.com password

@@ -75,11 +75,12 @@
       try {
         const supabase = useSupabaseClient<Database>();
         const user = useSupabaseUser();
+
+        const tsquery = searchQuery.value.replace(/ /g, '&');
         const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .or(`first_name.ilike.%${searchQuery.value}%,last_name.ilike.%${searchQuery.value}%,email.ilike.%${searchQuery.value}%,trail_name.ilike.%${searchQuery.value}%`)
-          .neq('id', user.value?.id);
+          .rpc('search_profiles', { search_query: tsquery })
+          .neq('id', user.value?.id)
+          .select();
 
         if (!error) {
           results.value = data;
