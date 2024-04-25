@@ -697,6 +697,7 @@ export interface Database {
             | null;
           onboard_date: string | null;
           role: Database["public"]["Enums"]["user_role"] | null;
+          slug: string;
           state: string | null;
           trail_name: string | null;
           updated_at: string | null;
@@ -719,6 +720,7 @@ export interface Database {
             | null;
           onboard_date?: string | null;
           role?: Database["public"]["Enums"]["user_role"] | null;
+          slug: string;
           state?: string | null;
           trail_name?: string | null;
           updated_at?: string | null;
@@ -741,6 +743,7 @@ export interface Database {
             | null;
           onboard_date?: string | null;
           role?: Database["public"]["Enums"]["user_role"] | null;
+          slug?: string;
           state?: string | null;
           trail_name?: string | null;
           updated_at?: string | null;
@@ -1279,6 +1282,7 @@ export interface Database {
             | null;
           onboard_date: string | null;
           role: Database["public"]["Enums"]["user_role"] | null;
+          slug: string;
           state: string | null;
           trail_name: string | null;
           updated_at: string | null;

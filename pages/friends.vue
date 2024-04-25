@@ -32,7 +32,7 @@
       // Fetch current friends
       const { data: friendsData, error: friendsError } = await supabase
         .from('friends')
-        .select('*, friend:profiles!friend_id(*)')
+        .select('*, friend:profiles!friends_friend_id_fkey(*)')
         .eq('profile_id', user.value!.id)
         .returns<ExtendedFriend[]>();
 
