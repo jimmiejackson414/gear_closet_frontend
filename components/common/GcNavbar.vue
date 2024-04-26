@@ -38,7 +38,9 @@
 <template>
   <nav class="container flex items-start p-0 z-50">
     <div class="page-title">
-      <p class="text-base-lg">
+      <p
+        class="text-base-lg"
+        data-testid="welcome-message">
         <span class="mr-2">&#128075;</span>
         <client-only>
           {{ welcomeMessage }}

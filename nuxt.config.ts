@@ -96,6 +96,8 @@ export default defineNuxtConfig({
   runtimeConfig: {
     cloudinaryApiKey: process.env.NUXT_CLOUDINARY_API_KEY,
     cloudinaryApiSecret: process.env.NUXT_CLOUDINARY_API_SECRET,
+    playwrightUsername: process.env.NUXT_PLAYWRIGHT_USERNAME,
+    playwrightPassword: process.env.NUXT_PLAYWRIGHT_PASSWORD,
     sendgridApiKey: process.env.NUXT_SENDGRID_API_KEY,
     forumsApiKey: process.env.NUXT_PUBLIC_FORUMS_API_KEY,
     forumsApiUsername: process.env.NUXT_PUBLIC_FORUMS_API_USERNAME,

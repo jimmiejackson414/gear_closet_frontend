@@ -75,6 +75,7 @@
         <span
           v-tippy="{ content: 'Logout', placement: 'right' }"
           class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
+          data-testid="logout"
           @click="handleLogout">
           <component
             :is="LogOutIcon"

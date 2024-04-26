@@ -687,6 +687,7 @@ export interface Database {
           created_at: string | null;
           email: string;
           first_name: string | null;
+          fts: unknown | null;
           id: string;
           image: string | null;
           last_name: string | null;
@@ -696,6 +697,7 @@ export interface Database {
             | null;
           onboard_date: string | null;
           role: Database["public"]["Enums"]["user_role"] | null;
+          slug: string;
           state: string | null;
           trail_name: string | null;
           updated_at: string | null;
@@ -708,6 +710,7 @@ export interface Database {
           created_at?: string | null;
           email: string;
           first_name?: string | null;
+          fts?: unknown | null;
           id: string;
           image?: string | null;
           last_name?: string | null;
@@ -717,6 +720,7 @@ export interface Database {
             | null;
           onboard_date?: string | null;
           role?: Database["public"]["Enums"]["user_role"] | null;
+          slug: string;
           state?: string | null;
           trail_name?: string | null;
           updated_at?: string | null;
@@ -729,6 +733,7 @@ export interface Database {
           created_at?: string | null;
           email?: string;
           first_name?: string | null;
+          fts?: unknown | null;
           id?: string;
           image?: string | null;
           last_name?: string | null;
@@ -738,6 +743,7 @@ export interface Database {
             | null;
           onboard_date?: string | null;
           role?: Database["public"]["Enums"]["user_role"] | null;
+          slug?: string;
           state?: string | null;
           trail_name?: string | null;
           updated_at?: string | null;
@@ -1253,6 +1259,34 @@ export interface Database {
           p_pack_id: number;
         };
         Returns: Json;
+      };
+      search_profiles: {
+        Args: {
+          search_query: string;
+        };
+        Returns: {
+          address_1: string | null;
+          address_2: string | null;
+          city: string | null;
+          country: string | null;
+          created_at: string | null;
+          email: string;
+          first_name: string | null;
+          fts: unknown | null;
+          id: string;
+          image: string | null;
+          last_name: string | null;
+          location: Json | null;
+          measuring_system:
+            | Database["public"]["Enums"]["measuring_system"]
+            | null;
+          onboard_date: string | null;
+          role: Database["public"]["Enums"]["user_role"] | null;
+          slug: string;
+          state: string | null;
+          trail_name: string | null;
+          updated_at: string | null;
+        }[];
       };
       update_poll: {
         Args: {
@@ -1843,6 +1877,11 @@ export type ArgsImportCsvDatum =
   Database["public"]["Functions"]["import_csv_data"]["Args"];
 export type ReturnTypeImportCsvDatum =
   Database["public"]["Functions"]["import_csv_data"]["Returns"];
+
+export type ArgsSearchProfile =
+  Database["public"]["Functions"]["search_profiles"]["Args"];
+export type ReturnTypeSearchProfile =
+  Database["public"]["Functions"]["search_profiles"]["Returns"];
 
 export type ArgsUpdatePoll =
   Database["public"]["Functions"]["update_poll"]["Args"];
