@@ -96,6 +96,7 @@
           <div class="col-span-12 md:col-span-8">
             <upcoming-trips-widget
               :data="data.trips"
+              data-testid="upcoming-trips-widget"
               :loading="loading" />
           </div>
           <div class="col-span-12 md:col-span-4">

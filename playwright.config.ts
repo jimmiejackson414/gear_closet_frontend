@@ -38,9 +38,6 @@ export default defineConfig({
 
     /* Storage state to reuse the login session. */
     storageState: './tests/state.json',
-
-    /* Ignore HTTPS errors */
-    ignoreHTTPSErrors: true,
   },
 
   /* Configure projects for major browsers */
@@ -51,9 +48,14 @@ export default defineConfig({
     },
 
     {
-      name: 'webkit',
-      use: { ...devices['Desktop Safari'] },
+      name: 'firefox',
+      use: { ...devices['Desktop Firefox'] },
     },
+
+    // {
+    //   name: 'webkit',
+    //   use: { ...devices['Desktop Safari'] },
+    // },
   ],
 
   /* Run your local dev server before starting the tests */

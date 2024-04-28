@@ -1,26 +1,30 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import fs from 'fs';
 
-const readPemFiles = (): any => {
-  if (process.env.NODE_ENV === 'production') return undefined;
-  return {
-    server: {
-      port: 8000,
-      https: {
-        key: fs.readFileSync('./localhost-key.pem'),
-        cert: fs.readFileSync('./localhost.pem'),
-      },
-    },
-  };
-};
-
 export default defineNuxtConfig({
-  ...readPemFiles(),
+  app: {
+    head: {
+      "meta": [
+        // Primary tags
+        { "charset": "utf-8" },
+        { "name": "viewport", "content": "width=device-width, initial-scale=1" },
+        { "hid": "description", "name": "description", "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!" },
+        // Open Graph/ Facebook
+        { "property": "og:type", "content": "website" },
+        { "property": "og:url", "content": "https://app.gearcloset.io/" },
+        { "property": "og:title", "content": "Gear Closet" },
+        { "property": "og:description", "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!" },
+        { "property": "og:image", "content": "/logo-og.jpeg" },
+        // Twitter
+        { "property": "twitter:card", "content": "summary_large_image" },
+        { "property": "twitter:url", "content": "https://app.gearcloset.io/" },
+        { "property": "twitter:title", "content": "Gear Closet" },
+        { "property": "twitter:description", "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!" },
+        { "property": "twitter:image", "content": "/logo-og.jpeg" },
 
-  // app: {
-  //   layoutTransition: { name: 'layout', mode: 'out-in' },
-  //   pageTransition: { name: 'page', mode: 'out-in' },
-  // },
+      ],
+    },
+  },
 
   build: {
     transpile: [
@@ -40,33 +44,18 @@ export default defineNuxtConfig({
 
   devServer: {
     port: 8000,
+    // https: {
+    //   key: fs.readFileSync('./localhost-key.pem')
+    //     .toString(),
+    //   cert: fs.readFileSync('./localhost.pem')
+    //     .toString(),
+    // },
   },
 
   devtools: {
     enabled: true,
   },
 
-  head: {
-    "meta": [
-      // Primary tags
-      { "charset": "utf-8" },
-      { "name": "viewport", "content": "width=device-width, initial-scale=1" },
-      { "hid": "description", "name": "description", "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!" },
-      // Open Graph/ Facebook
-      { "property": "og:type", "content": "website" },
-      { "property": "og:url", "content": "https://app.gearcloset.io/" },
-      { "property": "og:title", "content": "Gear Closet" },
-      { "property": "og:description", "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!" },
-      { "property": "og:image", "content": "/logo-og.jpeg" },
-      // Twitter
-      { "property": "twitter:card", "content": "summary_large_image" },
-      { "property": "twitter:url", "content": "https://app.gearcloset.io/" },
-      { "property": "twitter:title", "content": "Gear Closet" },
-      { "property": "twitter:description", "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!" },
-      { "property": "twitter:image", "content": "/logo-og.jpeg" },
-
-    ],
-  },
 
   headlessui: {
     prefix: 'Headless',
@@ -80,10 +69,6 @@ export default defineNuxtConfig({
     'nuxt-headlessui',
     '@fixers/nuxt-stripe',
   ],
-
-  optimizeDeps: {
-    include: ['tailwind.config.ts'],
-  },
 
   postcss: {
     plugins: {
@@ -121,15 +106,21 @@ export default defineNuxtConfig({
   },
 
   supabase: {
+    cookieOptions: {
+      secure: process.env.NODE_ENV === 'production',
+    },
     redirectOptions: {
+      login: '/login',
+      callback: '/callback',
       exclude: ['/register', '/terms-and-conditions', '/forgot-password', '/p/packs/*'],
+      cookieRedirect: true,
     },
   },
 
   typescript: {
     typeCheck: true,
-    include: ['vendor.d.ts'],
     tsConfig: {
+      include: ['vendor.d.ts'],
       compilerOptions: {
         paths: {
           '@': ['.'],
@@ -141,7 +132,7 @@ export default defineNuxtConfig({
 
   vite: {
     optimizeDeps: {
-      include: ['@vueup/vue-quill'],
+      include: ['@vueup/vue-quill', 'tailwind.config.ts'],
     },
   },
 });

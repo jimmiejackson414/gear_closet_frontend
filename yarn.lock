@@ -812,6 +812,11 @@
   resolved "https://registry.yarnpkg.com/@eslint/js/-/js-8.55.0.tgz#b721d52060f369aa259cf97392403cb9ce892ec6"
   integrity sha512-qQfo2mxH5yVom1kacMtZZJFVdW+E70mqHMJvVg6WTLo+VBuQJ4TojZlfWBjK0ve5BdEeNAVxOsl/nvNMpJOaJA==
 
+"@faker-js/faker@^8.0.2":
+  version "8.4.1"
+  resolved "https://registry.yarnpkg.com/@faker-js/faker/-/faker-8.4.1.tgz#5d5e8aee8fce48f5e189bf730ebd1f758f491451"
+  integrity sha512-XQ3cU+Q8Uqmrbf2e0cIC/QN43sTBSC8KF12u29Mb47tWrt2hAgBXSgpZMj4Ao8Uk0iJcU99QsOCaIL8934obCg==
+
 "@fastify/busboy@^2.0.0":
   version "2.1.0"
   resolved "https://registry.yarnpkg.com/@fastify/busboy/-/busboy-2.1.0.tgz#0709e9f4cb252351c609c6e6d8d6779a8d25edff"
@@ -7340,6 +7345,14 @@ supabase@^1.145.4:
     node-fetch "^3.3.2"
     tar "6.2.0"
 
+supawright@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/supawright/-/supawright-0.2.0.tgz#67624997d198cb05f2607a70a84aee100d938dee"
+  integrity sha512-XrBbpPCv875U5TL42zeoayA2hOZSP2Qkn2k2FVcI3tORbJGBHszY+TZjbRPA/0NsiGZVpHTdDRyeWLtMXeGFAw==
+  dependencies:
+    "@faker-js/faker" "^8.0.2"
+    ts-postgres "2.0.1"
+
 supports-color@^5.3.0:
   version "5.5.0"
   resolved "https://registry.yarnpkg.com/supports-color/-/supports-color-5.5.0.tgz#e2e69a44ac8772f78a1ec0b35b689df6530efc8f"
@@ -7560,6 +7573,11 @@ ts-interface-checker@^0.1.9:
   version "0.1.13"
   resolved "https://registry.yarnpkg.com/ts-interface-checker/-/ts-interface-checker-0.1.13.tgz#784fd3d679722bc103b1b4b8030bcddb5db2a699"
   integrity sha512-Y/arvbn+rrz3JCKl9C4kVNfTfSm2/mEp5FSz5EsZSANGPSlQrpRI5M4PKF+mJnE52jOO90PnPSc3Ur3bTQw0gA==
+
+ts-postgres@2.0.1:
+  version "2.0.1"
+  resolved "https://registry.yarnpkg.com/ts-postgres/-/ts-postgres-2.0.1.tgz#69b5c2387675dfdb4442a9b3e12ec36afc1c0a95"
+  integrity sha512-tN8bDZpy82yP0xW9BGRT4cYgRlTy+dKfMeCaf8fcQ6Ddd7RSIczjr8Bsp/vMzs0AjI8FA5RXNjFUa3+UDUDzCA==
 
 tslib@2.3.0:
   version "2.3.0"
