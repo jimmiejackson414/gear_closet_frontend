@@ -2,12 +2,12 @@
   import { FootprintsIcon } from 'lucide-vue-next';
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
-  import type { Trip } from '@/types';
+  import type { Tables } from '@/types';
 
   dayjs.extend(relativeTime);
 
   interface Props {
-    data: Trip[];
+    data: Tables<'trips'>[];
     loading: boolean;
   }
 
@@ -22,7 +22,7 @@
       .fromNow();
   };
 
-  const calculatedProgress = (trip: Trip) => {
+  const calculatedProgress = (trip: Tables<'trips'>) => {
     const tripDurationInDays = dayjs(trip.starting_date)
       .diff(trip.created_at, 'day');
     const elapsedTimeInDays = dayjs()
@@ -33,7 +33,7 @@
   };
 
   const $router = useRouter();
-  const handleRouteClick = (trip: Trip) => {
+  const handleRouteClick = (trip: Tables<'trips'>) => {
     $router.push({
       name: 'planning',
       query: { trip: encrypt(trip.id) },

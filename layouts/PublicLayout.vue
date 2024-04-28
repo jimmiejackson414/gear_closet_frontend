@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
   import GcFooter from '@/components/common/GcFooter.vue';
-  import type { Profile } from '@/types';
+  import type { Tables } from '@/types';
 
   const loading = ref(false);
 
@@ -11,7 +11,7 @@
   const $store = useUserStore();
   const { profile } = storeToRefs($store);
 
-  const { data, error } = await useFetch<Profile | null>('/api/profile', {
+  const { data, error } = await useFetch<Tables<'profiles'> | null>('/api/profile', {
     headers: useRequestHeaders(['cookie']),
   });
 

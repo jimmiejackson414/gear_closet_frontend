@@ -1,10 +1,10 @@
 <script lang='ts' setup>
   import { CalendarCheckIcon } from 'lucide-vue-next';
   import GcSkeleton from '@/components/common/GcSkeleton.vue';
-  import type { TripFriend } from '@/types';
+  import type { Tables } from '@/types';
 
   interface Props {
-    data: TripFriend[];
+    data: Tables<'trip_friends'>[];
     loading: boolean;
   }
 

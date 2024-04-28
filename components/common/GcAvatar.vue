@@ -1,8 +1,8 @@
 <script lang='ts' setup>
-  import type { Profile } from '@/types';
+  import type { Tables } from '@/types';
 
   interface Props {
-    profile?: Profile;
+    profile?: Tables<'profiles'>;
     border?: boolean;
     size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
   }

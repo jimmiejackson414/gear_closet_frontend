@@ -1,8 +1,8 @@
 <script lang='ts' setup>
   import { CheckCircleIcon, BookUserIcon, HeartIcon } from 'lucide-vue-next';
   import type { FilePondFile } from 'filepond';
-  import { SubscriptionLevel, MeasuringSystem, type Database } from '@/types';
   import { Modal, type InstanceOptions, type ModalInterface, type ModalOptions } from 'flowbite';
+  import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
   import type { SelectOption } from '@/types/helpers';
 
   definePageMeta({ layout: 'page-layout' });

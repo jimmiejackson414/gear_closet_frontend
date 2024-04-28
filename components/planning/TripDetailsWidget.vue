@@ -3,9 +3,8 @@
   import VueDatePicker from '@vuepic/vue-datepicker';
   import { FootprintsIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
   import { usePlanningStore } from '@/stores/planning';
-  import { TripDetailType } from '@/types';
   import { prependProtocol } from '~/utils/helpers';
-  import type { Database, TripDetail, UpdateTrip, UpdateTripDetail } from '@/types';
+  import { TripDetailsType, type Database, type Tables, type TablesUpdate } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
   const $appStore = useAppStore();
@@ -13,13 +12,11 @@
   const { data, pageLoading, selectedTripId, selectedTrip } = storeToRefs($store);
 
   const tripDetails = computed(() => {
-    return data.value?.trip_details.filter((detail) => {
-      return detail.type === TripDetailType.TRIP;
-    }) || [];
+    return data.value?.trip_details.filter((detail) => detail.type === TripDetailsType.TRIP) || [];
   });
 
   const isEditDialogOpen = ref(false);
-  const activeDetail = ref<TripDetail | null>(null);
+  const activeDetail = ref<Tables<'trip_details'> | null>(null);
   const detailHasUrl = ref(false);
 
   const updateDetailHasUrl = (value: boolean) => {
@@ -35,7 +32,7 @@
     detailHasUrl.value = Boolean(newVal?.url);
   });
 
-  const toggleEditDialog = (detail: TripDetail) => {
+  const toggleEditDialog = (detail: Tables<'trip_details'>) => {
     activeDetail.value = { ...detail };
     isEditDialogOpen.value = !isEditDialogOpen.value;
   };
@@ -50,7 +47,7 @@
         .insert({
           trip_id: selectedTripId?.value as number,
           title: 'New detail',
-          type: TripDetailType.TRIP,
+          type: TripDetailsType.TRIP,
           value: 'New trip detail description',
         })
         .select();
@@ -72,7 +69,7 @@
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
-      const payload: UpdateTripDetail = { ...activeDetail.value, url: detailHasUrl.value ? prependProtocol(activeDetail.value?.url as string) : null };
+      const payload: TablesUpdate<'trip_details'> = { ...activeDetail.value, url: detailHasUrl.value ? prependProtocol(activeDetail.value?.url as string) : null };
 
       const { data: updatedDetail, error } = await supabase.from('trip_details')
         .update(payload)
@@ -116,7 +113,7 @@
    * Update a trip
    * @param payload
    */
-  const updateTrip = async (payload: UpdateTrip) => {
+  const updateTrip = async (payload: TablesUpdate<'trips'>) => {
     try {
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTrip, error } = await supabase.from('trips')

@@ -8,7 +8,7 @@
 
 import { defineStripeWebhook } from '#stripe';
 import { serverSupabaseClient } from '#supabase/server';
-import { type Database, SubscriptionStatus, SubscriptionLevel } from '@/types';
+import { SubscriptionStatus, type Database, SubscriptionLevel } from '@/types';
 
 const throwError = (msg?: string) => {
   throw createError({

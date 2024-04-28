@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import { AtSignIcon, LockIcon } from 'lucide-vue-next';
   import type { Provider } from '@supabase/supabase-js';
-  import type { Profile } from '@/types';
+  import type { Tables } from '@/types';
 
   const supabase = useSupabaseClient();
   const form = reactive({
@@ -40,7 +40,7 @@
       }
 
       // Fetch the user's profile
-      const profile = await $fetch<Profile | null>('/api/profile', {
+      const profile = await $fetch<Tables<'profiles'> | null>('/api/profile', {
         headers: useRequestHeaders(['cookie']),
       });
 

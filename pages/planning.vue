@@ -3,7 +3,7 @@
   import VueDatePicker from '@vuepic/vue-datepicker';
   import { BackpackIcon, CalendarIcon, MapPinIcon, SettingsIcon, TextIcon } from 'lucide-vue-next';
   import { usePlanningStore } from '@/stores/planning';
-  import type { Database, InsertTrip, Tables, TripDetail } from '@/types';
+  import type { Database, TablesInsert, Tables } from '@/types';
   import type { SelectOption } from '@/types/helpers';
   import '@vuepic/vue-datepicker/dist/main.css';
 
@@ -50,7 +50,7 @@
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
-      const payload: InsertTrip = {
+      const payload: TablesInsert<'trips'> = {
         name: newTrip.name,
         description: newTrip.description,
         starting_point: newTrip.starting_point,
@@ -180,10 +180,10 @@
         <pack-widget />
 
         <!-- Hike Details -->
-        <hike-details-widget @create="(detail: TripDetail) => data.trip_details.push(detail)" />
+        <hike-details-widget @create="(detail: Tables<'trip_details'>) => data.trip_details.push(detail)" />
 
         <!-- Trip Details -->
-        <trip-details-widget @create="(detail: TripDetail) => data.trip_details.push(detail)" />
+        <trip-details-widget @create="(detail: Tables<'trip_details'>) => data.trip_details.push(detail)" />
       </div>
 
       <div class="flex flex-col space-y-6">

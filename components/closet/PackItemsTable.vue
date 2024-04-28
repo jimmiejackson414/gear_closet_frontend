@@ -4,7 +4,7 @@
   import convert, { type Mass } from 'convert';
   import { useAppStore } from '@/stores/app';
   import type { ExtendedCategory, SelectOption } from '@/types/helpers';
-  import type { Database, Item } from '@/types';
+  import type { Database, Tables } from '@/types';
 
   export interface Column {
     name: string;
@@ -12,7 +12,7 @@
     align: string;
   }
 
-  export interface RowItem extends Item {
+  export interface RowItem extends Tables<'items'> {
     category_item_id: number;
     position: number;
   }
@@ -139,7 +139,7 @@
       const user = useSupabaseUser();
 
       // This is the item for the server request
-      const newItem = { ...generateItem(), profile_id: user.value?.id } as Item;
+      const newItem = { ...generateItem(), profile_id: user.value?.id } as Tables<'items'>;
 
       // This is the item for the optimistic update
       const optimisticItem = {

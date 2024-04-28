@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { useAppStore } from '@/stores/app';
-import { SubscriptionLevel, type Database, type Notification, type UpdateProfile } from '@/types';
+import { type Tables, type Database, type TablesUpdate, SubscriptionLevel } from '@/types';
 import type { ProfileApiResponse } from '@/types/helpers';
 
 type State = {
@@ -9,7 +9,7 @@ type State = {
 
 type Getters = {
   isPaidMember(): boolean;
-  unreadNotifications(): Notification[];
+  unreadNotifications(): Tables<'notifications'>[];
 };
 
 type Actions = {
@@ -19,7 +19,7 @@ type Actions = {
   markAllAsRead(): void;
   deleteAvatar(): Promise<{ success: boolean }>
   updateAvatar(file: File): Promise<{ success: boolean }>;
-  updateProfile(id: string, profile: UpdateProfile): void;
+  updateProfile(id: string, profile: TablesUpdate<'profiles'>): void;
 };
 
 export const useUserStore = defineStore<'user', State, Getters, Actions>(
@@ -185,7 +185,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         }
       },
 
-      async updateProfile (id: string, profile: UpdateProfile) {
+      async updateProfile (id: string, profile: TablesUpdate<'profiles'>) {
         const $appStore = useAppStore();
         try {
           const supabase = useSupabaseClient<Database>();
