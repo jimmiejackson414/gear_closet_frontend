@@ -1,5 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import fs from 'fs';
+// import fs from 'fs';
 
 export default defineNuxtConfig({
   app: {

@@ -16,7 +16,7 @@
   }
 
   const $store = useAppStore();
-  const loading = ref(false);
+  const loading = ref(true);
   const data: DashboardData = reactive({
     friends: [],
     trips: [],
@@ -29,7 +29,7 @@
   });
 
   const fetchForumPosts = () => $fetch('/api/forumPosts');
-  const { data: fData, error: fError } = useAsyncData<ForumResponse>('forumPosts', fetchForumPosts);
+  const { data: fData, error: fError } = await useAsyncData<ForumResponse>('forumPosts', fetchForumPosts);
 
   const fetchDashboard = async () => {
     const supabase = useSupabaseClient<Database>();
@@ -102,6 +102,7 @@
           <div class="col-span-12 md:col-span-4">
             <friends-widget
               :data="data.friends"
+              data-testid="friends-widget"
               :loading="loading" />
           </div>
         </div>
@@ -109,11 +110,13 @@
       <div class="col-span-12 md:col-span-3">
         <invitations-widget
           :data="data.trip_friends"
+          data-testid="invitations-widget"
           :loading="loading" />
       </div>
       <div class="col-span-12">
         <forums-widget
           :data="forumData"
+          data-testid="forums-widget"
           :loading="loading" />
       </div>
     </div>
