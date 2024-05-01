@@ -592,14 +592,14 @@
               Add Category
             </gc-button>
           </div>
-          <!-- <pack-items-table
+          <pack-items-table
             v-for="item in data.selectedPack.categories"
             :key="item.id"
             :category="item"
             @handle-add-url="handleInitialAddUrl"
             @handle-remove-category="[ activeCategoryId = item.id, isRemoveCategoryModalOpen = true ]"
             @handle-remove-item="[ activeCategoryId = item.id, activeRow = $event, isRemoveItemModalOpen = true ]"
-            @handle-update-category="($event: UpdateCategoryPayload) => { activeCategoryId = item.id, updateCategory($event) }" /> -->
+            @handle-update-category="($event: UpdateCategoryPayload) => { activeCategoryId = item.id, updateCategory($event) }" />
         </div>
       </div>
     </div>
