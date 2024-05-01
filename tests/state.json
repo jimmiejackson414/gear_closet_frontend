@@ -1,35 +1,4 @@
 {
-  "cookies": [
-    {
-      "name": "sb-access-token",
-      "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzE0NDI2OTU1LCJpYXQiOjE3MTQ0MjMzNTUsImlzcyI6Imh0dHA6Ly8xMjcuMC4wLjE6NTQzMjEvYXV0aC92MSIsInN1YiI6IjYxYjY2YmU1LWQxOTktNDhkNS04OThhLWM1MjFkZDZiNTljYyIsImVtYWlsIjoiamltbWllamFja3NvbjQxNEBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7fSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTcxNDQyMzM1NX1dLCJzZXNzaW9uX2lkIjoiMzU1NjY0NzgtZmM3Zi00Nzc1LWJlOWQtZmViYTVhMTg2OGZkIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.8_U-vPsmT9SIDEpD1YhQMrCnmTFCHiJQ4lwYvnOtvYg",
-      "domain": "localhost",
-      "path": "/",
-      "expires": 1714452155.13705,
-      "httpOnly": false,
-      "secure": false,
-      "sameSite": "Lax"
-    },
-    {
-      "name": "sb-refresh-token",
-      "value": "x2bGr9-An5FHDp-fVk3DYg",
-      "domain": "localhost",
-      "path": "/",
-      "expires": 1714452155.137166,
-      "httpOnly": false,
-      "secure": false,
-      "sameSite": "Lax"
-    }
-  ],
-  "origins": [
-    {
-      "origin": "http://localhost:8000",
-      "localStorage": [
-        {
-          "name": "sb-127-auth-token",
-          "value": "{\"access_token\":\"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJhdXRoZW50aWNhdGVkIiwiZXhwIjoxNzE0NDI2OTU1LCJpYXQiOjE3MTQ0MjMzNTUsImlzcyI6Imh0dHA6Ly8xMjcuMC4wLjE6NTQzMjEvYXV0aC92MSIsInN1YiI6IjYxYjY2YmU1LWQxOTktNDhkNS04OThhLWM1MjFkZDZiNTljYyIsImVtYWlsIjoiamltbWllamFja3NvbjQxNEBnbWFpbC5jb20iLCJwaG9uZSI6IiIsImFwcF9tZXRhZGF0YSI6eyJwcm92aWRlciI6ImVtYWlsIiwicHJvdmlkZXJzIjpbImVtYWlsIl19LCJ1c2VyX21ldGFkYXRhIjp7fSwicm9sZSI6ImF1dGhlbnRpY2F0ZWQiLCJhYWwiOiJhYWwxIiwiYW1yIjpbeyJtZXRob2QiOiJwYXNzd29yZCIsInRpbWVzdGFtcCI6MTcxNDQyMzM1NX1dLCJzZXNzaW9uX2lkIjoiMzU1NjY0NzgtZmM3Zi00Nzc1LWJlOWQtZmViYTVhMTg2OGZkIiwiaXNfYW5vbnltb3VzIjpmYWxzZX0.8_U-vPsmT9SIDEpD1YhQMrCnmTFCHiJQ4lwYvnOtvYg\",\"token_type\":\"bearer\",\"expires_in\":3600,\"expires_at\":1714426955,\"refresh_token\":\"x2bGr9-An5FHDp-fVk3DYg\",\"user\":{\"id\":\"61b66be5-d199-48d5-898a-c521dd6b59cc\",\"aud\":\"authenticated\",\"role\":\"authenticated\",\"email\":\"jimmiejackson414@gmail.com\",\"email_confirmed_at\":\"2024-03-02T23:43:33.212812Z\",\"phone\":\"\",\"confirmed_at\":\"2024-03-02T23:43:33.212812Z\",\"last_sign_in_at\":\"2024-04-29T20:42:35.128196593Z\",\"app_metadata\":{\"provider\":\"email\",\"providers\":[\"email\"]},\"user_metadata\":{},\"identities\":[{\"identity_id\":\"e82ae74a-b6fb-42e1-81d6-5ba03be9d937\",\"id\":\"7ac51dbe-a60a-42f3-adcd-3095febd128f\",\"user_id\":\"61b66be5-d199-48d5-898a-c521dd6b59cc\",\"identity_data\":{\"email\":\"jimmiejackson414@gmail.com\",\"sub\":\"61b66be5-d199-48d5-898a-c521dd6b59cc\"},\"provider\":\"email\",\"last_sign_in_at\":\"2024-03-02T23:43:33.212812Z\",\"created_at\":\"2024-03-02T23:43:33.212812Z\",\"updated_at\":\"2024-03-02T23:43:33.212812Z\",\"email\":\"jimmiejackson414@gmail.com\"}],\"created_at\":\"2024-03-02T23:43:33.212812Z\",\"updated_at\":\"2024-04-29T20:42:35.130943Z\",\"is_anonymous\":false}}"
-        }
-      ]
-    }
-  ]
+  "cookies": [],
+  "origins": []
 }

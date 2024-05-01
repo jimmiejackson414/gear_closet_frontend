@@ -15,7 +15,9 @@
 </script>
 
 <template>
-  <div class="bg-white h-full p-4 rounded-4xl shadow-light">
+  <div
+    class="bg-white h-full p-4 rounded-4xl shadow-light"
+    data-testid="invitations-widget">
     <gc-skeleton
       v-if="loading"
       avatar

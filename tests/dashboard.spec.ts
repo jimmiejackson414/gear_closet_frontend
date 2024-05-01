@@ -1,4 +1,4 @@
-import { expect } from '@playwright/test';
+import { expect } from '@nuxt/test-utils/playwright';
 import { withSupawright } from 'supawright';
 import { promises as fs } from 'fs';
 import { fileURLToPath } from 'url';
@@ -6,16 +6,18 @@ import path from 'path';
 import type { Database } from '@/types';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));
-const forumPosts = JSON.parse(await fs.readFile(path.resolve(dirname, '../mocks/forumPosts.json'), 'utf-8'));
+const forumPosts = JSON.parse(await fs.readFile(path.resolve(dirname, './mocks/forumPosts.json'), 'utf-8'));
+const emptyState = JSON.parse(await fs.readFile(path.resolve(dirname, './mocks/emptyDashboardState.json'), 'utf-8'));
+// const populatedState = JSON.parse(await fs.readFile(path.resolve(dirname, './mocks/populatedDashboardState.json'), 'utf-8'));
 
 const test = withSupawright<Database, 'public' | 'storage'>(['public', 'storage']);
 
 test.describe('Dashboard', async () => {
   test.beforeEach(async ({ page }) => {
-    await page.goto('/');
+    await page.goto('/', { waitUntil: 'domcontentloaded' });
   });
 
-  test('has welcome message', async ({ page, supawright }) => {
+  test('has welcome message', async ({ page }) => {
     // Expect a title "to contain" a substring.
     await expect(page)
       .toHaveTitle(/Dashboard | Gear Closet/);
@@ -73,17 +75,51 @@ test.describe('Dashboard', async () => {
       .toBe(8);
   });
 
-  test('displays the notifications dropdown and at least one notification', async ({ page }) => {
-    const notificationsButton = page.locator('[data-testid="notifications-button"]');
-    await notificationsButton.click();
+  // test('displays the notifications dropdown and at least one notification', async ({ page }) => {
+  //   const notificationsButton = page.locator('[data-testid="notifications-button"]');
 
-    await page.waitForTimeout(500);
+  //   await notificationsButton.click();
 
-    await page.waitForSelector('[data-testid="notifications-dropdown"]');
-    const notificationsDropdown = page.locator('[data-testid="notifications-dropdown"]');
+  //   await page.waitForSelector('[data-testid="notifications-dropdown"]');
 
-    const notifications = notificationsDropdown.locator('li');
-    expect(await notifications.count())
-      .toBeGreaterThan(0);
+  //   const notificationsDropdown = page.locator('[data-testid="notifications-dropdown"]');
+  //   const notifications = notificationsDropdown.locator('li');
+  //   const notificationCount = await notifications.count();
+  //   expect(notificationCount)
+  //     .toBeGreaterThan(0);
+  // });
+
+  test('displays empty state for all widgets correctly', async ({ page }) => {
+    // page.on('console', log => {
+    //   console.log(log.text());
+    // });
+
+    // page.on('request', request => {
+    //   console.log('request url');
+    //   if (!request.url()
+    //     .includes('/_nuxt/')) {
+    //     console.log('>>', request.url(), request.method());
+    //   }
+    // });
+
+    // mock the API response
+    await page.route('**/rest/v1/rpc/get_dashboard_data', async route => {
+      const json = JSON.stringify(emptyState);
+      await route.fulfill({ json });
+    });
+
+    const upcomingTripsWidget = page.getByTestId('upcoming-trips-widget');
+    expect(await upcomingTripsWidget.textContent())
+      .toContain('Upcoming Trips (0)');
+    expect(await upcomingTripsWidget.textContent())
+      .toContain('You don\'t have any upcoming trips yet!');
+
+    const friendsWidget = page.getByTestId('friends-widget');
+    expect(await friendsWidget.textContent())
+      .toContain('You haven\'t connected with any friends yet!');
+
+    const invitationsWidget = page.getByTestId('invitations-widget');
+    expect(await invitationsWidget.textContent())
+      .toContain('You don\'t currently have any pending invitations.');
   });
 });

@@ -96,13 +96,11 @@
           <div class="col-span-12 md:col-span-8">
             <upcoming-trips-widget
               :data="data.trips"
-              data-testid="upcoming-trips-widget"
               :loading="loading" />
           </div>
           <div class="col-span-12 md:col-span-4">
             <friends-widget
               :data="data.friends"
-              data-testid="friends-widget"
               :loading="loading" />
           </div>
         </div>
@@ -110,7 +108,6 @@
       <div class="col-span-12 md:col-span-3">
         <invitations-widget
           :data="data.trip_friends"
-          data-testid="invitations-widget"
           :loading="loading" />
       </div>
       <div class="col-span-12">
