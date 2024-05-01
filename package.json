@@ -10,7 +10,7 @@
     "postinstall": "nuxt prepare",
     "typegen": "npx supabase gen types typescript --local public > ./types/index.ts && npx better-supabase-types -i ./types/index.ts -f -s",
     "typecheck": "npx nuxi typecheck",
-    "test:unit": "vitest run --ui",
+    "test:unit": "npx vitest watch --ui",
     "cert": "mkcert -key-file ./localhost-key.pem -cert-file ./localhost.pem localhost"
   },
   "devDependencies": {
