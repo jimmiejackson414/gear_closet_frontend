@@ -19,7 +19,9 @@
 </script>
 
 <template>
-  <div class="!bg-white card card-aside">
+  <div
+    class="!bg-white card card-aside"
+    data-testid="friends-widget">
     <gc-skeleton
       v-if="loading"
       avatar

@@ -16,7 +16,6 @@
       latest_posts: [],
       categories: [],
     }),
-    loading: false,
   });
 
   const $store = useUserStore();

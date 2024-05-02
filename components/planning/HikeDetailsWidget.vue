@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { MountainIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
-  import { TripDetailType, type Database, type TripDetail, type UpdateTripDetail, type UpdateTrip } from '@/types';
+  import { TripDetailsType, type Database, type Tables, type TablesUpdate } from '@/types';
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
@@ -8,12 +8,12 @@
 
   const hikeDetails = computed(() => {
     return data.value?.trip_details.filter((detail) => {
-      return detail.type === TripDetailType.HIKE;
+      return detail.type === TripDetailsType.HIKE;
     }) || [];
   });
 
   const isEditDialogOpen = ref(false);
-  const activeDetail = ref<TripDetail | null>(null);
+  const activeDetail = ref<Tables<'trip_details'> | null>(null);
   const detailHasUrl = ref(false);
 
   const updateDetailHasUrl = (value: boolean) => {
@@ -29,7 +29,7 @@
     detailHasUrl.value = Boolean(newVal?.url);
   });
 
-  const toggleEditDialog = (detail: TripDetail) => {
+  const toggleEditDialog = (detail: Tables<'trip_details'>) => {
     activeDetail.value = { ...detail };
     isEditDialogOpen.value = !isEditDialogOpen.value;
   };
@@ -44,7 +44,7 @@
         .insert({
           trip_id: selectedTripId?.value,
           title: 'New detail',
-          type: TripDetailType.HIKE,
+          type: TripDetailsType.HIKE,
           value: 'New hike detail description',
         })
         .select();
@@ -65,7 +65,7 @@
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
-      const payload: UpdateTripDetail = { ...activeDetail.value, url: detailHasUrl.value ? prependProtocol(activeDetail.value?.url as string) : null };
+      const payload: TablesUpdate<'trip_details'> = { ...activeDetail.value, url: detailHasUrl.value ? prependProtocol(activeDetail.value?.url as string) : null };
 
       const { data: updatedDetail, error } = await supabase.from('trip_details')
         .update(payload)
@@ -111,7 +111,7 @@
    * Updates a trip
    * @param payload
    */
-  const updateTrip = async (payload: UpdateTrip) => {
+  const updateTrip = async (payload: TablesUpdate<'trips'>) => {
     try {
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTrip, error } = await supabase.from('trips')

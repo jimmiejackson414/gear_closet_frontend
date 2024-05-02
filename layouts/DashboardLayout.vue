@@ -1,11 +1,11 @@
 <script lang='ts' setup>
-  import type { Profile } from '@/types';
+  import type { Tables } from '@/types';
 
 
   const $store = useUserStore();
   const { profile } = storeToRefs($store);
 
-  const { data, error } = await useFetch<Profile | null>('/api/profile', {
+  const { data, error } = await useFetch<Tables<'profiles'> | null>('/api/profile', {
     headers: useRequestHeaders(['cookie']),
   });
 

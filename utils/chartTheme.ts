@@ -185,42 +185,42 @@ export const HueCircle19 = [
 
 export const findTheme = (theme: Theme | string | undefined): Array<string> => {
   switch (theme) {
-    case Theme.BLUE6:
-      return Blue6;
-    case Theme.BLUEGREEN6:
-      return BlueGreen6;
-    case Theme.BREEZE6:
-      return Breeze6;
-    case Theme.CELESTIAL6:
-      return Celestial6;
-    case Theme.CIRCUIT6:
-      return Circuit6;
-    case Theme.DAMASK6:
-      return Damask6;
-    case Theme.DEPTH6:
-      return Depth6;
-    case Theme.FLOW6:
-      return Flow6;
-    case Theme.FORTE6:
-      return Forte6;
-    case Theme.GENESIS6:
-      return Genesis6;
-    case Theme.GRAYSCALE6:
-      return Grayscale6;
-    case Theme.IONBOARDROOM6:
-      return IonBoardroom6;
-    case Theme.KILTER6:
-      return Kilter6;
-    case Theme.TABLEAU10:
-      return Tableau10;
-    case Theme.COLORBLIND10:
-      return ColorBlind10;
-    case Theme.JEWELBRIGHT9:
-      return JewelBright9;
-    case Theme.HUECIRCLE19:
-      return HueCircle19;
-    default:
-      return Blue6;
+  case Theme.BLUE6:
+    return Blue6;
+  case Theme.BLUEGREEN6:
+    return BlueGreen6;
+  case Theme.BREEZE6:
+    return Breeze6;
+  case Theme.CELESTIAL6:
+    return Celestial6;
+  case Theme.CIRCUIT6:
+    return Circuit6;
+  case Theme.DAMASK6:
+    return Damask6;
+  case Theme.DEPTH6:
+    return Depth6;
+  case Theme.FLOW6:
+    return Flow6;
+  case Theme.FORTE6:
+    return Forte6;
+  case Theme.GENESIS6:
+    return Genesis6;
+  case Theme.GRAYSCALE6:
+    return Grayscale6;
+  case Theme.IONBOARDROOM6:
+    return IonBoardroom6;
+  case Theme.KILTER6:
+    return Kilter6;
+  case Theme.TABLEAU10:
+    return Tableau10;
+  case Theme.COLORBLIND10:
+    return ColorBlind10;
+  case Theme.JEWELBRIGHT9:
+    return JewelBright9;
+  case Theme.HUECIRCLE19:
+    return HueCircle19;
+  default:
+    return Blue6;
   }
 };
 

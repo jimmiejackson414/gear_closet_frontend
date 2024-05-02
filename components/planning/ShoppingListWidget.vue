@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import { Tabs } from 'flowbite';
   import { CheckSquare2Icon, PlusIcon } from 'lucide-vue-next';
-  import { ResourceType, type Database, type ShoppingListItem, type UpdateShoppingListItem } from '@/types';
+  import { ResourceType, type Database, type Tables, type TablesUpdate } from '@/types';
   import type { InstanceOptions, TabsOptions, TabsInterface, TabItem } from 'flowbite';
 
   const $appStore = useAppStore();
@@ -48,7 +48,7 @@
    *  Updates a shopping item.
    * @param shoppingItem
    */
-  const updateShoppingItem = async (shoppingItem: ShoppingListItem, payload: UpdateShoppingListItem) => {
+  const updateShoppingItem = async (shoppingItem: Tables<'shopping_list_items'>, payload: TablesUpdate<'shopping_list_items'>) => {
     try {
       const supabase = useSupabaseClient<Database>();
       const { data: updatedShoppingItem, error } = await supabase.from('shopping_list_items')

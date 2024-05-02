@@ -3,10 +3,9 @@
   import Papa, { type ParseResult } from 'papaparse';
   import { CopyIcon, ExternalLinkIcon, LinkIcon, InfoIcon, PlusIcon, SettingsIcon } from 'lucide-vue-next';
   import generateThemeOptions from '@/utils/chartTheme';
-  import { Theme } from '@/types';
   import type { ExtendedPack, SelectOption, ParsedResults, ExtendedCategory } from '@/types/helpers';
   import type { RowItem } from '@/components/closet/PackItemsTable.vue';
-  import type { Database, InsertCategory } from '@/types';
+  import { type Database, type TablesInsert, Theme } from '@/types';
 
   definePageMeta({ layout: 'page-layout' });
 
@@ -184,7 +183,7 @@
   const createCategory = async () => {
     try {
       // This is the category for the server request
-      const newCategory: InsertCategory = {
+      const newCategory: TablesInsert<'categories'> = {
         name: '',
         pack_id: data.value.selectedPack?.id as number,
       };

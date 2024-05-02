@@ -4,7 +4,7 @@
   import utc from 'dayjs/plugin/utc';
   import { Tabs } from 'flowbite';
   import { ChevronDownIcon, DownloadIcon, CheckCircleIcon, HeartIcon } from 'lucide-vue-next';
-  import { SubscriptionLevel, type Database, MeasuringSystem } from '@/types';
+  import { SubscriptionLevel, MeasuringSystem, type Database } from '@/types';
   import type { InstanceOptions, TabsOptions, TabItem } from 'flowbite';
   import type { SelectOption, SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
 
@@ -691,7 +691,7 @@
           v-if="step === 1"
           class="!mt-0 flex justify-center flex-col max-w-4xl mx-auto px-8">
           <div
-            v-if="subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() === SubscriptionLevel.LIFE"
+            v-if="subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() === 'LIFE'"
             class="my-8 text-center">
             <p class="!font-bold text-base-lg">
               Good news!
@@ -750,7 +750,7 @@
             id="accepts-manage-subscription"
             v-model="acceptsManageSubscription"
             class="mt-4"
-            :label="selectedPlan !== SubscriptionLevel.FREE ? `I acknowledge the card I have on file will be used when updating my subscription.` : `I acknowledge that I will be downgrading to the Free Plan and will lose access to some features, including the Gear Closet Forums.`"
+            :label="selectedPlan !== 'FREE' ? `I acknowledge the card I have on file will be used when updating my subscription.` : `I acknowledge that I will be downgrading to the Free Plan and will lose access to some features, including the Gear Closet Forums.`"
             required />
           <div class="flex justify-between items-center mt-4">
             <gc-button

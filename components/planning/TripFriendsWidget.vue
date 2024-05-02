@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import { SearchIcon, UsersRoundIcon } from 'lucide-vue-next';
   import type { SelectOption } from '@/types/helpers';
-  import { TripFriendStatus, type Database, type Profile } from '@/types';
+  import { type Database, type Tables, TripFriendStatus } from '@/types';
 
   const $store = usePlanningStore();
   const $appStore = useAppStore();
@@ -9,7 +9,7 @@
 
   const isInviteModalOpen = ref(false);
   const selectedFriend = ref<SelectOption | undefined>(undefined);
-  const friendsToInvite = shallowRef<Profile[]>([]);
+  const friendsToInvite = shallowRef<Tables<'profiles'>[]>([]);
 
   const emailsToInvite = ref<string[]>([]);
 
@@ -32,7 +32,7 @@
 
       if (friends?.length && !error) {
         searchResults.value = friends.map(f => ({
-          label: friendlyUsername(f.profile[0] as Profile),
+          label: friendlyUsername(f.profile[0] as Tables<'profiles'>),
           value: f.id,
         }));
       }
@@ -52,7 +52,7 @@
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
-      const existingFriendsPayload = friendsToInvite.value.map((f: Profile) => ({
+      const existingFriendsPayload = friendsToInvite.value.map((f: Tables<'profiles'>) => ({
         trip_id: selectedTripId.value,
         profile_id: f.id,
         status: TripFriendStatus.PENDING,

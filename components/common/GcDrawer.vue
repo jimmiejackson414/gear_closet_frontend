@@ -22,7 +22,9 @@
 </script>
 
 <template>
-  <div class="bg-white fixed h-screen pb-4 pt-12 px-2 z-50">
+  <div
+    class="bg-white fixed h-screen pb-4 pt-12 px-2 z-50"
+    data-testid="gc-drawer">
     <ul class="flex items-center flex-col gap-4 h-full">
       <li class="border-b border-light-grey">
         <span class="block mb-4 px-4 py-2">
@@ -70,12 +72,13 @@
         </template>
       </li>
 
-      <li class="grow" />
+      <div class="grow" />
 
       <li class="cursor-pointer">
         <span
           v-tippy="{ content: 'Logout', placement: 'right' }"
           class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
+          data-testid="logout"
           @click="handleLogout">
           <component
             :is="LogOutIcon"

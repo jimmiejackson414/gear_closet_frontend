@@ -1,7 +1,7 @@
 <script lang='ts' setup>
-  import { FriendRequestStatus, type Database, type Profile } from '@/types';
-  import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
   import { SearchIcon } from 'lucide-vue-next';
+  import { type Tables, type Database, FriendRequestStatus } from '@/types';
+  import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
 
   definePageMeta({ layout: 'page-layout' });
 
@@ -64,7 +64,7 @@
   const searching = ref(false);
   const searchQuery = ref<string | undefined>(undefined);
   const showAllResults = ref(false);
-  const results = ref<Profile[]>([]);
+  const results = ref<Tables<'profiles'>[]>([]);
   const performedSearch = ref(false);
   const filteredResults = computed(() => showAllResults.value ? results.value : results.value.slice(0, 5));
   let pendingRequestIds: (string | null)[] = [];

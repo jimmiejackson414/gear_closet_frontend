@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import { AtSignIcon, LockIcon } from 'lucide-vue-next';
   import type { Provider } from '@supabase/supabase-js';
-  import type { Profile } from '@/types';
+  import type { Tables } from '@/types';
 
   const supabase = useSupabaseClient();
   const form = reactive({
@@ -40,7 +40,7 @@
       }
 
       // Fetch the user's profile
-      const profile = await $fetch<Profile | null>('/api/profile', {
+      const profile = await $fetch<Tables<'profiles'> | null>('/api/profile', {
         headers: useRequestHeaders(['cookie']),
       });
 
@@ -83,6 +83,7 @@
 
 <template>
   <form
+    data-testid="login-form"
     @keydown.enter="handleSubmit"
     @submit.prevent="handleSubmit">
     <div class="grid grid-cols-[50px,50px] gap-4 justify-center text-center">
@@ -109,6 +110,7 @@
         v-model="form.email"
         autocomplete="email"
         class="w-full"
+        data-testid="login-email"
         :disabled="submitting"
         :error="fieldErrors.email"
         label="Email"
@@ -121,6 +123,7 @@
         v-model="form.password"
         autocomplete="current-password"
         class="w-full"
+        data-testid="login-password"
         :disabled="submitting"
         :error="fieldErrors.password"
         label="Password"
@@ -132,8 +135,10 @@
         @blur="validateFieldOnBlur('password')" />
       <gc-alert
         v-if="loginError"
+        data-testid="login-error"
         :message="loginError" />
       <gc-button
+        data-testid="login-submit"
         :disabled="submitting"
         label="Sign In"
         type="submit" />

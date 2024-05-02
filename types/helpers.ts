@@ -1,5 +1,5 @@
 import { Stripe } from 'stripe';
-import type { Profile, Tables } from '@/types';
+import type { Tables } from '@/types';
 
 export type SubscriptionType = Tables<'subscriptions'> & {
   prices: Tables<'prices'>;
@@ -37,13 +37,13 @@ export type ExtendedUser = Tables<'profiles'> & {
 };
 
 export type ExtendedFriend = Tables<'friends'> & {
-  profile?: Profile;
-  friend: Profile;
+  profile?: Tables<'profiles'>;
+  friend: Tables<'profiles'>;
 };
 
 export type ExtendedFriendInvite = Tables<'friend_invitations'> & {
-  recipient: Profile;
-  sender: Profile;
+  recipient: Tables<'profiles'>;
+  sender: Tables<'profiles'>;
 }
 
 export type ExtendedNotification = Tables<'notifications'> & {
@@ -57,16 +57,16 @@ export type ExtendedPoll = Tables<'polls'> & {
 }
 
 export type ExtendedReply = Tables<'replies'> & {
-  profile: Profile;
+  profile: Tables<'profiles'>;
 }
 
 export type ExtendedComment = Tables<'comments'> & {
-  profile: Profile;
+  profile: Tables<'profiles'>;
   replies: ExtendedReply[];
 }
 
 export interface PublicPack extends ExtendedPack {
-  profile: Profile;
+  profile: Tables<'profiles'>;
   comments: ExtendedComment[];
 }
 

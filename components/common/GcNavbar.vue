@@ -38,7 +38,9 @@
 <template>
   <nav class="container flex items-start p-0 z-50">
     <div class="page-title">
-      <p class="text-base-lg">
+      <p
+        class="text-base-lg"
+        data-testid="welcome-message">
         <span class="mr-2">&#128075;</span>
         <client-only>
           {{ welcomeMessage }}
@@ -55,6 +57,7 @@
     <div class="relative">
       <button
         class="!bg-white duration-150 ease-in-out font-medium inline-flex items-center p-4 relative rounded-full shadow-md text-center hover:text-dark-grey text-gray-500 text-sm focus:outline-none"
+        data-testid="notifications-button"
         type="button"
         @click="isDropdownOpen = !isDropdownOpen">
         <bell-ring-icon class="h-6 w-6" />
@@ -66,7 +69,8 @@
         <div
           v-if="isDropdownOpen"
           ref="notificationDropdown"
-          class="absolute top-full right-0 bg-white border divide-gray-100 duration-300 max-w-sm min-w-[300px] mt-2 rounded-lg shadow transition-all w-max z-20">
+          class="absolute top-full right-0 bg-white border divide-gray-100 duration-300 max-w-sm min-w-[300px] mt-2 rounded-lg shadow transition-all w-max z-20"
+          data-testid="notifications-dropdown">
           <div class="bg-gray-50 block font-bold px-4 py-2 rounded-t-lg text-center text-dark-grey">
             Notifications ({{ unreadNotifications.length }})
           </div>

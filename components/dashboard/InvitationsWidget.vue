@@ -1,10 +1,10 @@
 <script lang='ts' setup>
   import { CalendarCheckIcon } from 'lucide-vue-next';
   import GcSkeleton from '@/components/common/GcSkeleton.vue';
-  import type { TripFriend } from '@/types';
+  import type { Tables } from '@/types';
 
   interface Props {
-    data: TripFriend[];
+    data: Tables<'trip_friends'>[];
     loading: boolean;
   }
 
@@ -15,7 +15,9 @@
 </script>
 
 <template>
-  <div class="bg-white h-full p-4 rounded-4xl shadow-light">
+  <div
+    class="bg-white h-full p-4 rounded-4xl shadow-light"
+    data-testid="invitations-widget">
     <gc-skeleton
       v-if="loading"
       avatar

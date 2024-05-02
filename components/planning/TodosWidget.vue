@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import { Tabs } from 'flowbite';
   import { ListTodoIcon, PlusIcon } from 'lucide-vue-next';
-  import { ResourceType, type Database, type Todo, type UpdateTodo } from '@/types';
+  import { ResourceType, type Database, type TablesUpdate, type Tables } from '@/types';
   import type { InstanceOptions, TabsOptions, TabsInterface, TabItem } from 'flowbite';
 
   const $appStore = useAppStore();
@@ -47,7 +47,7 @@
    *  Updates a todo.
    * @param todo
    */
-  const updateTodo = async (todo: Todo, payload: UpdateTodo) => {
+  const updateTodo = async (todo: Tables<'todos'>, payload: TablesUpdate<'todos'>) => {
     try {
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTodo, error } = await supabase.from('todos')
