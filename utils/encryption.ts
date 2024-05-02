@@ -3,7 +3,7 @@ import CryptoJS from 'crypto-js';
 export const encrypt = (value: any): string => {
   const runtimeConfig = useRuntimeConfig();
   return CryptoJS.AES.encrypt(JSON.stringify(value), runtimeConfig.public.cookieKey)
-  .toString();
+    .toString();
 };
 
 export const decrypt = (value: any): string => {
