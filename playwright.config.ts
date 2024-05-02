@@ -12,7 +12,7 @@ dotenv.config();
  */
 export default defineConfig({
   /* Directory to search for tests */
-  testDir: './tests',
+  testDir: './tests/e2e',
   testMatch: '**/*.spec.ts',
   /* Run tests in files in parallel */
   fullyParallel: true,

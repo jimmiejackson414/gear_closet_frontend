@@ -65,7 +65,6 @@ function createEnumStrings (enums: Record<string, string[]>): string {
 // Read the types.ts file
 const dirname = path.dirname(fileURLToPath(import.meta.url));
 const filePath = path.resolve(dirname, '../types/index.ts');
-console.log({ filePath });
 const fileContent = fs.readFileSync(filePath, 'utf8');
 
 // Extract enums

@@ -35,8 +35,8 @@
           Friends ({{ data.length }})
         </nuxt-link>
       </div>
-      <div class="-space-x-3 flex">
-        <div v-if="computedUsers.length">
+      <ul class="-space-x-3 flex">
+        <li v-if="computedUsers.length">
           <gc-avatar
             v-for="user in computedUsers"
             :key="user.id"
@@ -49,7 +49,7 @@
             :to="{ name: 'friends' }">
             {{ `+${computedUsers.length - 5}` }}
           </nuxt-link>
-        </div>
+        </li>
         <div
           v-else
           class="flex justify-center items-center flex-col">
@@ -61,7 +61,7 @@
             size="sm"
             :to="{ name: 'friends' }" />
         </div>
-      </div>
+      </ul>
     </div>
   </div>
 </template>
