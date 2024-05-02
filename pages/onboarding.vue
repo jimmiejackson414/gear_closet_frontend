@@ -136,7 +136,7 @@
 
       const response = await $fetch('/api/stripe/subscription', {
         method: 'POST',
-        body: JSON.stringify({ newPlan: subscriptionLevel }),
+        body: JSON.stringify({ subscription: subscriptionLevel }),
       });
 
       if (!response.ok) {

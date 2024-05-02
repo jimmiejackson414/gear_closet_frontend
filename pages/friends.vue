@@ -32,7 +32,7 @@
       // Fetch current friends
       const { data: friendsData, error: friendsError } = await supabase
         .from('friends')
-        .select('*, friend:profiles!friend_id(*)')
+        .select('*, friend:profiles!friends_friend_id_fkey(*)')
         .eq('profile_id', user.value!.id)
         .returns<ExtendedFriend[]>();
 
@@ -75,11 +75,12 @@
       try {
         const supabase = useSupabaseClient<Database>();
         const user = useSupabaseUser();
+
+        const tsquery = searchQuery.value.replace(/ /g, '&');
         const { data, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .or(`first_name.ilike.%${searchQuery.value}%,last_name.ilike.%${searchQuery.value}%,email.ilike.%${searchQuery.value}%,trail_name.ilike.%${searchQuery.value}%`)
-          .neq('id', user.value?.id);
+          .rpc('search_profiles', { search_query: tsquery })
+          .neq('id', user.value?.id)
+          .select();
 
         if (!error) {
           results.value = data;

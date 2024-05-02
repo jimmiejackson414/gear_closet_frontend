@@ -159,6 +159,23 @@ CREATE TYPE "public"."trip_details_type" AS ENUM (
 
 ALTER TYPE "public"."trip_details_type" OWNER TO "postgres";
 
+ALTER TABLE profiles
+ADD COLUMN fts tsvector GENERATED ALWAYS AS (
+  to_tsvector('simple', coalesce(first_name, '') || ' ' || coalesce(last_name, '') || ' ' || coalesce(email, '') || ' ' || coalesce(trail_name, ''))
+) STORED;
+
+CREATE INDEX profiles_fts ON profiles USING gin (fts); -- generate the index
+
+CREATE OR REPLACE FUNCTION "public"."search_profiles"(search_query text)
+RETURNS SETOF profiles AS $$
+BEGIN
+  RETURN QUERY SELECT *
+  FROM "public"."profiles"
+  WHERE fts @@ to_tsquery('simple', search_query)
+  AND id <> '00000000-0000-0000-0000-000000000000'; -- Exclude the Admin user
+END; $$
+LANGUAGE plpgsql;
+
 CREATE OR REPLACE FUNCTION "public"."generate_slug"() RETURNS "trigger"
     LANGUAGE "plpgsql"
     AS $$
@@ -188,6 +205,11 @@ CREATE TRIGGER update_profile_image_after_insert_or_delete
 AFTER INSERT OR DELETE ON storage.objects
 FOR EACH ROW
 EXECUTE FUNCTION "public"."update_profile_image"();
+
+CREATE TRIGGER "generate_slug_for_profiles"
+BEFORE INSERT ON "public"."profiles"
+FOR EACH ROW
+EXECUTE FUNCTION "public"."generate_slug"();
 
 ALTER FUNCTION "public"."generate_slug"() OWNER TO "postgres";
 
@@ -228,9 +250,13 @@ CREATE OR REPLACE FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) RETUR
     AND t.starting_date >= NOW();
 
     -- Fetch friends
-    SELECT COALESCE(json_agg(row_to_json(f.*)), '[]'::JSON) INTO friends
-    FROM friends f
-    WHERE f.profile_id = p_user_id;
+    SELECT COALESCE(json_agg(row_to_json(sub.*)), '[]'::JSON) INTO friends
+    FROM (
+      SELECT f.*, row_to_json(p.*) AS friend
+      FROM friends f
+      JOIN profiles p ON f.friend_id = p.id
+      WHERE f.profile_id = p_user_id
+    ) sub;
 
     -- Output the result
     RETURN json_build_object(
@@ -1219,7 +1245,8 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "country" "text",
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"(),
-    "location" "jsonb"
+    "location" "jsonb",
+    "slug" "text" NOT NULL UNIQUE
 );
 
 ALTER TABLE "public"."profiles" OWNER TO "postgres";

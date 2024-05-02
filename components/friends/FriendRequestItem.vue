@@ -33,7 +33,7 @@
         .eq('id', props.friend.id)
         .select();
 
-      if (!data || error) throw new Error();
+      if (!data?.length || error) throw new Error();
 
       // Insert new records into the 'friends' table
       const { error: insertError } = await supabase
@@ -45,8 +45,16 @@
 
       if (insertError) throw new Error();
 
+      // fetch new friend (ExtendedFriend)
+      const { data: newFriend, error: newFriendError } = await supabase.from('friends')
+        .select('*, friend:profiles!friend_id(*)')
+        .eq('friend_id', props.friend.sender.id)
+        .single();
+
+      if (newFriendError || !newFriend) throw new Error();
+
       $appStore.notifyPositive('Friend request accepted.');
-      emits('accept', { ...props.friend, invite_accepted_on: acceptedAt });
+      emits('accept', newFriend);
       madeSelection.value = 'accepted';
       selectionTimestamp.value = dayjs();
     } catch (err) {
