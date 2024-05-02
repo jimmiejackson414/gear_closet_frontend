@@ -687,6 +687,7 @@ export interface Database {
           created_at: string | null;
           email: string;
           first_name: string | null;
+          fts: unknown | null;
           id: string;
           image: string | null;
           last_name: string | null;
@@ -696,6 +697,7 @@ export interface Database {
             | null;
           onboard_date: string | null;
           role: Database["public"]["Enums"]["user_role"] | null;
+          slug: string;
           state: string | null;
           trail_name: string | null;
           updated_at: string | null;
@@ -708,6 +710,7 @@ export interface Database {
           created_at?: string | null;
           email: string;
           first_name?: string | null;
+          fts?: unknown | null;
           id: string;
           image?: string | null;
           last_name?: string | null;
@@ -717,6 +720,7 @@ export interface Database {
             | null;
           onboard_date?: string | null;
           role?: Database["public"]["Enums"]["user_role"] | null;
+          slug: string;
           state?: string | null;
           trail_name?: string | null;
           updated_at?: string | null;
@@ -729,6 +733,7 @@ export interface Database {
           created_at?: string | null;
           email?: string;
           first_name?: string | null;
+          fts?: unknown | null;
           id?: string;
           image?: string | null;
           last_name?: string | null;
@@ -738,6 +743,7 @@ export interface Database {
             | null;
           onboard_date?: string | null;
           role?: Database["public"]["Enums"]["user_role"] | null;
+          slug?: string;
           state?: string | null;
           trail_name?: string | null;
           updated_at?: string | null;
@@ -1254,6 +1260,34 @@ export interface Database {
         };
         Returns: Json;
       };
+      search_profiles: {
+        Args: {
+          search_query: string;
+        };
+        Returns: {
+          address_1: string | null;
+          address_2: string | null;
+          city: string | null;
+          country: string | null;
+          created_at: string | null;
+          email: string;
+          first_name: string | null;
+          fts: unknown | null;
+          id: string;
+          image: string | null;
+          last_name: string | null;
+          location: Json | null;
+          measuring_system:
+            | Database["public"]["Enums"]["measuring_system"]
+            | null;
+          onboard_date: string | null;
+          role: Database["public"]["Enums"]["user_role"] | null;
+          slug: string;
+          state: string | null;
+          trail_name: string | null;
+          updated_at: string | null;
+        }[];
+      };
       update_poll: {
         Args: {
           poll_id: number;
@@ -1436,6 +1470,101 @@ export interface Database {
           },
         ];
       };
+      s3_multipart_uploads: {
+        Row: {
+          bucket_id: string;
+          created_at: string;
+          id: string;
+          in_progress_size: number;
+          key: string;
+          owner_id: string | null;
+          upload_signature: string;
+          version: string;
+        };
+        Insert: {
+          bucket_id: string;
+          created_at?: string;
+          id: string;
+          in_progress_size?: number;
+          key: string;
+          owner_id?: string | null;
+          upload_signature: string;
+          version: string;
+        };
+        Update: {
+          bucket_id?: string;
+          created_at?: string;
+          id?: string;
+          in_progress_size?: number;
+          key?: string;
+          owner_id?: string | null;
+          upload_signature?: string;
+          version?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "s3_multipart_uploads_bucket_id_fkey";
+            columns: ["bucket_id"];
+            isOneToOne: false;
+            referencedRelation: "buckets";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      s3_multipart_uploads_parts: {
+        Row: {
+          bucket_id: string;
+          created_at: string;
+          etag: string;
+          id: string;
+          key: string;
+          owner_id: string | null;
+          part_number: number;
+          size: number;
+          upload_id: string;
+          version: string;
+        };
+        Insert: {
+          bucket_id: string;
+          created_at?: string;
+          etag: string;
+          id?: string;
+          key: string;
+          owner_id?: string | null;
+          part_number: number;
+          size?: number;
+          upload_id: string;
+          version: string;
+        };
+        Update: {
+          bucket_id?: string;
+          created_at?: string;
+          etag?: string;
+          id?: string;
+          key?: string;
+          owner_id?: string | null;
+          part_number?: number;
+          size?: number;
+          upload_id?: string;
+          version?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "s3_multipart_uploads_parts_bucket_id_fkey";
+            columns: ["bucket_id"];
+            isOneToOne: false;
+            referencedRelation: "buckets";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "s3_multipart_uploads_parts_upload_id_fkey";
+            columns: ["upload_id"];
+            isOneToOne: false;
+            referencedRelation: "s3_multipart_uploads";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
     };
     Views: {
       [_ in never]: never;
@@ -1473,6 +1602,37 @@ export interface Database {
         Returns: {
           size: number;
           bucket_id: string;
+        }[];
+      };
+      list_multipart_uploads_with_delimiter: {
+        Args: {
+          bucket_id: string;
+          prefix_param: string;
+          delimiter_param: string;
+          max_keys?: number;
+          next_key_token?: string;
+          next_upload_token?: string;
+        };
+        Returns: {
+          key: string;
+          id: string;
+          created_at: string;
+        }[];
+      };
+      list_objects_with_delimiter: {
+        Args: {
+          bucket_id: string;
+          prefix_param: string;
+          delimiter_param: string;
+          max_keys?: number;
+          start_after?: string;
+          next_token?: string;
+        };
+        Returns: {
+          name: string;
+          id: string;
+          metadata: Json;
+          updated_at: string;
         }[];
       };
       search: {
@@ -1844,6 +2004,11 @@ export type ArgsImportCsvDatum =
 export type ReturnTypeImportCsvDatum =
   Database["public"]["Functions"]["import_csv_data"]["Returns"];
 
+export type ArgsSearchProfile =
+  Database["public"]["Functions"]["search_profiles"]["Args"];
+export type ReturnTypeSearchProfile =
+  Database["public"]["Functions"]["search_profiles"]["Returns"];
+
 export type ArgsUpdatePoll =
   Database["public"]["Functions"]["update_poll"]["Args"];
 export type ReturnTypeUpdatePoll =
@@ -1870,6 +2035,20 @@ export type Object = Database["storage"]["Tables"]["objects"]["Row"];
 export type InsertObject = Database["storage"]["Tables"]["objects"]["Insert"];
 export type UpdateObject = Database["storage"]["Tables"]["objects"]["Update"];
 
+export type S3MultipartUpload =
+  Database["storage"]["Tables"]["s3_multipart_uploads"]["Row"];
+export type InsertS3MultipartUpload =
+  Database["storage"]["Tables"]["s3_multipart_uploads"]["Insert"];
+export type UpdateS3MultipartUpload =
+  Database["storage"]["Tables"]["s3_multipart_uploads"]["Update"];
+
+export type S3MultipartUploadPart =
+  Database["storage"]["Tables"]["s3_multipart_uploads_parts"]["Row"];
+export type InsertS3MultipartUploadPart =
+  Database["storage"]["Tables"]["s3_multipart_uploads_parts"]["Insert"];
+export type UpdateS3MultipartUploadPart =
+  Database["storage"]["Tables"]["s3_multipart_uploads_parts"]["Update"];
+
 // Functions
 export type ArgsCanInsertObject =
   Database["storage"]["Functions"]["can_insert_object"]["Args"];
@@ -1894,6 +2073,16 @@ export type ArgsGetSizeByBucket =
   Database["storage"]["Functions"]["get_size_by_bucket"]["Args"];
 export type ReturnTypeGetSizeByBucket =
   Database["storage"]["Functions"]["get_size_by_bucket"]["Returns"];
+
+export type ArgsListMultipartUploadWithDelimiter =
+  Database["storage"]["Functions"]["list_multipart_uploads_with_delimiter"]["Args"];
+export type ReturnTypeListMultipartUploadWithDelimiter =
+  Database["storage"]["Functions"]["list_multipart_uploads_with_delimiter"]["Returns"];
+
+export type ArgsListObjectWithDelimiter =
+  Database["storage"]["Functions"]["list_objects_with_delimiter"]["Args"];
+export type ReturnTypeListObjectWithDelimiter =
+  Database["storage"]["Functions"]["list_objects_with_delimiter"]["Returns"];
 
 export type ArgsSearch = Database["storage"]["Functions"]["search"]["Args"];
 export type ReturnTypeSearch =

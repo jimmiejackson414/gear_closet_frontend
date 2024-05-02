@@ -56,7 +56,7 @@
       </div>
       <div v-if="data.length">
         <ul class="divide-gray-200 divide-y">
-          <div
+          <li
             v-for="trip in data"
             :key="trip.id"
             class="cursor-pointer"
@@ -81,7 +81,7 @@
                 </div>
               </div>
             </div>
-          </div>
+          </li>
         </ul>
       </div>
       <div

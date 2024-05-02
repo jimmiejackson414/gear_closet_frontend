@@ -8,7 +8,7 @@ export interface ClosetPageData {
   allPacks: {
     id: number;
     name: string;
-    slug: string;  
+    slug: string;
   }[];
 }
 
