@@ -16,6 +16,7 @@
   /**
    * Performs search for existing friends.
    */
+  const searchQuery = ref('');
   const searching = ref(false);
   const searchResults = ref<SelectOption[]>([]);
   const searchForFriends = debounce(async (searchTerm: string) => {
@@ -111,12 +112,13 @@
         <gc-autocomplete
           :disabled="searching || submitting"
           :loading="searching"
-          :model-value="selectedFriend"
+          :model-value="searchQuery"
           :nullable="true"
           :options="searchResults"
           placeholder="Search for a friend"
           :prepend-icon="SearchIcon"
-          @update:model-value="searchForFriends($event)" />
+          @search="searchForFriends($event)"
+          @select="selectedFriend = $event" />
 
         <p class="font-bold mt-6 text-eyebrow">
           Friends to invite:
@@ -134,14 +136,15 @@
             v-for="friend in friendsToInvite"
             :key="friend.id"
             class="flex items-center gap-4">
-            <gc-avatar :profile="(friend as Profile)" />
+            <gc-avatar
+              :initials="initials(friend)"
+              :url="buildImageSrc(friend.image)" />
             {{ friendlyUsername(friend as Profile) }}
           </li>
           <li
             v-for="email in emailsToInvite"
             :key="email"
             class="flex items-center gap-4">
-            <gc-avatar />
             {{ email }}
           </li>
         </ul>

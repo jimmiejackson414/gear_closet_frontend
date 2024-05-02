@@ -25,7 +25,7 @@
     if (props.variant === 'primary') { classes.push('text-primary focus:ring-primary'); }
     if (props.variant === 'positive') { classes.push('text-positive focus:ring-positive'); }
     if (props.variant === 'danger') { classes.push('text-danger focus:ring-danger'); }
-    if (props.variant === 'secondary') { classes.push('text-secondary focus:ring-secondary'); }
+    if (props.variant === 'secondary') { classes.push('text-gray-400 focus:ring-gray-400'); }
 
     return classes.join(' ');
   });
@@ -44,6 +44,7 @@
     <label
       v-if="label"
       class="cursor-pointer font-medium ms-2 text-gray-500 text-sm"
+      :class="{ 'line-through': strikeThrough }"
       :for="id">
       {{ label }}
     </label>

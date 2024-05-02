@@ -3,7 +3,7 @@
   import type { Icon } from 'lucide-vue-next';
   import type { RouteLocationRaw } from 'vue-router';
 
-  interface Props {
+  export interface Props {
     disabled?: boolean;
     icon?: Icon;
     label?: string | null;

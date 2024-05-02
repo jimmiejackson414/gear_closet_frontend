@@ -53,7 +53,10 @@
 
     // determine border based on hideBorder prop
     if (props.hideBorder) { classes.push('border-0'); }
-    else { classes.push('border border-gray-300'); }
+    else { classes.push('border'); }
+
+    if (props.error) { classes.push('!border-danger'); }
+    else { classes.push('border-gray-300'); }
 
     return classes;
   });
@@ -83,10 +86,10 @@
 </script>
 
 <template>
-  <div class="flex flex-col gap-2">
+  <div class="flex flex-col">
     <label
       v-if="label"
-      class="font-bold text-grey text-sm">
+      class="font-bold mb-2 text-grey text-sm">
       {{ label }}
     </label>
     <headless-listbox
@@ -108,7 +111,7 @@
         ]">
         <p
           v-if="displayPlaceholder"
-          :class="( disabled || loading ) ? 'text-gray-400' : 'text-dark-grey'">
+          :class="[ ( disabled || loading ) ? 'text-gray-400' : 'text-dark-grey', { '!text-danger': error } ]">
           {{ placeholder }}
         </p>
         <template v-else-if="$slots.selected">
@@ -126,15 +129,16 @@
           class="flex items-center ml-auto"
           :class="{ 'pointer-events-none': ( disabled || loading ) }">
           <x-circle-icon
-            v-show="clearable && modelValue && !loading"
+            v-if="clearable && modelValue && !loading"
             class="cursor-pointer h-[22px] mr-2 text-gray-400 w-[22px]"
             :class="disabled ? 'text-grey' : 'text-gray-400'"
             @click="emit('update:modelValue', undefined)" />
           <gc-spinner
-            v-show="loading"
+            v-else-if="loading"
             class="h-[22px] mr-2 w-[22px]"
-            color="primary" />
+            variant="primary" />
           <chevron-down-icon
+            v-else
             class="duration-150 ease-in-out font-bold h-auto transition-transform"
             :class="[ open ? 'rotate-180' : 'rotate-0', ( disabled || loading ) ? 'text-gray-400' : 'text-light-primary' ]" />
         </div>
@@ -178,5 +182,10 @@
         </zoom-transition>
       </teleport>
     </headless-listbox>
+    <p
+      v-if="error"
+      class="mt-1 text-danger text-sm">
+      {{ error }}
+    </p>
   </div>
 </template>

@@ -57,8 +57,9 @@
             :to="{ name: link.to }">
             <gc-avatar
               v-if="profile?.image && link.to === 'profile'"
-              :profile="profile"
-              size="xs" />
+              :initials="initials(profile)"
+              size="xs"
+              :url="buildImageSrc(profile.image)" />
             <component
               :is="link.icon"
               v-else

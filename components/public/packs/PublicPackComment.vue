@@ -114,8 +114,9 @@
           :class="{ 'pb-4': !replyingTo }">
           <gc-avatar
             class="user"
-            :profile="comment.profile"
-            size="md" />
+            :initials="initials(comment.profile)"
+            size="md"
+            :url="buildImageSrc(comment.profile.image)" />
           <div>
             <!-- body -->
             <div
@@ -196,8 +197,9 @@
             <div class="comment flex gap-2 pb-4 relative">
               <gc-avatar
                 class="user"
-                :profile="reply.profile"
-                size="md" />
+                :initials="initials(reply.profile)"
+                size="md"
+                :url="buildImageSrc(reply.profile.image)" />
               <div>
                 <!-- body -->
                 <div

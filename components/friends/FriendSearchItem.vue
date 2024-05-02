@@ -64,8 +64,9 @@
   <div class="bg-gray-50 duration-200 ease-snap my-4 px-8 py-4 rounded-2xl shadow-light hover:shadow-xl transition w-fit">
     <div class="flex items-center gap-4">
       <gc-avatar
-        :profile="profile"
-        size="lg" />
+        :initials="initials(profile)"
+        size="lg"
+        :url="buildImageSrc(profile.image)" />
       <div class="flex flex-col">
         <p class="!font-bold text-dark-grey">
           {{ friendlyUsername(profile) }}

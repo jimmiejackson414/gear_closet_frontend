@@ -20,13 +20,15 @@
 
     // determine size
     if (props.size === 'sm') { classes.push('w-9 h-5 after:top-[2px] after:start-[2px] after:h-4 after:w-4'); }
-    else if (props.size === 'md') { classes.push('w-11 h-6 after:top-[3px] after:start-[2px] after:h-5 after:w-5'); }
-    else if (props.size === 'lg') { classes.push('w-14 h-7 after:top-0.5 after:start-[4px] after:w-6 after:h-6'); }
+    else if (props.size === 'md') { classes.push('w-11 h-6 after:top-[2px] after:start-[2px] after:h-5 after:w-5'); }
+    else if (props.size === 'lg') { classes.push('w-14 h-7 after:top-0.5 after:start-[6px] after:w-6 after:h-6'); }
 
     // determine variant
     if (props.variant === 'primary') { classes.push('peer-checked:bg-primary'); }
     else if (props.variant === 'positive') { classes.push('peer-checked:bg-positive'); }
     else if (props.variant === 'danger') { classes.push('peer-checked:bg-danger'); }
+
+    if (props.disabled) { classes.push('cursor-not-allowed peer-checked:opacity-50'); }
 
     return classes;
   });
@@ -43,6 +45,7 @@
     <input
       :checked="modelValue"
       class="peer sr-only"
+      :disabled="disabled"
       type="checkbox"
       @change="handleChange">
     <div

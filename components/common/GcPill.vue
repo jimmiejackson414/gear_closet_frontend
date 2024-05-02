@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   interface Props {
     copy: string;
-    variant?: 'primary' | 'positive' | 'secondary' | 'warning';
+    variant?: 'primary' | 'positive' | 'secondary' | 'warning' | 'danger';
     size?: 'sm' | 'md' | 'lg';
   }
 
@@ -24,6 +24,7 @@
     else if (props.variant === 'primary') { classes.push('bg-primary-light/60 text-primary-dark'); }
     else if (props.variant === 'positive') { classes.push('bg-positive-light text-positive-dark'); }
     else if (props.variant === 'secondary') { classes.push('bg-gray-200 text-dark-grey'); }
+    else if (props.variant === 'danger') { classes.push('bg-danger-light text-danger-dark'); }
 
     return classes;
   });

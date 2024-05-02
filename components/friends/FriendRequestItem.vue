@@ -98,8 +98,9 @@
   <div class="bg-gray-50 duration-200 ease-snap my-4 px-8 py-4 rounded-2xl shadow-light hover:shadow-xl transition w-fit">
     <div class="grid grid-cols-[auto,1fr] gap-4 items-center">
       <gc-avatar
-        :profile="friend.sender"
-        size="xl" />
+        :initials="initials(friend.sender)"
+        size="xl"
+        :url="buildImageSrc(friend.sender.image)" />
       <div class="flex flex-col">
         <p class="font-bold text-dark-grey">
           {{ friendlyUsername(friend.sender, { includeTrailName: true }) }}
