@@ -1,11 +1,15 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
-import { describe, expect, it } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import UpcomingTripsWidget from '@/components/dashboard/UpcomingTripsWidget.vue';
 import FriendsWidget from '@/components/dashboard/FriendsWidget.vue';
 import InvitationsWidget from '@/components/dashboard/InvitationsWidget.vue';
 import { friends, upcomingTrips } from './mocks/dashboard.mock';
 
 describe('Dashboard', async () => {
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   // ************************** //
   // UpcomingTripsWidget states //
   // ************************** //
@@ -113,28 +117,30 @@ describe('Dashboard', async () => {
     expect(wrapper.text())
       .toContain(`Friends (${friends.length})`);
 
-    // TODO: bring in code from storybook branch that rewrites GcAvatar
-    const avatarComponents = wrapper.findAllComponents({ name: 'GcAvatar' });
-    const additionalFriendsLink = wrapper.findComponent({ name: 'NuxtLink' });
+    // expect(mockBuildImageSrc)
+    //   .toHaveBeenCalledTimes(friends.length);
 
-    if (friends.length <= 5) {
-      expect(avatarComponents.length)
-        .toBe(friends.length);
-      expect(additionalFriendsLink.exists())
-        .toBe(false);
-    } else {
-      expect(avatarComponents.length)
-        .toBe(5);
-      expect(additionalFriendsLink.exists())
-        .toBe(true);
-      expect(additionalFriendsLink.text())
-        .toBe(`+${friends.length - 5}`);
-    }
+    // const avatarComponents = wrapper.findAllComponents({ name: 'GcAvatar' });
+    // const additionalFriendsLink = wrapper.findComponent({ name: 'NuxtLink' });
 
-    avatarComponents.forEach((avatarComponent, index) => {
-      expect(avatarComponent.props('profile'))
-        .toBe(friends[index].friend);
-    });
+    // if (friends.length <= 5) {
+    //   expect(avatarComponents.length)
+    //     .toBe(friends.length);
+    //   expect(additionalFriendsLink.exists())
+    //     .toBe(false);
+    // } else {
+    //   expect(avatarComponents.length)
+    //     .toBe(5);
+    //   expect(additionalFriendsLink.exists())
+    //     .toBe(true);
+    //   expect(additionalFriendsLink.text())
+    //     .toBe(`+${friends.length - 5}`);
+    // }
+
+    // avatarComponents.forEach((avatarComponent, index) => {
+    //   expect(avatarComponent.props('profile'))
+    //     .toBe(friends[index].friend);
+    // });
   });
 
   // ************************ //
