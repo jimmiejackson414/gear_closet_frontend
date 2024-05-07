@@ -19,7 +19,7 @@
     $userStore.subscribeToNotifications();
   });
 
-  const shouldShowBadge = computed(() => $userStore.unreadNotifications.length > 0);
+  const shouldShowBadge = computed(() => ( $userStore.unreadNotifications?.length ?? 0 ) > 0);
   const welcomeMessage = computed(() => {
     if (profile.value?.first_name) {
       const arr = ['Hello', 'Welcome', 'Hey'];
@@ -72,9 +72,9 @@
           class="absolute top-full right-0 bg-white border divide-gray-100 duration-300 max-w-sm min-w-[300px] mt-2 rounded-lg shadow transition-all w-max z-20"
           data-testid="notifications-dropdown">
           <div class="bg-gray-50 block font-bold px-4 py-2 rounded-t-lg text-center text-dark-grey">
-            Notifications ({{ unreadNotifications.length }})
+            Notifications ({{ unreadNotifications?.length ?? 0 }})
           </div>
-          <span v-if="unreadNotifications.length">
+          <span v-if="unreadNotifications?.length">
             <ul class="divide-gray-100 divide-y">
               <notification-item
                 v-for="notification in unreadNotifications"

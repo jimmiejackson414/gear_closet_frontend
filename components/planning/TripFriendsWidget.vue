@@ -139,7 +139,7 @@
             <gc-avatar
               :initials="initials(friend)"
               :url="buildImageSrc(friend.image)" />
-            {{ friendlyUsername(friend as Profile) }}
+            {{ friendlyUsername(friend as Tables<'profiles'>) }}
           </li>
           <li
             v-for="email in emailsToInvite"

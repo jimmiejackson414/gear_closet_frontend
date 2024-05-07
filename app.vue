@@ -2,9 +2,9 @@
   import type { Database } from '@/types';
 
   const supabase = useSupabaseClient<Database>();
-  supabase.auth.onAuthStateChange((event) => {
+  supabase.auth.onAuthStateChange(async (event) => {
     if (event === 'SIGNED_OUT') {
-      supabase.removeAllChannels();
+      await supabase.removeAllChannels();
     }
   });
 </script>

@@ -7,7 +7,7 @@ export type SubscriptionType = Tables<'subscriptions'> & {
 
 export type ProfileApiResponse = Tables<'profiles'> & {
   onboarding_steps: Tables<'onboarding_steps'>[];
-  notifications: Tables<'notifications'>[];
+  notifications: ExtendedNotification[];
   subscriptions: SubscriptionType[];
 };
 
