@@ -71,12 +71,6 @@
   const themeOptions = computed(() => generateThemeOptions());
 
   /* Bar Chart Options */
-  const details = reactive([
-    { title: 'Worn', weight: 0, color: '' },
-    { title: 'Consumable', weight: 0, color: '' },
-    { title: 'Base', weight: 0, color: '' },
-    { title: 'Total', weight: 0, color: '' },
-  ]);
   const chartOptions = ref<EChartsOption>({
     animationDuration: 300,
     xAxis: {
@@ -137,6 +131,12 @@
     },
   });
 
+  const details = reactive([
+    { title: 'Worn', weight: 0, color: '' },
+    { title: 'Consumable', weight: 0, color: '' },
+    { title: 'Base', weight: 0, color: '' },
+    { title: 'Total', weight: 0, color: '' },
+  ]);
   watchEffect(() => {
     if (data.value.selectedPack) {
       const weights = calculatePackWeights(data.value.selectedPack);
@@ -154,7 +154,9 @@
 </script>
 
 <template>
-  <div class="card card-main">
+  <div
+    class="card card-main"
+    data-testid="pack-summary-widget">
     <div class="grid lg:grid-cols-[60%,40%] grid-cols-1 gap-6 pt-4">
       <div class="flex flex-col">
         <div class="flex items-center">
@@ -205,7 +207,8 @@
           <div
             v-for="detail in details"
             :key="detail.title"
-            class="border border-dashed border-gray-400 p-4 rounded-2xl">
+            class="border border-dashed border-gray-400 p-4 rounded-2xl"
+            data-testid="pack-summary-detail">
             <span class="font-bold text-eyebrow text-grey-8">
               {{ detail.title }}
             </span>

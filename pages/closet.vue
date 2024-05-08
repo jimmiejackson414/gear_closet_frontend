@@ -555,7 +555,7 @@
     <!-- Pack Summary & Tables -->
     <div v-else-if="data.selectedPack && !pageLoading">
       <div v-if="!data.selectedPack.categories?.length">
-        <gc-empty-state>
+        <gc-empty-state data-testid="pack-summary-empty-state">
           <h5 class="font-bold mb-2 text-base-lg">
             Successfully created your new {{ data.selectedPack.name }} pack!
           </h5>
