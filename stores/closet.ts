@@ -10,6 +10,7 @@ export interface ClosetPageData {
     name: string;
     slug: string;
   }[];
+
 }
 
 interface ClosetPageResponse {
@@ -22,7 +23,17 @@ interface ClosetPageResponse {
 }
 
 type State = {
+  activeCategoryId?: number;
   data: ClosetPageData;
+  dialogStates: {
+    addUrlDialog: boolean;
+    createPackDialog: boolean;
+    deleteCategoryDialog: boolean;
+    deletePackDialog: boolean;
+    removeItemDialog: boolean;
+    sharePackDialog: boolean;
+    uploadCsvDialog: boolean;
+  }
   pageLoading: boolean;
 };
 
@@ -30,6 +41,7 @@ type Getters = {};
 
 type Actions = {
   fetchClosetPage(packId: number): Promise<void>;
+  sharePackList(): void;
   updateItem(item: RowItem, key: string, value: string | number | boolean | undefined, categoryId: number): Promise<void>;
 };
 
@@ -38,9 +50,19 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
   {
     state () {
       return {
+        activeCategoryId: undefined,
         data: {
           selectedPack: undefined,
           allPacks: [],
+        },
+        dialogStates: {
+          addUrlDialog: false,
+          createPackDialog: false,
+          deleteCategoryDialog: false,
+          deletePackDialog: false,
+          removeItemDialog: false,
+          sharePackDialog: false,
+          uploadCsvDialog: false,
         },
         pageLoading: true,
       };
@@ -71,6 +93,13 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
         } finally {
           this.pageLoading = false;
         }
+      },
+
+      /**
+       * Shares the pack list.
+       */
+      async sharePackList () {
+
       },
 
       /**

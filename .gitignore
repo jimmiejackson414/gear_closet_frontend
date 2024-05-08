@@ -31,3 +31,5 @@ logs
 /playwright/.cache/
 
 *.pem
+
+.yarn/install-state.gz
