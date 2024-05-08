@@ -263,7 +263,6 @@
         :accept="true"
         axis="y"
         :distance="1"
-        group="category-table"
         lock-axis="y"
         tag="ul"
         use-drag-handle

@@ -85,7 +85,7 @@
     "crypto-js": "^4.2.0",
     "dayjs": "^1.11.10",
     "dinero.js": "^1.9.1",
-    "echarts": "^5.4.3",
+    "echarts": "^5.5.0",
     "filepond": "^4.30.4",
     "filepond-plugin-file-encode": "^2.1.13",
     "filepond-plugin-file-validate-size": "^2.2.8",
@@ -102,11 +102,12 @@
     "stripe": "^15.3.0",
     "uuid": "^9.0.1",
     "v-onboarding": "^2.6.0",
-    "vue-echarts": "^6.6.8",
+    "vue-echarts": "^6.7.2",
     "vue-filepond": "^7.0.4",
     "vue-gtag": "^2.0.1",
     "vue-slicksort": "^2.0.5",
     "vue-tippy": "v6",
     "vue3-toastify": "^0.2.1"
-  }
+  },
+  "packageManager": "yarn@4.2.1"
 }

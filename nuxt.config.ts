@@ -69,7 +69,7 @@ export default defineNuxtConfig({
     'nuxt-headlessui',
     '@fixers/nuxt-stripe',
     '@nuxt/test-utils/module',
-    "@nuxtjs/storybook",
+    // "@nuxtjs/storybook",
   ],
 
   postcss: {
