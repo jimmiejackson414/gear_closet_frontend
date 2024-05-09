@@ -23,6 +23,7 @@ logs
 .env.*
 !.env.example
 
+# Tests
 *storybook.log
 .nuxt-storybook/*
 /test-results/
@@ -32,4 +33,11 @@ logs
 
 *.pem
 
-.yarn/install-state.gz
+# Yarn
+.yarn/*
+!.yarn/cache
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/sdks
+!.yarn/versions
