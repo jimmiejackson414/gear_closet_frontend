@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  import { InfoIcon } from 'lucide-vue-next';
   import { Theme } from '@/types';
   import generateThemeOptions from '@/utils/chartTheme';
 

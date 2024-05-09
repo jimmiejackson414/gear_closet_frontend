@@ -2,16 +2,8 @@
   import { ExternalLinkIcon, LinkIcon } from 'lucide-vue-next';
   import type { RowItem } from '../PackItemsTable.vue';
 
-  interface Props {
-    isOpen: boolean;
-  }
-
-  withDefaults(defineProps<Props>(), {
-    isOpen: false,
-  });
-
   const $store = useClosetStore();
-
+  const { dialogStates } = storeToRefs($store);
   const newUrl = ref('');
   const isAddUrlModalOpen = ref(false);
   const activeRow = ref<RowItem | undefined>(undefined);
@@ -35,14 +27,14 @@
   const handleSubmit = async () => {
     submitting.value = true;
     await $store.updateItem(activeRow.value as RowItem, 'url', newUrl.value, $store.activeCategoryId as number);
-    $store.dialogStates.addUrlDialog = false;
+    dialogStates.value.addUrlDialog = false;
     submitting.value = false;
   };
 </script>
 
 <template>
   <gc-modal
-    :is-open="isOpen"
+    :is-open="dialogStates.addUrlDialog"
     title="Add URL"
     @handle-cancel="[
       $store.dialogStates.addUrlDialog = false,
@@ -84,7 +76,7 @@
         size="sm"
         variant="secondary"
         @click="[
-          $store.dialogStates.addUrlDialog = false,
+          dialogStates.addUrlDialog = false,
           activeRow = undefined,
           $store.activeCategoryId = undefined
         ]" />

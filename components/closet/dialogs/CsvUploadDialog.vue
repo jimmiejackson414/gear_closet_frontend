@@ -1,4 +1,6 @@
 <script lang='ts' setup>
+  import { InfoIcon } from 'lucide-vue-next';
+
   const $store = useClosetStore();
   const { dialogStates } = storeToRefs($store);
   const submitting = ref(false);
