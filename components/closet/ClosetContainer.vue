@@ -23,18 +23,18 @@
 
     <pack-summary />
 
-    <create-pack-dialog :is-open="$store.dialogStates.createPackDialog" />
+    <create-pack-dialog />
 
-    <csv-upload-dialog :is-open="$store.dialogStates.uploadCsvDialog" />
+    <csv-upload-dialog />
 
-    <share-pack-dialog :is-open="$store.dialogStates.sharePackDialog" />
+    <share-pack-dialog />
 
-    <delete-category-dialog :is-open="$store.dialogStates.deleteCategoryDialog" />
+    <delete-category-dialog />
 
-    <delete-pack-dialog :is-open="$store.dialogStates.deletePackDialog" />
+    <delete-pack-dialog />
 
-    <remove-item-dialog :is-open="$store.dialogStates.removeItemDialog" />
+    <remove-item-dialog />
 
-    <add-url-dialog :is-open="$store.dialogStates.addUrlDialog" />
+    <add-url-dialog />
   </div>
 </template>

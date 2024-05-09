@@ -10,17 +10,16 @@
     isOpen: false,
   });
 
-  const emits = defineEmits(['update:isOpen']);
   const $store = useClosetStore();
 
   const newUrl = ref('');
   const isAddUrlModalOpen = ref(false);
   const activeRow = ref<RowItem | undefined>(undefined);
-  const handleInitialAddUrl = (row: RowItem, categoryId: number) => {
-    isAddUrlModalOpen.value = true;
-    activeRow.value = row;
-    $store.activeCategoryId = categoryId;
-  };
+  // const handleInitialAddUrl = (row: RowItem, categoryId: number) => {
+  //   isAddUrlModalOpen.value = true;
+  //   activeRow.value = row;
+  //   $store.activeCategoryId = categoryId;
+  // };
   watch(isAddUrlModalOpen, (newVal) => {
     newVal ? nextTick(() => newUrl.value = activeRow.value?.url || '') : newUrl.value = '';
   });
@@ -36,7 +35,7 @@
   const handleSubmit = async () => {
     submitting.value = true;
     await $store.updateItem(activeRow.value as RowItem, 'url', newUrl.value, $store.activeCategoryId as number);
-    emits('update:isOpen', false);
+    $store.dialogStates.addUrlDialog = false;
     submitting.value = false;
   };
 </script>
@@ -45,7 +44,11 @@
   <gc-modal
     :is-open="isOpen"
     title="Add URL"
-    @handle-cancel="[ emits('update:isOpen', false), activeRow = undefined, $store.activeCategoryId = undefined ]">
+    @handle-cancel="[
+      $store.dialogStates.addUrlDialog = false,
+      activeRow = undefined,
+      $store.activeCategoryId = undefined
+    ]">
     <template #content>
       <p class="mb-4 text-base">
         Add a website URL to link to more information about this item.
@@ -80,7 +83,11 @@
         label="Cancel"
         size="sm"
         variant="secondary"
-        @click="[ emits('update:isOpen', false), activeRow = undefined, $store.activeCategoryId = undefined ]" />
+        @click="[
+          $store.dialogStates.addUrlDialog = false,
+          activeRow = undefined,
+          $store.activeCategoryId = undefined
+        ]" />
       <gc-button
         v-tippy="{ content: !isValidUrl ? 'Not a valid URL' : undefined }"
         :disabled="submitting || !isValidUrl"

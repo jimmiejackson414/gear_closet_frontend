@@ -2,6 +2,7 @@ import { defineStore } from "pinia";
 import type { Database } from "@/types";
 import type { ExtendedPack } from "@/types/helpers";
 import type { RowItem } from '@/components/closet/PackItemsTable.vue';
+import type { CreatePack } from "@/components/closet/dialogs/CreatePackDialog.vue";
 
 export interface ClosetPageData {
   selectedPack?: ExtendedPack;
@@ -40,6 +41,7 @@ type State = {
 type Getters = {};
 
 type Actions = {
+  createPack(newPack: CreatePack): void;
   fetchClosetPage(packId: number): Promise<void>;
   sharePackList(): void;
   updateItem(item: RowItem, key: string, value: string | number | boolean | undefined, categoryId: number): Promise<void>;
@@ -69,6 +71,13 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
     },
 
     actions: {
+      /**
+       * Creates a new pack.
+       */
+      async createPack (newPack) {
+        console.log(`createPack`, newPack);
+      },
+
       /**
        * Fetches the planning page data.
        */
