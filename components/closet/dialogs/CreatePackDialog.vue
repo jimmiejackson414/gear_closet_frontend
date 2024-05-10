@@ -1,7 +1,8 @@
 <script lang='ts' setup>
   import { InfoIcon } from 'lucide-vue-next';
-  import { Theme } from '@/types';
+  import { Theme, type Database } from '@/types';
   import generateThemeOptions from '@/utils/chartTheme';
+  import type { ExtendedPack } from '@/types/helpers';
 
   export interface CreatePack {
     allow_comments: boolean;
@@ -11,7 +12,7 @@
   }
 
   const $store = useClosetStore();
-  const { dialogStates } = storeToRefs($store);
+  const { data, dialogStates } = storeToRefs($store);
   const submitting = ref(false);
   const themeOptions = computed(() => generateThemeOptions());
   const newPack = reactive<CreatePack>({
@@ -23,13 +24,41 @@
 
   const handleCancelModal = () => {
     dialogStates.value.createPackDialog = false;
+    newPack.allow_comments = false;
+    newPack.name = '';
+    newPack.theme = Theme.BLUE6;
+    newPack.private = true;
   };
 
+  /**
+   * Creates a new pack.
+   */
+  const $appStore = useAppStore();
   const handleSubmit = async () => {
-    submitting.value = true;
-    await $store.createPack(newPack);
-    submitting.value = false;
-    dialogStates.value.createPackDialog = false;
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      const user = useSupabaseUser();
+      const { data: createdPack, error } = await supabase.from('packs')
+        .insert([{
+          ...newPack,
+          profile_id: user.value?.id as string,
+        }])
+        .select();
+
+      if (createdPack?.length && !error) {
+        data.value.allPacks.push({ id: createdPack[0].id, name: createdPack[0].name as string, slug: createdPack[0].slug as string });
+        data.value.selectedPack = createdPack[0] as ExtendedPack;
+        $appStore.notifyPositive('Pack created successfully.');
+      } else {
+        $appStore.notifyNegative('There was an error creating the pack.');
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error creating the pack.');
+    } finally {
+      submitting.value = false;
+      dialogStates.value.createPackDialog = false;
+    }
   };
 </script>
 
@@ -115,3 +144,4 @@
     </template>
   </gc-modal>
 </template>
+

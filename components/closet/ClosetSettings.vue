@@ -3,7 +3,7 @@
   import type { SelectOption } from '@/types/helpers';
 
   const $store = useClosetStore();
-  const { data, pageLoading } = storeToRefs($store);
+  const { data, dialogStates, pageLoading } = storeToRefs($store);
   const { isPaidMember } = storeToRefs(useUserStore());
 
   const packOptions = computed(() => data.value.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
@@ -33,7 +33,7 @@
               <headless-menu-item
                 v-tippy="{ content: !data.selectedPack ? 'Please select a pack to import items.' : '' }"
                 as="p"
-                class="px-4 py-2 hover:bg-gray-100"
+                class="cursor-pointer px-4 py-2 hover:bg-gray-100"
                 :class="{
                   'cursor-not-allowed opacity-50': !data.selectedPack,
                 }"
@@ -44,18 +44,18 @@
               <headless-menu-item
                 v-tippy="{ content: !data.selectedPack ? 'Please select a pack to share.' : '' }"
                 as="p"
-                class="px-4 py-2 hover:bg-gray-100"
+                class="cursor-pointer px-4 py-2 hover:bg-gray-100"
                 :class="{
                   'cursor-not-allowed opacity-50': !data.selectedPack,
                 }"
                 :disabled="!data.selectedPack"
-                @click="$store.sharePackList">
+                @click="dialogStates.sharePackDialog = true">
                 Share pack list
               </headless-menu-item>
               <headless-menu-item
                 v-tippy="{ content: !data.selectedPack ? 'Please select a pack to delete.' : '' }"
                 as="p"
-                class="px-4 py-2 text-danger hover:bg-gray-100"
+                class="cursor-pointer px-4 py-2 text-danger hover:bg-gray-100"
                 :class="{
                   'cursor-not-allowed opacity-50': !data.selectedPack,
                 }"
@@ -78,10 +78,10 @@
         @update:model-value="handleSelectPack" />
     </div>
 
-    <div v-tippy="{ content: !isPaidMember && data.allPacks.length > 0 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }">
+    <div v-tippy="{ content: !isPaidMember && data.allPacks.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }">
       <gc-button
         class="self-center"
-        :disabled="!isPaidMember && data.allPacks.length > 0"
+        :disabled="!isPaidMember && data.allPacks.length >= 1"
         size="sm"
         @click="$store.dialogStates.createPackDialog = true">
         <plus-icon class="h-4 mr-2 text-white w-4" />

@@ -7,11 +7,7 @@
   const newUrl = ref('');
   const isAddUrlModalOpen = ref(false);
   const activeRow = ref<RowItem | undefined>(undefined);
-  // const handleInitialAddUrl = (row: RowItem, categoryId: number) => {
-  //   isAddUrlModalOpen.value = true;
-  //   activeRow.value = row;
-  //   $store.activeCategoryId = categoryId;
-  // };
+
   watch(isAddUrlModalOpen, (newVal) => {
     newVal ? nextTick(() => newUrl.value = activeRow.value?.url || '') : newUrl.value = '';
   });

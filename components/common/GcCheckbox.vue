@@ -32,11 +32,11 @@
 </script>
 
 <template>
-  <div class="cursor-pointer flex items-start">
+  <div class="cursor-pointer flex items-center">
     <input
       :id="id"
       :checked="modelValue"
-      class="bg-gray-100 border-gray-300 cursor-pointer h-4 mt-1 rounded w-4 focus:ring-2"
+      class="bg-gray-100 border-gray-300 cursor-pointer h-4 rounded w-4 focus:ring-2"
       :class="computedClasses"
       type="checkbox"
       value=""

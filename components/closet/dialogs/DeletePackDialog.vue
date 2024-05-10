@@ -1,16 +1,43 @@
 <script lang='ts' setup>
   import { InfoIcon } from 'lucide-vue-next';
+  import type { Database } from '@/types';
 
   const $store = useClosetStore();
-  const { dialogStates } = storeToRefs($store);
+  const $appStore = useAppStore();
+  const { data, dialogStates } = storeToRefs($store);
   const removeItemCheckbox = ref(false);
   const submitting = ref(false);
 
-  const handleSubmit = () => {
-    submitting.value = true;
-    // await $store.deletePack();
-    submitting.value = false;
-    dialogStates.value.deletePackDialog = false;
+  const handleSubmit = async () => {
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      const { error } = await supabase
+        .from('packs')
+        .delete()
+        .eq('id', data.value.selectedPack?.id as number);
+
+      if (!error) {
+        // Find the index of the pack in the allPacks array
+        const packIndex = data.value.allPacks.findIndex(p => p.id === data.value.selectedPack?.id);
+
+        // Remove the pack from the allPacks array
+        if (packIndex !== -1) {
+          data.value.allPacks.splice(packIndex, 1);
+        }
+
+        // Remove the pack from the selectedPack
+        data.value.selectedPack = undefined;
+        $appStore.notifyPositive('Pack deleted successfully.');
+      } else {
+        $appStore.notifyNegative('There was an error deleting the pack.');
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error deleting the pack.');
+    } finally {
+      submitting.value = false;
+      dialogStates.value.deletePackDialog = false;
+    }
   };
 </script>
 
@@ -32,7 +59,7 @@
         <gc-checkbox
           id="remove-item-checkbox"
           v-model="removeItemCheckbox"
-          label="Remove from closet?" />
+          label="Also remove from closet?" />
         <info-icon
           v-tippy="{ content: 'Checking this will remove all items from your closet as well.' }"
           class="h-4 w-4" />

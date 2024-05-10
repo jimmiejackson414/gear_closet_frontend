@@ -1,17 +1,58 @@
 <script lang='ts' setup>
   import { InfoIcon } from 'lucide-vue-next';
+  import type { Database } from '@/types';
+  import type { ExtendedPack } from '@/types/helpers';
 
   const $store = useClosetStore();
-  const { dialogStates } = storeToRefs($store);
-  const removeItemCheckbox = ref(false);
+  const { data, dialogStates } = storeToRefs($store);
   const activeCategoryId = ref<number | undefined>(undefined);
   const submitting = ref(false);
 
+  /**
+   * Remove category from pack
+   */
+  const $appStore = useAppStore();
+  const removeItemCheckbox = ref(false);
+  const isRemoveCategoryModalOpen = ref(false);
   const handleSubmit = async () => {
-    submitting.value = true;
-    // await $store.removeCategory(activeCategoryId.value, removeItemCheckbox.value);
-    submitting.value = false;
-    dialogStates.value.deleteCategoryDialog = false;
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+      let closetError = null;
+
+      // Remove category from pack
+      const { error } = await supabase
+        .from('categories')
+        .delete()
+        .eq('id', activeCategoryId.value as number);
+
+      // If removeFromCloset is true, remove items from closet as well
+      if (removeItemCheckbox.value) {
+        const result = await supabase
+          .from('category_items')
+          .delete()
+          .match({ category_id: activeCategoryId.value });
+        closetError = result.error;
+      }
+
+      if (!error && !closetError) {
+        // Find the index of the category in the pack
+        const categoryIndex = (data.value.selectedPack as ExtendedPack).categories.findIndex(c => c.id === activeCategoryId.value);
+
+        // Remove the category from the pack
+        if (categoryIndex !== -1) {
+          (data.value.selectedPack as ExtendedPack).categories.splice(categoryIndex, 1);
+        }
+        $appStore.notifyPositive(`Category ${removeItemCheckbox.value ? 'and its items' : ''} removed successfully.`);
+      } else {
+        $appStore.notifyNegative('There was an error removing the category or its items.');
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error removing the category.');
+    } finally {
+      submitting.value = false;
+      isRemoveCategoryModalOpen.value = false;
+    }
   };
 </script>
 

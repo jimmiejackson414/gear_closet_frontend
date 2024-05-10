@@ -1,17 +1,94 @@
 <script lang='ts' setup>
+  import Papa, { type ParseResult } from 'papaparse';
+  import type { Database } from '@/types';
+  import type { ExtendedCategory, ExtendedPack, ParsedResults } from '@/types/helpers';
   import { InfoIcon } from 'lucide-vue-next';
 
   const $store = useClosetStore();
-  const { dialogStates } = storeToRefs($store);
+  const { data, dialogStates } = storeToRefs($store);
   const submitting = ref(false);
   const file = ref<File | undefined>(undefined);
+  const parsingResult = ref<{ status?: 'success' | 'failure', message?: string }>({
+    status: undefined,
+    message: undefined,
+  });
 
-  const handleSubmit = () => {
-    submitting.value = true;
-    // Do something with the file
-    submitting.value = false;
-    dialogStates.value.uploadCsvDialog = false;
+  /**
+   * Parse CSV file
+   */
+  const parseFile = async (file: File | undefined) => {
+    if (!file) return;
+    return new Promise((resolve, reject) => {
+      Papa.parse(file, {
+        header: true,
+        dynamicTyping: true,
+        skipEmptyLines: true,
+        transformHeader: (header: string) => header.toLowerCase()
+          .trim()
+          .replace(/\s/g, '_'),
+        complete: (results: ParseResult<Record<string, unknown>>) => {
+          parsingResult.value = {
+            status: 'success',
+            message: 'Successfully parsed CSV file!',
+          };
+          resolve(results);
+        },
+        error: (err) => {
+          parsingResult.value = {
+            status: 'failure',
+            message: 'There was an error parsing the CSV file.',
+          };
+          reject(err);
+        },
+      });
+    });
   };
+
+  /**
+   * Upload items to pack from CSV
+   */
+  const $appStore = useAppStore();
+  const handleSubmit = async () => {
+    try {
+      submitting.value = true;
+      const supabase = useSupabaseClient<Database>();
+
+      const parseResults = await parseFile(file.value) as ParsedResults;
+      if (parseResults.data?.length) {
+        const { data: createdCategory, error } = await supabase
+          .rpc('import_csv_data', {
+            p_pack_id: data.value.selectedPack?.id as number,
+            csv_data: parseResults.data,
+          })
+          .returns<ExtendedCategory>();
+
+        if (createdCategory && !error) {
+          (data.value.selectedPack as ExtendedPack).categories.push(createdCategory);
+          $appStore.notifyPositive('Successfully imported your items!');
+        } else {
+          $appStore.notifyNegative('There was an error importing the CSV.');
+        }
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error uploading the csv.');
+    } finally {
+      submitting.value = false;
+      dialogStates.value.uploadCsvDialog = false;
+    }
+  };
+
+  /**
+   * Reset file and parsing result on close
+   */
+  watch(() => dialogStates.value.uploadCsvDialog, (newValue) => {
+    if (!newValue) {
+      file.value = undefined;
+      parsingResult.value = {
+        status: undefined,
+        message: undefined,
+      };
+    }
+  });
 </script>
 
 <template>

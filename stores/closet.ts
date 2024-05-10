@@ -33,6 +33,7 @@ type State = {
     deletePackDialog: boolean;
     removeItemDialog: boolean;
     sharePackDialog: boolean;
+    updateThemeModal: boolean;
     uploadCsvDialog: boolean;
   }
   pageLoading: boolean;
@@ -41,9 +42,7 @@ type State = {
 type Getters = {};
 
 type Actions = {
-  createPack(newPack: CreatePack): void;
   fetchClosetPage(packId: number): Promise<void>;
-  sharePackList(): void;
   updateItem(item: RowItem, key: string, value: string | number | boolean | undefined, categoryId: number): Promise<void>;
 };
 
@@ -64,6 +63,7 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
           deletePackDialog: false,
           removeItemDialog: false,
           sharePackDialog: false,
+          updateThemeModal: false,
           uploadCsvDialog: false,
         },
         pageLoading: true,
@@ -71,13 +71,6 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
     },
 
     actions: {
-      /**
-       * Creates a new pack.
-       */
-      async createPack (newPack) {
-        console.log(`createPack`, newPack);
-      },
-
       /**
        * Fetches the planning page data.
        */
@@ -102,13 +95,6 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
         } finally {
           this.pageLoading = false;
         }
-      },
-
-      /**
-       * Shares the pack list.
-       */
-      async sharePackList () {
-
       },
 
       /**

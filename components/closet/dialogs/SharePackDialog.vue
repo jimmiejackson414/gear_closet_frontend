@@ -3,7 +3,7 @@
   import { CopyIcon, LinkIcon } from 'lucide-vue-next';
 
   const $store = useClosetStore();
-  const { dialogStates } = storeToRefs($store);
+  const { data, dialogStates } = storeToRefs($store);
   const shareLink = ref('');
   const submitting = ref(false);
 
@@ -13,6 +13,12 @@
     copy(shareLink.value);
     $appStore.notifyInfo('Copied to clipboard!');
   };
+
+  watch(() => dialogStates.value.sharePackDialog, (newValue) => {
+    if (newValue) {
+      shareLink.value = `${window.location.origin}/p/packs/${data.value.selectedPack?.slug}`;
+    }
+  });
 </script>
 
 <template>
