@@ -3,13 +3,12 @@
   import type { RowItem } from '../PackItemsTable.vue';
 
   const $store = useClosetStore();
-  const { dialogStates } = storeToRefs($store);
+  const { activeCategoryId, activeItem, dialogStates } = storeToRefs($store);
   const newUrl = ref('');
   const isAddUrlModalOpen = ref(false);
-  const activeRow = ref<RowItem | undefined>(undefined);
 
   watch(isAddUrlModalOpen, (newVal) => {
-    newVal ? nextTick(() => newUrl.value = activeRow.value?.url || '') : newUrl.value = '';
+    newVal ? nextTick(() => newUrl.value = $store.activeItem?.url || '') : newUrl.value = '';
   });
 
   const isValidUrl = ref(false);
@@ -22,7 +21,7 @@
   const submitting = ref(false);
   const handleSubmit = async () => {
     submitting.value = true;
-    await $store.updateItem(activeRow.value as RowItem, 'url', newUrl.value, $store.activeCategoryId as number);
+    await $store.updateItem($store.activeItem as RowItem, 'url', newUrl.value, $store.activeCategoryId as number);
     dialogStates.value.addUrlDialog = false;
     submitting.value = false;
   };
@@ -34,8 +33,8 @@
     title="Add URL"
     @handle-cancel="[
       $store.dialogStates.addUrlDialog = false,
-      activeRow = undefined,
-      $store.activeCategoryId = undefined
+      activeItem = undefined,
+      activeCategoryId = undefined
     ]">
     <template #content>
       <p class="mb-4 text-base">
@@ -73,8 +72,8 @@
         variant="secondary"
         @click="[
           dialogStates.addUrlDialog = false,
-          activeRow = undefined,
-          $store.activeCategoryId = undefined
+          activeItem = undefined,
+          activeCategoryId = undefined
         ]" />
       <gc-button
         v-tippy="{ content: !isValidUrl ? 'Not a valid URL' : undefined }"

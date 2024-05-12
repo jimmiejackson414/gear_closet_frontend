@@ -4,8 +4,7 @@
   import type { Database, Tables, TablesInsert } from '@/types';
 
   const $store = useClosetStore();
-  const { data, dialogStates } = storeToRefs($store);
-  const activeCategoryId = ref<number | null>(null);
+  const { activeCategoryId, activeItem, data, dialogStates } = storeToRefs($store);
 
   interface UpdateCategoryPayload {
     field: keyof ExtendedCategory;
@@ -67,14 +66,13 @@
    * Adds a new URL to a category.
    */
   const newUrl = ref('');
-  const activeRow = ref<RowItem | undefined>(undefined);
   const handleInitialAddUrl = (row: RowItem, categoryId: number) => {
     dialogStates.value.addUrlDialog = true;
-    activeRow.value = row;
-    activeCategoryId.value = categoryId;
+    $store.activeItem = row;
+    $store.activeCategoryId = categoryId;
   };
   watch(() => dialogStates.value.addUrlDialog, (newVal) => {
-    newVal ? nextTick(() => newUrl.value = activeRow.value?.url || '') : newUrl.value = '';
+    newVal ? nextTick(() => newUrl.value = $store.activeItem?.url || '') : newUrl.value = '';
   });
 
   /**
@@ -90,12 +88,12 @@
         .update({
           [field]: value,
         })
-        .eq('id', activeCategoryId.value as number)
+        .eq('id', activeCategoryId?.value as number)
         .select();
 
       if (updatedCategory && !error) {
         // Find the category
-        const category = (data.value.selectedPack as ExtendedPack).categories.find(c => c.id === Number(activeCategoryId.value));
+        const category = (data.value.selectedPack as ExtendedPack).categories.find(c => c.id === Number(activeCategoryId?.value));
 
         if (category) {
           // Update the category
@@ -132,8 +130,15 @@
       :key="item.id"
       :category="item"
       @handle-add-url="handleInitialAddUrl"
-      @handle-remove-category="[ activeCategoryId = item.id, dialogStates.deleteCategoryDialog = true ]"
-      @handle-remove-item="[ activeCategoryId = item.id, activeRow = $event, dialogStates.removeItemDialog = true ]"
+      @handle-remove-category="[
+        activeCategoryId = item.id,
+        dialogStates.deleteCategoryDialog = true
+      ]"
+      @handle-remove-item="[
+        activeCategoryId = item.id,
+        activeItem = $event,
+        dialogStates.removeItemDialog = true
+      ]"
       @handle-update-category="($event: UpdateCategoryPayload) => { activeCategoryId = item.id, updateCategory($event) }" />
   </div>
 </template>

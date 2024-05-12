@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { InfoIcon } from 'lucide-vue-next';
-  import type { Database, Tables } from '@/types';
+  import type { Database } from '@/types';
   import type { ExtendedPack } from '@/types/helpers';
 
   const $store = useClosetStore();
@@ -8,10 +8,6 @@
   const { data, dialogStates } = storeToRefs($store);
   const removeItemCheckbox = ref(false);
   const submitting = ref(false);
-
-  // temporary
-  const activeRow = ref<Tables<'items'> | undefined>(undefined);
-  const activeCategoryId = ref<number | undefined>(undefined);
 
   /**
    * Remove item from pack
@@ -26,24 +22,24 @@
       const { error } = await supabase
         .from('category_items')
         .delete()
-        .match({ category_id: activeCategoryId.value, item_id: activeRow.value?.id });
+        .match({ category_id: $store.activeCategoryId, item_id: $store.activeItem?.id });
 
       // If removeFromCloset is true, remove item from closet as well
       if (removeItemCheckbox.value) {
         const result = await supabase
           .from('items')
           .delete()
-          .match({ id: activeRow.value?.id });
+          .match({ id: $store.activeItem?.id });
         closetError = result.error;
       }
 
       if (!error && !closetError) {
         // Find the category
-        const category = (data.value.selectedPack as ExtendedPack).categories.find(c => c.id === Number(activeCategoryId.value));
+        const category = (data.value.selectedPack as ExtendedPack).categories.find(c => c.id === Number($store.activeCategoryId));
 
         if (category) {
           // Find the index of the category_item in the category
-          const categoryItemIndex = category.category_items.findIndex(category_item => category_item.item.id === Number(activeRow.value?.id));
+          const categoryItemIndex = category.category_items.findIndex(category_item => category_item.item.id === Number($store.activeItem?.id));
 
           // Remove the category_item from the category
           if (categoryItemIndex !== -1) {
@@ -59,8 +55,8 @@
     } finally {
       submitting.value = false;
       dialogStates.value.removeItemDialog = false;
-      activeRow.value = undefined;
-      activeCategoryId.value = undefined;
+      $store.activeItem = undefined;
+      $store.activeCategoryId = undefined;
     }
   };
 </script>

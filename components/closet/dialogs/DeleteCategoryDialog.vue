@@ -4,8 +4,7 @@
   import type { ExtendedPack } from '@/types/helpers';
 
   const $store = useClosetStore();
-  const { data, dialogStates } = storeToRefs($store);
-  const activeCategoryId = ref<number | undefined>(undefined);
+  const { activeCategoryId, data, dialogStates } = storeToRefs($store);
   const submitting = ref(false);
 
   /**
@@ -24,20 +23,20 @@
       const { error } = await supabase
         .from('categories')
         .delete()
-        .eq('id', activeCategoryId.value as number);
+        .eq('id', $store.activeCategoryId as number);
 
       // If removeFromCloset is true, remove items from closet as well
       if (removeItemCheckbox.value) {
         const result = await supabase
           .from('category_items')
           .delete()
-          .match({ category_id: activeCategoryId.value });
+          .match({ category_id: $store.activeCategoryId });
         closetError = result.error;
       }
 
       if (!error && !closetError) {
         // Find the index of the category in the pack
-        const categoryIndex = (data.value.selectedPack as ExtendedPack).categories.findIndex(c => c.id === activeCategoryId.value);
+        const categoryIndex = (data.value.selectedPack as ExtendedPack).categories.findIndex(c => c.id === $store.activeCategoryId);
 
         // Remove the category from the pack
         if (categoryIndex !== -1) {
@@ -60,7 +59,11 @@
   <gc-modal
     :is-open="dialogStates.deleteCategoryDialog"
     title="Remove Category from Pack"
-    @handle-cancel="[ dialogStates.deleteCategoryDialog = false, removeItemCheckbox = false, activeCategoryId = undefined ]">
+    @handle-cancel="[
+      dialogStates.deleteCategoryDialog = false,
+      removeItemCheckbox = false,
+      activeCategoryId = undefined
+    ]">
     <template #content>
       <div>
         <p class="font-bold mb-0 text-base">

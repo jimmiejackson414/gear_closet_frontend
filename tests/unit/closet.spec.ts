@@ -1,4 +1,4 @@
-import { mountSuspended, mockComponent } from '@nuxt/test-utils/runtime';
+import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
 import { beforeEach, describe, expect, it } from 'vitest';
 import VueTippy from 'vue-tippy';
@@ -7,36 +7,8 @@ import { useClosetStore } from '@/stores/closet';
 import { selectedPack } from './mocks/closet.mock';
 import ClosetSettings from '@/components/closet/ClosetSettings.vue';
 import ClosetEmptyState from '@/components/closet/ClosetEmptyState.vue';
-
-// vi.mock('echarts/components', async (importOriginal) => {
-//   const actual: any = await importOriginal();
-//   return {
-//     ...actual,
-//     GridComponent: () => {},
-//     LegendComponent: () => {},
-//     TitleComponent: () => {},
-//     TooltipComponent: () => {},
-//   };
-// });
-
-// vi.mock('echarts/core', async (importOriginal) => {
-//   const actual: any = await importOriginal();
-//   return {
-//     ...actual,
-//     use: () => [],
-//   };
-// });
-
-// vi.mock('vue-echarts', async () => ({
-//   VChart: {
-//     render: () => {},
-//     mounted: () => {},
-//   },
-// }));
-
-mockComponent('VChart', async () => {
-  return true;
-});
+import { createPinia, setActivePinia } from 'pinia';
+import PackSummaryEmptyState from '@/components/closet/dialogs/PackSummaryEmptyState.vue';
 
 const allPacks = [
   { id: 1, name: 'Summer Pack', slug: 'd8a2423f-6c5b-4aa3-9e61-690f094d4c1e' },
@@ -45,6 +17,10 @@ const allPacks = [
 ];
 
 describe('Closet Page', async () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+  });
+
   describe('Settings', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
@@ -154,24 +130,12 @@ describe('Closet Page', async () => {
   });
 
   describe('Closet empty state', async () => {
-    let wrapper: VueWrapper<any>;
-    beforeEach(async () => {
-      wrapper = await mountSuspended(ClosetEmptyState, {
+    it('renders the empty state when not loading and no packs are available', async () => {
+      const wrapper = await mountSuspended(ClosetEmptyState, {
         global: {
-          plugins: [VueTippy, createTestingPinia({
-            initialState: {
-              data: {
-                selectedPack: undefined,
-                allPacks: [],
-              },
-              pageLoading: false,
-            },
-          })],
+          plugins: [VueTippy, createTestingPinia()],
         },
       });
-    });
-
-    it('renders the empty state when not loading and no packs are available', async () => {
       const store = useClosetStore();
       store.pageLoading = false;
       store.data.allPacks = [];
@@ -193,26 +157,32 @@ describe('Closet Page', async () => {
     });
   });
 
-  // describe('Pack Summary empty state', async () => {
-  //   it('renders the empty state when no categories have been created on a selectedPack', async () => {
-  //     const store = useClosetStore();
-  //     store.pageLoading = false;
-  //     store.data.allPacks = allPacks;
-  //     store.data.selectedPack = { ...selectedPack, categories: [] };
+  describe('Pack Summary empty state', async () => {
+    it('renders the empty state when no categories have been created on a selectedPack', async () => {
+      const wrapper = await mountSuspended(PackSummaryEmptyState, {
+        global: {
+          plugins: [VueTippy, createTestingPinia()],
+        },
+      });
 
-  //     await wrapper.vm.$nextTick();
+      const store = useClosetStore();
+      store.pageLoading = false;
+      store.data.allPacks = allPacks;
+      store.data.selectedPack = { ...selectedPack, categories: [] };
 
-  //     const emptyState = wrapper.find('[data-testid="pack-summary-empty-state"]');
-  //     expect(emptyState.exists())
-  //       .toBe(true);
-  //     expect(emptyState.text())
-  //       .toMatch(/Successfully created your new .+ pack!/);
-  //     expect(emptyState.text())
-  //       .toContain('The next step is to add some items to your pack.');
-  //     expect(emptyState.text())
-  //       .toContain('You can add items to your pack by clicking the Get Started button below or by uploading a CSV file.');
-  //   });
-  // });
+      await wrapper.vm.$nextTick();
+
+      const emptyState = wrapper.find('[data-testid="pack-summary-empty-state"]');
+      expect(emptyState.exists())
+        .toBe(true);
+      expect(emptyState.text())
+        .toMatch(/Successfully created your new .+ pack!/);
+      expect(emptyState.text())
+        .toContain('The next step is to add some items to your pack.');
+      expect(emptyState.text())
+        .toContain('You can add items to your pack by clicking the Get Started button below or by uploading a CSV file.');
+    });
+  });
 
   // describe('Pack Summary Widget', async () => {
   //   beforeEach(async () => {
@@ -274,6 +244,38 @@ describe('Closet Page', async () => {
   // });
 
   // describe('Category items list', async () => {
+
+  // });
+
+  // describe('Create Pack Dialog', async () => {
+
+  // });
+
+  // describe('Import From CSV Dialog', async () => {
+
+  // });
+
+  // describe('Share Pack List Dialog', async () => {
+
+  // });
+
+  // describe('Delete Category Dialog', async () => {
+
+  // });
+
+  // describe('Delete Pack Dialog', async () => {
+
+  // });
+
+  // describe('Remove Item Dialog', async () => {
+
+  // });
+
+  // describe('Add URL Dialog', async () => {
+
+  // });
+
+  // describe('Update Theme Dialog', async () => {
 
   // });
 });

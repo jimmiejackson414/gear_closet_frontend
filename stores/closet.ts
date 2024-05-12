@@ -2,7 +2,6 @@ import { defineStore } from "pinia";
 import type { Database } from "@/types";
 import type { ExtendedPack } from "@/types/helpers";
 import type { RowItem } from '@/components/closet/PackItemsTable.vue';
-import type { CreatePack } from "@/components/closet/dialogs/CreatePackDialog.vue";
 
 export interface ClosetPageData {
   selectedPack?: ExtendedPack;
@@ -25,6 +24,7 @@ interface ClosetPageResponse {
 
 type State = {
   activeCategoryId?: number;
+  activeItem?: RowItem; // activeRow equalivant
   data: ClosetPageData;
   dialogStates: {
     addUrlDialog: boolean;
@@ -52,6 +52,7 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
     state () {
       return {
         activeCategoryId: undefined,
+        activeRow: undefined,
         data: {
           selectedPack: undefined,
           allPacks: [],

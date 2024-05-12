@@ -60,7 +60,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'yarn dev',
+    command: 'pnpm dev',
     url: process.env.NUXT_PLAYWRIGHT_BASE_URL || 'http://localhost:8000',
     reuseExistingServer: !process.env.CI,
   },
