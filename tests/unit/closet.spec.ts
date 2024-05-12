@@ -9,6 +9,7 @@ import ClosetSettings from '@/components/closet/ClosetSettings.vue';
 import ClosetEmptyState from '@/components/closet/ClosetEmptyState.vue';
 import { createPinia, setActivePinia } from 'pinia';
 import PackSummaryEmptyState from '@/components/closet/dialogs/PackSummaryEmptyState.vue';
+import ClosetPackDetails from '@/components/closet/ClosetPackDetails.vue';
 
 const allPacks = [
   { id: 1, name: 'Summer Pack', slug: 'd8a2423f-6c5b-4aa3-9e61-690f094d4c1e' },
@@ -157,7 +158,7 @@ describe('Closet Page', async () => {
     });
   });
 
-  describe('Pack Summary empty state', async () => {
+  describe('Pack Summary Widget', async () => {
     it('renders the empty state when no categories have been created on a selectedPack', async () => {
       const wrapper = await mountSuspended(PackSummaryEmptyState, {
         global: {
@@ -182,6 +183,51 @@ describe('Closet Page', async () => {
       expect(emptyState.text())
         .toContain('You can add items to your pack by clicking the Get Started button below or by uploading a CSV file.');
     });
+
+    it('renders the pack summary details', async () => {
+      const wrapper = await mountSuspended(ClosetPackDetails, {
+        global: {
+          plugins: [VueTippy, createTestingPinia()],
+        },
+      });
+
+      const store = useClosetStore();
+      store.pageLoading = false;
+      store.data.allPacks = allPacks;
+      store.data.selectedPack = selectedPack;
+
+      await wrapper.vm.$nextTick();
+
+      // Data update
+
+      // Theme update
+      // store.data.selectedPack!.theme = 'BREEZE6';
+
+      // Dialog state
+      expect(store.dialogStates.updateThemeModal)
+        .toBe(false);
+
+      const menuButton = wrapper.findComponent({ name: 'MenuButton' });
+      menuButton.trigger('click');
+
+      await wrapper.vm.$nextTick();
+
+      const menuItem = wrapper.findAllComponents({ name: 'MenuItem' })[0];
+      menuItem.trigger('click');
+      expect(store.dialogStates.updateThemeModal)
+        .toBe(true);
+
+      // Rendering
+      const renderedDetails = wrapper.findAll('[data-testid="pack-summary-detail"]');
+      expect(renderedDetails.length)
+        .toBe(4);
+
+      // Weight conversion
+    });
+
+    // it('renders the chart correctly', async () => {
+    // Unable to test this due to ESM restrictions in echarts library
+    // });
   });
 
   // describe('Pack Summary Widget', async () => {
