@@ -3,6 +3,8 @@ import { type VueWrapper } from '@vue/test-utils';
 import { beforeEach, describe, expect, it } from 'vitest';
 import VueTippy from 'vue-tippy';
 import { createTestingPinia } from '@pinia/testing';
+import round from 'lodash.round';
+import convert from 'convert';
 import { useClosetStore } from '@/stores/closet';
 import { selectedPack } from './mocks/closet.mock';
 import ClosetSettings from '@/components/closet/ClosetSettings.vue';
@@ -10,6 +12,7 @@ import ClosetEmptyState from '@/components/closet/ClosetEmptyState.vue';
 import { createPinia, setActivePinia } from 'pinia';
 import PackSummaryEmptyState from '@/components/closet/dialogs/PackSummaryEmptyState.vue';
 import ClosetPackDetails from '@/components/closet/ClosetPackDetails.vue';
+import ClosetPackCategories from '@/components/closet/ClosetPackCategories.vue';
 
 const allPacks = [
   { id: 1, name: 'Summer Pack', slug: 'd8a2423f-6c5b-4aa3-9e61-690f094d4c1e' },
@@ -199,9 +202,50 @@ describe('Closet Page', async () => {
       await wrapper.vm.$nextTick();
 
       // Data update
+      store.data.selectedPack.categories[0].category_items[0].item.weight = "4.0";
+
+      await wrapper.vm.$nextTick();
+
+      const weights = calculatePackWeights(store.data.selectedPack);
+      const weightDetails = wrapper.findAll('[data-testid="pack-summary-detail"]');
+
+      for (let i = 0; i < weightDetails.length; i++) {
+        const detail = weightDetails[i];
+        const title = detail.find('[data-testid="detail-title"]')
+          .text()
+          .toLowerCase();
+        if (title) {
+          const weightInMg = weights[title as keyof typeof weights];
+          const expectedWeight = round(convert(weightInMg, 'mg')
+            .to('lb'), 2);
+
+          const weightText = detail.find('[data-testid="detail-weight"]')
+            .text();
+          const weight = parseFloat(weightText.replace(' lbs', ''));
+          expect(weight)
+            .toBeCloseTo(expectedWeight, 2);
+        }
+      }
+
+      store.data.selectedPack = selectedPack;
+      // End data update
 
       // Theme update
-      // store.data.selectedPack!.theme = 'BREEZE6';
+      store.data.selectedPack!.theme = 'BREEZE6';
+      await wrapper.vm.$nextTick();
+
+      const colorDetails = wrapper.findAll('[data-testid="pack-summary-detail"]');
+      for (let i = 0; i < colorDetails.length; i++) {
+        const detail = colorDetails[i];
+        const colorWrapper = detail.find('[data-testid="detail-weight"]');
+        if (colorWrapper.element) {
+          const color = (colorWrapper.element as HTMLElement).style.color;
+          const expectedColor = findTheme('BREEZE6')[i];
+          expect(color)
+            .toBe(expectedColor);
+        }
+      }
+      // End theme update
 
       // Dialog state
       expect(store.dialogStates.updateThemeModal)
@@ -216,82 +260,60 @@ describe('Closet Page', async () => {
       menuItem.trigger('click');
       expect(store.dialogStates.updateThemeModal)
         .toBe(true);
+      // End dialog state
 
       // Rendering
       const renderedDetails = wrapper.findAll('[data-testid="pack-summary-detail"]');
       expect(renderedDetails.length)
         .toBe(4);
-
-      // Weight conversion
+      // End rendering
     });
 
     // it('renders the chart correctly', async () => {
-    // Unable to test this due to ESM restrictions in echarts library
+    //    Unable to test this due to ESM restrictions in echarts library
     // });
   });
 
-  // describe('Pack Summary Widget', async () => {
-  //   beforeEach(async () => {
-  //     const store = useClosetStore();
-  //     store.pageLoading = false;
-  //     store.data.allPacks = allPacks;
-  //     store.data.selectedPack = selectedPack;
-  //     await wrapper.vm.$nextTick();
-  //   });
+  describe('Category items list', async () => {
+    it('renders the category items list correctly', async () => {
+      const wrapper = await mountSuspended(ClosetPackCategories, {
+        global: {
+          plugins: [VueTippy, createTestingPinia()],
+        },
+      });
 
-  //   it('renders the pack summary widget correctly', async () => {
-  //     await wrapper.vm.$nextTick();
-  //     const packSummary = wrapper.find('[data-testid="pack-summary-widget"]');
+      const store = useClosetStore();
+      store.pageLoading = false;
+      store.data.allPacks = allPacks;
+      store.data.selectedPack = selectedPack;
 
-  //     expect(packSummary.exists())
-  //       .toBe(true);
-  //   });
+      await wrapper.vm.$nextTick();
 
-  //   // Unable to test this due to ESM restrictions in echarts library
-  //   // it('renders the chart correctly', async () => {
-  //   //   await wrapper.vm.$nextTick();
-  //   //   const packSummary = wrapper.find('[data-testid="pack-summary-widget"]');
-  //   //   const chart = wrapper.findComponent({ name: 'VCharts' });
+      expect(wrapper.exists())
+        .toBe(true);
+    });
 
-  //   //   expect(packSummary.text())
-  //   //     .toContain('Pack Summary');
-  //   //   expect(chart.exists())
-  //   //     .toBe(true);
-  //   // });
+    it('creates a new category when the add category button is clicked', async () => {
+      const wrapper = await mountSuspended(ClosetPackCategories, {
+        global: {
+          plugins: [VueTippy, createTestingPinia()],
+        },
+      });
 
-  //   it('renders the stats correctly', async () => {
-  //     await wrapper.vm.$nextTick();
+      const store = useClosetStore();
+      store.pageLoading = false;
+      store.data.allPacks = allPacks;
+      store.data.selectedPack = selectedPack;
 
-  //     const packSummary = wrapper.find('[data-testid="pack-summary-widget"]');
-  //     console.log({ packSummary });
-  //     // const detailElements = packSummary.findAll('[data-testid="pack-summary-detail"]');
-  //     // console.log({ detailElements });
+      expect(store.data.selectedPack.categories.length)
+        .toBe(8);
 
-  //     // expect(detailElements.length)
-  //     //   .toBe(4);
-
-  //     // const expectedDetails = [
-  //     //   {title:"Worn",weight:4.18,color:"#0f6fc6"},
-  //     //   {title:"Consumable",weight:0.19,color:"#009dd9"},
-  //     //   {title:"Base",weight:15.32,color:"#0bd0d9"},
-  //     //   {title:"Total",weight:19.69,color:"#10cf9b"},
-  //     // ];
-
-  //     // detailElements.forEach((element, index) => {
-  //     //   const titleElement = element.find('span');
-  //     //   const weightElement = element.find('h6');
-
-  //     //   expect(titleElement.text())
-  //     //     .toBe(expectedDetails[index].title);
-  //     //   expect(parseFloat(weightElement.text()))
-  //     //     .toBeCloseTo(expectedDetails[index].weight);
-  //     // });
-  //   });
-  // });
-
-  // describe('Category items list', async () => {
-
-  // });
+      const createCategoryButton = wrapper.findComponent({ name: 'GcButton' });
+      createCategoryButton.trigger('click');
+      expect(store.data.selectedPack.categories.length)
+        .toBe(9);
+    });
+  });
 
   // describe('Create Pack Dialog', async () => {
 

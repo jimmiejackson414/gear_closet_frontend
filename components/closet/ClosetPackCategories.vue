@@ -33,7 +33,7 @@
         name: '' as string,
         pack_id: data.value.selectedPack?.id as number,
         slug: '',
-        unit: '',
+        unit: 'g',
         id: 0, // or some temporary id
         created_at: new Date()
           .toISOString(),
@@ -139,6 +139,8 @@
         activeItem = $event,
         dialogStates.removeItemDialog = true
       ]"
-      @handle-update-category="($event: UpdateCategoryPayload) => { activeCategoryId = item.id, updateCategory($event) }" />
+      @handle-update-category="($event: UpdateCategoryPayload) => {
+        activeCategoryId = item.id, updateCategory($event)
+      }" />
   </div>
 </template>

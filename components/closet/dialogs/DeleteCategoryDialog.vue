@@ -43,6 +43,7 @@
           (data.value.selectedPack as ExtendedPack).categories.splice(categoryIndex, 1);
         }
         $appStore.notifyPositive(`Category ${removeItemCheckbox.value ? 'and its items' : ''} removed successfully.`);
+        dialogStates.value.deleteCategoryDialog = false;
       } else {
         $appStore.notifyNegative('There was an error removing the category or its items.');
       }

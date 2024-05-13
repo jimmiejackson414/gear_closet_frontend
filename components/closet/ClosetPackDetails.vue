@@ -65,11 +65,14 @@
         :key="detail.title"
         class="border border-dashed border-gray-400 p-4 rounded-2xl"
         data-testid="pack-summary-detail">
-        <span class="font-bold text-eyebrow text-grey-8">
+        <span
+          class="font-bold text-eyebrow text-grey-8"
+          data-testid="detail-title">
           {{ detail.title }}
         </span>
         <h6
           class="duration-300 ease-snap font-bold text-lg transition-colors"
+          data-testid="detail-weight"
           :style="{ color: detail.color }">
           {{ detail.weight || '' }} lbs
         </h6>
