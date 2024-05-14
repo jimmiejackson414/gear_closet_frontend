@@ -519,7 +519,11 @@ describe('Closet Page', async () => {
   describe('CreatePackDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
-      wrapper = await mountSuspended(CreatePackDialog);
+      wrapper = await mountSuspended(CreatePackDialog, {
+        global: {
+          plugins: [VueTippy, createTestingPinia()],
+        },
+      });
     });
 
     it('renders the dialog correctly', async () => {
@@ -548,7 +552,11 @@ describe('Closet Page', async () => {
   describe('CsvUploadDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
-      wrapper = await mountSuspended(CsvUploadDialog);
+      wrapper = await mountSuspended(CsvUploadDialog, {
+        global: {
+          plugins: [VueTippy, createTestingPinia()],
+        },
+      });
     });
 
     it('renders the dialog correctly', async () => {
@@ -577,7 +585,11 @@ describe('Closet Page', async () => {
   describe('SharePackDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
-      wrapper = await mountSuspended(SharePackDialog);
+      wrapper = await mountSuspended(SharePackDialog, {
+        global: {
+          plugins: [VueTippy, createTestingPinia()],
+        },
+      });
     });
 
     it('renders the dialog correctly', async () => {
@@ -606,7 +618,11 @@ describe('Closet Page', async () => {
   describe('DeleteCategoryDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
-      wrapper = await mountSuspended(DeleteCategoryDialog);
+      wrapper = await mountSuspended(DeleteCategoryDialog, {
+        global: {
+          plugins: [VueTippy, createTestingPinia()],
+        },
+      });
     });
 
     it('renders the dialog correctly', async () => {
@@ -632,10 +648,14 @@ describe('Closet Page', async () => {
     });
   });
 
-  describe('Delete Pack Dialog', async () => {
+  describe('DeletePackDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
-      wrapper = await mountSuspended(DeletePackDialog);
+      wrapper = await mountSuspended(DeletePackDialog, {
+        global: {
+          plugins: [VueTippy, createTestingPinia()],
+        },
+      });
     });
 
     it('renders the dialog correctly', async () => {
@@ -661,10 +681,14 @@ describe('Closet Page', async () => {
     });
   });
 
-  describe('Remove Item Dialog', async () => {
+  describe('RemoveItemDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
-      wrapper = await mountSuspended(RemoveItemDialog);
+      wrapper = await mountSuspended(RemoveItemDialog, {
+        global: {
+          plugins: [VueTippy, createTestingPinia()],
+        },
+      });
     });
 
     it('renders the dialog correctly', async () => {
@@ -690,10 +714,14 @@ describe('Closet Page', async () => {
     });
   });
 
-  describe('Add URL Dialog', async () => {
+  describe('AddUrlDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
-      wrapper = await mountSuspended(AddUrlDialog);
+      wrapper = await mountSuspended(AddUrlDialog, {
+        global: {
+          plugins: [VueTippy, createTestingPinia()],
+        },
+      });
     });
 
     it('renders the dialog correctly', async () => {
@@ -719,10 +747,14 @@ describe('Closet Page', async () => {
     });
   });
 
-  describe('Update Theme Dialog', async () => {
+  describe('UpdateThemeDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
-      wrapper = await mountSuspended(UpdateThemeDialog);
+      wrapper = await mountSuspended(UpdateThemeDialog, {
+        global: {
+          plugins: [VueTippy, createTestingPinia()],
+        },
+      });
     });
 
     it('renders the dialog correctly', async () => {
