@@ -91,7 +91,7 @@
         label="Cancel"
         size="sm"
         variant="secondary"
-        @click="dialogStates.removeItemDialog" />
+        @click="[ dialogStates.removeItemDialog = false, removeItemCheckbox = false ]" />
       <gc-button
         :disabled="submitting"
         label="Remove Item"

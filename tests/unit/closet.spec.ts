@@ -14,7 +14,15 @@ import PackSummaryEmptyState from '@/components/closet/dialogs/PackSummaryEmptyS
 import ClosetPackDetails from '@/components/closet/ClosetPackDetails.vue';
 import ClosetPackCategories from '@/components/closet/ClosetPackCategories.vue';
 import PackItemsTable from '@/components/closet/PackItemsTable.vue';
+import CreatePackDialog from '@/components/closet/dialogs/CreatePackDialog.vue';
 import type { Tables } from '@/types';
+import CsvUploadDialog from '@/components/closet/dialogs/CsvUploadDialog.vue';
+import SharePackDialog from '@/components/closet/dialogs/SharePackDialog.vue';
+import DeleteCategoryDialog from '@/components/closet/dialogs/DeleteCategoryDialog.vue';
+import DeletePackDialog from '@/components/closet/dialogs/DeletePackDialog.vue';
+import RemoveItemDialog from '@/components/closet/dialogs/RemoveItemDialog.vue';
+import AddUrlDialog from '@/components/closet/dialogs/AddUrlDialog.vue';
+import UpdateThemeDialog from '@/components/closet/dialogs/UpdateThemeDialog.vue';
 
 const allPacks = [
   { id: 1, name: 'Summer Pack', slug: 'd8a2423f-6c5b-4aa3-9e61-690f094d4c1e' },
@@ -508,35 +516,235 @@ describe('Closet Page', async () => {
     });
   });
 
-  // describe('Create Pack Dialog', async () => {
+  describe('CreatePackDialog.vue', async () => {
+    let wrapper: VueWrapper<any>;
+    beforeEach(async () => {
+      wrapper = await mountSuspended(CreatePackDialog);
+    });
 
-  // });
+    it('renders the dialog correctly', async () => {
+      const store = useClosetStore();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+      store.dialogStates.createPackDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+    });
 
-  // describe('Import From CSV Dialog', async () => {
+    it('closes the dialog correctly', async () => {
+      const store = useClosetStore();
+      store.dialogStates.createPackDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
+      await closeButton.trigger('click');
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+    });
+  });
 
-  // });
+  describe('CsvUploadDialog.vue', async () => {
+    let wrapper: VueWrapper<any>;
+    beforeEach(async () => {
+      wrapper = await mountSuspended(CsvUploadDialog);
+    });
 
-  // describe('Share Pack List Dialog', async () => {
+    it('renders the dialog correctly', async () => {
+      const store = useClosetStore();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+      store.dialogStates.uploadCsvDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+    });
 
-  // });
+    it('closes the dialog correctly', async () => {
+      const store = useClosetStore();
+      store.dialogStates.uploadCsvDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
+      await closeButton.trigger('click');
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+    });
+  });
 
-  // describe('Delete Category Dialog', async () => {
+  describe('SharePackDialog.vue', async () => {
+    let wrapper: VueWrapper<any>;
+    beforeEach(async () => {
+      wrapper = await mountSuspended(SharePackDialog);
+    });
 
-  // });
+    it('renders the dialog correctly', async () => {
+      const store = useClosetStore();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+      store.dialogStates.sharePackDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+    });
 
-  // describe('Delete Pack Dialog', async () => {
+    it('closes the dialog correctly', async () => {
+      const store = useClosetStore();
+      store.dialogStates.sharePackDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
+      await closeButton.trigger('click');
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+    });
+  });
 
-  // });
+  describe('DeleteCategoryDialog.vue', async () => {
+    let wrapper: VueWrapper<any>;
+    beforeEach(async () => {
+      wrapper = await mountSuspended(DeleteCategoryDialog);
+    });
 
-  // describe('Remove Item Dialog', async () => {
+    it('renders the dialog correctly', async () => {
+      const store = useClosetStore();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+      store.dialogStates.deleteCategoryDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+    });
 
-  // });
+    it('closes the dialog correctly', async () => {
+      const store = useClosetStore();
+      store.dialogStates.deleteCategoryDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
+      await closeButton.trigger('click');
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+    });
+  });
 
-  // describe('Add URL Dialog', async () => {
+  describe('Delete Pack Dialog', async () => {
+    let wrapper: VueWrapper<any>;
+    beforeEach(async () => {
+      wrapper = await mountSuspended(DeletePackDialog);
+    });
 
-  // });
+    it('renders the dialog correctly', async () => {
+      const store = useClosetStore();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+      store.dialogStates.deletePackDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+    });
 
-  // describe('Update Theme Dialog', async () => {
+    it('closes the dialog correctly', async () => {
+      const store = useClosetStore();
+      store.dialogStates.deletePackDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
+      await closeButton.trigger('click');
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+    });
+  });
 
-  // });
+  describe('Remove Item Dialog', async () => {
+    let wrapper: VueWrapper<any>;
+    beforeEach(async () => {
+      wrapper = await mountSuspended(RemoveItemDialog);
+    });
+
+    it('renders the dialog correctly', async () => {
+      const store = useClosetStore();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+      store.dialogStates.removeItemDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+    });
+
+    it('closes the dialog correctly', async () => {
+      const store = useClosetStore();
+      store.dialogStates.removeItemDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
+      await closeButton.trigger('click');
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+    });
+  });
+
+  describe('Add URL Dialog', async () => {
+    let wrapper: VueWrapper<any>;
+    beforeEach(async () => {
+      wrapper = await mountSuspended(AddUrlDialog);
+    });
+
+    it('renders the dialog correctly', async () => {
+      const store = useClosetStore();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+      store.dialogStates.addUrlDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+    });
+
+    it('closes the dialog correctly', async () => {
+      const store = useClosetStore();
+      store.dialogStates.addUrlDialog = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
+      await closeButton.trigger('click');
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+    });
+  });
+
+  describe('Update Theme Dialog', async () => {
+    let wrapper: VueWrapper<any>;
+    beforeEach(async () => {
+      wrapper = await mountSuspended(UpdateThemeDialog);
+    });
+
+    it('renders the dialog correctly', async () => {
+      const store = useClosetStore();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+      store.dialogStates.updateThemeModal = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+    });
+
+    it('closes the dialog correctly', async () => {
+      const store = useClosetStore();
+      store.dialogStates.updateThemeModal = true;
+      await wrapper.vm.$nextTick();
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(true);
+      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
+      await closeButton.trigger('click');
+      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+        .toBe(false);
+    });
+  });
 });
