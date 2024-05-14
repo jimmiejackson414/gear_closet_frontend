@@ -24,7 +24,7 @@ interface ClosetPageResponse {
 
 type State = {
   activeCategoryId?: number;
-  activeItem?: RowItem; // activeRow equalivant
+  activeItem?: RowItem;
   data: ClosetPageData;
   dialogStates: {
     addUrlDialog: boolean;
