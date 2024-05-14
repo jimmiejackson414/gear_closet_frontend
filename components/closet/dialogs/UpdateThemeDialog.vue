@@ -25,7 +25,7 @@
     } catch (error) {
       $appStore.notifyNegative('There was an error updating your pack theme.');
     } finally {
-      dialogStates.value.updateThemeModal = false;
+      dialogStates.value.updateThemeDialog = false;
       submitting.value = false;
     }
   };
@@ -33,10 +33,10 @@
 
 <template>
   <gc-modal
-    :is-open="dialogStates.updateThemeModal"
+    :is-open="dialogStates.updateThemeDialog"
     size="sm"
     title="Change Theme"
-    @handle-cancel="dialogStates.updateThemeModal = false">
+    @handle-cancel="dialogStates.updateThemeDialog = false">
     <template #content>
       <div class="flex flex-col">
         <p class="mb-4 text-base">
@@ -86,7 +86,7 @@
           label="Cancel"
           size="sm"
           variant="secondary"
-          @click="dialogStates.updateThemeModal = false" />
+          @click="dialogStates.updateThemeDialog = false" />
         <gc-button
           :disabled="submitting"
           label="Update"

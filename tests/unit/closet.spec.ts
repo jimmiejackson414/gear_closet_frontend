@@ -258,7 +258,7 @@ describe('Closet Page', async () => {
       // End theme update
 
       // Dialog state
-      expect(store.dialogStates.updateThemeModal)
+      expect(store.dialogStates.updateThemeDialog)
         .toBe(false);
 
       const menuButton = wrapper.findComponent({ name: 'MenuButton' });
@@ -268,7 +268,7 @@ describe('Closet Page', async () => {
 
       const menuItem = wrapper.findAllComponents({ name: 'MenuItem' })[0];
       menuItem.trigger('click');
-      expect(store.dialogStates.updateThemeModal)
+      expect(store.dialogStates.updateThemeDialog)
         .toBe(true);
       // End dialog state
 
@@ -761,7 +761,7 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(false);
-      store.dialogStates.updateThemeModal = true;
+      store.dialogStates.updateThemeDialog = true;
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(true);
@@ -769,7 +769,7 @@ describe('Closet Page', async () => {
 
     it('closes the dialog correctly', async () => {
       const store = useClosetStore();
-      store.dialogStates.updateThemeModal = true;
+      store.dialogStates.updateThemeDialog = true;
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(true);

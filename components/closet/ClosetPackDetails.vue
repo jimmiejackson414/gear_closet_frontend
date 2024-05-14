@@ -49,7 +49,7 @@
           </div>
           <zoom-transition>
             <headless-menu-items class="absolute right-0 bg-white divide-gray-100 divide-y mt-2 origin-top-right ring-1 ring-black/5 rounded-md shadow-lg w-56 z-10 focus:outline-none">
-              <headless-menu-item @click="dialogStates.updateThemeModal = true">
+              <headless-menu-item @click="dialogStates.updateThemeDialog = true">
                 <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-dark-grey hover:bg-gray-100">
                   Change Theme
                 </p>
