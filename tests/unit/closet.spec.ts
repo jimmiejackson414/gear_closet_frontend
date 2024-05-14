@@ -5,17 +5,15 @@ import VueTippy from 'vue-tippy';
 import { createTestingPinia } from '@pinia/testing';
 import round from 'lodash.round';
 import convert, { type Mass } from 'convert';
+import { createPinia, setActivePinia } from 'pinia';
 import { useClosetStore } from '@/stores/closet';
-import { selectedPack } from './mocks/closet.mock';
 import ClosetSettings from '@/components/closet/ClosetSettings.vue';
 import ClosetEmptyState from '@/components/closet/ClosetEmptyState.vue';
-import { createPinia, setActivePinia } from 'pinia';
 import PackSummaryEmptyState from '@/components/closet/dialogs/PackSummaryEmptyState.vue';
 import ClosetPackDetails from '@/components/closet/ClosetPackDetails.vue';
 import ClosetPackCategories from '@/components/closet/ClosetPackCategories.vue';
 import PackItemsTable from '@/components/closet/PackItemsTable.vue';
 import CreatePackDialog from '@/components/closet/dialogs/CreatePackDialog.vue';
-import type { Tables } from '@/types';
 import CsvUploadDialog from '@/components/closet/dialogs/CsvUploadDialog.vue';
 import SharePackDialog from '@/components/closet/dialogs/SharePackDialog.vue';
 import DeleteCategoryDialog from '@/components/closet/dialogs/DeleteCategoryDialog.vue';
@@ -23,6 +21,8 @@ import DeletePackDialog from '@/components/closet/dialogs/DeletePackDialog.vue';
 import RemoveItemDialog from '@/components/closet/dialogs/RemoveItemDialog.vue';
 import AddUrlDialog from '@/components/closet/dialogs/AddUrlDialog.vue';
 import UpdateThemeDialog from '@/components/closet/dialogs/UpdateThemeDialog.vue';
+import { selectedPack } from './mocks/closet.mock';
+import type { Tables } from '@/types';
 
 const allPacks = [
   { id: 1, name: 'Summer Pack', slug: 'd8a2423f-6c5b-4aa3-9e61-690f094d4c1e' },
