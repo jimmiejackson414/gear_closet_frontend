@@ -1,9 +1,7 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { createTestingPinia } from '@pinia/testing';
 import VueTippy from 'vue-tippy';
 import app from '@/app.vue';
-import { profile } from '@/tests/unit/mocks/app.mock';
 import GcNavbar from '@/components/common/GcNavbar.vue';
 import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
 import GcDrawer from '@/components/common/GcDrawer.vue';
@@ -51,16 +49,11 @@ describe('App', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(app, {
         global: {
-          plugins: [VueTippy, createTestingPinia({
-            initialState: {
-              user: {
-                profile,
-              },
-            },
-          })],
+          plugins: [VueTippy],
         },
       });
     });
+
     it('calls useSupabaseClient', async () => {
       expect(useSupabaseClient)
         .toHaveBeenCalled();

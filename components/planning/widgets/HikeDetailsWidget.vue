@@ -142,13 +142,16 @@
       <gc-button
         v-if="!pageLoading && hikeDetails.length"
         class="justify-self-end"
+        data-testid="create-new-detail-btn"
         :icon="PlusIcon"
         round
         size="sm"
         @click="createNewDetail" />
     </div>
     <gc-skeleton v-if="pageLoading" />
-    <gc-empty-state v-else-if="!pageLoading && !hikeDetails.length">
+    <gc-empty-state
+      v-else-if="!pageLoading && !hikeDetails.length"
+      data-testid="hike-details-empty-state">
       <p class="mb-4 text-base">
         You haven't created any hike details yet!
       </p>

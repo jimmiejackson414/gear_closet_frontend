@@ -1,12 +1,12 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
-import { beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
+import { beforeEach, describe, expect, it } from 'vitest';
 import VueTippy from 'vue-tippy';
 import { createPinia, setActivePinia } from 'pinia';
-import { createTestingPinia } from '@pinia/testing';
 import PlanningSettings from '@/components/planning/PlanningSettings.vue';
 import PlanningEmptyState from '@/components/planning/PlanningEmptyState.vue';
-import { trips } from './mocks/planning.mock';
+import HikeDetailsWidget from '@/components/planning/widgets/HikeDetailsWidget.vue';
+import { trips, tripDetails } from './mocks/planning.mock';
 
 describe('Planning Page', async () => {
   beforeEach(() => {
@@ -18,7 +18,7 @@ describe('Planning Page', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(PlanningSettings, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
     });
@@ -81,7 +81,7 @@ describe('Planning Page', async () => {
     it('renders the empty state when not loading and no trips are present', async () => {
       const wrapper = await mountSuspended(PlanningEmptyState, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
       const store = usePlanningStore();
@@ -105,12 +105,54 @@ describe('Planning Page', async () => {
   });
 
   // describe('PackWidget.vue', async () => {
-
+  // unable to test due to ESM restrictions of echarts
   // });
 
-  // describe('HikeDetailsWidget.vue', async () => {
+  describe('HikeDetailsWidget.vue', async () => {
+    let wrapper: VueWrapper<any>;
+    beforeEach(async () => {
+      wrapper = await mountSuspended(HikeDetailsWidget, {
+        global: {
+          plugins: [VueTippy],
+        },
+      });
+    });
 
-  // });
+    it('renders the hike details widget', async () => {
+      expect(wrapper.exists())
+        .toBe(true);
+    });
+
+    it('renders the loading skeleton if pageLoading is true', async () => {
+      const store = usePlanningStore();
+      store.pageLoading = true;
+      await wrapper.vm.$nextTick();
+
+      const skeleton = wrapper.findComponent({ name: 'GcSkeleton' });
+      expect(skeleton.exists())
+        .toBe(true);
+    });
+
+    it('renders the empty state if no hike details are present', async () => {
+      const store = usePlanningStore();
+      store.$patch({ data: { trip_details: [] }, pageLoading: false });
+      await wrapper.vm.$nextTick();
+
+      const emptyState = wrapper.find('[data-testid="hike-details-empty-state"]');
+      expect(emptyState.exists())
+        .toBe(true);
+    });
+
+    it('renders the Create New Detail icon button if hike details are present', async () => {
+      const store = usePlanningStore();
+      store.$patch({ data: { trip_details: tripDetails }, pageLoading: false });
+      await wrapper.vm.$nextTick();
+
+      const createDetailButton = wrapper.find('[data-testid="create-new-detail-btn"]');
+      expect(createDetailButton.exists())
+        .toBe(true);
+    });
+  });
 
   // describe('TripDetailsWidget.vue', async () => {
 

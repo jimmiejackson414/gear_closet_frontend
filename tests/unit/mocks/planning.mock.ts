@@ -28,3 +28,26 @@ export const trips: Tables<'trips'>[] = [
     "starting_point":"Springer Mountain",
   },
 ];
+
+export const tripDetails: Tables<'trip_details'>[] = [
+  {
+    "id":1,
+    "url":null,
+    "type":"HIKE",
+    "title":"New detail",
+    "value":"New hike detail description",
+    "trip_id":2,
+    "created_at":"2024-04-21T01:21:08.285444+00:00",
+    "updated_at":"2024-04-21T01:21:08.285444+00:00",
+  },
+  {
+    "id":2,
+    "url":null,
+    "type":"TRIP",
+    "title":"New detail",
+    "value":"New trip detail description",
+    "trip_id":2,
+    "created_at":"2024-05-14T23:44:37.502726+00:00",
+    "updated_at":"2024-05-14T23:44:37.502726+00:00",
+  },
+];

@@ -37,6 +37,7 @@
       selectedPackId.value = newValue.id;
     }
   }, { immediate: true });
+
   /**
    * Fetches packs for the current user.
    */
