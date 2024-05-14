@@ -35,33 +35,36 @@
           Friends ({{ data.length }})
         </nuxt-link>
       </div>
-      <div class="-space-x-3 flex">
-        <div v-if="computedUsers.length">
-          <gc-avatar
+      <ul class="-space-x-3 flex">
+        <template v-if="computedUsers.length">
+          <li
             v-for="user in computedUsers"
-            :key="user.id"
-            border
-            :initials="initials(user)"
-            :url="buildImageSrc(user.image)" />
-          <nuxt-link
-            v-if="computedUsers.length > 5"
-            class="bg-dark-grey hover:bg-dark-grey/75 border-2 border-white flex justify-center items-center flex-shrink-0 font-medium h-12 min-w-12 rounded-full text-white text-xs w-12 z-10"
-            :to="{ name: 'friends' }">
-            {{ `+${computedUsers.length - 5}` }}
-          </nuxt-link>
-        </div>
-        <div
-          v-else
-          class="flex justify-center items-center flex-col">
-          <p class="mb-4 text-base text-center">
-            You haven't connected with any friends yet!
-          </p>
-          <gc-button
-            label="Get Started"
-            size="sm"
-            :to="{ name: 'friends' }" />
-        </div>
-      </div>
+            :key="user.id">
+            <gc-avatar
+              border
+              :initials="initials(user)"
+              :url="buildImageSrc(user.image)" />
+            <nuxt-link
+              v-if="data.length > 5"
+              class="bg-dark-grey hover:bg-dark-grey/75 border-2 border-white flex justify-center items-center flex-shrink-0 font-medium h-12 min-w-12 rounded-full text-white text-xs w-12 z-10"
+              data-testid="friends-widget-more"
+              :to="{ name: 'friends' }">
+              {{ `+${data.length - 5}` }}
+            </nuxt-link>
+          </li>
+        </template>
+        <template v-else>
+          <div class="flex justify-center items-center flex-col">
+            <p class="mb-4 text-base text-center">
+              You haven't connected with any friends yet!
+            </p>
+            <gc-button
+              label="Get Started"
+              size="sm"
+              :to="{ name: 'friends' }" />
+          </div>
+        </template>
+      </ul>
     </div>
   </div>
 </template>

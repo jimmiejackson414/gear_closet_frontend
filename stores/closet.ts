@@ -10,6 +10,7 @@ export interface ClosetPageData {
     name: string;
     slug: string;
   }[];
+
 }
 
 interface ClosetPageResponse {
@@ -22,7 +23,19 @@ interface ClosetPageResponse {
 }
 
 type State = {
+  activeCategoryId?: number;
+  activeItem?: RowItem; // activeRow equalivant
   data: ClosetPageData;
+  dialogStates: {
+    addUrlDialog: boolean;
+    createPackDialog: boolean;
+    deleteCategoryDialog: boolean;
+    deletePackDialog: boolean;
+    removeItemDialog: boolean;
+    sharePackDialog: boolean;
+    updateThemeModal: boolean;
+    uploadCsvDialog: boolean;
+  }
   pageLoading: boolean;
 };
 
@@ -38,9 +51,21 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
   {
     state () {
       return {
+        activeCategoryId: undefined,
+        activeRow: undefined,
         data: {
           selectedPack: undefined,
           allPacks: [],
+        },
+        dialogStates: {
+          addUrlDialog: false,
+          createPackDialog: false,
+          deleteCategoryDialog: false,
+          deletePackDialog: false,
+          removeItemDialog: false,
+          sharePackDialog: false,
+          updateThemeModal: false,
+          uploadCsvDialog: false,
         },
         pageLoading: true,
       };

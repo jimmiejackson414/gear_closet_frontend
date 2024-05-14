@@ -12,7 +12,7 @@ dotenv.config();
  */
 export default defineConfig({
   /* Directory to search for tests */
-  testDir: './tests',
+  testDir: './tests/e2e',
   testMatch: '**/*.spec.ts',
   /* Run tests in files in parallel */
   fullyParallel: true,
@@ -60,7 +60,7 @@ export default defineConfig({
 
   /* Run your local dev server before starting the tests */
   webServer: {
-    command: 'yarn dev',
+    command: 'pnpm dev',
     url: process.env.NUXT_PLAYWRIGHT_BASE_URL || 'http://localhost:8000',
     reuseExistingServer: !process.env.CI,
   },

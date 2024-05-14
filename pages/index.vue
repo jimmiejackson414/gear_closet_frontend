@@ -10,7 +10,7 @@
     trip_friends: Tables<'trip_friends'>[];
   }
 
-  interface ForumResponse {
+  export interface ForumResponse {
     latest_posts: ForumPost[];
     categories: ForumCategory[];
   }
@@ -68,6 +68,7 @@
       });
       forumData.categories = fData.value?.categories || [];
     } catch (err) {
+      console.log(`fetchDashboard err: `, err);
       console.error({ err });
     } finally {
       loading.value = false;

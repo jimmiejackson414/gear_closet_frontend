@@ -227,6 +227,7 @@
     <div class="flex justify-between items-center">
       <gc-inline-edit
         class="mb-3"
+        data-testid="category-name"
         input-classes="w-full max-w-[25rem]"
         :model-value="category.name"
         :name="`category_name_${category.id}}`"
@@ -237,6 +238,7 @@
         </p>
       </gc-inline-edit>
       <gc-button
+        data-testid="remove-category-btn"
         :icon="TrashIcon"
         round
         variant="danger"
@@ -263,7 +265,6 @@
         :accept="true"
         axis="y"
         :distance="1"
-        group="category-table"
         lock-axis="y"
         tag="ul"
         use-drag-handle
@@ -300,6 +301,7 @@
           <!-- Generic Type -->
           <div class="px-4 py-2">
             <gc-inline-edit
+              data-testid="generic-type-cell"
               hide-edit-btn
               :model-value="row.generic_type"
               :name="`item_generic_type_${row.id}`"
@@ -318,6 +320,7 @@
               <button
                 class="cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
                 :class="row.consumable ? 'bg-info hover:bg-info/70' : 'bg-transparent hover:bg-gray-200'"
+                data-testid="consumable-btn"
                 @click="$store.updateItem(row, 'consumable', !row.consumable, category.id)">
                 <apple-icon
                   class="h-5 text-gray-500 w-5"
@@ -332,6 +335,7 @@
               <button
                 class="cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
                 :class="row.worn ? 'bg-positive hover:bg-positive/70' : 'bg-transparent hover:bg-gray-200'"
+                data-testid="worn-btn"
                 @click="$store.updateItem(row, 'worn', !row.worn, category.id)">
                 <shirt-icon
                   class="h-5 text-gray-500 w-5"
@@ -344,6 +348,7 @@
           <div class="px-4 py-2">
             <div class="flex justify-center items-center max-w-[4rem] mx-auto">
               <gc-inline-edit
+                data-testid="weight-cell"
                 hide-edit-btn
                 :model-value="row.weight"
                 :name="`item_weight_${row.id}`"
@@ -367,6 +372,7 @@
             <div class="flex justify-center items-center">
               <gc-inline-edit
                 class="justify-center min-w-[3rem]"
+                data-testid="price-cell"
                 hide-edit-btn
                 :model-value="(row.price ?? 0) / 100"
                 :name="`item_price_${row.id}`"
@@ -381,6 +387,7 @@
           <div class="px-4 py-2">
             <div class="flex justify-center items-center max-w-[4rem] mx-auto">
               <gc-inline-edit
+                data-testid="quantity-cell"
                 hide-edit-btn
                 :model-value="row.quantity"
                 :name="`item_quantity_${row.id}`"
@@ -399,6 +406,7 @@
                 v-tippy="{ content: row.url ? 'Modify URL' : 'Add URL' }"
                 class="cursor-pointer duration-150 ease-snap flex justify-center justify-self-end items-center h-8 rounded-full transition w-8"
                 :class="row.url ? 'bg-warning hover:bg-warning/70' : 'bg-transparent hover:bg-gray-200'"
+                data-testid="add-url-btn"
                 @click="emit('handleAddUrl', row, category.id)">
                 <link-icon
                   class="h-5 w-5 "
@@ -407,6 +415,7 @@
               <button
                 v-tippy="{ content: 'Remove from category' }"
                 class="justify-self-end"
+                data-testid="remove-item-btn"
                 @click="emit('handleRemoveItem', row)">
                 <trash-icon class="duration-150 ease-snap h-5 text-gray-500 hover:text-danger transition w-5" />
               </button>
@@ -429,7 +438,9 @@
           <div class="px-4 py-2 text-left" />
           <div class="px-4 py-2 text-center">
             <div class="flex justify-center items-center gap-2">
-              <p class="font-bold text-gray-900">
+              <p
+                class="font-bold text-gray-900"
+                data-testid="weight-total">
                 {{ computedWeightTotal }}
               </p>
               <gc-select
@@ -442,12 +453,16 @@
             </div>
           </div>
           <div class="px-4 py-2 text-center">
-            <p class="font-bold text-gray-900">
+            <p
+              class="font-bold text-gray-900"
+              data-testid="price-total">
               {{ computedPriceTotal }}
             </p>
           </div>
           <div class="px-4 py-2 text-center">
-            <p class="font-bold text-gray-900">
+            <p
+              class="font-bold text-gray-900"
+              data-testid="quantity-total">
               {{ computedQuantityTotal }}
             </p>
           </div>
@@ -459,6 +474,7 @@
         v-if="rows.length > 0"
         class="flex justify-end py-3">
         <gc-button
+          data-testid="new-item-btn"
           outlined
           size="sm"
           variant="positive"

@@ -1,5 +1,6 @@
 import type { Tables } from "@/types";
 import type { ExtendedFriend } from "@/types/helpers";
+import type { ForumResponse } from '@/pages/index.vue';
 
 export const upcomingTrips: Tables<'trips'>[] = [
   {
@@ -200,3 +201,112 @@ export const friends: ExtendedFriend[] = [
     },
   },
 ];
+
+export const invitations: Tables<'trip_friends'>[] = [
+  {
+    "id": 1,
+    "trip_id": 3,
+    "accepted_invite_on": null,
+    "created_at": "2024-04-25T19:33:50.250318+00:00",
+    "status": "PENDING",
+    "profile_id": "61b66be5-d199-48d5-898a-c521dd6b59cc",
+    "invited_by_id": "ea10a57b-54ed-42ee-9462-542bd7f0e760",
+    "invite_token": "f7b1b1b4-0b3b-4b3b-8b3b-3b3b3b3b3b3b",
+    "updated_at": "2024-04-25T19:33:50.250318+00:00",
+  },
+];
+
+export const forumPosts: ForumResponse = {
+  "latest_posts": [
+    {
+      "id": 11,
+      "name": "",
+      "username": "gear_closet_admin",
+      "avatar_template": "/user_avatar/localhost/gear_closet_admin/{size}/3_2.png",
+      "created_at": "2024-03-06T01:06:05.002Z",
+      "cooked": "<p>This is a test reply.</p>",
+      "updated_at": "2024-03-06T01:06:05.002Z",
+      "reply_count": 0,
+      "reads": 1,
+      "topic_slug": "this-is-a-test-topic",
+      "topic_title": "This is a test topic",
+      "category_id": 4,
+      "display_username": "",
+      "raw": "This is a test reply.",
+    },
+    {
+      "id": 10,
+      "name": "",
+      "username": "gear_closet_admin",
+      "avatar_template": "/user_avatar/localhost/gear_closet_admin/{size}/3_2.png",
+      "created_at": "2024-03-06T01:05:56.548Z",
+      "cooked": "<p>This is just a test.</p>",
+      "updated_at": "2024-03-06T01:05:56.548Z",
+      "reply_count": 0,
+      "reads": 1,
+      "topic_slug": "this-is-a-test-topic",
+      "topic_title": "This is a test topic",
+      "category_id": 4,
+      "display_username": "",
+      "raw": "This is just a test.",
+    },
+    {
+      "id": 9,
+      "name": "",
+      "username": "gear_closet_admin",
+      "avatar_template": "/user_avatar/localhost/gear_closet_admin/{size}/3_2.png",
+      "created_at": "2024-03-06T01:01:11.018Z",
+      "cooked": "<p>Got a backpack or tent you need to get rid of? Sell your lightly used gear to other members.</p>",
+      "updated_at": "2024-03-06T01:04:22.633Z",
+      "reply_count": 0,
+      "reads": 1,
+      "topic_slug": "about-the-marketplace-category",
+      "topic_title": "About the Marketplace category",
+      "category_id": 5,
+      "display_username": "",
+      "raw": "Got a backpack or tent you need to get rid of? Sell your lightly used gear to other members.",
+    },
+  ],
+  "categories": [
+    {
+      "id": 4,
+      "name": "General",
+      "color": "25AAE2",
+      "slug": "general",
+      "topic_count": 2,
+      "post_count": 3,
+      "description": "<p>Create topics here that don’t fit into any other existing category.</p>",
+      "topic_url": "/t/about-the-general-category/3",
+    },
+    {
+      "id": 3,
+      "name": "Staff",
+      "color": "E45735",
+      "slug": "staff",
+      "topic_count": 2,
+      "post_count": 3,
+      "description": "<p>Private category for staff discussions. Topics are only visible to admins and moderators.</p>",
+      "topic_url": "/t/about-the-staff-category/2",
+    },
+    {
+      "id": 2,
+      "name": "Site Feedback",
+      "color": "808281",
+      "slug": "site-feedback",
+      "topic_count": 0,
+      "post_count": 0,
+      "description": "<p>Discussion about this site, its organization, how it works, and how we can improve it.</p>",
+      "topic_url": "/t/about-the-site-feedback-category/1",
+    },
+    {
+      "id": 5,
+      "name": "Marketplace",
+      "color": "3AB54A",
+      "slug": "marketplace",
+      "topic_count": 0,
+      "post_count": 0,
+      "description": "Got a backpack or tent you need to get rid of? Sell your lightly used gear to other members.",
+      "topic_url": "/t/about-the-marketplace-category/8",
+    },
+  ],
+};

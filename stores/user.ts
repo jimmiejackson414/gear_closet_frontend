@@ -9,7 +9,7 @@ type State = {
 
 type Getters = {
   isPaidMember(): boolean;
-  unreadNotifications(): Tables<'notifications'>[];
+  unreadNotifications(): Tables<'notifications'>[] | undefined;
 };
 
 type Actions = {
@@ -36,7 +36,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         return this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.ANNUAL || this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.MONTHLY || this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.LIFE;
       },
       unreadNotifications () {
-        return this.profile!.notifications.filter(n => !n.read_on_date);
+        return this.profile?.notifications.filter((n: Tables<'notifications'>) => !n.read_on_date);
       },
     },
 
@@ -74,7 +74,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           }
 
           this.profile = data as any;
-          this.profile!.notifications = (data).notifications;
+          this.profile!.notifications = (data as any).notifications;
           $store.loading = false;
         } catch (err) {
           console.error({ err });
@@ -92,8 +92,8 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           .single();
 
         if (data) {
-          const i = this.profile!.notifications.findIndex(n => n.id === id);
-          this.profile!.notifications[i] = data;
+          const i = this.profile!.notifications.findIndex((n: Tables<'notifications'>) => n.id === id);
+          this.profile!.notifications[i] = data as any;
         }
       },
 
@@ -130,7 +130,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         }
 
         if (data) {
-          this.profile!.notifications = data;
+          this.profile!.notifications = data as any;
         }
       },
 

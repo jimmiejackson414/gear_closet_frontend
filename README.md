@@ -20,25 +20,25 @@ See [Vite Configuration Reference](https://vitejs.dev/config/).
 ## Project Setup
 
 ```sh
-yarn install
+pnpm install
 ```
 
 ### Compile and Hot-Reload for Development
 
 ```sh
-yarn dev
+pnpm dev
 ```
 
 ### Type-Check, Compile and Minify for Production
 
 ```sh
-yarn build
+pnpm build
 ```
 
 ### Unit Tests with [Vitest](https://vitest.dev/)
 
 ```sh
-yarn test:unit
+pnpm test:unit
 ```
 
 ### End-to-End Tests with [Playwright](https://playwright.dev)
@@ -48,40 +48,40 @@ yarn test:unit
 npx playwright install
 
 # When testing on CI, must build the project first
-yarn build
+pnpm build
 
 # Runs the end-to-end tests
-yarn test:e2e
+pnpm test:e2e
 # Runs the tests only on Chromium
-yarn test:e2e -- --project=chromium
+pnpm test:e2e -- --project=chromium
 # Runs the tests of a specific file
-yarn test:e2e -- tests/example.spec.ts
+pnpm test:e2e -- tests/example.spec.ts
 # Runs the tests in debug mode
-yarn test:e2e -- --debug
+pnpm test:e2e -- --debug
 ```
 
 ### Lint with [ESLint](https://eslint.org/)
 
 ```sh
-yarn lint
+pnpm lint
 ```
 
 ### Generate Types
 
 ```sh
-yarn typgen
+pnpm typgen
 ```
 
 ### Generate localhost certs
 
 ```sh
-yarn cert
+pnpm cert
 ```
 
 ### Generate snaplet seeder
 
 ```sh
-yarn snaplet
+pnpm snaplet
 ```
 
 ## Other Resources
