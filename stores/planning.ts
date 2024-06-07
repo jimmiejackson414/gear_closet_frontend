@@ -14,9 +14,11 @@ export interface PlanningPageData {
 }
 
 type State = {
+  activeDetail?: Tables<'trip_details'>;
   data: PlanningPageData;
   dialogStates: {
     createTripDialog: boolean;
+    modifyDetailDialog: boolean;
   }
   pageLoading: boolean;
   selectedTripId: number | null;
@@ -35,6 +37,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
   {
     state () {
       return {
+        activeDetail: undefined,
         data: {
           trips: [],
           pack: undefined,
@@ -46,6 +49,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
         },
         dialogStates: {
           createTripDialog: false,
+          modifyDetailDialog: false,
         },
         pageLoading: true,
         selectedTripId: null,

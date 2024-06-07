@@ -1,11 +1,12 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
 import VueTippy from 'vue-tippy';
 import { createPinia, setActivePinia } from 'pinia';
 import PlanningSettings from '@/components/planning/PlanningSettings.vue';
 import PlanningEmptyState from '@/components/planning/PlanningEmptyState.vue';
 import HikeDetailsWidget from '@/components/planning/widgets/HikeDetailsWidget.vue';
+import ModifyDetailDialog from '@/components/planning/dialogs/ModifyDetailDialog.vue';
 import { trips, tripDetails } from './mocks/planning.mock';
 
 describe('Planning Page', async () => {
@@ -173,4 +174,52 @@ describe('Planning Page', async () => {
   // describe('PollWidget.vue', async () => {
 
   // });
+
+  describe('ModifyDetailDialog.vue', async () => {
+    let wrapper: VueWrapper<any>;
+    beforeEach(async () => {
+      wrapper = await mountSuspended(ModifyDetailDialog, {
+        global: {
+          plugins: [VueTippy],
+        },
+      });
+    });
+
+    it('can update a detail', async () => {
+      const store = usePlanningStore();
+      store.$patch({
+        activeDetail: tripDetails[0],
+        data: {
+          trip_details: tripDetails,
+        },
+        dialogStates: {
+          modifyDetailDialog: true,
+        },
+        pageLoading: false,
+      });
+      await wrapper.vm.$nextTick();
+
+      const checkbox = wrapper.find('input[type="checkbox"]');
+      await checkbox.trigger('change');
+      await wrapper.vm.$nextTick();
+
+      const spy = vi.spyOn(wrapper.vm, 'updateDetail' as any) as MockInstance;
+      expect(spy.getMockName())
+        .toEqual('updateDetail');
+
+      const beforeDetail = { ...store.activeDetail };
+
+      const inputs = wrapper.findAllComponents({ name: 'GcInput' });
+      await inputs[0].setValue('New Detail');
+      await inputs[1].setValue('Description');
+      await inputs[2].setValue('https://www.google.com');
+
+      const createDetailButton = wrapper.find('[data-testid="submit-new-detail-btn"]');
+      await createDetailButton.trigger('click');
+
+      expect(spy)
+        .toHaveBeenCalled();
+      expect(wrapper.vm.activeDetail).not.toEqual(beforeDetail);
+    });
+  });
 });
