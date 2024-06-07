@@ -15,7 +15,7 @@ const meta: Meta<typeof GcInput> = {
     modelValue: { control: 'text' },
     name: { control: 'text' },
     passwordToggle: { control: 'boolean' },
-    prependIcon: { control: { type: 'none' } },
+    // prependIcon: { control: { type: 'none' } },
     required: { control: 'boolean' },
     type: { control: 'select', options: ['text', 'email', 'password'] },
     placeholder: { control: 'text' },

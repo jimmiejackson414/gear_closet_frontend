@@ -68,8 +68,8 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     'nuxt-headlessui',
     '@fixers/nuxt-stripe',
+    "@nuxtjs/storybook",
     '@nuxt/test-utils/module',
-    // "@nuxtjs/storybook",
   ],
 
   postcss: {

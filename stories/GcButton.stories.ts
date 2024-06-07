@@ -9,7 +9,7 @@ const meta: Meta<typeof GcButton> = {
   tags: ['autodocs'],
   argTypes: {
     disabled: { control: 'boolean' },
-    icon: { control: { type: 'none' } },
+    // icon: { control: { type: 'none' } },
     label: { control: 'text' },
     loading: { control: 'boolean' },
     outlined: { control: 'boolean' },
