@@ -14,8 +14,8 @@ const meta: Meta<typeof GcAutocomplete> = {
     nullable: { control: 'boolean' },
     placeholder: { control: 'text' },
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
-    options: { control: { type: 'array' } },
-    prependIcon: { control: { type: 'none' } },
+    // options: { control: { type: 'array' } },
+    // prependIcon: { control: { type: 'none' } },
     required: { control: 'boolean' },
   },
   args: { // default values

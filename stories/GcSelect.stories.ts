@@ -16,7 +16,7 @@ const meta: Meta<typeof GcSelect> = {
     loading: { control: 'boolean' },
     modelValue: { control: 'text' },
     noOptionsCopy: { control: 'text' },
-    options: { control: { type: 'array' } },
+    // options: { control: { type: 'array' } },
     placeholder: { control: 'text' },
     size: { control: 'select', options: ['sm', 'md', 'lg'] },
     required: { control: 'boolean' },
