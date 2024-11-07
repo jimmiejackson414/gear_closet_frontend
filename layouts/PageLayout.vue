@@ -33,7 +33,7 @@
 </script>
 
 <template>
-  <div class="bg-white">
+  <div class="bg-white dark:bg-black">
     <gc-loading-wrapper v-if="loading" />
     <div v-else>
       <gc-drawer v-if="!minimal" />

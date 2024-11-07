@@ -12,6 +12,7 @@ export default {
     "./node_modules/flowbite/**/*.{js,ts}",
     "./node_modules/vue-tailwind-datepicker/**/*.js",
   ],
+  darkMode: 'class',
   theme: {
     extend: {
       backgroundImage: {

@@ -33,6 +33,7 @@
 
   // const emit = defineEmits(['click']);
 
+  const $slots = useSlots();
   const classList = computed(() => {
     let classes = ['btn'];
 
@@ -65,7 +66,7 @@
     if (props.round) { classes.push('rounded-full'); }
 
     // Icon
-    if (props.icon) {
+    if (props.icon || $slots.icon) {
       classes.push('btn-icon p-0');
       if (props.size == 'sm') { classes.push('w-6 h-6'); }
       if (props.size == 'md') { classes.push('w-8 h-8'); }
@@ -97,6 +98,9 @@
       class="flex items-center">
       <slot />
     </span>
+    <slot
+      v-else-if="$slots.icon"
+      name="icon" />
     <component
       :is="icon"
       v-else-if="icon"

@@ -50,7 +50,7 @@
       @apply bg-transparent border [&_svg]:text-primary text-primary border-transparent hover:bg-gray-100;
 
       svg {
-        @apply w-4 h-4;
+        /* @apply w-4 h-4; */
       }
     }
 

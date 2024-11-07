@@ -4,7 +4,7 @@
 export default defineNuxtConfig({
   app: {
     head: {
-      "meta": [
+      meta: [
         // Primary tags
         { "charset": "utf-8" },
         { "name": "viewport", "content": "width=device-width, initial-scale=1" },
@@ -21,7 +21,6 @@ export default defineNuxtConfig({
         { "property": "twitter:title", "content": "Gear Closet" },
         { "property": "twitter:description", "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!" },
         { "property": "twitter:image", "content": "/logo-og.jpeg" },
-
       ],
     },
   },
@@ -33,6 +32,13 @@ export default defineNuxtConfig({
       'zrender',
       'tslib',
     ],
+  },
+
+  colorMode: {
+    preference: 'system',
+    fallback: 'light',
+    classPrefix: '',
+    classSuffix: '',
   },
 
   components: [
@@ -70,6 +76,7 @@ export default defineNuxtConfig({
     '@fixers/nuxt-stripe',
     "@nuxtjs/storybook",
     '@nuxt/test-utils/module',
+    "@nuxtjs/color-mode",
   ],
 
   postcss: {
