@@ -33,7 +33,7 @@ type State = {
     deletePackDialog: boolean;
     removeItemDialog: boolean;
     sharePackDialog: boolean;
-    updateThemeModal: boolean;
+    updateThemeDialog: boolean;
     uploadCsvDialog: boolean;
   }
   pageLoading: boolean;
@@ -64,7 +64,7 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
           deletePackDialog: false,
           removeItemDialog: false,
           sharePackDialog: false,
-          updateThemeModal: false,
+          updateThemeDialog: false,
           uploadCsvDialog: false,
         },
         pageLoading: true,

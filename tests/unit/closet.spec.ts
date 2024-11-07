@@ -2,7 +2,6 @@ import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
 import { beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import VueTippy from 'vue-tippy';
-import { createTestingPinia } from '@pinia/testing';
 import round from 'lodash.round';
 import convert, { type Mass } from 'convert';
 import { createPinia, setActivePinia } from 'pinia';
@@ -40,15 +39,7 @@ describe('Closet Page', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(ClosetSettings, {
         global: {
-          plugins: [VueTippy, createTestingPinia({
-            initialState: {
-              data: {
-                selectedPack: undefined,
-                allPacks: [],
-              },
-              pageLoading: false,
-            },
-          })],
+          plugins: [VueTippy],
         },
       });
     });
@@ -147,7 +138,7 @@ describe('Closet Page', async () => {
     it('renders the empty state when not loading and no packs are available', async () => {
       const wrapper = await mountSuspended(ClosetEmptyState, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
       const store = useClosetStore();
@@ -175,7 +166,7 @@ describe('Closet Page', async () => {
     it('renders the empty state when no categories have been created on a selectedPack', async () => {
       const wrapper = await mountSuspended(PackSummaryEmptyState, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
 
@@ -200,7 +191,7 @@ describe('Closet Page', async () => {
     it('renders the pack summary details', async () => {
       const wrapper = await mountSuspended(ClosetPackDetails, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
 
@@ -258,7 +249,7 @@ describe('Closet Page', async () => {
       // End theme update
 
       // Dialog state
-      expect(store.dialogStates.updateThemeModal)
+      expect(store.dialogStates.updateThemeDialog)
         .toBe(false);
 
       const menuButton = wrapper.findComponent({ name: 'MenuButton' });
@@ -268,9 +259,10 @@ describe('Closet Page', async () => {
 
       const menuItem = wrapper.findAllComponents({ name: 'MenuItem' })[0];
       menuItem.trigger('click');
-      expect(store.dialogStates.updateThemeModal)
+      expect(store.dialogStates.updateThemeDialog)
         .toBe(true);
       // End dialog state
+      store.dialogStates.updateThemeDialog = false;
 
       // Rendering
       const renderedDetails = wrapper.findAll('[data-testid="pack-summary-detail"]');
@@ -292,7 +284,7 @@ describe('Closet Page', async () => {
     it('renders the category items list correctly', async () => {
       const wrapper = await mountSuspended(ClosetPackCategories, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
 
@@ -310,7 +302,7 @@ describe('Closet Page', async () => {
     it('creates a new category when the add category button is clicked', async () => {
       const wrapper = await mountSuspended(ClosetPackCategories, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
 
@@ -354,15 +346,7 @@ describe('Closet Page', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(PackItemsTable, {
         global: {
-          plugins: [VueTippy, createTestingPinia({
-            initialState: {
-              data: {
-                selectedPack: structuredClone(selectedPack), // Deep copy
-                allPacks,
-              },
-              pageLoading: false,
-            },
-          })],
+          plugins: [VueTippy],
         },
         props: {
           category: selectedPack.categories[0],
@@ -371,6 +355,11 @@ describe('Closet Page', async () => {
     });
 
     it('renders the items table correctly', async () => {
+      const store = useClosetStore();
+      store.data.selectedPack = structuredClone(selectedPack); // Deep copy
+      store.data.allPacks = allPacks;
+      store.pageLoading = false;
+
       expect(wrapper.exists())
         .toBe(true);
     });
@@ -445,6 +434,13 @@ describe('Closet Page', async () => {
 
     it('emits $store.updateItem when consumable button is clicked', async () => {
       const store = useClosetStore();
+      store.data.selectedPack = structuredClone(selectedPack); // Deep copy
+      store.data.allPacks = allPacks;
+      store.pageLoading = false;
+
+      vi.spyOn(store, 'updateItem' as any) as MockInstance;
+      await wrapper.vm.$nextTick();
+
       const consumableButton = wrapper.find('[data-testid="consumable-btn"]');
       await consumableButton.trigger('click');
       expect(store.updateItem)
@@ -453,6 +449,13 @@ describe('Closet Page', async () => {
 
     it('emits $store.updateItem when worn button is clicked', async () => {
       const store = useClosetStore();
+      store.data.selectedPack = structuredClone(selectedPack); // Deep copy
+      store.data.allPacks = allPacks;
+      store.pageLoading = false;
+
+      vi.spyOn(store, 'updateItem' as any) as MockInstance;
+      await wrapper.vm.$nextTick();
+
       const wornButton = wrapper.find('[data-testid="worn-btn"]');
       await wornButton.trigger('click');
       expect(store.updateItem)
@@ -521,7 +524,7 @@ describe('Closet Page', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(CreatePackDialog, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
     });
@@ -554,7 +557,7 @@ describe('Closet Page', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(CsvUploadDialog, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
     });
@@ -587,7 +590,7 @@ describe('Closet Page', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(SharePackDialog, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
     });
@@ -620,7 +623,7 @@ describe('Closet Page', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(DeleteCategoryDialog, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
     });
@@ -653,7 +656,7 @@ describe('Closet Page', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(DeletePackDialog, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
     });
@@ -686,7 +689,7 @@ describe('Closet Page', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(RemoveItemDialog, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
     });
@@ -719,7 +722,7 @@ describe('Closet Page', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(AddUrlDialog, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
     });
@@ -752,7 +755,7 @@ describe('Closet Page', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(UpdateThemeDialog, {
         global: {
-          plugins: [VueTippy, createTestingPinia()],
+          plugins: [VueTippy],
         },
       });
     });
@@ -761,7 +764,7 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(false);
-      store.dialogStates.updateThemeModal = true;
+      store.dialogStates.updateThemeDialog = true;
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(true);
@@ -769,7 +772,7 @@ describe('Closet Page', async () => {
 
     it('closes the dialog correctly', async () => {
       const store = useClosetStore();
-      store.dialogStates.updateThemeModal = true;
+      store.dialogStates.updateThemeDialog = true;
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(true);

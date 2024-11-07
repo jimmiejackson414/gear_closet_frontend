@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import { use } from 'echarts/core';
   import { PieChart } from 'echarts/charts';
-  import { PolarComponent, TitleComponent, LegendComponent, TooltipComponent } from 'echarts/components';
+  import { GridComponent, PolarComponent, TitleComponent, LegendComponent, TooltipComponent } from 'echarts/components';
   import { CanvasRenderer } from 'echarts/renderers';
   import VChart from 'vue-echarts';
   import { BackpackIcon, SettingsIcon } from 'lucide-vue-next';
@@ -14,6 +14,7 @@
 
   use([
     CanvasRenderer,
+    GridComponent,
     PieChart,
     PolarComponent,
     TitleComponent,
@@ -37,6 +38,7 @@
       selectedPackId.value = newValue.id;
     }
   }, { immediate: true });
+
   /**
    * Fetches packs for the current user.
    */
@@ -165,6 +167,7 @@
   const selectedTheme = ref<Theme | undefined>((data.value.pack?.theme as Theme) || undefined);
   const themeOptions = computed(() => generateThemeOptions());
   const updateTheme = async () => {
+    console.log('updateTheme');
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
@@ -291,6 +294,11 @@
       // chartRef.value?.setOption(newOptions);
     },
   });
+
+  const handleUpdateModelValue = (val: Option) => {
+    console.log(`handleUpdateModelValue`);
+    selectedTheme.value = val.value as Theme;
+  };
 </script>
 
 <template>
@@ -418,7 +426,7 @@
           label="Theme"
           :model-value="selectedTheme"
           :options="themeOptions"
-          @update:model-value="(val: Option) => selectedTheme = val.value">
+          @update:model-value="handleUpdateModelValue">
           <template #option="{ option }">
             <div class="flex items-center gap-3">
               <div class="flex items-center gap-1">

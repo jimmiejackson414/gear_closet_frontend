@@ -147,7 +147,7 @@
         <zoom-transition>
           <headless-listbox-options
             ref="container"
-            class="absolute right-0 bg-white border-grey drop-shadow-[1px_4px_6px_rgba(0,0,0,0.1)] duration-200 focus-visible:outline-none h-fit max-h-[270px] opacity-0 origin-top-right overflow-y-scroll rounded-lg transition-opacity w-max z-[999]"
+            class="absolute right-0 bg-white border-grey drop-shadow-[1px_4px_6px_rgba(0,0,0,0.1)] duration-200 focus-visible:outline-none h-fit max-h-[270px] opacity-0 origin-top-right overflow-y-scroll rounded-lg select-dropdown transition-opacity w-max z-[999]"
             :style="{ width: `${selectWidth}px` }">
             <span v-if="!options?.length">
               <headless-listbox-option>

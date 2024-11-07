@@ -19,8 +19,14 @@
 
   const emit = defineEmits(['handle-cancel', 'open']);
 
-  const modalRef = ref(null);
-  onClickOutside(modalRef, () => emit('handle-cancel'));
+  const modalRef = ref<HTMLElement | null>(null);
+  onClickOutside(modalRef, (event) => {
+    const dropdown = document.querySelector('.select-dropdown');
+    if (modalRef.value && !modalRef.value.contains(event.target as Node) && (!dropdown || !dropdown.contains(event.target as Node))) {
+      emit('handle-cancel');
+    }
+  });
+
 
   // watch for when isOpen is true and emit the open event
   watch(() => props.isOpen, (isOpen) => {
