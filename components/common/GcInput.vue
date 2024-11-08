@@ -1,20 +1,21 @@
 <script lang='ts' setup>
   import { EyeIcon, EyeOffIcon } from 'lucide-vue-next';
+  import { Label as UiLabel } from '../ui';
   import type { Icon } from 'lucide-vue-next';
+  import { cn } from '@/lib/utils';
 
   interface Props {
     autocomplete?: string;
     disabled?: boolean;
     error?: string;
     label?: string;
-    modelValue: string | number | null;
+    modelValue?: string | number | null;
     name: string;
     passwordToggle?: boolean;
     prependIcon?: Icon;
     required?: boolean;
     type?: string;
     placeholder?: string;
-    size?: 'sm' | 'md' | 'lg';
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -22,14 +23,13 @@
     disabled: false,
     error: undefined,
     label: '',
-    modelValue: null,
+    modelValue: undefined,
     name: '',
     passwordToggle: false,
     prependIcon: undefined,
     placeholder: undefined,
     required: false,
     type: 'text',
-    size: 'md',
   });
 
   const inputRef = ref<HTMLInputElement | null>(null);
@@ -74,12 +74,13 @@
     const classes = [];
 
     // determine padding based on size prop
-    if (props.size === 'sm') { classes.push('p-2 text-base h-8'); }
-    else if (props.size === 'md') { classes.push('p-2.5 text-base h-10'); }
-    else if (props.size === 'lg') { classes.push('p-4 sm:text-md h-12'); }
+    // if (props.size === 'sm') { classes.push('p-2 text-base h-8'); }
+    // else if (props.size === 'md') { classes.push('p-2.5 text-base h-10'); }
+    // else if (props.size === 'lg') { classes.push('p-4 sm:text-md h-12'); }
 
     // determine properties based on disabled prop and error state
-    hasError.value ? classes.push('!border-danger') : classes.push('border-gray-300');
+    if (hasError.value) { classes.push('border-danger'); }
+    // hasError.value ? classes.push('!border-danger') : classes.push('border-gray-300');
     props.disabled ? classes.push('bg-gray-100 pointer-events-none text-gray-400') : classes.push('bg-white pointer-events-auto text-dark-grey');
 
     // override padding based on prependIcon prop
@@ -92,12 +93,17 @@
 <template>
   <div class="w-fit">
     <div class="flex flex-col gap-2 relative">
-      <label
+      <!-- <label
         v-if="label"
         class="font-bold text-grey text-sm"
         :for="name">
         {{ label }}
-      </label>
+      </label> -->
+      <ui-label
+        v-if="label"
+        :for="name">
+        {{ label }}
+      </ui-label>
       <div class="relative">
         <component
           :is="prependIcon"
@@ -107,7 +113,7 @@
           ref="inputRef"
           :autocomplete="autocomplete"
           class="appearance-none bg-transparent block border-1 focus:border-primary peer py-2.5 rounded-lg w-full focus:outline-none focus:ring-0 placeholder:!text-gray-400"
-          :class="computedClasses"
+          :class="cn('flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50', computedClasses)"
           data-testid="gc-input"
           :disabled="disabled"
           :placeholder="placeholder"

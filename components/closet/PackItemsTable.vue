@@ -1,10 +1,10 @@
 <script lang='ts' setup>
-  import { DragHandle, SlickList, SlickItem } from 'vue-slicksort';
-  import { AppleIcon, GripVerticalIcon, LinkIcon, PlusIcon, ShirtIcon, TrashIcon } from 'lucide-vue-next';
   import convert, { type Mass } from 'convert';
-  import { useAppStore } from '@/stores/app';
-  import type { ExtendedCategory, SelectOption } from '@/types/helpers';
+  import { AppleIcon, GripVerticalIcon, LinkIcon, PlusIcon, ShirtIcon, TrashIcon } from 'lucide-vue-next';
+  import { DragHandle, SlickList, SlickItem } from 'vue-slicksort';
   import type { Database, Tables } from '@/types';
+  import type { ExtendedCategory, SelectOption } from '@/types/helpers';
+  import { useAppStore } from '@/stores/app';
 
   export interface Column {
     name: string;

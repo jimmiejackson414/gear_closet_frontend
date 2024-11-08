@@ -1,6 +1,7 @@
+import animate from "tailwindcss-animate";
 import type { Config } from "tailwindcss";
 
-const animate = require("tailwindcss-animate");
+// const animate = require("tailwindcss-animate");
 
 export default {
   content: [

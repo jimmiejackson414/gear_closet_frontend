@@ -1,38 +1,29 @@
 <script lang='ts' setup>
-  import { AtSignIcon, LockIcon } from 'lucide-vue-next';
-  import type { Provider } from '@supabase/supabase-js';
+  import { toTypedSchema } from '@vee-validate/zod';
+  import { useForm } from 'vee-validate';
+  import * as z from 'zod';
   import type { Tables } from '@/types';
+  import type { Provider } from '@supabase/supabase-js';
+  import { Separator, FormField, FormItem, FormLabel, FormControl, Input as FormInput, Button as FormButton, Typography } from '@/components/ui';
 
   const supabase = useSupabaseClient();
-  const form = reactive({
-    email: '',
-    password: '',
-  });
-  const submitting = ref(false);
   const $router = useRouter();
   const loginError = ref<string | undefined>(undefined);
 
-  const rules = {
-    email: [
-      (val: string): boolean | string => (val && val.length > 0) || 'Email is required',
-      (val: string): boolean | string => isValidEmail(val) || 'Not a valid email',
-    ],
-    password: [
-      (val: string) => (val && val.length > 0) || 'Password is required',
-    ],
-  };
+  const formSchema = toTypedSchema(z.object({
+    email: z.string()
+      .email(),
+    password: z.string()
+      .min(8),
+  }));
 
-  const { fieldErrors, validateForm, validateFieldOnBlur } = useValidate(form, rules);
+  const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
+    validationSchema: formSchema,
+  });
 
-  const handleSubmit = async () => {
+  const onSubmit = handleSubmit(async (values) => {
     try {
-      submitting.value = true;
-
-      if (!validateForm()) {
-        return;
-      }
-
-      const { error } = await supabase.auth.signInWithPassword({...form});
+      const { error } = await supabase.auth.signInWithPassword({...values});
 
       if (error) {
         loginError.value = error.message;
@@ -54,15 +45,11 @@
       if (error instanceof Error) {
         loginError.value = error.message;
       }
-    } finally {
-      submitting.value = false;
     }
-  };
+  });
 
   const handleOAuthSignin = async (provider: Provider) => {
     try {
-      submitting.value = true;
-
       const { error } = await supabase.auth.signInWithOAuth({ provider });
 
       if (error) {
@@ -75,8 +62,6 @@
       if (error instanceof Error) {
         loginError.value = error.message;
       }
-    } finally {
-      submitting.value = false;
     }
   };
 </script>
@@ -84,8 +69,8 @@
 <template>
   <form
     data-testid="login-form"
-    @keydown.enter="handleSubmit"
-    @submit.prevent="handleSubmit">
+    @keydown.enter="onSubmit"
+    @submit.prevent="onSubmit">
     <div class="grid grid-cols-[50px,50px] gap-4 justify-center text-center">
       <button
         class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
@@ -101,72 +86,82 @@
       </button>
     </div>
     <div clas="flex justify-center">
-      <p class="my-4 text-center text-eyebrow uppercase">
-        or
-      </p>
+      <separator
+        class="max-w-sm my-8"
+        label="OR" />
     </div>
     <div class="auto-rows-auto grid grid-cols-1 gap-4">
-      <gc-input
-        v-model="form.email"
-        autocomplete="email"
-        class="w-full"
-        data-testid="login-email"
-        :disabled="submitting"
-        :error="fieldErrors.email"
-        label="Email"
+      <form-field
+        v-slot="{ componentField }"
         name="email"
-        :prepend-icon="AtSignIcon"
-        required
-        type="email"
-        @blur="validateFieldOnBlur('email')" />
-      <gc-input
-        v-model="form.password"
-        autocomplete="current-password"
-        class="w-full"
-        data-testid="login-password"
-        :disabled="submitting"
-        :error="fieldErrors.password"
-        label="Password"
+        :validate-on-blur="!isFieldDirty">
+        <form-item>
+          <form-label>Email</form-label>
+          <form-control>
+            <form-input
+              :disabled="isSubmitting"
+              type="email"
+              v-bind="componentField" />
+          </form-control>
+        </form-item>
+      </form-field>
+      <form-field
+        v-slot="{ componentField }"
         name="password"
-        password-toggle
-        :prepend-icon="LockIcon"
-        required
-        type="password"
-        @blur="validateFieldOnBlur('password')" />
+        :validate-on-blur="!isFieldDirty">
+        <form-item>
+          <form-label>Password</form-label>
+          <form-control>
+            <form-input
+              :disabled="isSubmitting"
+              password-toggle
+              type="password"
+              v-bind="componentField" />
+          </form-control>
+        </form-item>
+      </form-field>
       <gc-alert
         v-if="loginError"
         data-testid="login-error"
         :message="loginError" />
-      <gc-button
+      <form-button
         data-testid="login-submit"
-        :disabled="submitting"
-        label="Sign In"
-        type="submit" />
+        :disabled="isSubmitting"
+        :loading="isSubmitting"
+        type="submit">
+        Sign In
+      </form-button>
     </div>
     <div class="flex items-center flex-col mt-4">
-      <p class="text-base">
+      <typography>
         Don't have an account?
         <nuxt-link
-          class="no-underline text-primary"
+          class="no-underline"
           to="/register">
-          Signup
+          <form-button variant="link">
+            Signup
+          </form-button>
         </nuxt-link>
-      </p>
-      <p class="q-mb-none">
+      </typography>
+      <typography class="q-mb-none">
         <nuxt-link
-          class="no-underline text-base text-primary"
+          class="no-underline text-base"
           :to="{ name: 'forgot-password' }">
-          Forgot your password?
+          <form-button variant="link">
+            Forgot your password?
+          </form-button>
         </nuxt-link>
-      </p>
-      <p class="mt-8 text-center text-grey text-xs">
+      </typography>
+      <typography
+        class="mt-8 text-center"
+        variant="muted">
         By continuing to use GearCloset, you agree to our{{ ' ' }}
         <nuxt-link
-          class="no-underline text-primary text-xs"
+          class="no-underline text-primary"
           :to="{ name: 'terms-and-conditions' }">
           Terms and Conditions.
         </nuxt-link>
-      </p>
+      </typography>
     </div>
   </form>
 </template>

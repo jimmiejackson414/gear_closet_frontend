@@ -75,7 +75,7 @@
       <div class="grow" />
 
       <li class="cursor-pointer">
-        <span
+        <!-- <span
           v-tippy="{ content: 'Logout', placement: 'right' }"
           class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
           data-testid="logout"
@@ -84,7 +84,10 @@
             :is="LogOutIcon"
             :color="tailwind.theme.colors['grey']"
             :size="24" />
-        </span>
+        </span> -->
+        <button @click="handleLogout">
+          Logout
+        </button>
       </li>
     </ul>
   </div>

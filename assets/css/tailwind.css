@@ -42,7 +42,7 @@
     --destructive-foreground: 204 5% 90%;
     --destructive: 0 51% 50%;
     --foreground: 204 5% 10%;
-    /* --input: 204 30% 50%; */
+    --input: 204 30% 50%;
     --muted-foreground: 204 5% 40%;
     --muted: 166 30% 88%;
     --popover-foreground: 204 95% 10%;
@@ -68,7 +68,7 @@
     --destructive-foreground: 204 5% 90%;
     --destructive: 0 51% 50%;
     --foreground: 204 5% 90%;
-    /* --input: 204 30% 50%; */
+    --input: 204 30% 50%;
     --muted-foreground: 204 5% 65%;
     --muted: 166 30% 25%;
     --popover-foreground: 204 5% 90%;

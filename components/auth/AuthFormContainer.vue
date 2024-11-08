@@ -1,5 +1,6 @@
 <script lang='ts' setup>
   import GcLogoIcon from '@/components/icons/GcLogoIcon.vue';
+  import { Typography } from '@/components/ui';
 
   interface Props {
     title: string;
@@ -20,13 +21,17 @@
         <div class="auto-rows-auto grid grid-cols-1 h-full items-center pb-12 pt-4 px-0 text-center w-full">
           <gc-logo-icon
             fill="#fff"
-            wrapper-class="mx-auto z-50" />
-          <h4 class="m-0 text-2xl text-white z-10">
+            wrapper-class="mx-auto z-50 w-12 h-12" />
+          <typography
+            class="text-white z-10"
+            variant="h3">
             {{ title }}
-          </h4>
-          <p
-            class="font-bold m-0 text-sm text-white z-10"
-            v-html="subtitle" />
+          </typography>
+          <typography
+            class="!mt-0 text-white z-10"
+            variant="p">
+            {{ subtitle }}
+          </typography>
         </div>
       </div>
       <div class="flex flex-col pb-4 pt-6 px-4 w-full">

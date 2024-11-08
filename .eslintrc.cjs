@@ -8,7 +8,6 @@ module.exports = {
     'eslint:recommended',
     '@vue/eslint-config-typescript',
     './.eslintrc-auto-import.json',
-    'plugin:storybook/recommended',
   ],
 
   parserOptions: {

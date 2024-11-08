@@ -1,7 +1,7 @@
 <script lang='ts' setup>
-  import GcSpinner from '@/components/common/GcSpinner.vue';
   import type { Icon } from 'lucide-vue-next';
   import type { RouteLocationRaw } from 'vue-router';
+  import GcSpinner from '@/components/common/GcSpinner.vue';
 
   export interface Props {
     disabled?: boolean;
