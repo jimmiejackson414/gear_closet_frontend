@@ -1,12 +1,12 @@
 <script lang="ts" setup>
   interface Props {
-    variant: 'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'blockquote' | 'large' | 'lead' | 'small' | 'muted';
+    variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'p' | 'blockquote' | 'large' | 'lead' | 'small' | 'muted';
     class?: string;
   }
 
   const props = withDefaults(defineProps<Props>(), { variant: 'p', class: '' });
 
-  const tagMap: Record<Props['variant'], string> = {
+  const tagMap: Record<NonNullable<Props['variant']>, string> = {
     h1: 'h1',
     h2: 'h2',
     h3: 'h3',
@@ -19,7 +19,7 @@
     muted: 'p',
   };
 
-  const classMap: Record<Props['variant'], string> = {
+  const classMap: Record<NonNullable<Props['variant']>, string> = {
     h1: 'scroll-m-20 text-4xl font-extrabold tracking-tight lg:text-5xl',
     h2: 'scroll-m-20 border-b border-border pb-2 text-3xl font-semibold tracking-tight first:mt-0',
     h3: 'scroll-m-20 text-2xl font-semibold tracking-tight',
@@ -32,9 +32,9 @@
     muted: 'text-sm text-muted-foreground',
   };
 
-  const tag = computed(() => tagMap[props.variant]);
+  const tag = computed(() => tagMap[props.variant || 'p']);
 
-  const computedClass = computed(() => [classMap[props.variant], props.class].filter(Boolean)
+  const computedClass = computed(() => [classMap[props.variant || 'p'], props.class].filter(Boolean)
     .join(' '));
 </script>
 

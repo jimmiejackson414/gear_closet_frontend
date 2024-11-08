@@ -1,10 +1,10 @@
 import { DoorOpen,  Home, ListTodo, MessagesSquare, Users, UserCircle2 } from 'lucide-vue-next';
-import type { Icon } from 'lucide-vue-next';
+// import type { Icon } from 'lucide-vue-next';
 
 export type LinkItem = {
   to: string;
   title: string;
-  icon: Icon;
+  icon: any;
   disabled: boolean;
   requiresSubscription: boolean;
   requiresSubscriptionCopy?: string;

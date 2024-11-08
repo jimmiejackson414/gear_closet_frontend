@@ -1,6 +1,7 @@
 <script lang='ts' setup>
-  import { type Icon, XIcon } from 'lucide-vue-next';
+  import { XIcon } from 'lucide-vue-next';
   import type { SelectOption } from '@/types/helpers';
+  // import type { Icon } from 'lucide-vue-next';
 
   export interface Props {
     disabled?: boolean;
@@ -9,7 +10,7 @@
     placeholder?: string;
     size?: 'sm' | 'md' | 'lg';
     options: SelectOption[];
-    prependIcon?: Icon;
+    // prependIcon?: Icon;
     required?: boolean;
   }
 
@@ -55,13 +56,13 @@
         class="sr-only"
         for="simple-search">Search</label>
       <div class="relative">
-        <div
+        <!-- <div
           v-if="prependIcon"
           class="absolute inset-y-0 flex items-center pointer-events-none ps-3 start-0">
           <component
             :is="prependIcon"
             class="h-4 text-gray-500 w-4" />
-        </div>
+        </div> -->
         <input
           id="simple-search"
           v-model="query"

@@ -2,7 +2,6 @@
   import type { HTMLAttributes } from 'vue';
   import { useVModel } from '@vueuse/core';
   import { EyeIcon, EyeOffIcon } from 'lucide-vue-next';
-  import type { Icon } from 'lucide-vue-next';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<{
@@ -10,7 +9,7 @@
     modelValue?: string | number
     class?: HTMLAttributes['class']
     passwordToggle?: boolean
-    prependIcon?: Icon;
+    prependIcon?: any;
   }>();
 
   const showPassword = ref(false);

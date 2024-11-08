@@ -1,65 +1,45 @@
 <script lang='ts' setup>
-  import { type Severity} from '@/components/common/GcAlert.vue';
+  import { toTypedSchema } from '@vee-validate/zod';
+  import { useForm } from 'vee-validate';
+  import * as z from 'zod';
   import type { Provider } from '@supabase/supabase-js';
+  import { type Severity} from '@/components/common/GcAlert.vue';
+  import { Separator, FormField, FormItem, FormLabel, FormControl, Input as FormInput, Button as FormButton, Typography } from '@/components/ui';
 
   const supabase = useSupabaseClient();
   const $router = useRouter();
-  const submitting = ref(false);
   const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
-  const form = reactive({
-    firstName: '',
-    lastName: '',
-    email: '',
-    password: '',
-    passwordConfirm: '',
+
+  const formSchema = toTypedSchema(z.object({
+    email: z.string()
+      .email(),
+    firstName: z.string()
+      .min(1),
+    lastName: z.string()
+      .min(1),
+    password: z.string()
+      .min(8),
+    passwordConfirm: z.string()
+      .min(8),
+  })
+    .refine(data => data.password === data.passwordConfirm, {
+      message: 'Passwords must match',
+      path: ['passwordConfirm'],
+    }));
+
+  const { isFieldDirty, handleSubmit, isSubmitting, resetForm } = useForm({
+    validationSchema: formSchema,
   });
 
-  const rules = {
-    email: [
-      (val: string): boolean | string => (val && val.length > 0) || 'Email is required',
-      (val: string): boolean | string => isValidEmail(val) || 'Not a valid email',
-    ],
-    firstName: [
-      (val: string) => (val && val.length > 0) || 'First Name is required',
-    ],
-    lastName: [
-      (val: string) => (val && val.length > 0) || 'Last Name is required',
-    ],
-    password: [
-      (val: string) => (val && val.length > 0) || 'Password is required',
-      (val: string) => (val && val.length >= 8) || 'Password must be at least 8 characters',
-    ],
-    passwordConfirm: [
-      (val: string) => (val && val.length > 0) || 'Confirm Password is required',
-      (val: string) => (form.password === val) || 'Must match password',
-    ],
-  };
-
-  const { fieldErrors, validateForm, validateFieldOnBlur } = useValidate(form, rules);
-
-  const resetForm = () => {
-    form.firstName = '';
-    form.lastName = '';
-    form.email = '';
-    form.password = '';
-    form.passwordConfirm = '';
-  };
-
-  const handleSubmit = async () => {
+  const onSubmit = handleSubmit(async (values) => {
     try {
-      submitting.value = true;
-
-      if (!validateForm()) {
-        return;
-      }
-
       const { error } = await supabase.auth.signUp({
-        email: form.email,
-        password: form.password,
+        email: values.email,
+        password: values.password,
         options: {
           data: {
-            first_name: form.firstName,
-            last_name: form.lastName,
+            first_name: values.firstName,
+            last_name: values.lastName,
           },
           emailRedirectTo: `${window.location.origin}/onboarding`,
         },
@@ -81,15 +61,11 @@
       if (error instanceof Error) {
         submitAction.value = { message: error?.message, severity: 'error' };
       }
-    } finally {
-      submitting.value = false;
     }
-  };
+  });
 
   const handleOAuthSignUp = async (provider: Provider) => {
     try {
-      submitting.value = true;
-
       const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: `${window.location.origin}/onboarding` } });
 
       if (error) {
@@ -105,16 +81,15 @@
       if (error instanceof Error) {
         submitAction.value = { message: error?.message, severity: 'error' };
       }
-    } finally {
-      submitting.value = false;
     }
   };
 </script>
 
 <template>
   <form
-    @keydown.enter="handleSubmit"
-    @submit.prevent.stop="handleSubmit">
+    data-testid="register-form"
+    @keydown.enter="onSubmit"
+    @submit.prevent.stop="onSubmit">
     <div class="grid grid-cols-[50px,50px] gap-4 justify-center text-center">
       <button
         class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
@@ -130,96 +105,114 @@
       </button>
     </div>
     <div clas="flex justify-center">
-      <p class="my-4 text-center text-eyebrow uppercase">
-        or
-      </p>
+      <separator
+        class="max-w-60 mb-6 mt-8 mx-auto"
+        label="OR" />
     </div>
-    <div class="auto-rows-auto grid grid-cols-1 gap-4">
-      <gc-input
-        v-model="form.email"
-        autocomplete="email"
-        class="w-full"
-        :disabled="submitting"
-        :error="fieldErrors.email"
-        label="Email"
+    <div class="auto-rows-auto grid grid-cols-1 gap-2">
+      <form-field
+        v-slot="{ componentField }"
         name="email"
-        placeholder="Email"
-        required
-        @blur="validateFieldOnBlur('email')" />
-      <gc-input
-        v-model="form.firstName"
-        autocomplete="given-name"
-        class="w-full"
-        :disabled="submitting"
-        :error="fieldErrors.firstName"
-        label="First Name"
+        :validate-on-blur="!isFieldDirty">
+        <form-item>
+          <form-label>Email</form-label>
+          <form-control>
+            <form-input
+              :disabled="isSubmitting"
+              type="email"
+              v-bind="componentField" />
+          </form-control>
+        </form-item>
+      </form-field>
+
+      <form-field
+        v-slot="{ componentField }"
         name="firstName"
-        placeholder="Tom"
-        required
-        @blur="validateFieldOnBlur('firstName')" />
-      <gc-input
-        v-model="form.lastName"
-        autocomplete="family-name"
-        class="w-full"
-        :disabled="submitting"
-        :error="fieldErrors.lastName"
-        label="Last Name"
+        :validate-on-blur="!isFieldDirty">
+        <form-item>
+          <form-label>First Name</form-label>
+          <form-control>
+            <form-input
+              :disabled="isSubmitting"
+              v-bind="componentField" />
+          </form-control>
+        </form-item>
+      </form-field>
+      <form-field
+        v-slot="{ componentField }"
         name="lastName"
-        placeholder="Jones"
-        required
-        @blur="validateFieldOnBlur('lastName')" />
-      <gc-input
-        v-model="form.password"
-        autocomplete="current-password"
-        class="w-full"
-        :disabled="submitting"
-        :error="fieldErrors.password"
-        label="Password"
+        :validate-on-blur="!isFieldDirty">
+        <form-item>
+          <form-label>Last Name</form-label>
+          <form-control>
+            <form-input
+              :disabled="isSubmitting"
+              v-bind="componentField" />
+          </form-control>
+        </form-item>
+      </form-field>
+      <form-field
+        v-slot="{ componentField }"
         name="password"
-        password-toggle
-        placeholder="Password"
-        required
-        type="password"
-        @blur="validateFieldOnBlur('password')" />
-      <gc-input
-        v-model="form.passwordConfirm"
-        autocomplete="confirm-password"
-        class="w-full"
-        :disabled="submitting"
-        :error="fieldErrors.passwordConfirm"
-        label="Confirm Password"
+        :validate-on-blur="!isFieldDirty">
+        <form-item>
+          <form-label>Password</form-label>
+          <form-control>
+            <form-input
+              :disabled="isSubmitting"
+              password-toggle
+              type="password"
+              v-bind="componentField" />
+          </form-control>
+        </form-item>
+      </form-field>
+      <form-field
+        v-slot="{ componentField }"
         name="passwordConfirm"
-        password-toggle
-        placeholder="Confirm password"
-        required
-        type="password"
-        @blur="validateFieldOnBlur('passwordConfirm')" />
+        :validate-on-blur="!isFieldDirty">
+        <form-item>
+          <form-label>Confirm Password</form-label>
+          <form-control>
+            <form-input
+              :disabled="isSubmitting"
+              password-toggle
+              type="password"
+              v-bind="componentField" />
+          </form-control>
+        </form-item>
+      </form-field>
       <gc-alert
         v-if="submitAction"
         :message="submitAction.message"
         :severity="submitAction.severity" />
-      <gc-button
-        :disabled="submitting"
-        label="Create Account"
-        type="submit" />
+      <form-button
+        :disabled="isSubmitting"
+        :loading="isSubmitting"
+        type="submit">
+        Create Account
+      </form-button>
     </div>
     <div class="flex items-center flex-col mt-4">
-      <p class="text-base">
+      <typography>
         Already have an account?
         <nuxt-link
-          class="no-underline text-primary"
+          class="no-underline"
           :to="{ name: 'login' }">
-          Login
+          <form-button variant="link">
+            Login
+          </form-button>
         </nuxt-link>
-      </p>
-      <p class="mt-8 text-center text-grey text-xs">
+      </typography>
+      <typography
+        class="mt-4 text-center"
+        variant="muted">
         By continuing to use GearCloset, you agree to our{{ ' ' }}
         <nuxt-link
-          class="no-underline text-primary text-xs"
+          class="no-underline text-primary"
           :to="{ name: 'terms-and-conditions' }">
           Terms and Conditions.
         </nuxt-link>
-      </p>
+      </typography>
     </div>
   </form>
 </template>

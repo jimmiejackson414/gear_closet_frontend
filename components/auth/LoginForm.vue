@@ -87,7 +87,7 @@
     </div>
     <div clas="flex justify-center">
       <separator
-        class="max-w-sm my-8"
+        class="max-w-60 mb-6 mt-8 mx-auto"
         label="OR" />
     </div>
     <div class="auto-rows-auto grid grid-cols-1 gap-4">

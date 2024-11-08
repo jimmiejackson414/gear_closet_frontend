@@ -1,11 +1,11 @@
 <script lang='ts' setup>
-  import type { Icon } from 'lucide-vue-next';
+  // import type { Icon } from 'lucide-vue-next';
   import type { RouteLocationRaw } from 'vue-router';
   import GcSpinner from '@/components/common/GcSpinner.vue';
 
   export interface Props {
     disabled?: boolean;
-    icon?: Icon;
+    // icon?: Icon;
     label?: string | null;
     loading?: boolean;
     outlined?: boolean;
@@ -19,7 +19,7 @@
 
   const props = withDefaults(defineProps<Props>(), {
     disabled: false,
-    icon: undefined,
+    // icon: undefined,
     label: '',
     loading: false,
     outlined: false,
@@ -66,12 +66,12 @@
     if (props.round) { classes.push('rounded-full'); }
 
     // Icon
-    if (props.icon || $slots.icon) {
-      classes.push('btn-icon p-0');
-      if (props.size == 'sm') { classes.push('w-6 h-6'); }
-      if (props.size == 'md') { classes.push('w-8 h-8'); }
-      if (props.size == 'lg') { classes.push('w-12 h-12'); }
-    }
+    // if (props.icon || $slots.icon) {
+    //   classes.push('btn-icon p-0');
+    //   if (props.size == 'sm') { classes.push('w-6 h-6'); }
+    //   if (props.size == 'md') { classes.push('w-8 h-8'); }
+    //   if (props.size == 'lg') { classes.push('w-12 h-12'); }
+    // }
 
     return classes;
   });
@@ -101,10 +101,10 @@
     <slot
       v-else-if="$slots.icon"
       name="icon" />
-    <component
+    <!-- <component
       :is="icon"
       v-else-if="icon"
-      class="text-white" />
+      class="text-white" /> -->
     <span v-else>
       {{ label }}
     </span>

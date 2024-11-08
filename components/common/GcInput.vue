@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import { EyeIcon, EyeOffIcon } from 'lucide-vue-next';
   import { Label as UiLabel } from '../ui';
-  import type { Icon } from 'lucide-vue-next';
+  // import type { Icon } from 'lucide-vue-next';
   import { cn } from '@/lib/utils';
 
   interface Props {
@@ -12,7 +12,7 @@
     modelValue?: string | number | null;
     name: string;
     passwordToggle?: boolean;
-    prependIcon?: Icon;
+    // prependIcon?: Icon;
     required?: boolean;
     type?: string;
     placeholder?: string;
@@ -26,7 +26,7 @@
     modelValue: undefined,
     name: '',
     passwordToggle: false,
-    prependIcon: undefined,
+    // prependIcon: undefined,
     placeholder: undefined,
     required: false,
     type: 'text',
@@ -84,7 +84,7 @@
     props.disabled ? classes.push('bg-gray-100 pointer-events-none text-gray-400') : classes.push('bg-white pointer-events-auto text-dark-grey');
 
     // override padding based on prependIcon prop
-    if (props.prependIcon) { classes.push('ps-9'); }
+    // if (props.prependIcon) { classes.push('ps-9'); }
 
     return classes;
   });
@@ -105,9 +105,9 @@
         {{ label }}
       </ui-label>
       <div class="relative">
-        <component
+        <!-- <component
           :is="prependIcon"
-          class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-grey w-5" />
+          class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-grey w-5" /> -->
         <input
           :id="name"
           ref="inputRef"
