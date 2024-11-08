@@ -4,10 +4,10 @@
   }
 
   body {
-    @apply font-sans text-base text-dark-grey bg-white antialiased h-full;
+    @apply font-sans text-base bg-white antialiased h-full;
   }
 
-  .hyperlink {
+  /* .hyperlink {
     @apply font-sans;
     font-size: 1rem;
     color: theme(colors.primary);
@@ -16,7 +16,7 @@
     &:hover {
       color: theme(colors.primary / 75%);
     }
-  }
+  } */
 
   .container,
   .container-fluid,
@@ -64,7 +64,7 @@
 
     .dp__input {
       &.gc-dp-input {
-        @apply bg-transparent border border-gray-300 rounded-lg text-dark-grey active:border-primary placeholder:!text-gray-400 font-sans text-base py-2.5 ps-9;
+        @apply bg-transparent border border-gray-300 rounded-lg active:border-primary placeholder:!text-gray-400 font-sans text-base py-2.5 ps-9;
       }
     }
     .dp__calendar_item {

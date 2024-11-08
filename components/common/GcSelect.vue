@@ -1,8 +1,7 @@
 <script lang='ts' setup>
   import { ChevronDownIcon, XCircleIcon } from 'lucide-vue-next';
-  import { usePopper } from '@/composables/usePopper';
+  // import { usePopper } from '@/composables/usePopper';
   import type { SelectOption } from '@/types/helpers';
-  import type { ModifierArguments } from '@popperjs/core';
 
   interface Props {
     clearable?: boolean;
@@ -61,28 +60,28 @@
     return classes;
   });
 
-  let [trigger, container] = usePopper({
-    placement: 'bottom-end',
-    strategy: 'fixed',
-    modifiers: [
-      {  name: 'offset',  options: { offset: [0, 10] } },
-      {  name: 'afterWrite', fn: ({ state }: ModifierArguments<{}>) => {
-        if (state.elements.popper) {
-          state.elements.popper.style.opacity = '1';
-        }
-      },
-      },
-    ],
-  });
+  // let [trigger, container] = usePopper({
+  //   placement: 'bottom-end',
+  //   strategy: 'fixed',
+  //   modifiers: [
+  //     {  name: 'offset',  options: { offset: [0, 10] } },
+  //     {  name: 'afterWrite', fn: ({ state }: any) => {
+  //       if (state.elements.popper) {
+  //         state.elements.popper.style.opacity = '1';
+  //       }
+  //     },
+  //     },
+  //   ],
+  // });
 
   const listboxButton = ref(null);
   const selectWidth = ref(0);
-  watchEffect(() => {
-    if (trigger.value) {
-      const width = trigger.value.$el.offsetWidth;
-      selectWidth.value = width;
-    }
-  });
+  // watchEffect(() => {
+  //   if (trigger.value) {
+  //     const width = trigger.value.$el.offsetWidth;
+  //     selectWidth.value = width;
+  //   }
+  // });
 </script>
 
 <template>

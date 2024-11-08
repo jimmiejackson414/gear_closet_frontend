@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { Tabs, type InstanceOptions, type TabItem, type TabsOptions } from 'flowbite';
+  // import { Tabs, type InstanceOptions, type TabItem, type TabsOptions } from 'flowbite';
   import { AppleIcon, ShirtIcon } from 'lucide-vue-next';
   import tailwind from '@/utils/tailwind';
   import type { Database } from '@/types';
@@ -53,37 +53,37 @@
    * Instantiates the tabs component
    */
   const activeTab = ref('tables');
-  const instantiateTabs = () => {
-    const tabsElement = document?.getElementById('default-tab') as HTMLElement;
-    if (tabsElement) {
-      const tabElements: TabItem[] = [
-        {
-          id: 'tables',
-          triggerEl: document?.querySelector('#tables-tab') as HTMLElement,
-          targetEl: document?.querySelector('#tables') as HTMLElement,
-        },
-        ...(pack.value?.allow_comments ? [{
-          id: 'comments',
-          triggerEl: document?.querySelector('#comments-tab') as HTMLElement,
-          targetEl: document?.querySelector('#comments') as HTMLElement,
-        }] : []),
-      ];
+  // const instantiateTabs = () => {
+  //   const tabsElement = document?.getElementById('default-tab') as HTMLElement;
+  //   if (tabsElement) {
+  //     const tabElements: TabItem[] = [
+  //       {
+  //         id: 'tables',
+  //         triggerEl: document?.querySelector('#tables-tab') as HTMLElement,
+  //         targetEl: document?.querySelector('#tables') as HTMLElement,
+  //       },
+  //       ...(pack.value?.allow_comments ? [{
+  //         id: 'comments',
+  //         triggerEl: document?.querySelector('#comments-tab') as HTMLElement,
+  //         targetEl: document?.querySelector('#comments') as HTMLElement,
+  //       }] : []),
+  //     ];
 
-      const options: TabsOptions = {
-        defaultTabId: activeTab.value,
-        activeClasses: 'font-bold text-primary hover:text-primary !border-primary border-primary border-b-2',
-        inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
-      };
+  //     const options: TabsOptions = {
+  //       defaultTabId: activeTab.value,
+  //       activeClasses: 'font-bold text-primary hover:text-primary !border-primary border-primary border-b-2',
+  //       inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
+  //     };
 
-      const instanceOptions: InstanceOptions = {
-        id: 'default-tab',
-        override: true,
-      };
+  //     const instanceOptions: InstanceOptions = {
+  //       id: 'default-tab',
+  //       override: true,
+  //     };
 
-      new Tabs(tabsElement, tabElements, options, instanceOptions);
-    }
-  };
-  onMounted(() => instantiateTabs());
+  //     new Tabs(tabsElement, tabElements, options, instanceOptions);
+  //   }
+  // };
+  // onMounted(() => instantiateTabs());
 
   // define table columns
   const columns: Column[] = [
@@ -353,7 +353,7 @@
       class="relative">
       <div class="absolute inset-0 bg-white flex flex-col h-96 m-auto p-8 place-content-center place-items-center rounded-lg shadow text-center w-96 z-10">
         <gc-logo-icon
-          :fill="tailwind.theme.colors.primary"
+          :fill="tailwind.theme.colors.primary.DEFAULT"
           wrapper-class="h-8 w-8 mb-4" />
         <p class="mb-4 text-base-lg">
           This pack is private!

@@ -1,5 +1,6 @@
 <script lang="ts" setup>
   import type { Database } from '@/types';
+  import { Toaster } from '@/components/ui/sonner';
 
   const supabase = useSupabaseClient<Database>();
   supabase.auth.onAuthStateChange(async (event) => {
@@ -7,15 +8,13 @@
       await supabase.removeAllChannels();
     }
   });
-
-  // Use SSR-safe IDs for Headless UI
-  provideHeadlessUseId(() => useId());
 </script>
 
 <template>
   <div class="bg-white dark:bg-black h-full">
     <NuxtLayout>
       <NuxtPage />
+      <toaster />
     </NuxtLayout>
   </div>
 </template>

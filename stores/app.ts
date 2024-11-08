@@ -1,5 +1,4 @@
 import { defineStore } from 'pinia';
-import { toast } from 'vue3-toastify';
 
 type State = {
   drawer: boolean;
@@ -29,13 +28,13 @@ export const useAppStore = defineStore<'app', State, Getters, Actions>('app', {
 
   actions: {
     notifyPositive (message) {
-      toast.success(message);
+      // toast.success(message);
     },
     notifyNegative (message) {
-      toast.error(message);
+      // toast.error(message);
     },
     notifyInfo (message) {
-      toast.info(message);
+      // toast.info(message);
     },
     toggleDrawer () {
       this.drawer = !this.drawer;

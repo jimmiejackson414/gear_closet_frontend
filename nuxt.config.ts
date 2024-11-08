@@ -62,22 +62,7 @@ export default defineNuxtConfig({
     enabled: true,
   },
 
-
-  headlessui: {
-    prefix: 'Headless',
-  },
-
-  modules: [
-    '@nuxtjs/supabase',
-    '@pinia/nuxt',
-    '@nuxtjs/tailwindcss',
-    '@vueuse/nuxt',
-    'nuxt-headlessui',
-    '@fixers/nuxt-stripe',
-    "@nuxtjs/storybook",
-    '@nuxt/test-utils/module',
-    "@nuxtjs/color-mode",
-  ],
+  modules: ['@nuxtjs/supabase', '@pinia/nuxt', '@nuxtjs/tailwindcss', '@vueuse/nuxt', '@fixers/nuxt-stripe', "@nuxtjs/storybook", '@nuxt/test-utils/module', "@nuxtjs/color-mode", "shadcn-nuxt"],
 
   postcss: {
     plugins: {
@@ -110,6 +95,11 @@ export default defineNuxtConfig({
     },
   },
 
+  shadcn: {
+    prefix: '',
+    componentDir: './components/ui',
+  },
+
   stripe: {
     publishableKey: process.env.NUXT_STRIPE_PUBLISHABLE_KEY,
   },
@@ -131,6 +121,7 @@ export default defineNuxtConfig({
     tsConfig: {
       include: ['vendor.d.ts'],
       compilerOptions: {
+        baseUrl: '.',
         paths: {
           '@': ['.'],
           '@/*': ['./*'],

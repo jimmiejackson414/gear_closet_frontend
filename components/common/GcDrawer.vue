@@ -6,8 +6,8 @@
   const isActiveRoute = (link: LinkItem) => $route.name === link.to;
 
   const iconColor = (link: LinkItem) => {
-    if (link.disabled) return tailwind.theme.colors['light-grey'];
-    return isActiveRoute(link) ? tailwind.theme.colors.primary : tailwind.theme.colors['grey'];
+    if (link.disabled) return tailwind.theme.colors.gray['100'];
+    return isActiveRoute(link) ? tailwind.theme.colors.primary.DEFAULT : tailwind.theme.colors.gray['500'];
   };
 
   const $router = useRouter();
@@ -29,7 +29,7 @@
       <li class="border-b border-light-grey">
         <span class="block mb-4 px-4 py-2">
           <gc-logo-icon
-            :fill="tailwind.theme.colors.primary"
+            :fill="tailwind.theme.colors.primary.DEFAULT"
             wrapper-class="w-8 h-8" />
         </span>
       </li>

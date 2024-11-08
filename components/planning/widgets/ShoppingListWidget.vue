@@ -1,8 +1,6 @@
 <script lang='ts' setup>
-  import { Tabs } from 'flowbite';
   import { CheckSquare2Icon, PlusIcon } from 'lucide-vue-next';
   import { ResourceType, type Database, type Tables, type TablesUpdate } from '@/types';
-  import type { InstanceOptions, TabsOptions, TabsInterface, TabItem } from 'flowbite';
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
@@ -24,21 +22,21 @@
     try {
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
-      const activeTab = tabs?.getActiveTab();
-      const { data: newItem, error } = await supabase.from('shopping_list_items')
-        .insert({
-          completed: false,
-          profile_id: user.value?.id as string,
-          quantity: 1,
-          resource_type: activeTab?.id as ResourceType,
-          title: 'New shopping item',
-          trip_id: selectedTripId?.value as number,
-        })
-        .select();
+      // const activeTab = tabs?.getActiveTab();
+      // const { data: newItem, error } = await supabase.from('shopping_list_items')
+      //   .insert({
+      //     completed: false,
+      //     profile_id: user.value?.id as string,
+      //     quantity: 1,
+      //     resource_type: activeTab?.id as ResourceType,
+      //     title: 'New shopping item',
+      //     trip_id: selectedTripId?.value as number,
+      //   })
+      //   .select();
 
-      if (newItem?.length && !error) {
-        data.value.shopping_items.push(newItem[0]);
-      }
+      // if (newItem?.length && !error) {
+      //   data.value.shopping_items.push(newItem[0]);
+      // }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new shopping item.');
     }
@@ -69,34 +67,34 @@
    * Instantiates the tabs component.
    */
   const activeTab = ref(ResourceType.USER);
-  let tabs: TabsInterface | null = null;
-  const instantiateTabs = () => {
-    const tabsElement = document?.getElementById('shopping-items-tab') as HTMLElement;
-    if (tabsElement) {
-      const tabElements: TabItem[] = [
-        {
-          id: ResourceType.USER,
-          triggerEl: document?.querySelector('#your-items-tab') as HTMLElement,
-          targetEl: document?.querySelector('#your-items') as HTMLElement,
-        },
-        {
-          id: ResourceType.GROUP,
-          triggerEl: document?.querySelector('#group-items-tab') as HTMLElement,
-          targetEl: document?.querySelector('#group-items') as HTMLElement,
-        },
-      ];
-      const options: TabsOptions = {
-        defaultTabId: activeTab.value,
-        activeClasses: 'text-primary hover:text-primary !border-primary border-primary border-b-2',
-        inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
-      };
-      const instanceOptions: InstanceOptions = {
-        id: 'your-items-tab',
-        override: true,
-      };
-      tabs = new Tabs(tabsElement, tabElements, options, instanceOptions);
-    }
-  };
+  // let tabs: TabsInterface | null = null;
+  // const instantiateTabs = () => {
+  //   const tabsElement = document?.getElementById('shopping-items-tab') as HTMLElement;
+  //   if (tabsElement) {
+  //     const tabElements: TabItem[] = [
+  //       {
+  //         id: ResourceType.USER,
+  //         triggerEl: document?.querySelector('#your-items-tab') as HTMLElement,
+  //         targetEl: document?.querySelector('#your-items') as HTMLElement,
+  //       },
+  //       {
+  //         id: ResourceType.GROUP,
+  //         triggerEl: document?.querySelector('#group-items-tab') as HTMLElement,
+  //         targetEl: document?.querySelector('#group-items') as HTMLElement,
+  //       },
+  //     ];
+  //     const options: TabsOptions = {
+  //       defaultTabId: activeTab.value,
+  //       activeClasses: 'text-primary hover:text-primary !border-primary border-primary border-b-2',
+  //       inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
+  //     };
+  //     const instanceOptions: InstanceOptions = {
+  //       id: 'your-items-tab',
+  //       override: true,
+  //     };
+  //     tabs = new Tabs(tabsElement, tabElements, options, instanceOptions);
+  //   }
+  // };
 
   /**
    * Watch for changes to the page loading state and todos length.
@@ -107,7 +105,7 @@
 
     if (!newPageLoading && newItemsLength > 0) {
       await nextTick();
-      instantiateTabs();
+      // instantiateTabs();
     }
 
   }, { immediate: true });

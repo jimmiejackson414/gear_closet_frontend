@@ -1,8 +1,8 @@
 <script lang='ts' setup>
-  import { Tabs } from 'flowbite';
+  // import { Tabs } from 'flowbite';
   import { ListTodoIcon, PlusIcon } from 'lucide-vue-next';
   import { ResourceType, type Database, type TablesUpdate, type Tables } from '@/types';
-  import type { InstanceOptions, TabsOptions, TabsInterface, TabItem } from 'flowbite';
+  // import type { InstanceOptions, TabsOptions, TabsInterface, TabItem } from 'flowbite';
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
@@ -24,12 +24,12 @@
     try {
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
-      const activeTab = tabs?.getActiveTab();
+      // const activeTab = tabs?.getActiveTab();
       const { data: newTodo, error } = await supabase.from('todos')
         .insert({
           completed: false,
           profile_id: user.value?.id as string,
-          resource_type: activeTab?.id as ResourceType,
+          // resource_type: activeTab?.id as ResourceType,
           title: 'New todo',
           trip_id: selectedTripId?.value as number,
         })
@@ -68,34 +68,34 @@
    * Instantiates the tabs component.
    */
   const activeTab = ref(ResourceType.USER);
-  let tabs: TabsInterface | null = null;
-  const instantiateTabs = () => {
-    const tabsElement = document?.getElementById('default-tab') as HTMLElement;
-    if (tabsElement) {
-      const tabElements: TabItem[] = [
-        {
-          id: ResourceType.USER,
-          triggerEl: document?.querySelector('#you-tab') as HTMLElement,
-          targetEl: document?.querySelector('#you') as HTMLElement,
-        },
-        {
-          id: ResourceType.GROUP,
-          triggerEl: document?.querySelector('#group-tab') as HTMLElement,
-          targetEl: document?.querySelector('#group') as HTMLElement,
-        },
-      ];
-      const options: TabsOptions = {
-        defaultTabId: activeTab.value,
-        activeClasses: 'text-primary font-bold hover:text-primary !border-primary border-primary border-b-2',
-        inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
-      };
-      const instanceOptions: InstanceOptions = {
-        id: 'default-tab',
-        override: true,
-      };
-      tabs = new Tabs(tabsElement, tabElements, options, instanceOptions);
-    }
-  };
+  // let tabs: TabsInterface | null = null;
+  // const instantiateTabs = () => {
+  //   const tabsElement = document?.getElementById('default-tab') as HTMLElement;
+  //   if (tabsElement) {
+  //     const tabElements: TabItem[] = [
+  //       {
+  //         id: ResourceType.USER,
+  //         triggerEl: document?.querySelector('#you-tab') as HTMLElement,
+  //         targetEl: document?.querySelector('#you') as HTMLElement,
+  //       },
+  //       {
+  //         id: ResourceType.GROUP,
+  //         triggerEl: document?.querySelector('#group-tab') as HTMLElement,
+  //         targetEl: document?.querySelector('#group') as HTMLElement,
+  //       },
+  //     ];
+  //     const options: TabsOptions = {
+  //       defaultTabId: activeTab.value,
+  //       activeClasses: 'text-primary font-bold hover:text-primary !border-primary border-primary border-b-2',
+  //       inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
+  //     };
+  //     const instanceOptions: InstanceOptions = {
+  //       id: 'default-tab',
+  //       override: true,
+  //     };
+  //     tabs = new Tabs(tabsElement, tabElements, options, instanceOptions);
+  //   }
+  // };
 
   /**
    * Watch for changes to the page loading state and todos length.
@@ -106,7 +106,7 @@
 
     if (!newPageLoading && newTodosLength > 0) {
       await nextTick();
-      instantiateTabs();
+      // instantiateTabs();
     }
   }, { immediate: true });
 </script>

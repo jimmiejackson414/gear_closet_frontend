@@ -2,10 +2,10 @@
   import type { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
   import dayjs from 'dayjs';
   import utc from 'dayjs/plugin/utc';
-  import { Tabs } from 'flowbite';
+  // import { Tabs } from 'flowbite';
   import { ChevronDownIcon, DownloadIcon, CheckCircleIcon, HeartIcon } from 'lucide-vue-next';
   import { SubscriptionLevel, MeasuringSystem, type Database } from '@/types';
-  import type { InstanceOptions, TabsOptions, TabItem } from 'flowbite';
+  // import type { InstanceOptions, TabsOptions, TabItem } from 'flowbite';
   import type { SelectOption, SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
 
   dayjs.extend(utc);
@@ -311,42 +311,42 @@
   /*
   * Instantiates the tabs component.
   */
-  const instantiateTabs = () => {
-    const tabsElement = document?.getElementById('tabs-group') as HTMLElement;
-    if (tabsElement) {
-      const tabElements: TabItem[] = [
-        {
-          id: 'profile',
-          triggerEl: document?.querySelector('#profile-tab') as HTMLElement,
-          targetEl: document?.querySelector('#profile') as HTMLElement,
-        },
-        {
-          id: 'settings',
-          triggerEl: document?.querySelector('#settings-tab') as HTMLElement,
-          targetEl: document?.querySelector('#settings') as HTMLElement,
-        },
-        {
-          id: 'subscription',
-          triggerEl: document?.querySelector('#subscription-tab') as HTMLElement,
-          targetEl: document?.querySelector('#subscription') as HTMLElement,
-        },
-      ];
-      const options: TabsOptions = {
-        defaultTabId: 'profile',
-        activeClasses: 'text-primary font-bold hover:text-primary !border-primary border-primary border-b-2',
-        inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
-        onShow: (_tabs, tab) => {
-          activeTab.value = tab.id;
-        },
-      };
-      const instanceOptions: InstanceOptions = {
-        id: 'tabs-group',
-        override: true,
-      };
-      return new Tabs(tabsElement, tabElements, options, instanceOptions);
-    }
-  };
-  onMounted(() => instantiateTabs());
+  // const instantiateTabs = () => {
+  //   const tabsElement = document?.getElementById('tabs-group') as HTMLElement;
+  //   if (tabsElement) {
+  //     const tabElements: TabItem[] = [
+  //       {
+  //         id: 'profile',
+  //         triggerEl: document?.querySelector('#profile-tab') as HTMLElement,
+  //         targetEl: document?.querySelector('#profile') as HTMLElement,
+  //       },
+  //       {
+  //         id: 'settings',
+  //         triggerEl: document?.querySelector('#settings-tab') as HTMLElement,
+  //         targetEl: document?.querySelector('#settings') as HTMLElement,
+  //       },
+  //       {
+  //         id: 'subscription',
+  //         triggerEl: document?.querySelector('#subscription-tab') as HTMLElement,
+  //         targetEl: document?.querySelector('#subscription') as HTMLElement,
+  //       },
+  //     ];
+  //     const options: TabsOptions = {
+  //       defaultTabId: 'profile',
+  //       activeClasses: 'text-primary font-bold hover:text-primary !border-primary border-primary border-b-2',
+  //       inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
+  //       onShow: (_tabs, tab) => {
+  //         activeTab.value = tab.id;
+  //       },
+  //     };
+  //     const instanceOptions: InstanceOptions = {
+  //       id: 'tabs-group',
+  //       override: true,
+  //     };
+  //     return new Tabs(tabsElement, tabElements, options, instanceOptions);
+  //   }
+  // };
+  // onMounted(() => instantiateTabs());
 
   const profileAvatar = computed(() => {
     if (profile.value?.image) {
@@ -674,7 +674,7 @@
               <check-circle-icon
                 v-if="step === 2"
                 class="h-4 sm:h-5 w-4 sm:w-5"
-                :color="tailwind.theme.colors['primary']"
+                :color="tailwind.theme.colors.primary.DEFAULT"
                 :stroke-width="3" />
               <heart-icon
                 v-else

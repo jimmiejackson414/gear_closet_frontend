@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import { CheckCircleIcon, BookUserIcon, HeartIcon } from 'lucide-vue-next';
   import type { FilePondFile } from 'filepond';
-  import { Modal, type InstanceOptions, type ModalInterface, type ModalOptions } from 'flowbite';
+  // import { Modal, type InstanceOptions, type ModalInterface, type ModalOptions } from 'flowbite';
   import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
   import type { SelectOption } from '@/types/helpers';
 
@@ -153,35 +153,35 @@
     }
   };
 
-  const handleOpenTempModal = async () => {
-    await nextTick();
+  // const handleOpenTempModal = async () => {
+  //   await nextTick();
 
-    const $targetEl = document.querySelector('#onboarding-alert-modal') as HTMLElement;
-    if (!$targetEl) return;
+  //   const $targetEl = document.querySelector('#onboarding-alert-modal') as HTMLElement;
+  //   if (!$targetEl) return;
 
-    const options: ModalOptions = {
-      placement: 'center',
-      backdrop: 'static',
-      closable: false,
-      onHide: () => console.log('onHide'),
-      onShow: () => console.log('onShow'),
-      onToggle: () => console.log('onToggle'),
-    };
+  //   const options: ModalOptions = {
+  //     placement: 'center',
+  //     backdrop: 'static',
+  //     closable: false,
+  //     onHide: () => console.log('onHide'),
+  //     onShow: () => console.log('onShow'),
+  //     onToggle: () => console.log('onToggle'),
+  //   };
 
-    const instanceOptions: InstanceOptions = {
-      id: 'onboarding-alert-modal',
-      override: true,
-    };
+  //   const instanceOptions: InstanceOptions = {
+  //     id: 'onboarding-alert-modal',
+  //     override: true,
+  //   };
 
-    const modal: ModalInterface = new Modal($targetEl, options, instanceOptions);
+  //   const modal: ModalInterface = new Modal($targetEl, options, instanceOptions);
 
-    modal.show();
-  };
+  //   modal.show();
+  // };
 
   watch(step, async () => {
     if (step.value === 3) {
       await nextTick();
-      handleOpenTempModal();
+      // handleOpenTempModal();
     }
   }, { immediate: true });
 
@@ -237,7 +237,7 @@
             <check-circle-icon
               v-if="step >= 2"
               class="h-4 sm:h-5 w-4 sm:w-5"
-              :color="tailwind.theme.colors['primary']"
+              :color="tailwind.theme.colors.primary.DEFAULT"
               :stroke-width="3" />
             <book-user-icon
               v-else
@@ -256,7 +256,7 @@
           <check-circle-icon
             v-if="step === 3"
             class="h-4 sm:h-5 w-4 sm:w-5"
-            :color="tailwind.theme.colors['primary']"
+            :color="tailwind.theme.colors.primary.DEFAULT"
             :stroke-width="3" />
           <heart-icon
             v-else
