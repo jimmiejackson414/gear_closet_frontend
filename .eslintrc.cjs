@@ -16,11 +16,11 @@ module.exports = {
     ecmaVersion: 'latest',
   },
 
-  plugins: ['@kalimahapps/eslint-plugin-tailwind', '@stylistic/js'],
+  plugins: ['@kalimahapps/eslint-plugin-tailwind', '@stylistic/js', 'import'],
 
   overrides: [
     {
-      files: ['./pages/**/*.vue'],
+      files: ['./pages/**/*.vue', './components/ui/**/*.vue'],
       rules: {
         'vue/multi-word-component-names': 'off',
       },
@@ -39,14 +39,42 @@ module.exports = {
 
   rules: {
     '@kalimahapps/tailwind/sort': 'warn',
-    '@stylistic/js/comma-dangle': ['error', 'always-multiline'],
     'no-console': process.env.NODE_ENV === 'production' ? 2 : 0,
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     curly: ['off', 'multi'],
+    'object-shorthand': ['error', 'always'],
+    'import/order': [
+      'warn',
+      {
+        groups: [
+          'builtin', // Built-in modules (e.g., fs, path)
+          'external', // External modules (e.g., lodash, axios)
+          'internal', // Internal modules (e.g., @/components, @/utils)
+          'parent', // Parent imports (e.g., ../utils)
+          'sibling', // Sibling imports (e.g., ./Button)
+          'index', // Index imports (e.g., ./)
+          'object', // Object imports (e.g., import { foo, bar } from 'module')
+          'type', // Type imports (e.g., import type { Foo } from 'module')
+        ],
+        pathGroups: [
+          {
+            pattern: '{react,react-dom/**,vue}',
+            group: 'external',
+            position: 'before',
+          },
+        ],
+        pathGroupsExcludedImportTypes: ['builtin'],
+        'newlines-between': 'never',
+        alphabetize: {
+          order: 'asc',
+          caseInsensitive: true,
+        },
+      },
+    ],
+    '@stylistic/js/comma-dangle': ['error', 'always-multiline'],
     '@stylistic/js/indent': 'off',
     '@stylistic/js/linebreak-style': 'off',
     '@stylistic/js/newline-per-chained-call': [2, { ignoreChainWithDepth: 1 }],
-    'object-shorthand': ['error', 'always'],
     '@stylistic/js/no-trailing-spaces': 'warn',
     '@stylistic/js/semi': [2, 'always'],
     '@stylistic/js/space-before-function-paren': ['error', 'always'],

@@ -1,27 +1,31 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-import type { ComboboxContentEmits, ComboboxContentProps } from 'radix-vue'
-import { cn } from '@/lib/utils'
-import { ComboboxContent, useForwardPropsEmits } from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+  import { computed, type HTMLAttributes } from 'vue';
+  import { ComboboxContent, useForwardPropsEmits } from 'radix-vue';
+  import type { ComboboxContentEmits, ComboboxContentProps } from 'radix-vue';
+  import { cn } from '@/lib/utils';
 
-const props = withDefaults(defineProps<ComboboxContentProps & { class?: HTMLAttributes['class'] }>(), {
-  dismissable: false,
-})
-const emits = defineEmits<ComboboxContentEmits>()
+  const props = withDefaults(defineProps<ComboboxContentProps & { class?: HTMLAttributes['class'] }>(), {
+    class: '',
+    dismissable: false,
+  });
+  const emits = defineEmits<ComboboxContentEmits>();
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
+  const delegatedProps = computed(() => {
+    const { class: _, ...delegated } = props;
 
-  return delegated
-})
+    return delegated;
+  });
 
-const forwarded = useForwardPropsEmits(delegatedProps, emits)
+  const forwarded = useForwardPropsEmits(delegatedProps, emits);
 </script>
 
 <template>
-  <ComboboxContent v-bind="forwarded" :class="cn('max-h-[300px] overflow-y-auto overflow-x-hidden', props.class)">
+  <combobox-content
+    v-bind="forwarded"
+    :class="cn('max-h-[300px] overflow-y-auto overflow-x-hidden', props.class)">
     <div role="presentation">
       <slot />
     </div>
-  </ComboboxContent>
+  </combobox-content>
 </template>

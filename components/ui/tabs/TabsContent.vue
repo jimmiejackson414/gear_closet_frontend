@@ -1,22 +1,22 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-import { cn } from '@/lib/utils'
-import { TabsContent, type TabsContentProps } from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+  import { computed, type HTMLAttributes } from 'vue';
+  import { TabsContent, type TabsContentProps } from 'radix-vue';
+  import { cn } from '@/lib/utils';
 
-const props = defineProps<TabsContentProps & { class?: HTMLAttributes['class'] }>()
+  const props = defineProps<TabsContentProps & { class?: HTMLAttributes['class'] }>();
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
+  const delegatedProps = computed(() => {
+    const { class: _, ...delegated } = props;
 
-  return delegated
-})
+    return delegated;
+  });
 </script>
 
 <template>
-  <TabsContent
+  <tabs-content
     :class="cn('mt-2 ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2', props.class)"
-    v-bind="delegatedProps"
-  >
+    v-bind="delegatedProps">
     <slot />
-  </TabsContent>
+  </tabs-content>
 </template>

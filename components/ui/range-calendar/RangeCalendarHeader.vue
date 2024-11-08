@@ -1,21 +1,24 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-import { cn } from '@/lib/utils'
-import { RangeCalendarHeader, type RangeCalendarHeaderProps, useForwardProps } from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+  import { computed, type HTMLAttributes } from 'vue';
+  import { RangeCalendarHeader, type RangeCalendarHeaderProps, useForwardProps } from 'radix-vue';
+  import { cn } from '@/lib/utils';
 
-const props = defineProps<RangeCalendarHeaderProps & { class?: HTMLAttributes['class'] }>()
+  const props = defineProps<RangeCalendarHeaderProps & { class?: HTMLAttributes['class'] }>();
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
+  const delegatedProps = computed(() => {
+    const { class: _, ...delegated } = props;
 
-  return delegated
-})
+    return delegated;
+  });
 
-const forwardedProps = useForwardProps(delegatedProps)
+  const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>
-  <RangeCalendarHeader :class="cn('relative flex w-full items-center justify-between pt-1', props.class)" v-bind="forwardedProps">
+  <range-calendar-header
+    :class="cn('relative flex w-full items-center justify-between pt-1', props.class)"
+    v-bind="forwardedProps">
     <slot />
-  </RangeCalendarHeader>
+  </range-calendar-header>
 </template>

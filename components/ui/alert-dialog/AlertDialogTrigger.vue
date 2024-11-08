@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { AlertDialogTrigger, type AlertDialogTriggerProps } from 'radix-vue'
+  import { AlertDialogTrigger, type AlertDialogTriggerProps } from 'radix-vue';
 
-const props = defineProps<AlertDialogTriggerProps>()
+  const props = defineProps<AlertDialogTriggerProps>();
 </script>
 
 <template>
-  <AlertDialogTrigger v-bind="props">
+  <alert-dialog-trigger v-bind="props">
     <slot />
-  </AlertDialogTrigger>
+  </alert-dialog-trigger>
 </template>

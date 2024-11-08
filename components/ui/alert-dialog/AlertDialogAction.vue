@@ -1,20 +1,23 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { AlertDialogAction, type AlertDialogActionProps } from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+  import { computed, type HTMLAttributes } from 'vue';
+  import { AlertDialogAction, type AlertDialogActionProps } from 'radix-vue';
+  import { buttonVariants } from '@/components/ui/button';
+  import { cn } from '@/lib/utils';
 
-const props = defineProps<AlertDialogActionProps & { class?: HTMLAttributes['class'] }>()
+  const props = defineProps<AlertDialogActionProps & { class?: HTMLAttributes['class'] }>();
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
+  const delegatedProps = computed(() => {
+    const { class: _, ...delegated } = props;
 
-  return delegated
-})
+    return delegated;
+  });
 </script>
 
 <template>
-  <AlertDialogAction v-bind="delegatedProps" :class="cn(buttonVariants(), props.class)">
+  <alert-dialog-action
+    v-bind="delegatedProps"
+    :class="cn(buttonVariants(), props.class)">
     <slot />
-  </AlertDialogAction>
+  </alert-dialog-action>
 </template>

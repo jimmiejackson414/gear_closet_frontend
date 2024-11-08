@@ -1,23 +1,24 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-import type { StepperIndicatorProps } from 'radix-vue'
-import { cn } from '@/lib/utils'
-import { StepperIndicator, useForwardProps } from 'radix-vue'
+  import { computed, type HTMLAttributes } from 'vue';
+  import { StepperIndicator, useForwardProps } from 'radix-vue';
+  import type { StepperIndicatorProps } from 'radix-vue';
+  import { cn } from '@/lib/utils';
 
-import { computed, type HTMLAttributes } from 'vue'
 
-const props = defineProps<StepperIndicatorProps & { class?: HTMLAttributes['class'] }>()
+  const props = defineProps<StepperIndicatorProps & { class?: HTMLAttributes['class'] }>();
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
+  const delegatedProps = computed(() => {
+    const { class: _, ...delegated } = props;
 
-  return delegated
-})
+    return delegated;
+  });
 
-const forwarded = useForwardProps(delegatedProps)
+  const forwarded = useForwardProps(delegatedProps);
 </script>
 
 <template>
-  <StepperIndicator
+  <stepper-indicator
     v-bind="forwarded"
     :class="cn(
       'inline-flex items-center justify-center rounded-full text-muted-foreground/50 w-10 h-10',
@@ -28,8 +29,7 @@ const forwarded = useForwardProps(delegatedProps)
       // Completed
       'group-data-[state=completed]:bg-accent group-data-[state=completed]:text-accent-foreground',
       props.class,
-    )"
-  >
+    )">
     <slot />
-  </StepperIndicator>
+  </stepper-indicator>
 </template>

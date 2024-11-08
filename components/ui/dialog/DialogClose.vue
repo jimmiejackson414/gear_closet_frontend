@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { DialogClose, type DialogCloseProps } from 'radix-vue'
+  import { DialogClose, type DialogCloseProps } from 'radix-vue';
 
-const props = defineProps<DialogCloseProps>()
+  const props = defineProps<DialogCloseProps>();
 </script>
 
 <template>
-  <DialogClose v-bind="props">
+  <dialog-close v-bind="props">
     <slot />
-  </DialogClose>
+  </dialog-close>
 </template>

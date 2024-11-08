@@ -1,7 +1,8 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-  import { cn } from '@/lib/utils';
-  import { RangeCalendarHeading, type RangeCalendarHeadingProps, useForwardProps } from 'radix-vue';
   import { computed, type HTMLAttributes } from 'vue';
+  import { RangeCalendarHeading, type RangeCalendarHeadingProps, useForwardProps } from 'radix-vue';
+  import { cn } from '@/lib/utils';
 
   const props = defineProps<RangeCalendarHeadingProps & { class?: HTMLAttributes['class'] }>();
 

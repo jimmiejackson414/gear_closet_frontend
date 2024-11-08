@@ -1,13 +1,15 @@
 <script setup lang="ts">
-import { DropdownMenuTrigger, type DropdownMenuTriggerProps, useForwardProps } from 'radix-vue'
+  import { DropdownMenuTrigger, type DropdownMenuTriggerProps, useForwardProps } from 'radix-vue';
 
-const props = defineProps<DropdownMenuTriggerProps>()
+  const props = defineProps<DropdownMenuTriggerProps>();
 
-const forwardedProps = useForwardProps(props)
+  const forwardedProps = useForwardProps(props);
 </script>
 
 <template>
-  <DropdownMenuTrigger class="outline-none" v-bind="forwardedProps">
+  <dropdown-menu-trigger
+    class="outline-none"
+    v-bind="forwardedProps">
     <slot />
-  </DropdownMenuTrigger>
+  </dropdown-menu-trigger>
 </template>

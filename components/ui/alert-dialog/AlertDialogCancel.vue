@@ -1,27 +1,27 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { AlertDialogCancel, type AlertDialogCancelProps } from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+  import { computed, type HTMLAttributes } from 'vue';
+  import { AlertDialogCancel, type AlertDialogCancelProps } from 'radix-vue';
+  import { buttonVariants } from '@/components/ui/button';
+  import { cn } from '@/lib/utils';
 
-const props = defineProps<AlertDialogCancelProps & { class?: HTMLAttributes['class'] }>()
+  const props = defineProps<AlertDialogCancelProps & { class?: HTMLAttributes['class'] }>();
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
+  const delegatedProps = computed(() => {
+    const { class: _, ...delegated } = props;
 
-  return delegated
-})
+    return delegated;
+  });
 </script>
 
 <template>
-  <AlertDialogCancel
+  <alert-dialog-cancel
     v-bind="delegatedProps"
     :class="cn(
       buttonVariants({ variant: 'outline' }),
       'mt-2 sm:mt-0',
       props.class,
-    )"
-  >
+    )">
     <slot />
-  </AlertDialogCancel>
+  </alert-dialog-cancel>
 </template>

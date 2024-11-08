@@ -1,24 +1,24 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-import { cn } from '@/lib/utils'
-import { DialogDescription, type DialogDescriptionProps, useForwardProps } from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+  import { computed, type HTMLAttributes } from 'vue';
+  import { DialogDescription, type DialogDescriptionProps, useForwardProps } from 'radix-vue';
+  import { cn } from '@/lib/utils';
 
-const props = defineProps<DialogDescriptionProps & { class?: HTMLAttributes['class'] }>()
+  const props = defineProps<DialogDescriptionProps & { class?: HTMLAttributes['class'] }>();
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
+  const delegatedProps = computed(() => {
+    const { class: _, ...delegated } = props;
 
-  return delegated
-})
+    return delegated;
+  });
 
-const forwardedProps = useForwardProps(delegatedProps)
+  const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>
-  <DialogDescription
+  <dialog-description
     v-bind="forwardedProps"
-    :class="cn('text-sm text-muted-foreground', props.class)"
-  >
+    :class="cn('text-sm text-muted-foreground', props.class)">
     <slot />
-  </DialogDescription>
+  </dialog-description>
 </template>

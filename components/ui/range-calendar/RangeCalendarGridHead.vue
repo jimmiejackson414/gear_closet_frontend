@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-import { RangeCalendarGridHead, type RangeCalendarGridHeadProps } from 'radix-vue'
+  import { RangeCalendarGridHead, type RangeCalendarGridHeadProps } from 'radix-vue';
 
-const props = defineProps<RangeCalendarGridHeadProps>()
+  const props = defineProps<RangeCalendarGridHeadProps>();
 </script>
 
 <template>
-  <RangeCalendarGridHead v-bind="props">
+  <range-calendar-grid-head v-bind="props">
     <slot />
-  </RangeCalendarGridHead>
+  </range-calendar-grid-head>
 </template>

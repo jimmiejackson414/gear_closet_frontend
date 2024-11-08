@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import { DropdownMenuGroup, type DropdownMenuGroupProps } from 'radix-vue'
+  import { DropdownMenuGroup, type DropdownMenuGroupProps } from 'radix-vue';
 
-const props = defineProps<DropdownMenuGroupProps>()
+  const props = defineProps<DropdownMenuGroupProps>();
 </script>
 
 <template>
-  <DropdownMenuGroup v-bind="props">
+  <dropdown-menu-group v-bind="props">
     <slot />
-  </DropdownMenuGroup>
+  </dropdown-menu-group>
 </template>

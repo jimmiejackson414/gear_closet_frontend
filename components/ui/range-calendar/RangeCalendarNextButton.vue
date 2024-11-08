@@ -1,32 +1,32 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { ChevronRight } from 'lucide-vue-next'
-import { RangeCalendarNext, type RangeCalendarNextProps, useForwardProps } from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+  import { computed, type HTMLAttributes } from 'vue';
+  import { ChevronRight } from 'lucide-vue-next';
+  import { RangeCalendarNext, type RangeCalendarNextProps, useForwardProps } from 'radix-vue';
+  import { buttonVariants } from '@/components/ui/button';
+  import { cn } from '@/lib/utils';
 
-const props = defineProps<RangeCalendarNextProps & { class?: HTMLAttributes['class'] }>()
+  const props = defineProps<RangeCalendarNextProps & { class?: HTMLAttributes['class'] }>();
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
+  const delegatedProps = computed(() => {
+    const { class: _, ...delegated } = props;
 
-  return delegated
-})
+    return delegated;
+  });
 
-const forwardedProps = useForwardProps(delegatedProps)
+  const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>
-  <RangeCalendarNext
+  <range-calendar-next
     :class="cn(
       buttonVariants({ variant: 'outline' }),
       'h-7 w-7 bg-transparent p-0 opacity-50 hover:opacity-100',
       props.class,
     )"
-    v-bind="forwardedProps"
-  >
+    v-bind="forwardedProps">
     <slot>
-      <ChevronRight class="h-4 w-4" />
+      <chevron-right class="h-4 w-4" />
     </slot>
-  </RangeCalendarNext>
+  </range-calendar-next>
 </template>

@@ -1,24 +1,24 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-import { cn } from '@/lib/utils'
-import { RangeCalendarGrid, type RangeCalendarGridProps, useForwardProps } from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+  import { computed, type HTMLAttributes } from 'vue';
+  import { RangeCalendarGrid, type RangeCalendarGridProps, useForwardProps } from 'radix-vue';
+  import { cn } from '@/lib/utils';
 
-const props = defineProps<RangeCalendarGridProps & { class?: HTMLAttributes['class'] }>()
+  const props = defineProps<RangeCalendarGridProps & { class?: HTMLAttributes['class'] }>();
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
+  const delegatedProps = computed(() => {
+    const { class: _, ...delegated } = props;
 
-  return delegated
-})
+    return delegated;
+  });
 
-const forwardedProps = useForwardProps(delegatedProps)
+  const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>
-  <RangeCalendarGrid
+  <range-calendar-grid
     :class="cn('w-full border-collapse space-y-1', props.class)"
-    v-bind="forwardedProps"
-  >
+    v-bind="forwardedProps">
     <slot />
-  </RangeCalendarGrid>
+  </range-calendar-grid>
 </template>

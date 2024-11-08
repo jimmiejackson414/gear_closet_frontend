@@ -1,25 +1,25 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-import { cn } from '@/lib/utils'
-import {
-  AlertDialogDescription,
-  type AlertDialogDescriptionProps,
-} from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+  import { computed, type HTMLAttributes } from 'vue';
+  import {
+    AlertDialogDescription,
+    type AlertDialogDescriptionProps,
+  } from 'radix-vue';
+  import { cn } from '@/lib/utils';
 
-const props = defineProps<AlertDialogDescriptionProps & { class?: HTMLAttributes['class'] }>()
+  const props = defineProps<AlertDialogDescriptionProps & { class?: HTMLAttributes['class'] }>();
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
+  const delegatedProps = computed(() => {
+    const { class: _, ...delegated } = props;
 
-  return delegated
-})
+    return delegated;
+  });
 </script>
 
 <template>
-  <AlertDialogDescription
+  <alert-dialog-description
     v-bind="delegatedProps"
-    :class="cn('text-sm text-muted-foreground', props.class)"
-  >
+    :class="cn('text-sm text-muted-foreground', props.class)">
     <slot />
-  </AlertDialogDescription>
+  </alert-dialog-description>
 </template>

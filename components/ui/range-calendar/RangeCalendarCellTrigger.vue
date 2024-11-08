@@ -1,22 +1,23 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-import { buttonVariants } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
-import { RangeCalendarCellTrigger, type RangeCalendarCellTriggerProps, useForwardProps } from 'radix-vue'
-import { computed, type HTMLAttributes } from 'vue'
+  import { computed, type HTMLAttributes } from 'vue';
+  import { RangeCalendarCellTrigger, type RangeCalendarCellTriggerProps, useForwardProps } from 'radix-vue';
+  import { buttonVariants } from '@/components/ui/button';
+  import { cn } from '@/lib/utils';
 
-const props = defineProps<RangeCalendarCellTriggerProps & { class?: HTMLAttributes['class'] }>()
+  const props = defineProps<RangeCalendarCellTriggerProps & { class?: HTMLAttributes['class'] }>();
 
-const delegatedProps = computed(() => {
-  const { class: _, ...delegated } = props
+  const delegatedProps = computed(() => {
+    const { class: _, ...delegated } = props;
 
-  return delegated
-})
+    return delegated;
+  });
 
-const forwardedProps = useForwardProps(delegatedProps)
+  const forwardedProps = useForwardProps(delegatedProps);
 </script>
 
 <template>
-  <RangeCalendarCellTrigger
+  <range-calendar-cell-trigger
     :class="cn(
       buttonVariants({ variant: 'ghost' }),
       'h-9 w-9 p-0 font-normal data-[selected]:opacity-100',
@@ -33,8 +34,7 @@ const forwardedProps = useForwardProps(delegatedProps)
       'data-[unavailable]:text-destructive-foreground data-[unavailable]:line-through',
       props.class,
     )"
-    v-bind="forwardedProps"
-  >
+    v-bind="forwardedProps">
     <slot />
-  </RangeCalendarCellTrigger>
+  </range-calendar-cell-trigger>
 </template>
