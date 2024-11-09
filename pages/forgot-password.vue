@@ -14,7 +14,7 @@
 
 <template>
   <auth-form-container
-    subtitle="Please enter your email address<br /> to reset your password"
+    subtitle="Enter your email address to reset your password"
     title="Forgot Password">
     <forgot-password-form />
   </auth-form-container>

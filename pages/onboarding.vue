@@ -1,9 +1,9 @@
 <script lang='ts' setup>
   import { CheckCircleIcon, BookUserIcon, HeartIcon } from 'lucide-vue-next';
+  import type { SelectOption } from '@/types/helpers';
   import type { FilePondFile } from 'filepond';
   // import { Modal, type InstanceOptions, type ModalInterface, type ModalOptions } from 'flowbite';
   import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
-  import type { SelectOption } from '@/types/helpers';
 
   definePageMeta({ layout: 'page-layout' });
 
@@ -53,21 +53,21 @@
     country: '',
   });
 
-  const rules = {
-    first_name: [
-      (val: string): boolean | string => (val && val.length > 0) || 'Required field',
-    ],
-    last_name: [
-      (val: string): boolean | string => (val && val.length > 0) || 'Required field',
-    ],
-  };
+  // const rules = {
+  //   first_name: [
+  //     (val: string): boolean | string => (val && val.length > 0) || 'Required field',
+  //   ],
+  //   last_name: [
+  //     (val: string): boolean | string => (val && val.length > 0) || 'Required field',
+  //   ],
+  // };
 
-  const { fieldErrors, validateForm, validateFieldOnBlur } = useValidate(account, rules);
+  // const { fieldErrors, validateForm, validateFieldOnBlur } = useValidate(account, rules);
   const handleSubmitStepTwo = async () => {
     try {
       submitting.value = true;
 
-      if (!validateForm()) return;
+      // if (!validateForm()) return;
 
       const supabase = useSupabaseClient<Database>();
       const { error } = await supabase.from('profiles')
@@ -304,7 +304,7 @@
         </p>
         <div class="grid md:grid-cols-6 grid-cols-1 gap-4 mt-6 w-full">
           <!-- First Name -->
-          <gc-input
+          <!-- <gc-input
             v-model="account.first_name"
             autocomplete="given-name"
             class="!w-full md:col-span-3"
@@ -313,10 +313,10 @@
             label="First name"
             name="first_name"
             required
-            @blur="validateFieldOnBlur('first_name')" />
+            @blur="validateFieldOnBlur('first_name')" /> -->
 
           <!-- Last Name -->
-          <gc-input
+          <!-- <gc-input
             v-model="account.last_name"
             autocomplete="family-name"
             class="!w-full md:col-span-3"
@@ -325,7 +325,7 @@
             label="Last Name"
             name="last_name"
             required
-            @blur="validateFieldOnBlur('last_name')" />
+            @blur="validateFieldOnBlur('last_name')" /> -->
 
           <!-- Trail Name -->
           <gc-input

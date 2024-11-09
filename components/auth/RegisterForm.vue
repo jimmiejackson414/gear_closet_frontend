@@ -87,6 +87,7 @@
 
 <template>
   <form
+    class="max-w-md w-full"
     data-testid="register-form"
     @keydown.enter="onSubmit"
     @submit.prevent.stop="onSubmit">

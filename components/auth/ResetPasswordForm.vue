@@ -1,35 +1,31 @@
 <script lang='ts' setup>
-  import { ref } from 'vue';
+  import { toTypedSchema } from '@vee-validate/zod';
+  import { useForm } from 'vee-validate';
+  import * as z from 'zod';
   import { type Severity } from '@/components/common/GcAlert.vue';
+  import { FormField, FormItem, FormLabel, FormControl, Input as FormInput, Button as FormButton } from '@/components/ui';
 
   const supabase = useSupabaseClient();
-  const form = reactive({ password: '', passwordConfirm: '' });
   const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
-  const submitting = ref(false);
 
-  const rules = {
-    password: [
-      (val: string) => (val && val.length > 0) || 'Password is required',
-    ],
-    passwordConfirm: [
-      (val: string) => (val && val.length > 0) || 'Confirm Password is required',
-      (val: string) => (form.password === val) || 'Must match password',
-    ],
-  };
+  const formSchema = toTypedSchema(z.object({
+    password: z.string()
+      .min(8),
+    passwordConfirm: z.string()
+      .min(8),
+  })
+    .refine(data => data.password === data.passwordConfirm, {
+      message: 'Passwords must match',
+      path: ['passwordConfirm'],
+    }));
 
-  const { fieldErrors, validateForm, validateFieldOnBlur } = useValidate(form, rules);
+  const { isFieldDirty, handleSubmit, isSubmitting, resetForm } = useForm({
+    validationSchema: formSchema,
+  });
 
-  const handleSubmit = async () => {
+  const onSubmit = handleSubmit(async ({ password }) => {
     try {
-      submitting.value = true;
-
-      if (!validateForm()) {
-        return;
-      }
-
-      const { error } = await supabase.auth.updateUser({
-        password: form.password,
-      });
+      const { error } = await supabase.auth.updateUser({ password });
 
       if (error) {
         submitAction.value = { message: error.message, severity: 'error' };
@@ -40,49 +36,63 @@
         message: 'Password updated successfully',
         severity: 'positive',
       };
+
+      resetForm();
     } catch (error) {
       if (error instanceof Error) {
         submitAction.value = { message: error.message, severity: 'error' };
       }
-    } finally {
-      submitting.value = false;
     }
-  };
+  });
 </script>
 
 <template>
-  <form @submit.prevent.stop="handleSubmit">
+  <form
+    class="max-w-md w-full"
+    @keydown.enter="onSubmit"
+    @submit.prevent="onSubmit">
     <div class="auto-rows-auto grid grid-cols-1 gap-4">
-      <gc-input
-        v-model="form.password"
-        class="w-full"
-        :error="fieldErrors.password"
-        label="Password"
+      <form-field
+        v-slot="{ componentField }"
         name="password"
-        placeholder="Enter your password"
-        type="password"
-        @blur="validateFieldOnBlur('password')" />
-      <gc-input
-        v-model="form.passwordConfirm"
-        class="w-full"
-        :error="fieldErrors.passwordConfirm"
-        label="Confirm Password"
+        :validate-on-blur="!isFieldDirty">
+        <form-item>
+          <form-label>New Password</form-label>
+          <form-control>
+            <form-input
+              :disabled="isSubmitting"
+              password-toggle
+              type="password"
+              v-bind="componentField" />
+          </form-control>
+        </form-item>
+      </form-field>
+      <form-field
+        v-slot="{ componentField }"
         name="passwordConfirm"
-        placeholder="Confirm your password"
-        type="password"
-        @blur="validateFieldOnBlur('passwordConfirm')" />
+        :validate-on-blur="!isFieldDirty">
+        <form-item>
+          <form-label>Confirm New Password</form-label>
+          <form-control>
+            <form-input
+              :disabled="isSubmitting"
+              password-toggle
+              type="password"
+              v-bind="componentField" />
+          </form-control>
+        </form-item>
+      </form-field>
       <gc-alert
         v-if="submitAction"
         class="w-full"
         :message="submitAction.message"
         :severity="submitAction.severity" />
-      <gc-button
-        class="w-full"
-        color="primary"
-        :loading="submitting"
+      <form-button
+        :disabled="isSubmitting"
+        :loading="isSubmitting"
         type="submit">
         Reset Password
-      </gc-button>
+      </form-button>
     </div>
   </form>
 </template>

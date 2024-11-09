@@ -68,6 +68,7 @@
 
 <template>
   <form
+    class="max-w-md w-full"
     data-testid="login-form"
     @keydown.enter="onSubmit"
     @submit.prevent="onSubmit">
