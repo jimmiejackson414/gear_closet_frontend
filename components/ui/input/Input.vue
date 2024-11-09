@@ -10,6 +10,7 @@
     class?: HTMLAttributes['class']
     passwordToggle?: boolean
     prependIcon?: any;
+    type?: string;
   }>();
 
   const showPassword = ref(false);
@@ -32,6 +33,8 @@
 
     return cn(baseClasses, borderClass, prependIconClass, passwordToggleClass, props.class);
   });
+
+  const computedType = computed(() => showPassword.value ? 'text' : props.type);
 </script>
 
 <template>
@@ -42,7 +45,8 @@
     <input
       v-model="modelValue"
       v-bind="$attrs"
-      :class="computedClasses">
+      :class="computedClasses"
+      :type="computedType">
     <button
       v-if="passwordToggle"
       class="absolute bottom-0.5 end-0 px-2 py-2 rounded-e-md"
