@@ -1,8 +1,8 @@
 <script lang='ts' setup>
-  import { storeToRefs } from 'pinia';
   import { BellRingIcon, MoonIcon, SunIcon } from 'lucide-vue-next';
-  import { useUserStore } from '@/stores/user';
+  import { storeToRefs } from 'pinia';
   import type { ExtendedNotification } from '@/types/helpers';
+  import { useUserStore } from '@/stores/user';
 
   interface Props {
     pageTitle?: string;
