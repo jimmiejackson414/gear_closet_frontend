@@ -1,13 +1,14 @@
 <script lang='ts' setup>
-  import vueFilePond, { type VueFilePondComponent } from 'vue-filepond';
-  import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
-  import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
   import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
   import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
+  import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
   import FilePondPluginImageCrop from 'filepond-plugin-image-crop';
+  import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
   import FilePondPluginImageResize from 'filepond-plugin-image-resize';
   import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
+  import vueFilePond, { type VueFilePondComponent } from 'vue-filepond';
   import type { FilePondErrorDescription, FilePondFile } from 'filepond';
+  import { cn } from '@/lib/utils';
 
   import 'filepond/dist/filepond.min.css';
   import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
@@ -23,10 +24,12 @@
   ) as VueFilePondComponent;
 
   interface Props {
+    classes?: string;
     file?: string | null;
   }
 
   const props = withDefaults(defineProps<Props>(), {
+    classes: '',
     file: undefined,
   });
 
@@ -84,7 +87,7 @@
     accepted-file-types="image/jpeg, image/png"
     :allow-file-encode="true"
     :allow-multiple="false"
-    class="filepond-upload"
+    :class="cn('filepond-upload', classes)"
     :files="initialFiles"
     image-crop-aspect-ratio="1:1"
     :image-preview-height="170"
