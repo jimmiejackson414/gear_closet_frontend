@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
+import type { ProfileApiResponse } from '@/types/helpers';
 import { useAppStore } from '@/stores/app';
 import { type Tables, type Database, type TablesUpdate, SubscriptionLevel } from '@/types';
-import type { ProfileApiResponse } from '@/types/helpers';
 
 type State = {
   profile: ProfileApiResponse | null;

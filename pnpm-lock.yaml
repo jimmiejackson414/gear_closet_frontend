@@ -66,13 +66,13 @@ importers:
         specifier: ^2.2.8
         version: 2.2.8(filepond@4.31.1)
       filepond-plugin-file-validate-type:
-        specifier: ^1.2.8
+        specifier: ^1.2.9
         version: 1.2.9(filepond@4.31.1)
       filepond-plugin-image-crop:
         specifier: ^2.0.6
         version: 2.0.6(filepond@4.31.1)
       filepond-plugin-image-preview:
-        specifier: ^4.6.11
+        specifier: ^4.6.12
         version: 4.6.12(filepond@4.31.1)
       filepond-plugin-image-resize:
         specifier: ^2.0.10
@@ -80,6 +80,9 @@ importers:
       filepond-plugin-image-transform:
         specifier: ^3.8.7
         version: 3.8.7(filepond@4.31.1)
+      filepond-plugin-image-validate-size:
+        specifier: ^1.2.7
+        version: 1.2.7(filepond@4.31.1)
       lodash.round:
         specifier: ^4.0.4
         version: 4.0.4
@@ -3004,6 +3007,11 @@ packages:
     resolution: {integrity: sha512-vgKwyIDG2y5twanf7YpqZvxkaLudTjwd9vRcoq5sQDB8egUlX5/NA0bQ0823pocrm0fjbFeetICu44mkqeDkIA==}
     peerDependencies:
       filepond: '>=3.6.0 <5.x'
+
+  filepond-plugin-image-validate-size@1.2.7:
+    resolution: {integrity: sha512-Sxu2XTbQHf9HRWu+AQg6zJkww0O6hTXq9IX5/SAJLuvohpF23XTzCNg+29KXr4Wulm70/jSSpMcJURn9AU72rA==}
+    peerDependencies:
+      filepond: '>=1.8.x <5.x'
 
   filepond@4.31.1:
     resolution: {integrity: sha512-yWYK91Ky72L2AG7BlI8Cb0UjvJz+DjuYdLN1JbkJg8qmoiZ9AU5b5MuOkHmExk/9jQ5R7tRT+H+b8wDiFEJlxQ==}
@@ -9357,6 +9365,10 @@ snapshots:
       filepond: 4.31.1
 
   filepond-plugin-image-transform@3.8.7(filepond@4.31.1):
+    dependencies:
+      filepond: 4.31.1
+
+  filepond-plugin-image-validate-size@1.2.7(filepond@4.31.1):
     dependencies:
       filepond: 4.31.1
 

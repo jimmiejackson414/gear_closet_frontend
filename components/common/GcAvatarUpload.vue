@@ -87,7 +87,7 @@
     accepted-file-types="image/jpeg, image/png"
     :allow-file-encode="true"
     :allow-multiple="false"
-    :class="cn('filepond-upload', classes)"
+    :class-name="cn('filepond-upload', classes)"
     :files="initialFiles"
     image-crop-aspect-ratio="1:1"
     :image-preview-height="170"

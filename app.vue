@@ -1,6 +1,6 @@
 <script lang="ts" setup>
   import type { Database } from '@/types';
-  import { Toaster } from '@/components/ui/sonner';
+  import Toaster from '@/components/ui/toast/Toaster.vue';
 
   const supabase = useSupabaseClient<Database>();
   supabase.auth.onAuthStateChange(async (event) => {

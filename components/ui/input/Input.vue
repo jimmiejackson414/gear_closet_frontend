@@ -26,7 +26,7 @@
 
   const attrs = useAttrs();
   const computedClasses = computed(() => {
-    const baseClasses = 'flex h-10 w-full rounded-md border bg-transparent px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+    const baseClasses = 'flex h-10 w-full rounded-md border bg-transparent dark:bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
     const borderClass = attrs['aria-invalid'] ? 'border-destructive' : 'border-input';
     const prependIconClass = props.prependIcon ? 'ps-9' : '';
     const passwordToggleClass = props.passwordToggle ? 'pr-9' : '';
