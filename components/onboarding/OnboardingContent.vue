@@ -22,6 +22,9 @@
   }));
 
   const { isFieldDirty, handleSubmit, isSubmitting, resetForm, meta, validate } = useForm({
+    initialValues: {
+      measuringSystem: MeasuringSystem.IMPERIAL,
+    },
     validationSchema: formSchema,
   });
 
@@ -225,8 +228,10 @@
               <form-label>Preferred Measuring System</form-label>
               <form-select v-bind="componentField">
                 <form-control>
-                  <select-trigger>
-                    <select-value placeholder="Select a measuring system" />
+                  <select-trigger class="capitalize">
+                    <select-value
+                      class="capitalize"
+                      placeholder="Select a measuring system" />
                   </select-trigger>
                 </form-control>
                 <select-content>
@@ -234,8 +239,9 @@
                     <select-item
                       v-for="system in MeasuringSystem"
                       :key="system"
+                      class="capitalize"
                       :value="system">
-                      {{ system }}
+                      {{ capitalize(system) }}
                     </select-item>
                   </select-group>
                 </select-content>

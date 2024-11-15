@@ -1,10 +1,10 @@
-import { v4 as uuidv4 } from 'uuid';
-import Dinero from 'dinero.js';
 import convert from 'convert';
+import Dinero from 'dinero.js';
+import { v4 as uuidv4 } from 'uuid';
 import type { Database, Tables, TablesInsert } from '@/types';
 import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '@/types/helpers';
-import type { Currency } from 'dinero.js';
 import type { Mass } from 'convert';
+import type { Currency } from 'dinero.js';
 
 interface FriendlyUsernameOptions {
   includeTrailName?: boolean;
@@ -118,17 +118,14 @@ export const calculatePackWeights = (pack: ExtendedPack) => {
   return data;
 };
 
-export const capitalize = (text: string | undefined | null) => {
+export const capitalize = (text: string | undefined | null): string => {
   if (!text) return '';
-
-  const splitStr = text.toLowerCase()
-    .split(' ');
-
-  for (let i = 0; i < splitStr.length; i += 1) {
-    splitStr[i] = splitStr[i].charAt(0)
-      .toUpperCase() + splitStr[i].substring(1);
-  }
-  return splitStr.join(' ');
+  return text
+    .toLowerCase()
+    .split(' ')
+    .map(word => word.charAt(0)
+      .toUpperCase() + word.slice(1))
+    .join(' ');
 };
 
 export const completedOnboarding = (user: ExtendedUser | null | undefined, page: string) => {
