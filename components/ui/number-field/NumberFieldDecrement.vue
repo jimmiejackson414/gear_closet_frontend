@@ -1,9 +1,8 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { computed, type HTMLAttributes } from 'vue';
-  import { Minus } from 'lucide-vue-next';
   import { NumberFieldDecrement, useForwardProps } from 'radix-vue';
   import type { NumberFieldDecrementProps } from 'radix-vue';
+  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<NumberFieldDecrementProps & { class?: HTMLAttributes['class'] }>();
@@ -23,7 +22,7 @@
     :class="cn('absolute top-1/2 -translate-y-1/2 left-0 p-3 disabled:cursor-not-allowed disabled:opacity-20', props.class)"
     data-slot="decrement">
     <slot>
-      <minus class="h-4 w-4" />
+      <icon-minus class="h-4 w-4" />
     </slot>
   </number-field-decrement>
 </template>

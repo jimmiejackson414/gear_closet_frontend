@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   // import { Tabs } from 'flowbite';
-  import { ListTodoIcon, PlusIcon } from 'lucide-vue-next';
-  import { ResourceType, type Database, type TablesUpdate, type Tables } from '@/types';
+  import { PlusIcon } from 'lucide-vue-next';
+  import { type Database, ResourceType, type Tables, type TablesUpdate } from '@/types';
   // import type { InstanceOptions, TabsOptions, TabsInterface, TabItem } from 'flowbite';
 
   const $appStore = useAppStore();
@@ -114,7 +114,7 @@
 <template>
   <div class="card card-aside">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
-      <list-todo-icon class="h-6 mr-6 text-primary w-6" />
+      <icon-list-todo class="h-6 mr-6 text-primary w-6" />
       <p class="!font-bold text-base">
         Todos
       </p>

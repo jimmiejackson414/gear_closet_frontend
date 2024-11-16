@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { BellRingIcon, MoonIcon, SunIcon } from 'lucide-vue-next';
   import { storeToRefs } from 'pinia';
   import type { ExtendedNotification } from '@/types/helpers';
   import { useUserStore } from '@/stores/user';
@@ -63,10 +62,10 @@
           size="lg"
           @click="toggleColorMode">
           <template #icon>
-            <sun-icon
+            <icon-sun
               v-if="colorMode.value === 'dark'"
               class="h-6 w-6" />
-            <moon-icon
+            <icon-moon
               v-else
               class="h-6 w-6" />
           </template>
@@ -78,7 +77,7 @@
           data-testid="notifications-button"
           type="button"
           @click="isDropdownOpen = !isDropdownOpen">
-          <bell-ring-icon class="h-6 w-6" />
+          <icon-bell-ring class="h-6 w-6" />
           <div
             v-if="shouldShowBadge"
             class="absolute top-1 bg-danger block border-2 border-white end-1 h-3 rounded-full w-3" />

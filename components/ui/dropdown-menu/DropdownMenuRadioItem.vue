@@ -1,7 +1,5 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { computed, type HTMLAttributes } from 'vue';
-  import { CircleIcon } from 'lucide-vue-next';
   import {
     DropdownMenuItemIndicator,
     DropdownMenuRadioItem,
@@ -9,6 +7,7 @@
     type DropdownMenuRadioItemProps,
     useForwardPropsEmits,
   } from 'radix-vue';
+  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DropdownMenuRadioItemProps & { class?: HTMLAttributes['class'] }>();
@@ -33,7 +32,7 @@
     )">
     <span class="absolute left-2 flex justify-center items-center h-3.5 w-3.5">
       <dropdown-menu-item-indicator>
-        <circle-icon class="fill-current h-2 w-2" />
+        <icon-circle class="fill-current h-2 w-2" />
       </dropdown-menu-item-indicator>
     </span>
     <slot />

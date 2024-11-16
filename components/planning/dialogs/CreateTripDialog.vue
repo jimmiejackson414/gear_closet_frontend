@@ -1,7 +1,7 @@
 <script lang='ts' setup>
-  import dayjs from 'dayjs';
   import VueDatePicker from '@vuepic/vue-datepicker';
-  import { BackpackIcon, CalendarIcon, MapPinIcon, TextIcon } from 'lucide-vue-next';
+  import dayjs from 'dayjs';
+  import { BackpackIcon, MapPinIcon, TextIcon } from 'lucide-vue-next';
   import type { Database, TablesInsert } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
@@ -132,7 +132,7 @@
             range
             @update:model-value="dateRange = $event">
             <template #input-icon>
-              <calendar-icon class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-grey w-5" />
+              <icon-calendar class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-grey w-5" />
             </template>
           </vue-date-picker>
         </div>

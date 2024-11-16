@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { FootprintsIcon } from 'lucide-vue-next';
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import type { Tables } from '@/types';
@@ -51,7 +50,7 @@
       :lines="3" />
     <div v-else>
       <div class="flex justify-start items-center py-4">
-        <footprints-icon class="h-6 mr-6 text-primary w-6" />
+        <icon-footprints class="h-6 mr-6 text-primary w-6" />
         <p class="!font-bold text-base">
           Upcoming Trips <span class="font-normal text-grey">({{ data.length || 0 }})</span>
         </p>

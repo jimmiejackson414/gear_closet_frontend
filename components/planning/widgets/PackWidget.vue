@@ -1,16 +1,15 @@
 <script lang='ts' setup>
-  import { use } from 'echarts/core';
-  import { PieChart } from 'echarts/charts';
-  import { GridComponent, PolarComponent, TitleComponent, LegendComponent, TooltipComponent } from 'echarts/components';
-  import { CanvasRenderer } from 'echarts/renderers';
-  import VChart from 'vue-echarts';
-  import { BackpackIcon, SettingsIcon } from 'lucide-vue-next';
-  import round from 'lodash.round';
   import convert from 'convert';
-  import generateThemeOptions, { findTheme } from '@/utils/chartTheme';
   import type { EChartsOption } from 'echarts';
+  import { PieChart } from 'echarts/charts';
+  import { GridComponent, LegendComponent, PolarComponent, TitleComponent, TooltipComponent } from 'echarts/components';
+  import { use } from 'echarts/core';
+  import { CanvasRenderer } from 'echarts/renderers';
+  import round from 'lodash.round';
+  import VChart from 'vue-echarts';
   import type { Database, Theme } from '@/types';
-  import type { ExtendedCategory, ExtendedPack, SelectOption } from '~/types/helpers';
+  import type { ExtendedCategory, ExtendedPack, SelectOption } from '@/types/helpers';
+  import generateThemeOptions, { findTheme } from '@/utils/chartTheme';
 
   use([
     CanvasRenderer,
@@ -305,7 +304,7 @@
   <div class="card card-main">
     <div class="flex justify-between items-center py-4">
       <div class="flex items-center">
-        <backpack-icon class="h-6 mr-6 text-primary w-6" />
+        <icon-backpack class="h-6 mr-6 text-primary w-6" />
         <p class="!font-bold text-base">
           Pack
         </p>
@@ -318,7 +317,7 @@
           class="inline-block relative text-left">
           <div class="bg-primary flex justify-center items-center h-6 rounded-full w-6">
             <headless-menu-button class="duration-150 ease-snap focus-visible:ring-2 focus-visible:ring-white/0 font-medium inline-flex justify-center outline-none focus:outline-none px-0 py-2 rounded-md text-sm text-white">
-              <settings-icon class="h-4 w-4" />
+              <icon-settings class="h-4 w-4" />
             </headless-menu-button>
           </div>
           <zoom-transition>

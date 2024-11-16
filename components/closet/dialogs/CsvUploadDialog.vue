@@ -2,7 +2,6 @@
   import Papa, { type ParseResult } from 'papaparse';
   import type { Database } from '@/types';
   import type { ExtendedCategory, ExtendedPack, ParsedResults } from '@/types/helpers';
-  import { InfoIcon } from 'lucide-vue-next';
 
   const $store = useClosetStore();
   const { data, dialogStates } = storeToRefs($store);
@@ -107,7 +106,7 @@
           <template #label>
             <div class="flex items-center gap-2">
               Import pack items (optional)
-              <info-icon
+              <icon-info
                 v-tippy="{ content: 'Uploading a CSV will automatically add them to your pack.' }"
                 class="h-4 w-4" />
             </div>

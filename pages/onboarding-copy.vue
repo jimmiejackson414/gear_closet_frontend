@@ -1,9 +1,8 @@
 <script lang='ts' setup>
-  import { CheckCircleIcon, BookUserIcon, HeartIcon } from 'lucide-vue-next';
-  import type { SelectOption } from '@/types/helpers';
   import type { FilePondFile } from 'filepond';
   // import { Modal, type InstanceOptions, type ModalInterface, type ModalOptions } from 'flowbite';
   import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
+  import type { SelectOption } from '@/types/helpers';
 
   definePageMeta({ layout: 'page-layout' });
 
@@ -215,7 +214,7 @@
           <span
             class="me-2.5 p-2 rounded-full w-auto"
             :class="step === 1 ? 'bg-primary-light' : 'bg-white'">
-            <check-circle-icon
+            <icon-check-circle
               class="h-4 sm:h-5 w-4 sm:w-5"
               :color="tailwind.theme.colors['text-primary']"
               :stroke-width="2" />
@@ -234,12 +233,12 @@
           <span
             class="me-2 p-2 rounded-full w-auto"
             :class="step === 2 ? 'bg-primary-light' : 'bg-white'">
-            <check-circle-icon
+            <icon-check-circle
               v-if="step >= 2"
               class="h-4 sm:h-5 w-4 sm:w-5"
               :color="tailwind.theme.colors.primary.DEFAULT"
               :stroke-width="2" />
-            <book-user-icon
+            <icon-book-user
               v-else
               class="h-4 sm:h-5 w-4 sm:w-5"
               :color="tailwind.theme.colors['grey']" />
@@ -253,12 +252,12 @@
         <span
           class="me-2 p-2 rounded-full w-auto"
           :class="step === 3 ? 'bg-primary-light' : 'bg-white'">
-          <check-circle-icon
+          <icon-check-circle
             v-if="step === 3"
             class="h-4 sm:h-5 w-4 sm:w-5"
             :color="tailwind.theme.colors.primary.DEFAULT"
             :stroke-width="2" />
-          <heart-icon
+          <icon-heart
             v-else
             class="h-4 sm:h-5 w-4 sm:w-5"
             :color="tailwind.theme.colors['grey']"

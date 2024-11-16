@@ -1,6 +1,6 @@
 <script lang='ts' setup>
-  import { MountainIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
-  import { TripDetailsType, type Database, type Tables, type TablesUpdate } from '@/types';
+  import { PencilIcon, PlusIcon } from 'lucide-vue-next';
+  import { type Database, type Tables, type TablesUpdate, TripDetailsType } from '@/types';
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
@@ -68,7 +68,7 @@
 <template>
   <div class="card card-main">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
-      <mountain-icon class="h-6 mr-6 text-primary w-6" />
+      <icon-mountain class="h-6 mr-6 text-primary w-6" />
       <p class="!font-bold text-base">
         Hike Details
       </p>
@@ -106,7 +106,7 @@
             {{ selectedTrip?.starting_point }}
           </h5>
         </gc-inline-edit>
-        <move-right-icon class="h-6 text-grey w-6" />
+        <icon-move-right class="h-6 text-grey w-6" />
         <gc-inline-edit
           :model-value="selectedTrip?.ending_point"
           name="ending_point"

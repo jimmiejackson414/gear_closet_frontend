@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { ExternalLinkIcon, LinkIcon } from 'lucide-vue-next';
+  import { LinkIcon } from 'lucide-vue-next';
   import type { RowItem } from '../PackItemsTable.vue';
 
   const $store = useClosetStore();
@@ -57,7 +57,7 @@
             :href="newUrl"
             rel="noopener noreferrer"
             target="_blank">
-            <external-link-icon
+            <icon-external-link
               class="duration-150 ease-expo h-6 transition w-6"
               :class="!isValidUrl ? 'cursor-not-allowed text-gray-300' : 'text-gray-500 hover:text-primary cursor-pointer'" />
           </a>

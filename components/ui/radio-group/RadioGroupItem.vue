@@ -1,13 +1,12 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { computed, type HTMLAttributes } from 'vue';
-  import { CircleIcon } from 'lucide-vue-next';
   import {
     RadioGroupIndicator,
     RadioGroupItem,
     type RadioGroupItemProps,
     useForwardProps,
   } from 'radix-vue';
+  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<RadioGroupItemProps & { class?: HTMLAttributes['class'] }>();
@@ -31,7 +30,7 @@
       )
     ">
     <radio-group-indicator class="flex justify-center items-center">
-      <circle-icon class="fill-current h-2.5 text-current w-2.5" />
+      <icon-circle class="fill-current h-2.5 text-current w-2.5" />
     </radio-group-indicator>
   </radio-group-item>
 </template>

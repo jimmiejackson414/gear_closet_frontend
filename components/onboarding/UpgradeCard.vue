@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { CheckCircle2Icon } from 'lucide-vue-next';
   import { SubscriptionLevel } from '@/types';
 
   interface Props {
@@ -64,14 +63,14 @@
             v-for="(item, i) in tier?.description"
             :key="i"
             class="flex items-center space-x-3 text-base">
-            <check-circle-2-icon
+            <icon-check-circle-2
               :class="{
                 'text-warning': props.tier.value === SubscriptionLevel.FREE,
                 'text-primary': props.tier.value === SubscriptionLevel.ANNUAL,
                 'text-positive': props.tier.value === SubscriptionLevel.MONTHLY,
               }"
               :color="tailwind.theme.colors['text-positive']"
-              size="24"
+              :size="24"
               :stroke-width="2" />
             <span>{{ item }}</span>
           </li>

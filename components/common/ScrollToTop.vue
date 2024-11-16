@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { ChevronUpIcon } from 'lucide-vue-next';
   // define props
   const props = defineProps({
     color: { type: String, required: false, default: 'blue-6' },
@@ -46,7 +45,7 @@
         type="button"
         @click="scrollTop"
         @keydown="scrollTop">
-        <chevron-up-icon />
+        <icon-chevron-up />
       </button>
     </div>
   </transition>

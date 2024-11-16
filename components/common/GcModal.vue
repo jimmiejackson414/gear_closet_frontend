@@ -1,6 +1,4 @@
 <script lang='ts' setup>
-  import { XIcon } from 'lucide-vue-next';
-
   export interface Props {
     closeable?: boolean;
     id?: string;
@@ -62,7 +60,7 @@
               class="h-8 inline-flex justify-center items-center ms-auto rounded-full text-sm w-8"
               type="button"
               @click="emit('handle-cancel')">
-              <x-icon class="h-6 text-gray-400 hover:text-gray-900 w-6" />
+              <icon-x class="h-6 text-gray-400 hover:text-gray-900 w-6" />
               <span class="sr-only">Close modal</span>
             </button>
           </div>

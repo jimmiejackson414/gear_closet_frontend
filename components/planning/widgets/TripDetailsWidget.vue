@@ -1,10 +1,10 @@
 <script lang='ts' setup>
-  import dayjs from 'dayjs';
   import VueDatePicker from '@vuepic/vue-datepicker';
-  import { FootprintsIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
+  import dayjs from 'dayjs';
+  import { PencilIcon, PlusIcon } from 'lucide-vue-next';
   import { usePlanningStore } from '@/stores/planning';
+  import { type Database, type Tables, type TablesUpdate, TripDetailsType } from '@/types';
   import { prependProtocol } from '~/utils/helpers';
-  import { TripDetailsType, type Database, type Tables, type TablesUpdate } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
   const $appStore = useAppStore();
@@ -158,7 +158,7 @@
 <template>
   <div class="card card-main">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
-      <footprints-icon class="h-6 mr-6 text-primary w-6" />
+      <icon-footprints class="h-6 mr-6 text-primary w-6" />
       <p class="!font-bold text-base">
         Trip Details
       </p>
@@ -201,7 +201,7 @@
             <p class="cursor-pointer text-base text-grey">
               {{ selectedTrip?.starting_date ? formattedDate(selectedTrip?.starting_date) : 'Start Date' }}
             </p>
-            <move-right-icon class="h-6 text-grey w-6" />
+            <icon-move-right class="h-6 text-grey w-6" />
             <p class="cursor-pointer text-base text-grey">
               {{ selectedTrip?.ending_date ? formattedDate(selectedTrip?.ending_date) : 'End Date' }}
             </p>

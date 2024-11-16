@@ -15,7 +15,7 @@ module.exports = {
     ecmaVersion: 'latest',
   },
 
-  plugins: ['@kalimahapps/eslint-plugin-tailwind', '@stylistic/js', 'import'],
+  plugins: ['@kalimahapps/eslint-plugin-tailwind', '@stylistic/js', 'import', 'no-relative-import-paths'],
 
   overrides: [
     {
@@ -41,28 +41,13 @@ module.exports = {
     'no-console': process.env.NODE_ENV === 'production' ? 2 : 0,
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     curly: ['off', 'multi'],
-    'object-shorthand': ['error', 'always'],
+    'object-shorthand': ['warn', 'always'],
+    'import/no-duplicates': 'warn',
+    'sort-imports': [1, { ignoreDeclarationSort: true }],
     'import/order': [
       'warn',
       {
-        groups: [
-          'builtin', // Built-in modules (e.g., fs, path)
-          'external', // External modules (e.g., lodash, axios)
-          'internal', // Internal modules (e.g., @/components, @/utils)
-          'parent', // Parent imports (e.g., ../utils)
-          'sibling', // Sibling imports (e.g., ./Button)
-          'index', // Index imports (e.g., ./)
-          'object', // Object imports (e.g., import { foo, bar } from 'module')
-          'type', // Type imports (e.g., import type { Foo } from 'module')
-        ],
-        pathGroups: [
-          {
-            pattern: '{react,react-dom/**,vue}',
-            group: 'external',
-            position: 'before',
-          },
-        ],
-        pathGroupsExcludedImportTypes: ['builtin'],
+        pathGroupsExcludedImportTypes: ['type'],
         'newlines-between': 'never',
         alphabetize: {
           order: 'asc',
@@ -70,26 +55,30 @@ module.exports = {
         },
       },
     ],
-    '@stylistic/js/comma-dangle': ['error', 'always-multiline'],
+    '@stylistic/js/comma-dangle': ['warn', 'always-multiline'],
     '@stylistic/js/indent': 'off',
     '@stylistic/js/linebreak-style': 'off',
-    '@stylistic/js/newline-per-chained-call': [2, { ignoreChainWithDepth: 1 }],
+    '@stylistic/js/newline-per-chained-call': ['warn', { ignoreChainWithDepth: 1 }],
     '@stylistic/js/no-trailing-spaces': 'warn',
-    '@stylistic/js/semi': [2, 'always'],
-    '@stylistic/js/space-before-function-paren': ['error', 'always'],
+    '@stylistic/js/semi': ['warn', 'always'],
+    '@stylistic/js/space-before-function-paren': ['warn', 'always'],
+    'no-relative-import-paths/no-relative-import-paths': [
+      'warn',
+      { 'allowSameFolder': true, 'prefix': '@' },
+    ],
 
     // Vue specific tweaks
-    'vue/object-curly-spacing': ['error', 'always'],
-    'vue/component-name-in-template-casing': ['error', 'kebab-case'],
+    'vue/object-curly-spacing': ['warn', 'always'],
+    'vue/component-name-in-template-casing': ['warn', 'kebab-case'],
     'vue/no-v-html': 'off',
     'vue/html-closing-bracket-spacing': [
-      'error',
+      'warn',
       {
         selfClosingTag: 'always',
       },
     ],
     'vue/html-closing-bracket-newline': [
-      'error',
+      'warn',
       {
         singleline: 'never',
         multiline: 'never',
@@ -97,7 +86,7 @@ module.exports = {
     ],
     'vue/html-indent': ['error'],
     'vue/script-indent': [
-      'error',
+      'warn',
       2,
       {
         baseIndent: 1,
@@ -105,21 +94,21 @@ module.exports = {
       },
     ],
     'vue/block-order': [
-      'error',
+      'warn',
       {
         order: ['script', 'template', 'style'],
       },
     ],
     'vue/padding-line-between-blocks': [1, 'always'],
     'vue/first-attribute-linebreak': [
-      'error',
+      'warn',
       {
         singleline: 'beside',
         multiline: 'below',
       },
     ],
-    'vue/component-api-style': ['error', ['script-setup']],
-    'vue/attributes-order': ['error', {
+    'vue/component-api-style': ['warn', ['script-setup']],
+    'vue/attributes-order': ['warn', {
       'order': [
         "DEFINITION",
         "LIST_RENDERING",

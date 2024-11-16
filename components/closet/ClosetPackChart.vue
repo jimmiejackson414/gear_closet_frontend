@@ -10,7 +10,6 @@
   import { use } from 'echarts/core';
   import { CanvasRenderer } from 'echarts/renderers';
   import round from 'lodash.round';
-  import { BackpackIcon } from 'lucide-vue-next';
   import VChart from 'vue-echarts';
   import type { ExtendedCategory } from '@/types/helpers';
   import type { EChartsOption } from 'echarts';
@@ -107,7 +106,7 @@
 <template>
   <div class="flex flex-col">
     <div class="flex items-center">
-      <backpack-icon class="h-6 mr-6 text-primary w-6" />
+      <icon-backpack class="h-6 mr-6 text-primary w-6" />
       <p class="!font-bold text-base">
         Pack Summary
       </p>

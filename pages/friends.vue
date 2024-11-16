@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { SearchIcon } from 'lucide-vue-next';
-  import { type Tables, type Database, FriendRequestStatus } from '@/types';
+  import { type Database, FriendRequestStatus, type Tables } from '@/types';
   import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
 
   definePageMeta({ layout: 'page-layout' });

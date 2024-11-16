@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { CheckCircle2Icon, PlusIcon } from 'lucide-vue-next';
+  import { CheckCircle2Icon } from 'lucide-vue-next';
   import type { Database, Tables } from '~/types';
   import type { ExtendedPoll } from '~/types/helpers';
 
@@ -133,7 +133,7 @@
           class="justify-self-center"
           size="sm"
           @click="isAdding = true">
-          <plus-icon class="h-4 mr-2 w-4" />
+          <icon-plus class="h-4 mr-2 w-4" />
           Add Answer
         </gc-button>
         <gc-input

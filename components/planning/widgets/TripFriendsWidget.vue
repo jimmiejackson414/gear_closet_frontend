@@ -1,7 +1,7 @@
 <script lang='ts' setup>
-  import { SearchIcon, UsersRoundIcon } from 'lucide-vue-next';
-  import type { SelectOption } from '@/types/helpers';
+  import { SearchIcon } from 'lucide-vue-next';
   import { type Database, type Tables, TripFriendStatus } from '@/types';
+  import type { SelectOption } from '@/types/helpers';
 
   const $store = usePlanningStore();
   const $appStore = useAppStore();
@@ -78,7 +78,7 @@
 <template>
   <div class="card card-aside">
     <div class="flex justify-start items-center py-4">
-      <users-round-icon class="h-6 mr-6 text-primary w-6" />
+      <icon-users-round class="h-6 mr-6 text-primary w-6" />
       <p class="!font-bold text-base">
         Friends
       </p>

@@ -1,8 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { computed, type HTMLAttributes } from 'vue';
-  import { Search } from 'lucide-vue-next';
   import { ComboboxInput, type ComboboxInputProps, useForwardProps } from 'radix-vue';
+  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   defineOptions({
@@ -26,7 +25,7 @@
   <div
     class="border-b flex items-center px-3"
     cmdk-input-wrapper>
-    <search class="h-4 mr-2 opacity-50 shrink-0 w-4" />
+    <icon-search class="h-4 mr-2 opacity-50 shrink-0 w-4" />
     <combobox-input
       v-bind="{ ...forwardedProps, ...$attrs }"
       auto-focus

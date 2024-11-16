@@ -1,10 +1,9 @@
 <script lang='ts' setup>
   // import { Tabs, type InstanceOptions, type TabItem, type TabsOptions } from 'flowbite';
-  import { AppleIcon, ShirtIcon } from 'lucide-vue-next';
-  import tailwind from '@/utils/tailwind';
+  import type { Column } from '@/components/closet/PackItemsTable.vue';
   import type { Database } from '@/types';
   import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
-  import type { Column } from '@/components/closet/PackItemsTable.vue';
+  import tailwind from '@/utils/tailwind';
 
   definePageMeta({ layout: 'public-layout' });
 
@@ -262,7 +261,7 @@
                       <div
                         class="flex justify-center items-center h-8 rounded-full w-8"
                         :class="row.item.consumable ? 'bg-info' : 'bg-transparent'">
-                        <apple-icon
+                        <icon-apple
                           class="h-5 text-gray-500 w-5"
                           :class="row.item.consumable ? 'text-white' : 'text-dark-grey'" />
                       </div>
@@ -274,7 +273,7 @@
                       <div
                         class="flex justify-center items-center h-8 rounded-full w-8"
                         :class="row.item.worn ? 'bg-positive' : 'bg-transparent'">
-                        <shirt-icon
+                        <icon-shirt
                           class="h-5 text-gray-500 w-5"
                           :class="row.item.worn ? 'text-white' : 'text-dark-grey'" />
                       </div>

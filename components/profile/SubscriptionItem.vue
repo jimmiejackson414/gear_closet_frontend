@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-  import { CheckCircle2Icon } from 'lucide-vue-next';
   import { SubscriptionLevel } from '@/types';
   import tailwindConfig from '@/utils/tailwind';
   import type { Tier } from '@/utils/tiers';
@@ -63,8 +62,8 @@
         v-for="(item, index) in plan.description"
         :key="`${plan.value}-${item}-${index}`"
         class="flex items-center gap-4 mb-4 last:mb-0">
-        <check-circle-2-icon
-          :color="tailwindConfig.theme.colors.primary"
+        <icon-check-circle-2
+          :color="tailwindConfig.theme.colors.primary.DEFAULT"
           :size="20" />
         <p class="text-base">
           {{ item }}

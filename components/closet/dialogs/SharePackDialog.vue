@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { useClipboard } from '@vueuse/core';
-  import { CopyIcon, LinkIcon } from 'lucide-vue-next';
+  import { LinkIcon } from 'lucide-vue-next';
 
   const $store = useClosetStore();
   const { data, dialogStates } = storeToRefs($store);
@@ -44,7 +44,7 @@
               v-tippy="{ content: 'Copy link' }"
               class="cursor-pointer duration-150 ease-snap flex justify-center justify-self-end items-center h-8 mb-2 rounded-full transition w-8"
               @click="copyToClipboard">
-              <copy-icon class="cursor-pointer duration-150 ease-expo h-6 text-gray-500 hover:text-primary transition w-6" />
+              <icon-copy class="cursor-pointer duration-150 ease-expo h-6 text-gray-500 hover:text-primary transition w-6" />
             </button>
           </div>
         </div>

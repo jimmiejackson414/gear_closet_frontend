@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { UsersIcon } from 'lucide-vue-next';
   import type { ExtendedFriend } from '@/types/helpers';
 
   interface Props {
@@ -28,7 +27,7 @@
       :lines="3" />
     <div v-else>
       <div class="flex justify-start items-center mb-4 py-4">
-        <users-icon class="h-6 mr-6 text-primary w-6" />
+        <icon-users class="h-6 mr-6 text-primary w-6" />
         <nuxt-link
           class="!font-bold duration-150 ease-in-out text-base hover:text-primary"
           :to="{ name: 'friends' }">

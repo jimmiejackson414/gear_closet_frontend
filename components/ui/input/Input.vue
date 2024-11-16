@@ -1,7 +1,6 @@
 <script setup lang="ts">
-  import type { HTMLAttributes } from 'vue';
   import { useVModel } from '@vueuse/core';
-  import { EyeIcon, EyeOffIcon } from 'lucide-vue-next';
+  import type { HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<{
@@ -52,10 +51,10 @@
       class="absolute bottom-0.5 end-0 px-2 py-2 rounded-e-md"
       type="button"
       @click="showPassword = !showPassword">
-      <eye-icon
+      <icon-eye
         v-if="!showPassword"
         class="h-6 text-gray-400 w-5" />
-      <eye-off-icon
+      <icon-eye-off
         v-if="showPassword"
         class="h-6 text-gray-400 w-5" />
     </button>

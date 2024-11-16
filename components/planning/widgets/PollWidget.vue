@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { AlertCircleIcon, CheckCircle2Icon, HelpCircleIcon, SettingsIcon, VoteIcon } from 'lucide-vue-next';
+  import { CheckCircle2Icon, HelpCircleIcon } from 'lucide-vue-next';
   import { usePlanningStore } from '@/stores/planning';
   import type { Database, Tables } from '@/types';
   import type { ExtendedPoll } from '@/types/helpers';
@@ -143,7 +143,7 @@
   <div class="card card-aside">
     <div class="flex justify-between items-center py-4">
       <div class="flex items-center">
-        <vote-icon class="h-6 mr-6 text-primary w-6" />
+        <icon-vote class="h-6 mr-6 text-primary w-6" />
         <p class="!font-bold text-base">
           Poll
         </p>
@@ -156,7 +156,7 @@
           class="inline-block relative text-left">
           <div class="bg-primary flex justify-center items-center h-6 rounded-full w-6">
             <headless-menu-button class="duration-150 ease-snap focus-visible:ring-2 focus-visible:ring-white/0 font-medium inline-flex justify-center outline-none focus:outline-none px-0 py-2 rounded-md text-sm text-white">
-              <settings-icon class="h-4 w-4" />
+              <icon-settings class="h-4 w-4" />
             </headless-menu-button>
           </div>
           <zoom-transition>
@@ -275,7 +275,7 @@
     @handle-cancel="isDeleteConfirmOpen = false">
     <template #content>
       <div class="flex justify-center items-center flex-col">
-        <alert-circle-icon class="h-12 mb-4 text-danger w-12" />
+        <icon-alert-circle class="h-12 mb-4 text-danger w-12" />
         <p class="mb-2 text-base">
           Are you sure you want to delete this poll?
         </p>

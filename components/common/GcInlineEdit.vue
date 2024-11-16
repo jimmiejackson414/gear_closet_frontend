@@ -1,6 +1,4 @@
 <script lang='ts' setup>
-  import { PencilIcon } from 'lucide-vue-next';
-
   interface Props {
     modelValue?: string | number | null;
     name: string;
@@ -67,7 +65,7 @@
       @keydown="toggleEditing"
       @trigger="toggleEditing">
       <slot />
-      <pencil-icon
+      <icon-pencil
         v-if="!hideEditBtn"
         class="cursor-pointer duration-100 ease-snap group-hover:opacity-100 h-4 ml-4 opacity-0 text-grey hover:text-primary transition w-4" />
     </span>

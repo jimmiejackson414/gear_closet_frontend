@@ -1,7 +1,5 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { computed, type HTMLAttributes } from 'vue';
-  import { Check } from 'lucide-vue-next';
   import {
     SelectItem,
     SelectItemIndicator,
@@ -9,6 +7,7 @@
     SelectItemText,
     useForwardProps,
   } from 'radix-vue';
+  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<SelectItemProps & { class?: HTMLAttributes['class'] }>();
@@ -33,7 +32,7 @@
     ">
     <span class="absolute left-2 flex justify-center items-center h-3.5 w-3.5">
       <select-item-indicator>
-        <check class="h-4 w-4" />
+        <icon-check class="h-4 w-4" />
       </select-item-indicator>
     </span>
 

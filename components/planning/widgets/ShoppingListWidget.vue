@@ -1,6 +1,6 @@
 <script lang='ts' setup>
-  import { CheckSquare2Icon, PlusIcon } from 'lucide-vue-next';
-  import { ResourceType, type Database, type Tables, type TablesUpdate } from '@/types';
+  import { PlusIcon } from 'lucide-vue-next';
+  import { type Database, ResourceType, type Tables, type TablesUpdate } from '@/types';
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
@@ -114,7 +114,7 @@
 <template>
   <div class="card card-aside">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
-      <check-square-2-icon class="h-6 mr-6 text-primary w-6" />
+      <icon-check-square-2 class="h-6 mr-6 text-primary w-6" />
       <p class="!font-bold text-base">
         Shopping Items
       </p>

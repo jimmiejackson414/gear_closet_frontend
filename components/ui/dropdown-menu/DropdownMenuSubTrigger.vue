@@ -1,12 +1,11 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { computed, type HTMLAttributes } from 'vue';
-  import { ChevronRight } from 'lucide-vue-next';
   import {
     DropdownMenuSubTrigger,
     type DropdownMenuSubTriggerProps,
     useForwardProps,
   } from 'radix-vue';
+  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DropdownMenuSubTriggerProps & { class?: HTMLAttributes['class'] }>();
@@ -28,6 +27,6 @@
       props.class,
     )">
     <slot />
-    <chevron-right class="h-4 ml-auto w-4" />
+    <icon-chevron-right class="h-4 ml-auto w-4" />
   </dropdown-menu-sub-trigger>
 </template>

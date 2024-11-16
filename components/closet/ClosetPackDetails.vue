@@ -1,7 +1,6 @@
 <script lang='ts' setup>
-  import round from 'lodash.round';
   import convert from 'convert';
-  import { BarChart3Icon, SettingsIcon } from 'lucide-vue-next';
+  import round from 'lodash.round';
   import { Theme } from '@/types';
 
   const $store = useClosetStore();
@@ -33,7 +32,7 @@
   <div class="flex flex-col">
     <div class="flex justify-between items-center mb-10">
       <div class="flex items-center">
-        <bar-chart-3-icon class="h-6 mr-6 text-primary w-6" />
+        <icon-bar-chart-3 class="h-6 mr-6 text-primary w-6" />
         <p class="!font-bold text-base">
           Stats
         </p>
@@ -44,7 +43,7 @@
           class="inline-block relative text-left">
           <div class="bg-primary flex justify-center items-center h-8 rounded-full w-8">
             <headless-menu-button class="duration-150 ease-snap focus-visible:ring-2 focus-visible:ring-white/0 font-medium inline-flex justify-center outline-none focus:outline-none px-0 py-2 rounded-md text-sm text-white">
-              <settings-icon class="h-5 w-5 " />
+              <icon-settings class="h-5 w-5 " />
             </headless-menu-button>
           </div>
           <zoom-transition>

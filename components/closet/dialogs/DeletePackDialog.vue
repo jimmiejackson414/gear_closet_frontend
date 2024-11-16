@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { InfoIcon } from 'lucide-vue-next';
   import type { Database } from '@/types';
 
   const $store = useClosetStore();
@@ -60,7 +59,7 @@
           id="remove-item-checkbox"
           v-model="removeItemCheckbox"
           label="Also remove from closet?" />
-        <info-icon
+        <icon-info
           v-tippy="{ content: 'Checking this will remove all items from your closet as well.' }"
           class="h-4 w-4" />
       </div>

@@ -1,8 +1,7 @@
 <script lang='ts' setup>
-  import { InfoIcon } from 'lucide-vue-next';
+  import type { ExtendedPack } from '@/types/helpers';
   import { Theme, type Database } from '@/types';
   import generateThemeOptions from '@/utils/chartTheme';
-  import type { ExtendedPack } from '@/types/helpers';
 
   export interface CreatePack {
     allow_comments: boolean;
@@ -107,7 +106,7 @@
               <p class="text-base">
                 Private
               </p>
-              <info-icon
+              <icon-info
                 v-tippy="{ content: 'Private packs cannot be viewed by other users. This setting can be changed later.' }"
                 class="h-4 w-4" />
             </div>

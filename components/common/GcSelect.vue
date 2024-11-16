@@ -1,6 +1,4 @@
 <script lang='ts' setup>
-  import { ChevronDownIcon, XCircleIcon } from 'lucide-vue-next';
-  // import { usePopper } from '@/composables/usePopper';
   import type { SelectOption } from '@/types/helpers';
 
   interface Props {
@@ -127,7 +125,7 @@
         <div
           class="flex items-center ml-auto"
           :class="{ 'pointer-events-none': ( disabled || loading ) }">
-          <x-circle-icon
+          <icon-x-circle
             v-if="clearable && modelValue && !loading"
             class="cursor-pointer h-[22px] mr-2 text-gray-400 w-[22px]"
             :class="disabled ? 'text-grey' : 'text-gray-400'"
@@ -136,7 +134,7 @@
             v-else-if="loading"
             class="h-[22px] mr-2 w-[22px]"
             variant="primary" />
-          <chevron-down-icon
+          <icon-chevron-down
             v-else
             class="duration-150 ease-in-out font-bold h-auto transition-transform"
             :class="[ open ? 'rotate-180' : 'rotate-0', ( disabled || loading ) ? 'text-gray-400' : 'text-light-primary' ]" />

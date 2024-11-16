@@ -1,7 +1,5 @@
 <script lang='ts' setup>
-  import { EyeIcon, EyeOffIcon } from 'lucide-vue-next';
   import { Label as UiLabel } from '../ui';
-  // import type { Icon } from 'lucide-vue-next';
   import { cn } from '@/lib/utils';
 
   interface Props {
@@ -12,7 +10,6 @@
     modelValue?: string | number | null;
     name: string;
     passwordToggle?: boolean;
-    // prependIcon?: Icon;
     required?: boolean;
     type?: string;
     placeholder?: string;
@@ -26,7 +23,6 @@
     modelValue: undefined,
     name: '',
     passwordToggle: false,
-    // prependIcon: undefined,
     placeholder: undefined,
     required: false,
     type: 'text',
@@ -129,10 +125,10 @@
         class="absolute bottom-0.5 end-0 px-3.5 py-2.5 rounded-e-md"
         type="button"
         @click="togglePasswordVisibility">
-        <eye-icon
+        <icon-eye
           v-if="!showPassword"
           class="h-6 text-gray-400 w-5" />
-        <eye-off-icon
+        <icon-eye-off
           v-if="showPassword"
           class="h-6 text-gray-400 w-5" />
       </button>

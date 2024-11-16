@@ -1,7 +1,5 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { computed, type HTMLAttributes } from 'vue';
-  import { X } from 'lucide-vue-next';
   import {
     DialogClose,
     DialogContent,
@@ -11,6 +9,7 @@
     DialogPortal,
     useForwardPropsEmits,
   } from 'radix-vue';
+  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'] }>();
@@ -46,7 +45,7 @@
         <slot />
 
         <dialog-close class="absolute top-3 right-3 p-0.5 rounded-md transition-colors hover:bg-secondary">
-          <x class="h-4 w-4" />
+          <icon-x class="h-4 w-4" />
           <span class="sr-only">Close</span>
         </dialog-close>
       </dialog-content>

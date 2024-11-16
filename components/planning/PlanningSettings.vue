@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { SettingsIcon } from 'lucide-vue-next';
   import type { Tables } from '@/types';
   import type { SelectOption } from '@/types/helpers';
 
@@ -34,7 +33,7 @@
           class="inline-block relative text-left">
           <div>
             <headless-menu-button class="duration-150 ease-snap focus-visible:ring-2 focus-visible:ring-white/0 font-medium inline-flex justify-center outline-none focus:outline-none px-4 py-2 rounded-md text-gray-500 hover:text-dark-grey text-sm w-full">
-              <settings-icon
+              <icon-settings
                 class="h-6 w-6"
                 data-testid="settings-icon" />
             </headless-menu-button>

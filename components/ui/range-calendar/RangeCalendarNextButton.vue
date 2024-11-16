@@ -1,8 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-  import { computed, type HTMLAttributes } from 'vue';
-  import { ChevronRight } from 'lucide-vue-next';
   import { RangeCalendarNext, type RangeCalendarNextProps, useForwardProps } from 'radix-vue';
+  import { type HTMLAttributes } from 'vue';
   import { buttonVariants } from '@/components/ui/button';
   import { cn } from '@/lib/utils';
 
@@ -26,7 +25,7 @@
     )"
     v-bind="forwardedProps">
     <slot>
-      <chevron-right class="h-4 w-4" />
+      <icon-chevron-right class="h-4 w-4" />
     </slot>
   </range-calendar-next>
 </template>

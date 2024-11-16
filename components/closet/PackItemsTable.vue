@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import convert, { type Mass } from 'convert';
-  import { AppleIcon, GripVerticalIcon, LinkIcon, PlusIcon, ShirtIcon, TrashIcon } from 'lucide-vue-next';
+  import { TrashIcon } from 'lucide-vue-next';
   import { DragHandle, SlickList, SlickItem } from 'vue-slicksort';
   import type { Database, Tables } from '@/types';
   import type { ExtendedCategory, SelectOption } from '@/types/helpers';
@@ -280,7 +280,7 @@
           tag="li">
           <!-- Drag -->
           <drag-handle class="flex items-center p-2">
-            <grip-vertical-icon class="cursor-move group-hover:opacity-100 h-4 opacity-0 text-gray-400 w-4" />
+            <icon-grip-vertical class="cursor-move group-hover:opacity-100 h-4 opacity-0 text-gray-400 w-4" />
           </drag-handle>
 
           <!-- Name -->
@@ -322,7 +322,7 @@
                 :class="row.consumable ? 'bg-info hover:bg-info/70' : 'bg-transparent hover:bg-gray-200'"
                 data-testid="consumable-btn"
                 @click="$store.updateItem(row, 'consumable', !row.consumable, category.id)">
-                <apple-icon
+                <icon-apple
                   class="h-5 text-gray-500 w-5"
                   :class="row.consumable ? 'text-white' : 'text-dark-grey'" />
               </button>
@@ -337,7 +337,7 @@
                 :class="row.worn ? 'bg-positive hover:bg-positive/70' : 'bg-transparent hover:bg-gray-200'"
                 data-testid="worn-btn"
                 @click="$store.updateItem(row, 'worn', !row.worn, category.id)">
-                <shirt-icon
+                <icon-shirt
                   class="h-5 text-gray-500 w-5"
                   :class="row.worn ? 'text-white' : 'text-dark-grey'" />
               </button>
@@ -408,7 +408,7 @@
                 :class="row.url ? 'bg-warning hover:bg-warning/70' : 'bg-transparent hover:bg-gray-200'"
                 data-testid="add-url-btn"
                 @click="emit('handleAddUrl', row, category.id)">
-                <link-icon
+                <icon-link
                   class="h-5 w-5 "
                   :class="row.url ? 'text-white' : 'text-dark-grey'" />
               </button>
@@ -417,7 +417,7 @@
                 class="justify-self-end"
                 data-testid="remove-item-btn"
                 @click="emit('handleRemoveItem', row)">
-                <trash-icon class="duration-150 ease-snap h-5 text-gray-500 hover:text-danger transition w-5" />
+                <icon-trash class="duration-150 ease-snap h-5 text-gray-500 hover:text-danger transition w-5" />
               </button>
             </div>
           </div>
@@ -479,7 +479,7 @@
           size="sm"
           variant="positive"
           @click="createItem">
-          <plus-icon class="h-4 mr-3 w-4" />
+          <icon-plus class="h-4 mr-3 w-4" />
           New Item
         </gc-button>
       </div>

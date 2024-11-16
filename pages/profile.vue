@@ -1,12 +1,11 @@
 <script lang='ts' setup>
+  import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js';
   import dayjs from 'dayjs';
   import utc from 'dayjs/plugin/utc';
   // import { Tabs } from 'flowbite';
-  import { ChevronDownIcon, DownloadIcon, CheckCircleIcon, HeartIcon } from 'lucide-vue-next';
   // import type { InstanceOptions, TabsOptions, TabItem } from 'flowbite';
+  import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
   import type { SelectOption, SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
-  import type { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
-  import { SubscriptionLevel, MeasuringSystem, type Database } from '@/types';
 
   dayjs.extend(utc);
 
@@ -564,7 +563,7 @@
                     <p class="font-bold text-sm">
                       Billing History
                     </p>
-                    <chevron-down-icon
+                    <icon-chevron-down
                       class="h-5 text-primary w-5"
                       :class="open ? 'rotate-180 transform transition-all' : ''" />
                   </headless-disclosure-button>
@@ -582,7 +581,7 @@
                             :href="(invoice.invoice_pdf as string)"
                             rel="noopener noreferrer"
                             target="_blank">
-                            <download-icon class="h-4 w-4" />
+                            <icon-download class="h-4 w-4" />
                           </a>
                         </li>
                       </ul>
@@ -657,7 +656,7 @@
               <span
                 class="me-2.5 p-2 rounded-full w-auto"
                 :class="step === 1 ? 'bg-primary-light' : 'bg-white'">
-                <check-circle-icon
+                <icon-check-circle
                   class="h-4 sm:h-5 w-4 sm:w-5"
                   :color="tailwind.theme.colors['text-primary']"
                   :stroke-width="3" />
@@ -671,12 +670,12 @@
             <span
               class="me-2 p-2 rounded-full w-auto"
               :class="step === 2 ? 'bg-primary-light' : 'bg-white'">
-              <check-circle-icon
+              <icon-check-circle
                 v-if="step === 2"
                 class="h-4 sm:h-5 w-4 sm:w-5"
                 :color="tailwind.theme.colors.primary.DEFAULT"
                 :stroke-width="3" />
-              <heart-icon
+              <icon-heart
                 v-else
                 class="h-4 sm:h-5 w-4 sm:w-5"
                 :color="tailwind.theme.colors['grey']"

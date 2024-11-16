@@ -1,7 +1,5 @@
 <script lang='ts' setup>
-  import { XIcon } from 'lucide-vue-next';
   import type { SelectOption } from '@/types/helpers';
-  // import type { Icon } from 'lucide-vue-next';
 
   export interface Props {
     disabled?: boolean;
@@ -82,7 +80,7 @@
           v-else-if="query && nullable"
           class="-translate-y-1/2 absolute top-1/2 right-2 transform"
           @click="query = ''">
-          <x-icon class="h-4 text-gray-500 w-4" />
+          <icon-x class="h-4 text-gray-500 w-4" />
         </button>
       </div>
       <fade-transition>

@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  // import type { Icon } from 'lucide-vue-next';
   import type { RouteLocationRaw } from 'vue-router';
   import GcSpinner from '@/components/common/GcSpinner.vue';
 

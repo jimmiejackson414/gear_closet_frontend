@@ -1,8 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { computed, type HTMLAttributes } from 'vue';
-  import { ChevronDown } from 'lucide-vue-next';
   import { SelectIcon, SelectTrigger, type SelectTriggerProps, useForwardProps } from 'radix-vue';
+  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<SelectTriggerProps & { class?: HTMLAttributes['class'] }>();
@@ -25,7 +24,7 @@
     )">
     <slot />
     <select-icon as-child>
-      <chevron-down class="h-4 opacity-50 shrink-0 w-4" />
+      <icon-chevron-down class="h-4 opacity-50 shrink-0 w-4" />
     </select-icon>
   </select-trigger>
 </template>
