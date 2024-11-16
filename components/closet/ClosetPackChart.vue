@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  import convert, { type Mass } from 'convert';
   import { BarChart } from 'echarts/charts';
   import {
     GridComponent,
@@ -8,12 +9,11 @@
   } from 'echarts/components';
   import { use } from 'echarts/core';
   import { CanvasRenderer } from 'echarts/renderers';
-  import VChart from 'vue-echarts';
-  import { BackpackIcon } from 'lucide-vue-next';
-  import type { EChartsOption } from 'echarts';
-  import convert, { type Mass } from 'convert';
   import round from 'lodash.round';
+  import { BackpackIcon } from 'lucide-vue-next';
+  import VChart from 'vue-echarts';
   import type { ExtendedCategory } from '@/types/helpers';
+  import type { EChartsOption } from 'echarts';
   import { Theme } from '@/types';
 
   use([

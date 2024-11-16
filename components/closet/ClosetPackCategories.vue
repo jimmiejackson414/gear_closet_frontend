@@ -1,7 +1,6 @@
 <script lang='ts' setup>
-  import { PlusIcon } from 'lucide-vue-next';
-  import type { ExtendedCategory, ExtendedPack } from '@/types/helpers';
   import type { Database, Tables, TablesInsert } from '@/types';
+  import type { ExtendedCategory, ExtendedPack } from '@/types/helpers';
 
   const $store = useClosetStore();
   const { activeCategoryId, activeItem, data, dialogStates } = storeToRefs($store);
@@ -121,7 +120,7 @@
         outlined
         size="sm"
         @click="createDefaultCategory">
-        <plus-icon class="h-4 mr-2 text-primary w-4" />
+        <icon-plus class="h-4 mr-2 text-primary w-4" />
         Add Category
       </gc-button>
     </div>

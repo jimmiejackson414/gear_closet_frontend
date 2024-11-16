@@ -1,8 +1,7 @@
 <script setup lang="ts">
   import { isVNode } from 'vue';
-  import ToasterIcon from './ToastIcon.vue';
   import { useToast } from './use-toast';
-  import { Toast, ToastClose, ToastDescription, ToastProvider, ToastTitle, ToastViewport } from '.';
+  import { Toast, ToastClose, ToastDescription, ToastIcon, ToastProvider, ToastTitle, ToastViewport } from '.';
 
   const { toasts } = useToast();
 </script>
@@ -15,7 +14,7 @@
       v-bind="toast">
       <div class="grid gap-1">
         <div class="flex items-center">
-          <toaster-icon :icon="toast.icon" />
+          <toast-icon :icon="toast.icon" />
           <div>
             <toast-title v-if="toast.title">
               {{ toast.title }}

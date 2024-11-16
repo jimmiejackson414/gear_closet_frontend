@@ -62,7 +62,21 @@ export default defineNuxtConfig({
     enabled: true,
   },
 
-  modules: ['@nuxtjs/supabase', '@pinia/nuxt', '@nuxtjs/tailwindcss', '@vueuse/nuxt', '@fixers/nuxt-stripe', '@nuxt/test-utils/module', "@nuxtjs/color-mode", "shadcn-nuxt"],
+  lucide: {
+    namePrefix: 'Icon',
+  },
+
+  modules: [
+    '@nuxtjs/supabase',
+    '@pinia/nuxt',
+    '@nuxtjs/tailwindcss',
+    '@vueuse/nuxt',
+    '@fixers/nuxt-stripe',
+    '@nuxt/test-utils/module',
+    "@nuxtjs/color-mode",
+    "shadcn-nuxt",
+    "nuxt-lucide-icons",
+  ],
 
   postcss: {
     plugins: {

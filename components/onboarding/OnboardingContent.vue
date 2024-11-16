@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import type { FunctionalComponent } from 'vue';
   import { toTypedSchema } from '@vee-validate/zod';
-  import { CheckIcon, ApertureIcon, CircleUserIcon, HeartIcon } from 'lucide-vue-next';
+  import { Check, Aperture, CircleUser, Heart } from 'lucide-vue-next';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import type { FilePondFile } from 'filepond';
@@ -12,18 +12,23 @@
   type StepperState = 'completed' | 'active' | 'inactive';
 
   const formSchema = toTypedSchema(z.object({
-    firstName: z.string()
+    first_name: z.string()
       .min(1),
-    lastName: z.string()
+    last_name: z.string()
       .min(1),
-    trailName: z.string()
+    trail_name: z.string()
       .optional(),
-    measuringSystem: z.union([z.literal(MeasuringSystem.IMPERIAL), z.literal(MeasuringSystem.METRIC)]),
+    measuring_system: z.union([z.literal(MeasuringSystem.IMPERIAL), z.literal(MeasuringSystem.METRIC)]),
   }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting, resetForm, meta, validate } = useForm({
+  const $store = useUserStore();
+  const { profile } = storeToRefs($store);
+  const { handleSubmit, isSubmitting, resetForm, meta, values } = useForm({
     initialValues: {
-      measuringSystem: MeasuringSystem.IMPERIAL,
+      first_name: profile.value?.first_name ?? '',
+      last_name: profile.value?.last_name ?? '',
+      trail_name: profile.value?.trail_name ?? '',
+      measuring_system: MeasuringSystem.IMPERIAL,
     },
     validationSchema: formSchema,
   });
@@ -67,11 +72,9 @@
     });
   };
 
-  const $store = useUserStore();
   const handleUploadAvatar = async () => {
     if (avatarFile.value && avatarFile.value.file instanceof File) {
       const { success } = await $store.updateAvatar(avatarFile.value.file);
-      console.log({ success });
       if (success) stepIndex.value = 2;
       else handleAvatarError();
     } else {
@@ -79,9 +82,26 @@
     }
   };
 
+  const profileUpdated = ref(false);
+  const handleUpdateProfile = async () => {
+    const { success } = await $store.updateProfile({ ...values });
+    if (success) {
+      profileUpdated.value = true;
+      stepIndex.value = 3;
+      resetForm();
+    }
+  };
+
+  const handleCompleteOnboarding = async () => {
+    // try {
+
+    // } catch (error) {
+
+    // }
+  };
+
   const handleNextStep = () => {
     if (stepIndex.value === 1) {
-      console.log('avatarFile: ', avatarFile.value);
       if (!avatarFile.value) {
         stepIndex.value = 2;
         return;
@@ -89,32 +109,26 @@
         handleUploadAvatar();
         return;
       }
+    } else {
+      handleUpdateProfile();
     }
-
-    if (stepIndex.value === 2) {
-      validate();
-    }
-
-    // if (meta.valid) {
-    //   stepIndex.value += 1;
-    // }
   };
 
   const icons: Record<number, Record<StepperState, FunctionalComponent>> = {
     1: {
-      completed: CheckIcon,
-      active: ApertureIcon,
-      inactive: ApertureIcon,
+      completed: Check,
+      active: Aperture,
+      inactive: Aperture,
     },
     2: {
-      completed: CheckIcon,
-      active: CircleUserIcon,
-      inactive: CircleUserIcon,
+      completed: Check,
+      active: CircleUser,
+      inactive: CircleUser,
     },
     3: {
-      completed: CheckIcon,
-      active: HeartIcon,
-      inactive: HeartIcon,
+      completed: Check,
+      active: Heart,
+      inactive: Heart,
     },
   };
 
@@ -123,7 +137,7 @@
 
 <template>
   <stepper
-    v-slot="{ isNextDisabled, isPrevDisabled, nextStep, prevStep }"
+    v-slot="{ isPrevDisabled, prevStep }"
     v-model="stepIndex"
     class="block max-w-4xl mt-8 mx-auto w-full">
     <div class="flex flex-start gap-2 w-full">
@@ -142,7 +156,7 @@
           <form-button
             class="rounded-full shrink-0 z-10"
             :class="[state === 'active' && 'ring-2 ring-ring ring-offset-2 ring-offset-background']"
-            :disabled="state !== 'completed' && !meta.valid"
+            :disabled="( state !== 'completed' && !meta.valid ) || (step.step === 3 && !profileUpdated)"
             size="icon"
             :variant="state === 'completed' || state === 'active' ? 'default' : 'outline'">
             <component :is="stepperIcon(step.step, state)" />
@@ -183,11 +197,13 @@
           @submit.prevent="onSubmit">
           <form-field
             v-slot="{ componentField }"
-            name="firstName">
+            name="first_name">
             <form-item>
               <form-label>First Name</form-label>
               <form-control>
-                <form-input v-bind="componentField" />
+                <form-input
+                  v-bind="componentField"
+                  :default-value="values.first_name" />
               </form-control>
               <form-message />
             </form-item>
@@ -195,12 +211,12 @@
 
           <form-field
             v-slot="{ componentField }"
-            name="lastName">
+            name="last_name">
             <form-item>
               <form-label>Last Name</form-label>
               <form-control>
                 <form-input
-                  type="text"
+                  :default-value="values.last_name"
                   v-bind="componentField" />
               </form-control>
               <form-message />
@@ -209,12 +225,12 @@
 
           <form-field
             v-slot="{ componentField }"
-            name="trailName">
+            name="trail_name">
             <form-item>
               <form-label>Trail Name (optional)</form-label>
               <form-control>
                 <form-input
-                  type="text"
+                  :default-value="values.trail_name"
                   v-bind="componentField" />
               </form-control>
               <form-message />
@@ -223,25 +239,24 @@
 
           <form-field
             v-slot="{ componentField }"
-            name="measuringSystem">
+            name="measuring_system">
             <form-item>
               <form-label>Preferred Measuring System</form-label>
-              <form-select v-bind="componentField">
+              <form-select
+                v-bind="componentField"
+                :default-value="formattedMeasuringSystem[0].value">
                 <form-control>
-                  <select-trigger class="capitalize">
-                    <select-value
-                      class="capitalize"
-                      placeholder="Select a measuring system" />
+                  <select-trigger>
+                    <select-value placeholder="Select a measuring system" />
                   </select-trigger>
                 </form-control>
                 <select-content>
                   <select-group>
                     <select-item
-                      v-for="system in MeasuringSystem"
-                      :key="system"
-                      class="capitalize"
-                      :value="system">
-                      {{ capitalize(system) }}
+                      v-for="system in formattedMeasuringSystem"
+                      :key="system.value"
+                      :value="system.value">
+                      {{ system.label }}
                     </select-item>
                   </select-group>
                 </select-content>
@@ -265,20 +280,22 @@
       <form-button
         :disabled="isPrevDisabled"
         variant="outline"
-        @click="prevStep()">
+        @click="prevStep">
         Back
       </form-button>
       <div class="flex items-center gap-3">
         <form-button
           v-if="stepIndex !== 3"
-          :disabled="isNextDisabled"
-          :type="meta.valid ? 'button' : 'submit'"
+          :disabled="isSubmitting || !meta.valid"
+          :loading="isSubmitting || uploadingAvatar"
           @click="handleNextStep">
           {{ stepIndex === 1 && !avatarFile ? 'Skip' : 'Next' }}
         </form-button>
         <form-button
           v-if="stepIndex === 3"
-          type="submit">
+          :disabled="isSubmitting"
+          :loading="isSubmitting"
+          @click="handleCompleteOnboarding">
           Submit
         </form-button>
       </div>

@@ -6,7 +6,6 @@
   import { cn } from '@/lib/utils';
 
   const props = defineProps<SelectTriggerProps & { class?: HTMLAttributes['class'] }>();
-  console.log({ props });
 
   const delegatedProps = computed(() => {
     const { class: _, ...delegated } = props;

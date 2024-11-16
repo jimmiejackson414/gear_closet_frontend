@@ -19,7 +19,7 @@ type Actions = {
   markAllAsRead(): void;
   deleteAvatar(): Promise<{ success: boolean }>
   updateAvatar(file: File): Promise<{ success: boolean }>;
-  updateProfile(id: string, profile: TablesUpdate<'profiles'>): void;
+  updateProfile(profile: TablesUpdate<'profiles'>): Promise<{ success: boolean }>;
 };
 
 export const useUserStore = defineStore<'user', State, Getters, Actions>(
@@ -185,30 +185,29 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         }
       },
 
-      async updateProfile (id: string, profile: TablesUpdate<'profiles'>) {
+      async updateProfile (profile: TablesUpdate<'profiles'>) {
         const $appStore = useAppStore();
         try {
           const supabase = useSupabaseClient<Database>();
-          const { data, error } = await supabase.from('profiles')
-            .update({
-              first_name: profile.first_name,
-              last_name: profile.last_name,
-              trail_name: profile.trail_name,
-              measuring_system: profile.measuring_system,
-            })
-            .eq('id', id)
+          const user = useSupabaseUser();
+          const { error } = await supabase.from('profiles')
+            .update(profile)
+            .eq('id', user.value!.id)
+            .returns<Tables<'profiles'>>()
             .select();
 
-          if (error) { $appStore.notifyNegative('An error occurred while updating your profile.'); }
+          if (error) {
+            $appStore.notifyNegative('An error occurred while updating your profile.');
+            return { success: false };
+          }
           else {
-            this.profile!.first_name = data[0].first_name;
-            this.profile!.last_name = data[0].last_name;
-            this.profile!.trail_name = data[0].trail_name;
-            this.profile!.measuring_system = data[0].measuring_system;
+            await this.fetchProfile();
             $appStore.notifyPositive('Successfully updated your profile!');
+            return { success: true };
           }
         } catch (err) {
           $appStore.notifyNegative('An error occurred while updating your profile.');
+          return { success: false };
         }
       },
     },

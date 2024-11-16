@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-  import { defineProps, computed } from 'vue';
   import { BadgeAlertIcon, type LucideIcon } from 'lucide-vue-next';
 
   const props = defineProps<{

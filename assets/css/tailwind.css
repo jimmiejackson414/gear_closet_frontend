@@ -34,12 +34,14 @@
   :root  {
     --accent-foreground: 204 5% 15%;
     --accent: 166 30% 88%;
+    --accent-light: 166 50% 95%%;
     --accent-alt: 166 50% 25%;
     --background: 204 51% 95%;
     --border: 204 30% 82%;
     --card-foreground: 204 5% 15%;
     --card: 204 50% 90%;
     --destructive-foreground: 204 5% 90%;
+    --destructive-light: 0 51% 95%;
     --destructive: 0 51% 50%;
     --foreground: 204 5% 10%;
     --input: 204 30% 50%;
@@ -48,10 +50,12 @@
     --popover-foreground: 204 95% 10%;
     --popover: 204 51% 95%;
     --primary-foreground: 0 0% 100%;
+    --primary-light: 204 100% 95%;
     --primary: 204 100% 26.9%;
     --radius: 0.5rem;
     --ring: 204 100% 26.9%;
     --secondary-foreground: 0 0% 0%;
+    --secondary-light: 204 30% 95%;
     --secondary: 204 30% 88%;
     --tertiary-foreground: 21 10% 90%;
     --tertiary: 21 69% 73%;

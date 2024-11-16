@@ -1,10 +1,10 @@
 import convert from 'convert';
 import Dinero from 'dinero.js';
 import { v4 as uuidv4 } from 'uuid';
-import type { Database, Tables, TablesInsert } from '@/types';
 import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '@/types/helpers';
 import type { Mass } from 'convert';
 import type { Currency } from 'dinero.js';
+import { MeasuringSystem, type Database, type Tables, type TablesInsert } from '@/types';
 
 interface FriendlyUsernameOptions {
   includeTrailName?: boolean;
@@ -139,6 +139,52 @@ export const convertCurrency = (
 ) => Dinero({ amount: Number(num), currency })
   .toFormat('$0,0.00');
 
+export const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) => {
+  let timeoutId: NodeJS.Timeout | null = null;
+
+  return (...args: Parameters<F>): ReturnType<F> | void => {
+    if (timeoutId) {
+      clearTimeout(timeoutId);
+    }
+
+    timeoutId = setTimeout(() => func(...args), waitFor);
+  };
+};
+
+export const formattedMeasuringSystem = [
+  { label: 'Imperial (lbs, oz)', value: MeasuringSystem.IMPERIAL },
+  { label: 'Metric (kg, g)', value: MeasuringSystem.METRIC },
+];
+
+export const friendlyUsername = (user: Tables<'profiles'> | null | undefined, options?: FriendlyUsernameOptions) => {
+  if (!user) return initials(user);
+  if (options?.includeTrailName && user.trail_name) {
+    return `${user.first_name} "${user.trail_name}" ${user.last_name}`;
+  }
+  if (user.first_name && user.last_name) {
+    return `${user.first_name} ${user.last_name}`;
+  }
+  if (user.first_name && !user.last_name) return user.first_name;
+  return user.email;
+};
+
+export const generateUniqueToken = () => uuidv4();
+
+export const generateItem = (): TablesInsert<'items'> => ({
+  consumable: false,
+  generic_type: '',
+  name: '',
+  price: 0,
+  quantity: 0,
+  slug: '',
+  unit: 'oz',
+  url: '',
+  weight: '0',
+  worn: false,
+});
+
+export const generateRandomNumber = (max = 5000) => (Math.random() * max);
+
 export const getPagination = (page: number, pageSize: number): { from: number, to: number } => {
   const limit = pageSize ? +pageSize : 5;
   const from = page ? page * limit : 0;
@@ -153,20 +199,6 @@ export const initials = (user: Tables<'profiles'>| null | undefined) => {
   const lastInitial = user.last_name?.charAt(0);
   return firstInitial && lastInitial ? `${firstInitial}${lastInitial}` : base;
 };
-
-export const friendlyUsername = (user: Tables<'profiles'> | null | undefined, options?: FriendlyUsernameOptions) => {
-  if (!user) return initials(user);
-  if (options?.includeTrailName && user.trail_name) {
-    return `${user.first_name} "${user.trail_name}" ${user.last_name}`;
-  }
-  if (user.first_name && user.last_name) {
-    return `${user.first_name} ${user.last_name}`;
-  }
-  if (user.first_name && !user.last_name) return user.first_name;
-  return user.email;
-};
-
-export const generateRandomNumber = (max = 5000) => (Math.random() * max);
 
 export const isValidEmail = (val: string) => {
   const regPattern = /^(?=[a-zA-Z0-9@._%+-]{6,254}$)[a-zA-Z0-9._%+-]{1,64}@(?:[a-zA-Z0-9-]{1,63}\.){1,8}[a-zA-Z]{2,63}$/;
@@ -198,30 +230,3 @@ export const truncate = (str: string | null | undefined, num = 100) => {
 };
 
 export const validateEmail = (email: string) => /\S+@\S+\.\S+/.test(email);
-
-export const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) => {
-  let timeoutId: NodeJS.Timeout | null = null;
-
-  return (...args: Parameters<F>): ReturnType<F> | void => {
-    if (timeoutId) {
-      clearTimeout(timeoutId);
-    }
-
-    timeoutId = setTimeout(() => func(...args), waitFor);
-  };
-};
-
-export const generateUniqueToken = () => uuidv4();
-
-export const generateItem = (): TablesInsert<'items'> => ({
-  consumable: false,
-  generic_type: '',
-  name: '',
-  price: 0,
-  quantity: 0,
-  slug: '',
-  unit: 'oz',
-  url: '',
-  weight: '0',
-  worn: false,
-});

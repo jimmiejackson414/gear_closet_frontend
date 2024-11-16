@@ -1,12 +1,12 @@
 <script lang='ts' setup>
-  import type { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
   import dayjs from 'dayjs';
   import utc from 'dayjs/plugin/utc';
   // import { Tabs } from 'flowbite';
   import { ChevronDownIcon, DownloadIcon, CheckCircleIcon, HeartIcon } from 'lucide-vue-next';
-  import { SubscriptionLevel, MeasuringSystem, type Database } from '@/types';
   // import type { InstanceOptions, TabsOptions, TabItem } from 'flowbite';
   import type { SelectOption, SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
+  import type { Stripe, StripeElements, StripeCardElement } from '@stripe/stripe-js';
+  import { SubscriptionLevel, MeasuringSystem, type Database } from '@/types';
 
   dayjs.extend(utc);
 
@@ -69,7 +69,7 @@
         if (!success) $appStore.notifyNegative('An error occurred while deleting your avatar.');
       }
 
-      $store.updateProfile(profile.value!.id, {
+      $store.updateProfile({
         first_name: profileForm.firstName,
         last_name: profileForm.lastName,
         trail_name: profileForm.trailName,
