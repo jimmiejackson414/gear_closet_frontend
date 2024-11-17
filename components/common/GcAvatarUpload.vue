@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  import type { FilePondErrorDescription, FilePondFile } from 'filepond';
   import FilePondPluginFileEncode from 'filepond-plugin-file-encode';
   import FilePondPluginFileValidateSize from 'filepond-plugin-file-validate-size';
   import FilePondPluginFileValidateType from 'filepond-plugin-file-validate-type';
@@ -7,7 +8,6 @@
   import FilePondPluginImageResize from 'filepond-plugin-image-resize';
   import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
   import vueFilePond, { type VueFilePondComponent } from 'vue-filepond';
-  import type { FilePondErrorDescription, FilePondFile } from 'filepond';
   import { cn } from '@/lib/utils';
 
   import 'filepond/dist/filepond.min.css';

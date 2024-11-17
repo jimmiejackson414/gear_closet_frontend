@@ -1,8 +1,8 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-  import { computed, type HTMLAttributes } from 'vue';
   import { StepperItem, useForwardProps } from 'radix-vue';
   import type { StepperItemProps } from 'radix-vue';
+  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
 
