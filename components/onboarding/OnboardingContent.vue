@@ -23,12 +23,12 @@
 
   const $store = useUserStore();
   const { profile } = storeToRefs($store);
-  const { handleSubmit, isSubmitting, resetForm, meta, values } = useForm({
+  const { isSubmitting, meta, values } = useForm({
     initialValues: {
       first_name: profile.value?.first_name ?? '',
       last_name: profile.value?.last_name ?? '',
       trail_name: profile.value?.trail_name ?? '',
-      measuring_system: MeasuringSystem.IMPERIAL,
+      measuring_system: (profile.value?.measuring_system as MeasuringSystem) ?? MeasuringSystem.IMPERIAL,
     },
     validationSchema: formSchema,
   });
@@ -53,15 +53,10 @@
   ];
 
   const { toast } = useToast();
-  const onSubmit = handleSubmit(async (values: any) => {
-    console.log(values);
-  });
-
   const uploadingAvatar = ref(false);
   const avatarFile = ref<FilePondFile | null>(null);
   const handleAddAvatar = (file: FilePondFile) => {
     avatarFile.value = file;
-    uploadingAvatar.value = false;
   };
 
   const handleAvatarError = () => {
@@ -73,45 +68,47 @@
   };
 
   const handleUploadAvatar = async () => {
+    uploadingAvatar.value = true;
     if (avatarFile.value && avatarFile.value.file instanceof File) {
       const { success } = await $store.updateAvatar(avatarFile.value.file);
       if (success) stepIndex.value = 2;
       else handleAvatarError();
+      uploadingAvatar.value = false;
     } else {
       handleAvatarError();
+      uploadingAvatar.value = false;
     }
   };
 
   const profileUpdated = ref(false);
   const handleUpdateProfile = async () => {
     const { success } = await $store.updateProfile({ ...values });
+    console.log(`handleUpdateProfile success: `, success);
     if (success) {
       profileUpdated.value = true;
       stepIndex.value = 3;
-      resetForm();
+      console.log(`Updated stepIndex to ${stepIndex.value}`);
     }
   };
 
   const handleCompleteOnboarding = async () => {
-    // try {
-
-    // } catch (error) {
-
-    // }
+    console.log(`Completing onboarding...`);
   };
 
-  const handleNextStep = () => {
+  const handleNextStep = async () => {
+    console.log(`Current stepIndex: `, stepIndex.value);
     if (stepIndex.value === 1) {
       if (!avatarFile.value) {
         stepIndex.value = 2;
         return;
       } else {
-        handleUploadAvatar();
+        await handleUploadAvatar();
         return;
       }
-    } else {
-      handleUpdateProfile();
+    } else if (stepIndex.value === 2) {
+      await handleUpdateProfile();
     }
+    console.log(`After handleNexttep stepIndex: `, stepIndex.value);
   };
 
   const icons: Record<number, Record<StepperState, FunctionalComponent>> = {
@@ -138,7 +135,6 @@
 <template>
   <stepper
     v-slot="{ isPrevDisabled, prevStep }"
-    v-model="stepIndex"
     class="block max-w-4xl mt-8 mx-auto w-full">
     <div class="flex flex-start gap-2 w-full">
       <!-- Stepper Navigation -->
@@ -158,7 +154,8 @@
             :class="[state === 'active' && 'ring-2 ring-ring ring-offset-2 ring-offset-background']"
             :disabled="( state !== 'completed' && !meta.valid ) || (step.step === 3 && !profileUpdated)"
             size="icon"
-            :variant="state === 'completed' || state === 'active' ? 'default' : 'outline'">
+            :variant="state === 'completed' || state === 'active' ? 'default' : 'outline'"
+            @click="stepIndex = step.step">
             <component :is="stepperIcon(step.step, state)" />
           </form-button>
         </stepper-trigger>
@@ -186,15 +183,12 @@
           classes="max-w-xs mx-auto"
           @handle-add-file="handleAddAvatar"
           @handle-error="handleAvatarError"
-          @handle-process-start="uploadingAvatar = true"
           @handle-remove-file="avatarFile = null" />
       </template>
 
       <!-- Step 2: Account Info -->
       <template v-if="stepIndex === 2">
-        <form
-          class="flex flex-col gap-4"
-          @submit.prevent="onSubmit">
+        <form class="flex flex-col gap-4">
           <form-field
             v-slot="{ componentField }"
             name="first_name">
@@ -286,7 +280,7 @@
       <div class="flex items-center gap-3">
         <form-button
           v-if="stepIndex !== 3"
-          :disabled="isSubmitting || !meta.valid"
+          :disabled="isSubmitting || uploadingAvatar"
           :loading="isSubmitting || uploadingAvatar"
           @click="handleNextStep">
           {{ stepIndex === 1 && !avatarFile ? 'Skip' : 'Next' }}
