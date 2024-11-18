@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { PlusIcon } from 'lucide-vue-next';
+  import { IconPlus} from '#components';
   import { type Database, ResourceType, type Tables, type TablesUpdate } from '@/types';
 
   const $appStore = useAppStore();
@@ -121,7 +121,7 @@
       <gc-button
         v-if="!pageLoading && data?.shopping_items.length"
         class="justify-self-end"
-        :icon="PlusIcon"
+        :icon="IconPlus"
         round
         size="sm"
         @click="createShoppingItem" />

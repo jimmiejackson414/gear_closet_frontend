@@ -1,6 +1,6 @@
 <script lang='ts' setup>
-  import { LinkIcon } from 'lucide-vue-next';
-  import type { RowItem } from '../PackItemsTable.vue';
+  import { IconLink } from '#components';
+  import type { RowItem } from '@/components/closet/PackItemsTable.vue';
 
   const $store = useClosetStore();
   const { activeCategoryId, activeItem, dialogStates } = storeToRefs($store);
@@ -48,7 +48,7 @@
             :model-value="newUrl"
             name="url"
             placeholder="https://www.amazon.com"
-            :prepend-icon="LinkIcon"
+            :prepend-icon="IconLink"
             @update:model-value="newUrl = $event" />
           <a
             v-tippy="{ content: 'Visit link' }"

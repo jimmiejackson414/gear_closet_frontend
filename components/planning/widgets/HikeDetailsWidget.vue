@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { PencilIcon, PlusIcon } from 'lucide-vue-next';
+  import { IconPencil, IconPlus } from '#components';
   import { type Database, type Tables, type TablesUpdate, TripDetailsType } from '@/types';
 
   const $appStore = useAppStore();
@@ -76,7 +76,7 @@
         v-if="!pageLoading && hikeDetails.length"
         class="justify-self-end"
         data-testid="create-new-detail-btn"
-        :icon="PlusIcon"
+        :icon="IconPlus"
         round
         size="sm"
         @click="createNewDetail" />
@@ -157,7 +157,7 @@
             <gc-button
               class="group-hover:opacity-100 opacity-0"
               ghost
-              :icon="PencilIcon"
+              :icon="IconPencil"
               round
               size="sm"
               @click="toggleEditDialog(detail)" />

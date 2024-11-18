@@ -1,10 +1,10 @@
 <script lang='ts' setup>
   import convert, { type Mass } from 'convert';
-  import { TrashIcon } from 'lucide-vue-next';
-  import { DragHandle, SlickList, SlickItem } from 'vue-slicksort';
+  import { DragHandle, SlickItem, SlickList } from 'vue-slicksort';
+  import { IconTrash } from '#components';
+  import { useAppStore } from '@/stores/app';
   import type { Database, Tables } from '@/types';
   import type { ExtendedCategory, SelectOption } from '@/types/helpers';
-  import { useAppStore } from '@/stores/app';
 
   export interface Column {
     name: string;
@@ -239,7 +239,7 @@
       </gc-inline-edit>
       <gc-button
         data-testid="remove-category-btn"
-        :icon="TrashIcon"
+        :icon="IconTrash"
         round
         variant="danger"
         @click="emit('handleRemoveCategory', category)" />

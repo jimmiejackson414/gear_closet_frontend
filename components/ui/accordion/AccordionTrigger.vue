@@ -1,6 +1,5 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { ChevronDown } from 'lucide-vue-next';
   import {
     AccordionHeader,
     AccordionTrigger,
@@ -30,7 +29,7 @@
       ">
       <slot />
       <slot name="icon">
-        <chevron-down class="duration-200 h-4 shrink-0 transition-transform w-4" />
+        <icon-chevron-down class="duration-200 h-4 shrink-0 transition-transform w-4" />
       </slot>
     </accordion-trigger>
   </accordion-header>

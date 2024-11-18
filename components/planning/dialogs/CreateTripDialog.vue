@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import VueDatePicker from '@vuepic/vue-datepicker';
   import dayjs from 'dayjs';
-  import { BackpackIcon, MapPinIcon, TextIcon } from 'lucide-vue-next';
+  import { IconBackpack, IconMapPin, IconText} from '#components';
   import type { Database, TablesInsert } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
@@ -80,7 +80,7 @@
           label="Trip Name*"
           name="new-trip-name"
           placeholder="Appalachian Trail"
-          :prepend-icon="BackpackIcon"
+          :prepend-icon="IconBackpack"
           required />
         <!-- Description -->
         <gc-input
@@ -90,7 +90,7 @@
           label="Description"
           name="new-trip-description"
           placeholder="2200 miles through 14 states"
-          :prepend-icon="TextIcon" />
+          :prepend-icon="IconText" />
         <!-- Starting point -->
         <gc-input
           v-model="newTrip.starting_point"
@@ -99,7 +99,7 @@
           label="Origin"
           name="new-trip-origin"
           placeholder="Springer Mountain"
-          :prepend-icon="MapPinIcon" />
+          :prepend-icon="IconMapPin" />
         <!-- Ending Point -->
         <gc-input
           v-model="newTrip.ending_point"
@@ -108,7 +108,7 @@
           label="Destination"
           name="new-trip-destination"
           placeholder="Mount Katahdin"
-          :prepend-icon="MapPinIcon" />
+          :prepend-icon="IconMapPin" />
         <!-- Datepicker -->
         <div class="flex flex-col gap-2">
           <label

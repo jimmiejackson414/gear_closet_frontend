@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  // import { LogOutIcon } from 'lucide-vue-next';
+  // import { IconLogOut } from '#components';
 
   const $route = useRoute();
 
@@ -81,7 +81,7 @@
           data-testid="logout"
           @click="handleLogout">
           <component
-            :is="LogOutIcon"
+            :is="IconLogOut"
             :color="tailwind.theme.colors['grey']"
             :size="24" />
         </span> -->

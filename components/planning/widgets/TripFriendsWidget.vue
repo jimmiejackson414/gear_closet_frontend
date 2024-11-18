@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { SearchIcon } from 'lucide-vue-next';
+  import { IconSearch } from '#components';
   import { type Database, type Tables, TripFriendStatus } from '@/types';
   import type { SelectOption } from '@/types/helpers';
 
@@ -116,7 +116,7 @@
           :nullable="true"
           :options="searchResults"
           placeholder="Search for a friend"
-          :prepend-icon="SearchIcon"
+          :prepend-icon="IconSearch"
           @search="searchForFriends($event)"
           @select="selectedFriend = $event" />
 

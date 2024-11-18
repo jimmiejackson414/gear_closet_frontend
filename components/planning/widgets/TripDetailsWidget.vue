@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import VueDatePicker from '@vuepic/vue-datepicker';
   import dayjs from 'dayjs';
-  import { PencilIcon, PlusIcon } from 'lucide-vue-next';
+  import { IconPencil, IconPlus } from '#components';
   import { usePlanningStore } from '@/stores/planning';
   import { type Database, type Tables, type TablesUpdate, TripDetailsType } from '@/types';
   import { prependProtocol } from '~/utils/helpers';
@@ -165,7 +165,7 @@
       <gc-button
         v-if="!pageLoading && tripDetails.length"
         class="justify-self-end"
-        :icon="PlusIcon"
+        :icon="IconPlus"
         round
         size="sm"
         @click="createDetail" />
@@ -208,7 +208,7 @@
             <gc-button
               class="group-hover:opacity-100 opacity-0"
               ghost
-              :icon="PencilIcon"
+              :icon="IconPencil"
               round
               size="sm" />
           </div>
@@ -259,7 +259,7 @@
             <gc-button
               class="group-hover:opacity-100 opacity-0"
               ghost
-              :icon="PencilIcon"
+              :icon="IconPencil"
               round
               size="sm"
               @click="toggleEditDialog(detail)" />

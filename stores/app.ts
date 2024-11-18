@@ -1,5 +1,4 @@
 import { CircleAlert, CircleCheck, Info } from 'lucide-vue-next';
-import { defineStore } from 'pinia';
 import { useToast } from '@/components/ui/toast';
 
 type State = {

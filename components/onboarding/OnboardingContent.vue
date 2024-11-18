@@ -1,10 +1,10 @@
 <script lang='ts' setup>
   import { toTypedSchema } from '@vee-validate/zod';
   import type { FilePondFile } from 'filepond';
-  import { Aperture, Check, CircleUser, Heart } from 'lucide-vue-next';
   import { useForm } from 'vee-validate';
   import type { FunctionalComponent } from 'vue';
   import * as z from 'zod';
+  import { IconAperture, IconCheck, IconCircleUser, IconHeart } from '#components';
   import { Button as FormButton, FormControl, FormField, Input as FormInput, FormLabel, FormMessage, Select as FormSelect, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, Stepper, StepperDescription, Form as StepperForm, StepperItem, StepperSeparator, StepperTitle, StepperTrigger } from '@/components/ui';
   import { useToast } from '@/components/ui/toast/use-toast';
   import { MeasuringSystem, SubscriptionLevel, type Tables, type TablesUpdate } from '@/types';
@@ -79,19 +79,19 @@
 
   const icons: Record<number, Record<StepperState, FunctionalComponent>> = {
     1: {
-      completed: Check,
-      active: Aperture,
-      inactive: Aperture,
+      completed: IconCheck,
+      active: IconAperture,
+      inactive: IconAperture,
     },
     2: {
-      completed: Check,
-      active: CircleUser,
-      inactive: CircleUser,
+      completed: IconCheck,
+      active: IconCircleUser,
+      inactive: IconCircleUser,
     },
     3: {
-      completed: Check,
-      active: Heart,
-      inactive: Heart,
+      completed: IconCheck,
+      active: IconHeart,
+      inactive: IconHeart,
     },
   };
 
@@ -174,9 +174,6 @@
     }"
     keep-values
     :validation-schema="toTypedSchema(formSchema[stepIndex - 1])">
-    <pre>{{ meta }}</pre>
-    <pre>{{ values }}</pre>
-
     <stepper
       v-slot="{ isNextDisabled, isPrevDisabled, nextStep, prevStep }"
       v-model="stepIndex"

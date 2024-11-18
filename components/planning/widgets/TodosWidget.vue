@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   // import { Tabs } from 'flowbite';
-  import { PlusIcon } from 'lucide-vue-next';
+  import { IconPlus } from '#components';
   import { type Database, ResourceType, type Tables, type TablesUpdate } from '@/types';
   // import type { InstanceOptions, TabsOptions, TabsInterface, TabItem } from 'flowbite';
 
@@ -121,7 +121,7 @@
       <gc-button
         v-if="!pageLoading && data?.todos.length"
         class="justify-self-end"
-        :icon="PlusIcon"
+        :icon="IconPlus"
         round
         size="sm"
         @click="createTodo" />

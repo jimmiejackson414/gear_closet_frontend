@@ -1,6 +1,6 @@
-import type { LucideIcon } from 'lucide-vue-next';
 import type { Component, VNode } from 'vue';
 import type { ToastProps } from '.';
+import { IconBadgeAlert } from '#components';
 
 const TOAST_LIMIT = 5;
 const TOAST_REMOVE_DELAY = 1000000;
@@ -15,7 +15,7 @@ type ToasterToast = ToastProps & {
   title?: string
   description?: StringOrVNode
   action?: Component
-  icon?: LucideIcon
+  icon?: typeof IconBadgeAlert;
 }
 
 const actionTypes = {

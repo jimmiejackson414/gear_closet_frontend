@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { CheckCircle2Icon } from 'lucide-vue-next';
+  import { IconCheckCircle2 } from '#components';
   import type { Database, Tables } from '~/types';
   import type { ExtendedPoll } from '~/types/helpers';
 
@@ -143,7 +143,7 @@
           class="mt-2 w-full"
           label="New Answer"
           name="newAnswer"
-          :prepend-icon="CheckCircle2Icon"
+          :prepend-icon="IconCheckCircle2"
           @blur="createAnswer"
           @enter="createAnswer"
           @keyup.escape="resetNewAnswer" />

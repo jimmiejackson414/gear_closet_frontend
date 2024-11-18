@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { useClipboard } from '@vueuse/core';
-  import { LinkIcon } from 'lucide-vue-next';
+  import { IconLink } from '#components';
 
   const $store = useClosetStore();
   const { data, dialogStates } = storeToRefs($store);
@@ -38,7 +38,7 @@
               label="Shareable Link"
               :model-value="shareLink"
               name="url"
-              :prepend-icon="LinkIcon"
+              :prepend-icon="IconLink"
               readonly />
             <button
               v-tippy="{ content: 'Copy link' }"

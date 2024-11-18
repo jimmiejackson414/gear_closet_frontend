@@ -91,7 +91,6 @@
     "filepond-plugin-image-transform": "^3.8.7",
     "filepond-plugin-image-validate-size": "^1.2.7",
     "lodash.round": "^4.0.4",
-    "lucide-vue-next": "^0.460.0",
     "papaparse": "^5.4.1",
     "pinia": "^2.1.7",
     "radix-vue": "^1.9.8",

@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { CheckCircle2Icon, HelpCircleIcon } from 'lucide-vue-next';
+  import { IconCheckCircle2, IconHelpCircle} from '#components';
   import { usePlanningStore } from '@/stores/planning';
   import type { Database, Tables } from '@/types';
   import type { ExtendedPoll } from '@/types/helpers';
@@ -221,7 +221,7 @@
             class="font-normal text-base w-full"
             name="question"
             placeholder="Where should we go hiking this year?"
-            :prepend-icon="HelpCircleIcon" />
+            :prepend-icon="IconHelpCircle" />
         </label>
         <div class="grid grid-cols-1 gap-4">
           <label
@@ -237,7 +237,7 @@
                 class="font-normal w-full"
                 :name="`Answer-${index}`"
                 :placeholder="`Answer ${index + 1}`"
-                :prepend-icon="CheckCircle2Icon" />
+                :prepend-icon="IconCheckCircle2" />
             </div>
           </label>
           <gc-button

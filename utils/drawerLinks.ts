@@ -1,10 +1,9 @@
-import { DoorOpen,  Home, ListTodo, MessagesSquare, Users, UserCircle2 } from 'lucide-vue-next';
-// import type { Icon } from 'lucide-vue-next';
+import { IconDoorOpen,  IconHome, IconListTodo, IconMessagesSquare, IconUserCircle2, IconUsers } from '#components';
 
 export type LinkItem = {
   to: string;
   title: string;
-  icon: any;
+  icon: typeof IconDoorOpen;
   disabled: boolean;
   requiresSubscription: boolean;
   requiresSubscriptionCopy?: string;
@@ -21,7 +20,7 @@ export const drawerLinks = () => {
     {
       to: 'index',
       title: 'Dashboard',
-      icon: Home,
+      icon: IconHome,
       disabled: false,
       requiresSubscription: false,
       external: false,
@@ -29,7 +28,7 @@ export const drawerLinks = () => {
     {
       to: 'closet',
       title: 'Closet',
-      icon: DoorOpen,
+      icon: IconDoorOpen,
       disabled: false,
       requiresSubscription: false,
       external: false,
@@ -37,7 +36,7 @@ export const drawerLinks = () => {
     {
       to: 'planning',
       title: 'Planning',
-      icon: ListTodo,
+      icon: IconListTodo,
       disabled: false,
       requiresSubscription: false,
       external: false,
@@ -45,7 +44,7 @@ export const drawerLinks = () => {
     {
       to: 'friends',
       title: 'Friends',
-      icon: Users,
+      icon: IconUsers,
       disabled: false,
       requiresSubscription: false,
       external: false,
@@ -53,7 +52,7 @@ export const drawerLinks = () => {
     {
       to: config.public.forumsUrl,
       title: 'Forums',
-      icon: MessagesSquare,
+      icon: IconMessagesSquare,
       disabled: !isPaidMember.value,
       requiresSubscription: true,
       requiresSubscriptionCopy: 'The forums are only available to paid members.',
@@ -62,7 +61,7 @@ export const drawerLinks = () => {
     {
       to: 'profile',
       title: 'Profile',
-      icon: UserCircle2,
+      icon: IconUserCircle2,
       disabled: false,
       requiresSubscription: false,
       external: false,
