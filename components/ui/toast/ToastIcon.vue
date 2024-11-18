@@ -1,11 +1,11 @@
 <script lang="ts" setup>
-  import { BadgeAlertIcon, type LucideIcon } from 'lucide-vue-next';
+  import { IconBadgeAlert } from '#components';
 
   const props = defineProps<{
-    icon?: LucideIcon | null;
+    icon?: typeof IconBadgeAlert | null;
   }>();
 
-  const iconToRender = computed(() => props.icon || BadgeAlertIcon);
+  const iconToRender = computed(() => props.icon || IconBadgeAlert);
 </script>
 
 <template>

@@ -1,4 +1,4 @@
-import { CircleAlert, CircleCheck, Info } from 'lucide-vue-next';
+import { IconCircleAlert, IconCircleCheck, IconInfo } from '#components';
 import { useToast } from '@/components/ui/toast';
 
 type State = {
@@ -35,7 +35,7 @@ export const useAppStore = defineStore<'app', State, Getters, Actions>('app', {
         title,
         description,
         variant: 'default',
-        icon: Info,
+        icon: IconInfo,
       });
     },
     notifyPositive (description, title) {
@@ -44,7 +44,7 @@ export const useAppStore = defineStore<'app', State, Getters, Actions>('app', {
         title,
         description,
         variant: 'positive',
-        icon: CircleCheck,
+        icon: IconCircleCheck,
       });
     },
     notifyNegative (description, title) {
@@ -53,7 +53,7 @@ export const useAppStore = defineStore<'app', State, Getters, Actions>('app', {
         title,
         description,
         variant: 'destructive',
-        icon: CircleAlert,
+        icon: IconCircleAlert,
       });
     },
     notifyInfo (description, title) {
@@ -62,7 +62,7 @@ export const useAppStore = defineStore<'app', State, Getters, Actions>('app', {
         title,
         description,
         variant: 'info',
-        icon: Info,
+        icon: IconInfo,
       });
     },
     toggleDrawer () {

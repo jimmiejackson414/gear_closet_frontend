@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { SearchIcon } from 'lucide-vue-next';
+  import { IconSearch } from '#components';
   import { type Database, FriendRequestStatus, type Tables } from '@/types';
   import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
 
@@ -171,7 +171,7 @@
             :loading="searching"
             name="friend-search"
             placeholder="Search by name or email"
-            :prepend-icon="SearchIcon" />
+            :prepend-icon="IconSearch" />
         </div>
         <div
           v-if="searching"
