@@ -1,6 +1,6 @@
 <script setup lang="ts">
-  import type { HTMLAttributes } from 'vue';
   import { Primitive, type PrimitiveProps } from 'radix-vue';
+  import type { HTMLAttributes } from 'vue';
   import { type ButtonVariants, buttonVariants } from '.';
   import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
   import { cn } from '@/lib/utils';

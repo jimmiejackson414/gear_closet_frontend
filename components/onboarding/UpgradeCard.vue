@@ -28,9 +28,9 @@
       class="duration-200 ease-in-out rounded-lg transition-all"
       :class="[
         {
-          'border-warning': props.tier.value === SubscriptionLevel.FREE,
+          'border-tertiary': props.tier.value === SubscriptionLevel.FREE,
           'border-primary': props.tier.value === SubscriptionLevel.ANNUAL,
-          'border-positive': props.tier.value === SubscriptionLevel.MONTHLY,
+          'border-accent-alt': props.tier.value === SubscriptionLevel.MONTHLY,
         },
         props.isSelected ? 'shadow-lg' : 'shadow hover:shadow-lg',
         'border-t-[5px]',
@@ -39,11 +39,11 @@
         <div
           class="inline-block px-4 py-2 rounded-[5px]"
           :class="[{
-            'bg-warning': props.tier.value === SubscriptionLevel.FREE,
-            'bg-primary': props.tier.value === SubscriptionLevel.ANNUAL,
-            'bg-positive': props.tier.value === SubscriptionLevel.MONTHLY,
-          }, props.tier.value === SubscriptionLevel.FREE ? 'text-dark-grey' : 'text-white' ]">
-          <p class="font-bold text-base uppercase">
+            'bg-tertiary': props.tier.value === SubscriptionLevel.FREE,
+            'bg-primary text-white': props.tier.value === SubscriptionLevel.ANNUAL,
+            'bg-accent-alt': props.tier.value === SubscriptionLevel.MONTHLY,
+          } ]">
+          <p class="font-bold text-base text-white uppercase">
             {{ tier?.title }}
           </p>
         </div>
@@ -65,9 +65,9 @@
             class="flex items-center space-x-3 text-base">
             <icon-check-circle-2
               :class="{
-                'text-warning': props.tier.value === SubscriptionLevel.FREE,
+                'text-tertiary': props.tier.value === SubscriptionLevel.FREE,
                 'text-primary': props.tier.value === SubscriptionLevel.ANNUAL,
-                'text-positive': props.tier.value === SubscriptionLevel.MONTHLY,
+                'text-accent-alt': props.tier.value === SubscriptionLevel.MONTHLY,
               }"
               :color="tailwind.theme.colors['text-positive']"
               :size="24"

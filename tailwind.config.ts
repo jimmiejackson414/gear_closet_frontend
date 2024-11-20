@@ -1,5 +1,5 @@
-import animate from "tailwindcss-animate";
 import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
 
 // const animate = require("tailwindcss-animate");
 
@@ -64,6 +64,11 @@ export default {
           DEFAULT: "hsl(var(--accent))",
           light: "hsl(var(--accent-light))",
           foreground: "hsl(var(--accent-foreground))",
+          alt: "hsl(var(--accent-alt))",
+        },
+        tertiary: {
+          DEFAULT: "hsl(var(--tertiary))",
+          foreground: "hsl(var(--tertiary-foreground))",
         },
         popover: {
           DEFAULT: "hsl(var(--popover))",

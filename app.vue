@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  import { ConfigProvider } from 'radix-vue';
   import Toaster from '@/components/ui/toast/Toaster.vue';
   import type { Database } from '@/types';
 
@@ -8,15 +9,20 @@
       await supabase.removeAllChannels();
     }
   });
+
+  // fixes SSR hydration issue with radix-vue
+  const ssrId = () => useId();
 </script>
 
 <template>
-  <div class="bg-white dark:bg-black h-full">
-    <NuxtLayout>
-      <NuxtPage />
-      <toaster />
-    </NuxtLayout>
-  </div>
+  <config-provider :use-id="ssrId">
+    <div class="bg-white dark:bg-black h-full">
+      <NuxtLayout>
+        <NuxtPage />
+        <toaster />
+      </NuxtLayout>
+    </div>
+  </config-provider>
 </template>
 
 <style scoped>

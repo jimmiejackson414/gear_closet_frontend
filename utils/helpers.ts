@@ -1,10 +1,10 @@
 import convert from 'convert';
-import Dinero from 'dinero.js';
-import { v4 as uuidv4 } from 'uuid';
-import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '@/types/helpers';
 import type { Mass } from 'convert';
+import Dinero from 'dinero.js';
 import type { Currency } from 'dinero.js';
-import { MeasuringSystem, type Database, type Tables, type TablesInsert } from '@/types';
+import { v4 as uuidv4 } from 'uuid';
+import { type Database, MeasuringSystem, type Tables, type TablesInsert } from '@/types';
+import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '@/types/helpers';
 
 interface FriendlyUsernameOptions {
   includeTrailName?: boolean;

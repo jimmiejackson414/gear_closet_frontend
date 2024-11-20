@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
-import type { ProfileApiResponse } from '@/types/helpers';
 import { useAppStore } from '@/stores/app';
-import { type Tables, type Database, type TablesUpdate, SubscriptionLevel } from '@/types';
+import { type Database, SubscriptionLevel, type Tables, type TablesUpdate } from '@/types';
+import type { ProfileApiResponse } from '@/types/helpers';
 
 type State = {
   profile: ProfileApiResponse | null;
@@ -43,14 +43,12 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
     actions: {
       async fetchProfile () {
         const $store = useAppStore();
-        $store.loading = true;
 
         try {
           const user = useSupabaseUser();
 
           if (!user.value) {
             this.profile = null;
-            $store.loading = false;
             $store.notifyNegative('An error occurred while loading your profile.');
             return;
           }
@@ -68,18 +66,14 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           if (!data || error) {
             this.profile = null;
             this.profile!.notifications = [];
-            $store.loading = false;
             $store.notifyNegative('An error occurred while loading your account.');
             return;
           }
 
           this.profile = data as any;
           this.profile!.notifications = (data as any).notifications;
-          $store.loading = false;
         } catch (err) {
           console.error({ err });
-        } finally {
-          $store.loading = false;
         }
       },
 
