@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  import { Card, Button as PageButton, Typography } from '@/components/ui';
   import type { ExtendedFriend } from '@/types/helpers';
 
   interface Props {
@@ -18,8 +19,8 @@
 </script>
 
 <template>
-  <div
-    class="!bg-white card card-aside"
+  <card
+    class="h-full px-8 py-4 rounded-3xl"
     data-testid="friends-widget">
     <gc-skeleton
       v-if="loading"
@@ -27,7 +28,7 @@
       :lines="3" />
     <div v-else>
       <div class="flex justify-start items-center mb-4 py-4">
-        <icon-users class="h-6 mr-6 text-primary w-6" />
+        <icon-users class="h-6 mr-6 text-primary dark:text-primary-foreground w-6" />
         <nuxt-link
           class="!font-bold duration-150 ease-in-out text-base hover:text-primary"
           :to="{ name: 'friends' }">
@@ -54,16 +55,19 @@
         </template>
         <template v-else>
           <div class="flex justify-center items-center flex-col">
-            <p class="mb-4 text-base text-center">
+            <typography
+              class="mb-4 text-center"
+              variant="p">
               You haven't connected with any friends yet!
-            </p>
-            <gc-button
-              label="Get Started"
-              size="sm"
-              :to="{ name: 'friends' }" />
+            </typography>
+            <nuxt-link :to="{ name: 'friends' }">
+              <page-button size="sm">
+                Get Started
+              </page-button>
+            </nuxt-link>
           </div>
         </template>
       </ul>
     </div>
-  </div>
+  </card>
 </template>

@@ -33,7 +33,7 @@
 </script>
 
 <template>
-  <div class="bg-white dark:bg-black">
+  <div class="bg-background">
     <gc-loading-wrapper v-if="loading" />
     <div v-else>
       <gc-drawer v-if="!minimal && $route.name !== 'onboarding'" />

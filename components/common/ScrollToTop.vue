@@ -41,7 +41,7 @@
     mode="out-in">
     <div class="cursor-pointer fixed right-[3%] bottom-[5%] z-50">
       <button
-        class="bg-primary hover:bg-primary-dark border border-transparent flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-[3rem] rounded-full text-sm text-white transition-all w-[3rem]"
+        class="bg-primary border border-transparent flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-[3rem] rounded-full text-primary-foreground text-sm transition-all w-[3rem]"
         type="button"
         @click="scrollTop"
         @keydown="scrollTop">

@@ -1,6 +1,7 @@
 <script lang='ts' setup>
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
+  import { Card, Button as PageButton, Typography } from '@/components/ui';
   import type { Tables } from '@/types';
 
   dayjs.extend(relativeTime);
@@ -41,8 +42,8 @@
 </script>
 
 <template>
-  <div
-    class="!bg-white card card-aside"
+  <card
+    class="px-8 py-4 rounded-3xl"
     data-testid="upcoming-trips-widget">
     <gc-skeleton
       v-if="loading"
@@ -50,10 +51,12 @@
       :lines="3" />
     <div v-else>
       <div class="flex justify-start items-center py-4">
-        <icon-footprints class="h-6 mr-6 text-primary w-6" />
-        <p class="!font-bold text-base">
+        <icon-footprints class="h-6 mr-6 text-primary dark:text-primary-foreground w-6" />
+        <typography
+          class="font-bold"
+          variant="p">
           Upcoming Trips <span class="font-normal text-grey">({{ data.length || 0 }})</span>
-        </p>
+        </typography>
       </div>
       <div v-if="data.length">
         <ul class="divide-gray-200 divide-y">
@@ -88,14 +91,17 @@
       <div
         v-else
         class="flex justify-center items-center flex-col">
-        <p class="mb-4 text-base text-center">
+        <typography
+          class="mb-4 text-center"
+          variant="p">
           You don't have any upcoming trips yet!
-        </p>
-        <gc-button
-          label="Get Started"
-          size="sm"
-          :to="{ name: 'planning' }" />
+        </typography>
+        <nuxt-link :to="{ name: 'planning' }">
+          <page-button size="sm">
+            Get Started
+          </page-button>
+        </nuxt-link>
       </div>
     </div>
-  </div>
+  </card>
 </template>

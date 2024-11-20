@@ -1,13 +1,15 @@
 <script lang='ts' setup>
-  // import { IconLogOut } from '#components';
+  import { IconLogOut } from '#components';
 
   const $route = useRoute();
 
   const isActiveRoute = (link: LinkItem) => $route.name === link.to;
 
+  const colorMode = useColorMode();
+  const isLightMode = computed(() => colorMode.preference === 'light');
   const iconColor = (link: LinkItem) => {
     if (link.disabled) return tailwind.theme.colors.gray['100'];
-    return isActiveRoute(link) ? tailwind.theme.colors.primary.DEFAULT : tailwind.theme.colors.gray['500'];
+    return isActiveRoute(link) ? tailwind.theme.colors.primary.DEFAULT : ( isLightMode.value ? tailwind.theme.colors.gray['500'] : tailwind.theme.colors.card.foreground );
   };
 
   const $router = useRouter();
@@ -23,7 +25,7 @@
 
 <template>
   <div
-    class="bg-white fixed h-screen pb-4 pt-12 px-2 z-50"
+    class="bg-background fixed h-screen pb-4 pt-12 px-2 z-50"
     data-testid="gc-drawer">
     <ul class="flex items-center flex-col gap-4 h-full">
       <li class="border-b border-light-grey">
@@ -59,6 +61,7 @@
             :to="{ name: link.to }">
             <gc-avatar
               v-if="profile?.image && link.to === 'profile'"
+              v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
               :initials="initials(profile)"
               size="xs"
               :url="buildImageSrc(profile.image)" />
@@ -75,19 +78,15 @@
       <div class="grow" />
 
       <li class="cursor-pointer">
-        <!-- <span
+        <span
           v-tippy="{ content: 'Logout', placement: 'right' }"
           class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
           data-testid="logout"
           @click="handleLogout">
-          <component
-            :is="IconLogOut"
-            :color="tailwind.theme.colors['grey']"
+          <icon-log-out
+            :color="isLightMode ? tailwind.theme.colors.gray['500'] : tailwind.theme.colors.card.foreground"
             :size="24" />
-        </span> -->
-        <button @click="handleLogout">
-          Logout
-        </button>
+        </span>
       </li>
     </ul>
   </div>

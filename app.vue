@@ -16,7 +16,7 @@
 
 <template>
   <config-provider :use-id="ssrId">
-    <div class="bg-white dark:bg-black h-full">
+    <div class="bg-background h-full">
       <NuxtLayout>
         <NuxtPage />
         <toaster />

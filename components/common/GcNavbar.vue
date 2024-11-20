@@ -1,7 +1,8 @@
 <script lang='ts' setup>
   import { storeToRefs } from 'pinia';
-  import type { ExtendedNotification } from '@/types/helpers';
+  import { Button as PageButton } from '@/components/ui';
   import { useUserStore } from '@/stores/user';
+  import type { ExtendedNotification } from '@/types/helpers';
 
   interface Props {
     pageTitle?: string;
@@ -56,7 +57,9 @@
     <div class="grow" />
 
     <div class="flex items-center gap-8">
-      <div v-tippy="{ content: 'Toggle color mode' }">
+      <span
+        v-tippy="{ content: 'Toggle color mode' }"
+        class="flex">
         <gc-button
           ghost
           size="lg"
@@ -64,24 +67,25 @@
           <template #icon>
             <icon-sun
               v-if="colorMode.value === 'dark'"
-              class="h-6 w-6" />
+              class="h-6 text-gray-500 dark:text-card-foreground w-6" />
             <icon-moon
               v-else
-              class="h-6 w-6" />
+              class="h-6 text-gray-500 dark:text-card-foreground w-6" />
           </template>
         </gc-button>
-      </div>
+      </span>
       <div class="relative">
-        <button
-          class="!bg-white duration-150 ease-in-out font-medium inline-flex items-center p-4 relative rounded-full shadow-md text-center hover:text-dark-grey text-gray-500 text-sm focus:outline-none"
+        <page-button
+          class="bg-card duration-150 ease-in-out font-medium inline-flex items-center p-4 relative rounded-full shadow-md text-center dark:text-card-foreground hover:text-dark-grey text-gray-500 text-sm focus:outline-none"
           data-testid="notifications-button"
-          type="button"
+          size="icon"
+          variant="ghost"
           @click="isDropdownOpen = !isDropdownOpen">
-          <icon-bell-ring class="h-6 w-6" />
+          <icon-bell-ring class="h-8 text-gray-500 dark:text-card-foreground w-8" />
           <div
             v-if="shouldShowBadge"
-            class="absolute top-1 bg-danger block border-2 border-white end-1 h-3 rounded-full w-3" />
-        </button>
+            class="absolute top-1 bg-destructive block border-2 border-white end-1 h-3 rounded-full w-3" />
+        </page-button>
         <fade-transition>
           <div
             v-if="isDropdownOpen"

@@ -1,5 +1,6 @@
 <script lang='ts' setup>
   import GcSkeleton from '@/components/common/GcSkeleton.vue';
+  import { Card, Typography } from '@/components/ui';
   import type { Tables } from '@/types';
 
   interface Props {
@@ -14,8 +15,8 @@
 </script>
 
 <template>
-  <div
-    class="bg-white h-full p-4 rounded-4xl shadow-light"
+  <card
+    class="h-full p-4 rounded-3xl"
     data-testid="invitations-widget">
     <gc-skeleton
       v-if="loading"
@@ -23,7 +24,7 @@
       :lines="3" />
     <div v-else>
       <div class="flex justify-start items-center mb-4 py-4">
-        <icon-calendar-check class="h-6 mr-6 text-primary w-6" />
+        <icon-calendar-check class="h-6 mr-6 text-primary dark:text-primary-foreground w-6" />
         <p class="!font-bold text-base">
           Invitations <span class="font-normal text-grey">({{ data.length || 0 }})</span>
         </p>
@@ -39,12 +40,12 @@
             Invite: {{ invite.id }}
           </li>
         </ul>
-        <p
+        <typography
           v-else
-          class="mb-4 text-base text-center">
+          class="mb-4 text-center">
           You don't currently have any pending invitations.
-        </p>
+        </typography>
       </div>
     </div>
-  </div>
+  </card>
 </template>
