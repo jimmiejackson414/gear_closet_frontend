@@ -34,7 +34,7 @@
   :root  {
     --accent-foreground: 204 5% 15%;
     --accent: 166 30% 88%;
-    --accent-light: 166 50% 95%%;
+    --accent-light: 166 50% 95%;
     --accent-alt: 166 50% 25%;
     --background: 204 51% 98%;
     --border: 204 30% 82%;
@@ -64,6 +64,7 @@
   .dark:root  {
     --accent-foreground: 204 5% 90%;
     --accent: 166 30% 25%;
+    --accent-light: 166 30% 25%;
     --accent-alt: 166 30% 88%;
     --background: 204 50% 10%;
     --border: 204 30% 50%;

@@ -1,11 +1,16 @@
 <script lang='ts' setup>
+  import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js';
   import { toTypedSchema } from '@vee-validate/zod';
+  import dayjs from 'dayjs';
+  import utc from 'dayjs/plugin/utc';
   import type { FilePondFile } from 'filepond';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
-  import { Button as FormButton, FormControl, FormField, FormInput, FormItem, FormLabel, SelectContent, SelectGroup, SelectRoot, SelectTrigger, SelectValue, Tabs, TabsList, Typography } from '@/components/ui';
-  import { type Database, SubscriptionLevel } from '@/types';
+  import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button as FormButton, FormControl, FormField, FormInput, FormItem, FormLabel, SelectContent, SelectGroup, SelectRoot, SelectTrigger, SelectValue, Tabs, TabsList, Typography } from '@/components/ui';
+  import {type Database, MeasuringSystem, SubscriptionLevel} from '@/types';
   import type { SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
+
+  dayjs.extend(utc);
 
   /**
    * Global definitions
@@ -36,10 +41,24 @@
   const formSchema = toTypedSchema(z.object({
     first_name: z.string()
       .min(2),
+    last_name: z.string()
+      .min(2),
+    trail_name: z.string()
+      .optional(),
+    measuring_system: z.union([
+      z.literal(MeasuringSystem.IMPERIAL),
+      z.literal(MeasuringSystem.METRIC),
+    ]),
   }));
 
   const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
     validationSchema: formSchema,
+    initialValues: {
+      first_name: profile.value?.first_name ?? undefined,
+      last_name: profile.value?.last_name ?? undefined,
+      trail_name: profile.value?.trail_name ?? undefined,
+      measuring_system: profile.value?.measuring_system as MeasuringSystem ?? undefined,
+    },
   });
 
   /**
@@ -107,6 +126,9 @@
       fetchSubscriptionData();
     }
   });
+
+  const isManageSubscriptionOpen = ref(false);
+  const isUpdatePaymentModalOpen = ref(false);
 </script>
 
 <template>
@@ -252,13 +274,94 @@
                 class="flex justify-center">
                 <gc-spinner variant="primary" />
               </div>
-              <div class="auto-rows-auto grid grid-cols-1 gap-6">
+              <div
+                v-else
+                class="auto-rows-auto grid grid-cols-1 gap-12">
+                <div class="flex items-start flex-col gap-2">
+                  <typography variant="small">
+                    Current Subscription: <span class="font-bold">{{ capitalize(subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname) }}</span>
+                  </typography>
+                  <form-button
+                    size="sm"
+                    variant="outline"
+                    @click="isManageSubscriptionOpen = true">
+                    Manage Subscription
+                  </form-button>
+                </div>
+                <div class="flex items-start flex-col gap-2">
+                  <typography
+                    class="!font-bold"
+                    variant="small">
+                    Payment Methods
+                  </typography>
+                  <ul v-if="subscriptionData?.paymentMethods?.length">
+                    <li
+                      v-for="method in subscriptionData?.paymentMethods"
+                      :key="method.id">
+                      {{ capitalize(method.card?.brand ) || 'N/A' }} ending in {{ method.card?.last4 || 'N/A' }}
+                      <badge
+                        v-if="method.id === subscriptionData?.customer?.invoice_settings.default_payment_method"
+                        class="ml-4"
+                        variant="secondary">
+                        default
+                      </badge>
+                    </li>
+                  </ul>
+                  <typography
+                    v-else
+                    variant="small">
+                    No payment methods on file.
+                  </typography>
+                  <form-button
+                    class="mt-2"
+                    size="sm"
+                    variant="outline"
+                    @click="isUpdatePaymentModalOpen = true">
+                    Update Billing Method
+                  </form-button>
+                </div>
                 <div>
                   <typography
-                    class="font-bold"
+                    class="!font-bold"
                     variant="small">
-                    Current Subscription: {{ capitalize(subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname) }}
+                    Next Billing Date
                   </typography>
+                  <typography>
+                    {{ subscriptionData?.nextBillingDate ? dayjs.utc(subscriptionData.nextBillingDate * 1000).format('MMM DD, YYYY') : 'N/A' }}
+                  </typography>
+                </div>
+                <div>
+                  <accordion
+                    collapsible
+                    type="single">
+                    <accordion-item value="billing-history">
+                      <accordion-trigger>
+                        <typography
+                          class="!font-bold"
+                          variant="small">
+                          Billing History
+                        </typography>
+                      </accordion-trigger>
+                      <accordion-content>
+                        <ul>
+                          <li
+                            v-for="invoice in subscriptionData.invoices"
+                            :key="invoice.id"
+                            class="flex justify-start items-center gap-8 mb-3">
+                            {{ dayjs.utc(invoice.created * 1000).format('MMM DD, YYYY') }} - ${{ (invoice.amount_paid / 100).toFixed(2) }} ({{ invoice.lines.data[0].plan?.nickname || 'N/A' }})
+                            <a
+                              v-tippy="'Download Invoice'"
+                              class="duration-200 ease-in-out text-gray-400 hover:text-primary transition-colors"
+                              :href="(invoice.invoice_pdf as string)"
+                              rel="noopener noreferrer"
+                              target="_blank">
+                              <icon-download class="h-4 w-4" />
+                            </a>
+                          </li>
+                        </ul>
+                      </accordion-content>
+                    </accordion-item>
+                  </accordion>
                 </div>
               </div>
             </div>
