@@ -181,7 +181,7 @@
 
           <!-- Profile Tab Content -->
           <tabs-content value="profile">
-            <div class="bg-card p-4 rounded-lg">
+            <card class="bg-card p-4 rounded-lg">
               <form
                 class="auto-rows-auto grid grid-cols-1 gap-6"
                 @submit.prevent="onProfileSubmit">
@@ -263,12 +263,12 @@
                   Save Changes
                 </form-button>
               </form>
-            </div>
+            </card>
           </tabs-content>
 
           <!-- Subscription Tab Content -->
           <tabs-content value="subscription">
-            <div class="bg-card p-4 rounded-lg">
+            <card class="bg-card p-4 rounded-lg">
               <div
                 v-if="fetchingSubscription"
                 class="flex justify-center">
@@ -364,12 +364,16 @@
                   </accordion>
                 </div>
               </div>
-            </div>
+            </card>
           </tabs-content>
 
           <!-- Settings Tab Content -->
           <tabs-content value="settings">
-            Settings Tab
+            <card class="bg-card p-4 rounded-lg">
+              <div class="auto-rows-auto grid grid-cols-1 gap-6">
+                Settings Tab Content
+              </div>
+            </card>
           </tabs-content>
         </tabs>
       </div>
