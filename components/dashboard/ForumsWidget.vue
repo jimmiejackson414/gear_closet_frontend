@@ -22,7 +22,7 @@
 </script>
 
 <template>
-  <card class="p-4 rounded-3xl">
+  <card class="p-4 px-8 rounded-3xl">
     <div class="flex justify-start items-center py-4">
       <icon-messages-square class="h-6 mr-6 text-primary dark:text-primary-foreground w-6" />
       <p class="!font-bold text-base">

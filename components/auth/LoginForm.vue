@@ -3,7 +3,7 @@
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
-  import { Button as FormButton, FormControl, FormField, Input as FormInput, FormItem, FormLabel, Separator, Typography } from '@/components/ui';
+  import { Button as FormButton, FormControl, FormField, FormInput, FormItem, FormLabel, Separator, Typography } from '@/components/ui';
   import type { Tables } from '@/types';
 
   const supabase = useSupabaseClient();

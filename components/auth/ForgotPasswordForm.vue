@@ -3,7 +3,7 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { type Severity } from '@/components/common/GcAlert.vue';
-  import { FormField, FormItem, FormLabel, FormControl, Input as FormInput, Button as FormButton, Typography } from '@/components/ui';
+  import { Button as FormButton, FormControl, FormField, FormInput, FormItem, FormLabel, Typography } from '@/components/ui';
 
   const supabase = useSupabaseClient();
   const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);

@@ -3,7 +3,7 @@
  * @apiName GetForumPosts
  * @summary Fetch the latest forum posts
  */
-import type { ForumLatestPosts, ForumCategories } from '@/types/helpers';
+import type { ForumCategories, ForumLatestPosts } from '@/types/helpers';
 
 export default defineEventHandler(async () => {
   const config = useRuntimeConfig();

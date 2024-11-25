@@ -1,1 +1,1 @@
-export { default as Input } from './Input.vue';
+export { default as FormInput } from './Input.vue';

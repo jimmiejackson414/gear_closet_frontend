@@ -20,11 +20,11 @@
 
 
     // determine color classes
-    if (props.variant === 'warning') { classes.push('bg-warning-light text-warning-dark'); }
-    else if (props.variant === 'primary') { classes.push('bg-primary-light/60 text-primary-dark'); }
-    else if (props.variant === 'positive') { classes.push('bg-positive-light text-positive-dark'); }
-    else if (props.variant === 'secondary') { classes.push('bg-gray-200 text-dark-grey'); }
-    else if (props.variant === 'danger') { classes.push('bg-danger-light text-danger-dark'); }
+    if (props.variant === 'warning') { classes.push('bg-tertiary text-warning-dark'); }
+    else if (props.variant === 'primary') { classes.push('bg-primary text-white'); }
+    else if (props.variant === 'positive') { classes.push('bg-accent-alt text-white'); }
+    else if (props.variant === 'secondary') { classes.push('bg-gray-300 text-dark-grey'); }
+    else if (props.variant === 'danger') { classes.push('bg-destructive text-white'); }
 
     return classes;
   });
@@ -32,7 +32,7 @@
 
 <template>
   <span
-    class="!font-bold me-2 rounded-lg"
+    class="!font-semibold me-2 rounded-lg"
     :class="computedClasses">
     {{ copy }}
   </span>

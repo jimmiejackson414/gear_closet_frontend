@@ -5,7 +5,7 @@
   import type { FunctionalComponent } from 'vue';
   import * as z from 'zod';
   import { IconAperture, IconCheck, IconCircleUser, IconHeart } from '#components';
-  import { AlertDialog, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button as FormButton, FormControl, FormField, Input as FormInput, FormLabel, FormMessage, Select as FormSelect, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, Stepper, StepperDescription, StepperItem, StepperSeparator, StepperTitle, StepperTrigger } from '@/components/ui';
+  import { AlertDialog, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button as FormButton, FormControl, FormField, FormInput, FormLabel, FormMessage, SelectRoot as FormSelect, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, Stepper, StepperDescription, StepperItem, StepperSeparator, StepperTitle, StepperTrigger } from '@/components/ui';
   import { useToast } from '@/components/ui/toast/use-toast';
   import { MeasuringSystem, SubscriptionLevel } from '@/types';
 

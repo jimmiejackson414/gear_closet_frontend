@@ -1,10 +1,10 @@
 <script lang='ts' setup>
+  import type { Provider } from '@supabase/supabase-js';
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
-  import type { Provider } from '@supabase/supabase-js';
   import { type Severity} from '@/components/common/GcAlert.vue';
-  import { Separator, FormField, FormItem, FormLabel, FormControl, Input as FormInput, Button as FormButton, Typography } from '@/components/ui';
+  import { Button as FormButton, FormControl, FormField, FormInput, FormItem, FormLabel, Separator, Typography } from '@/components/ui';
 
   const supabase = useSupabaseClient();
   const $router = useRouter();
