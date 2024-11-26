@@ -6,8 +6,9 @@
   import type { FilePondFile } from 'filepond';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
+  import ManageSubscriptionDialog from '@/components/profile/dialogs/ManageSubscriptionDialog.vue';
   import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button as FormButton, FormControl, FormField, FormInput, FormItem, FormLabel, SelectContent, SelectGroup, SelectRoot, SelectTrigger, SelectValue, Tabs, TabsList, Typography } from '@/components/ui';
-  import {type Database, MeasuringSystem, SubscriptionLevel} from '@/types';
+  import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
   import type { SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
 
   dayjs.extend(utc);
@@ -129,6 +130,51 @@
 
   const isManageSubscriptionOpen = ref(false);
   const isUpdatePaymentModalOpen = ref(false);
+
+  /**
+   * Handles the update password
+   */
+  const newPassword = ref('');
+  const confirmPassword = ref('');
+  const isSubmittingPassword = ref(false);
+  const handleUpdatePassword = async () => {
+    isSubmittingPassword.value = true;
+
+    if (newPassword.value !== confirmPassword.value) {
+      $appStore.notifyNegative('Passwords do not match.');
+      isSubmittingPassword.value = false;
+      return;
+    }
+
+    if (newPassword.value?.length < 8) {
+      $appStore.notifyNegative('Password must be at least 8 characters.');
+      isSubmittingPassword.value = false;
+      return;
+    }
+
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const { error } = await supabase.auth.updateUser({
+        password: newPassword.value,
+      });
+
+      if (error) { $appStore.notifyNegative('An error occurred while updating your password.'); }
+      else {
+        $appStore.notifyPositive('Successfully updated your password!');
+        newPassword.value = '';
+        confirmPassword.value = '';
+      }
+    } catch (err) {
+      $appStore.notifyNegative('An error occurred while updating your password.');
+    } finally {
+      isSubmittingPassword.value = false;
+    }
+  };
+
+  /**
+   * Deletes the user account
+   */
+  const deleteAccountModalOpen = ref(false);
 </script>
 
 <template>
@@ -371,12 +417,59 @@
           <tabs-content value="settings">
             <card class="bg-card p-4 rounded-lg">
               <div class="auto-rows-auto grid grid-cols-1 gap-6">
-                Settings Tab Content
+                <form-field
+                  v-slot="{ componentField }"
+                  name="new_password">
+                  <form-item>
+                    <form-label>New Password</form-label>
+                    <form-control>
+                      <form-input
+                        v-model="newPassword"
+                        :disabled="isSubmittingPassword"
+                        password-toggle
+                        type="password"
+                        v-bind="componentField" />
+                    </form-control>
+                  </form-item>
+                </form-field>
+                <form-field
+                  v-slot="{ componentField }"
+                  name="confirm_password">
+                  <form-item>
+                    <form-label>Confirm Password</form-label>
+                    <form-control>
+                      <form-input
+                        v-model="confirmPassword"
+                        :disabled="isSubmittingPassword"
+                        password-toggle
+                        type="password"
+                        v-bind="componentField" />
+                    </form-control>
+                  </form-item>
+                </form-field>
+                <div class="flex justify-between items-center">
+                  <form-button
+                    variant="destructive"
+                    @click="deleteAccountModalOpen = true">
+                    Delete Account
+                  </form-button>
+                  <form-button
+                    :disabled="isSubmittingPassword"
+                    :loading="isSubmittingPassword"
+                    @click="handleUpdatePassword">
+                    Update Password
+                  </form-button>
+                </div>
               </div>
             </card>
           </tabs-content>
         </tabs>
       </div>
     </div>
+
+    <manage-subscription-dialog
+      :is-open="isManageSubscriptionOpen"
+      :subscription-data="subscriptionData as SubscriptionApiResponse"
+      @on-close="isManageSubscriptionOpen = false" />
   </div>
 </template>

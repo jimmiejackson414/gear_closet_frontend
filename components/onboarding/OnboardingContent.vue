@@ -140,7 +140,7 @@
 
       if (!response.ok) throw new Error();
 
-      $router.push({ name: 'index' });
+      await $router.push({ name: 'index' });
     } catch (error) {
       toast({
         title: 'Error',
@@ -172,7 +172,7 @@
   <stepper
     v-model="stepIndex"
     class="block max-w-4xl mt-8 mx-auto w-full">
-    <div class="flex flex-start gap-2 w">
+    <div class="flex flex-start gap-2 w-full">
       <!-- Stepper Navigation -->
       <stepper-item
         v-for="step in steps"

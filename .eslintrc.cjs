@@ -62,6 +62,7 @@ module.exports = {
     '@stylistic/js/no-trailing-spaces': 'warn',
     '@stylistic/js/semi': ['warn', 'always'],
     '@stylistic/js/space-before-function-paren': ['warn', 'always'],
+    'object-curly-spacing': ['warn', 'always'],
     'no-relative-import-paths/no-relative-import-paths': [
       'warn',
       { 'allowSameFolder': true, 'prefix': '@' },

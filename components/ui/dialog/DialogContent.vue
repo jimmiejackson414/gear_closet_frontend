@@ -36,7 +36,9 @@
         )">
       <slot />
 
-      <dialog-close class="absolute top-4 right-4 data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 hover:opacity-100 ring-offset-background focus:ring-2 focus:ring-offset-2 focus:ring-ring rounded-sm transition-opacity disabled:pointer-events-none focus:outline-none">
+      <dialog-close
+        class="absolute top-4 right-4 data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 hover:opacity-100 ring-offset-background focus:ring-2 focus:ring-offset-2 focus:ring-ring rounded-sm transition-opacity disabled:pointer-events-none focus:outline-none"
+        @click="e => emits('escapeKeyDown', e)">
         <icon-x class="h-4 w-4" />
         <span class="sr-only">Close</span>
       </dialog-close>
