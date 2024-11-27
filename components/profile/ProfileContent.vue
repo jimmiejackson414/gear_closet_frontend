@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js';
   import { toTypedSchema } from '@vee-validate/zod';
   import dayjs from 'dayjs';
   import utc from 'dayjs/plugin/utc';
@@ -7,6 +6,7 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import ManageSubscriptionDialog from '@/components/profile/dialogs/ManageSubscriptionDialog.vue';
+  import UpdatePaymentMethodDialog from '@/components/profile/dialogs/UpdatePaymentMethodDialog.vue';
   import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button as FormButton, FormControl, FormField, FormInput, FormItem, FormLabel, SelectContent, SelectGroup, SelectRoot, SelectTrigger, SelectValue, Tabs, TabsList, Typography } from '@/components/ui';
   import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
   import type { SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
@@ -53,6 +53,7 @@
   }));
 
   const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
+    keepValuesOnUnmount: true,
     validationSchema: formSchema,
     initialValues: {
       first_name: profile.value?.first_name ?? undefined,
@@ -188,20 +189,20 @@
           @handle-remove-file="newAvatarFile = undefined" />
       </client-only>
       <div>
-        <div class="mb-12">
+        <div class="mb-6">
           <typography
             v-if="profile?.trail_name"
             variant="h2">
             {{ profile.trail_name }}
           </typography>
           <typography
-            class="mb-4"
+            class="mb-2"
             variant="large">
             {{ friendlyUsername((profile as any), { includeTrailName: false }) }}
           </typography>
           <gc-pill
             :copy="capitalize(profile!.subscriptions[0]?.prices.identifier) + ' Subscription'"
-            size="lg"
+            size="sm"
             :variant="{
               [SubscriptionLevel.FREE]: 'warning' as const,
               [SubscriptionLevel.LIFE]: 'positive' as const,
@@ -467,9 +468,15 @@
       </div>
     </div>
 
+    <!--    Dialogs-->
     <manage-subscription-dialog
       :is-open="isManageSubscriptionOpen"
+      :selected-plan="selectedPlan"
       :subscription-data="subscriptionData as SubscriptionApiResponse"
       @on-close="isManageSubscriptionOpen = false" />
+
+    <update-payment-method-dialog
+      :is-open="isUpdatePaymentModalOpen"
+      @on-close="isUpdatePaymentModalOpen = false" />
   </div>
 </template>

@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { computed, type HTMLAttributes } from 'vue';
   import { TabsList, type TabsListProps } from 'radix-vue';
+  import { type HTMLAttributes, computed } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<TabsListProps & { class?: HTMLAttributes['class'] }>();
@@ -17,7 +17,7 @@
   <tabs-list
     v-bind="delegatedProps"
     :class="cn(
-      'inline-flex items-center justify-center rounded-md bg-muted p-1 text-muted-foreground',
+      'inline-flex items-center justify-center rounded-md bg-muted dark:bg-accent-light p-1 text-foreground dark:text-accent',
       props.class,
     )">
     <slot />

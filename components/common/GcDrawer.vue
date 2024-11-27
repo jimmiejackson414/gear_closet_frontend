@@ -9,14 +9,14 @@
   const isLightMode = computed(() => colorMode.preference === 'light');
   const iconColor = (link: LinkItem) => {
     if (link.disabled) return tailwind.theme.colors.gray['100'];
-    return isActiveRoute(link) ? tailwind.theme.colors.primary.DEFAULT : ( isLightMode.value ? tailwind.theme.colors.gray['500'] : tailwind.theme.colors.card.foreground );
+    return isActiveRoute(link) ? tailwind.theme.colors.primary.DEFAULT : ( isLightMode.value ? tailwind.theme.colors.gray['500'] : tailwind.theme.colors.accent.alt );
   };
 
   const $router = useRouter();
   const handleLogout = async () => {
     const supabase = useSupabaseClient();
     await supabase.auth.signOut();
-    $router.push({ name: 'login' });
+    await $router.push({ name: 'login' });
   };
 
   const $store = useUserStore();
@@ -41,7 +41,7 @@
         :class="link.disabled ? 'cursor-not-allowed' : 'cursor-pointer'">
         <template v-if="link.external">
           <a
-            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
+            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg dark:hover:bg-accent hover:bg-gray-100"
             :href="link.disabled ? undefined : link.to"
             rel="noopener noreferrer"
             target="_blank"
@@ -55,8 +55,8 @@
         </template>
         <template v-else>
           <nuxt-link
-            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
-            :class="[isActiveRoute(link) ? 'bg-gray-100' : '']"
+            class="duration-200 ease-in-out inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg transition dark:hover:bg-accent hover:bg-gray-100"
+            :class="[isActiveRoute(link) ? 'bg-accent-light' : '']"
             :disabled="link.disabled"
             :to="{ name: link.to }">
             <gc-avatar
@@ -80,7 +80,7 @@
       <li class="cursor-pointer">
         <span
           v-tippy="{ content: 'Logout', placement: 'right' }"
-          class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
+          class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg dark:hover:bg-accent hover:bg-gray-100"
           data-testid="logout"
           @click="handleLogout">
           <icon-log-out
