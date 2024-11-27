@@ -1,13 +1,14 @@
 <script lang='ts' setup>
-  import { toTypedSchema } from '@vee-validate/zod';
-  import dayjs from 'dayjs';
-  import utc from 'dayjs/plugin/utc';
-  import type { FilePondFile } from 'filepond';
-  import { useForm } from 'vee-validate';
-  import * as z from 'zod';
-  import ManageSubscriptionDialog from '@/components/profile/dialogs/ManageSubscriptionDialog.vue';
-  import UpdatePaymentMethodDialog from '@/components/profile/dialogs/UpdatePaymentMethodDialog.vue';
-  import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button as FormButton, FormControl, FormField, FormInput, FormItem, FormLabel, SelectContent, SelectGroup, SelectRoot, SelectTrigger, SelectValue, Tabs, TabsList, Typography } from '@/components/ui';
+  import { toTypedSchema }                                                                                                                                                                                                                              from '@vee-validate/zod';
+  import dayjs                                                                                                                                                                                                                                          from 'dayjs';
+  import utc                                                                                                                                                                                                                                            from 'dayjs/plugin/utc';
+  import type { FilePondFile }                                                                                                                                                                                                                          from 'filepond';
+  import { useForm }                                                                                                                                                                                                                                    from 'vee-validate';
+  import * as z                                                                                                                                                                                                                                         from 'zod';
+  import DeleteAccountDialog                                                                                                                                                                                                                            from '@/components/profile/dialogs/DeleteAccountDialog.vue';
+  import ManageSubscriptionDialog                                                                                                                                                                                                                       from '@/components/profile/dialogs/ManageSubscriptionDialog.vue';
+  import UpdatePaymentMethodDialog                                                                                                                                                                                                                      from '@/components/profile/dialogs/UpdatePaymentMethodDialog.vue';
+  import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button as FormButton, FormControl, FormField, FormInput, FormItem, FormLabel, SelectContent, SelectGroup, SelectRoot, SelectTrigger, SelectValue, Separator, Tabs, TabsList, Typography } from '@/components/ui';
   import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
   import type { SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
 
@@ -130,7 +131,7 @@
   });
 
   const isManageSubscriptionOpen = ref(false);
-  const isUpdatePaymentModalOpen = ref(false);
+  const isUpdatePaymentDialogOpen = ref(false);
 
   /**
    * Handles the update password
@@ -175,7 +176,7 @@
   /**
    * Deletes the user account
    */
-  const deleteAccountModalOpen = ref(false);
+  const isDeleteAccountDialogOpen = ref(false);
 </script>
 
 <template>
@@ -363,7 +364,7 @@
                     class="mt-2"
                     size="sm"
                     variant="outline"
-                    @click="isUpdatePaymentModalOpen = true">
+                    @click="isUpdatePaymentDialogOpen = true">
                     Update Billing Method
                   </form-button>
                 </div>
@@ -448,17 +449,23 @@
                     </form-control>
                   </form-item>
                 </form-field>
-                <div class="flex justify-between items-center">
-                  <form-button
-                    variant="destructive"
-                    @click="deleteAccountModalOpen = true">
-                    Delete Account
-                  </form-button>
+                <div class="flex justify-end items-center">
                   <form-button
                     :disabled="isSubmittingPassword"
                     :loading="isSubmittingPassword"
                     @click="handleUpdatePassword">
                     Update Password
+                  </form-button>
+                </div>
+                <separator />
+                <div class="flex items-start flex-col">
+                  <typography class="font-bold mb-2 text-destructive">
+                    Danger Zone
+                  </typography>
+                  <form-button
+                    variant="destructive"
+                    @click="isDeleteAccountDialogOpen = true">
+                    Delete Account
                   </form-button>
                 </div>
               </div>
@@ -476,7 +483,11 @@
       @on-close="isManageSubscriptionOpen = false" />
 
     <update-payment-method-dialog
-      :is-open="isUpdatePaymentModalOpen"
-      @on-close="isUpdatePaymentModalOpen = false" />
+      :is-open="isUpdatePaymentDialogOpen"
+      @on-close="isUpdatePaymentDialogOpen = false" />
+
+    <delete-account-dialog
+      :is-open="isDeleteAccountDialogOpen"
+      @on-close="isDeleteAccountDialogOpen = false" />
   </div>
 </template>

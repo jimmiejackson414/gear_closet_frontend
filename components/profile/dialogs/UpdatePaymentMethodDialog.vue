@@ -1,6 +1,7 @@
 <script lang="ts" setup="">
   import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js';
   import { Checkbox, Button as DialogButton, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, Dialog as DialogRoot, DialogTitle, Typography } from '@/components/ui';
+
   interface Props {
     isOpen: boolean;
   }
