@@ -1,6 +1,6 @@
 <script lang="ts" setup="">
   import { IconCheckCircle, IconHeart } from '#components';
-  import { Button as DialogButton, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, Dialog as DialogRoot, DialogTitle, Stepper, StepperItem, StepperSeparator, StepperTitle, StepperTrigger, Typography } from '@/components/ui';
+  import { Button as DialogButton, DialogClose, DialogContent, DialogFooter, DialogHeader, Dialog as DialogRoot, DialogTitle, Stepper, StepperItem, StepperSeparator, StepperTitle, StepperTrigger, Typography } from '@/components/ui';
   import { SubscriptionLevel } from "@/types";
   import type { SubscriptionApiResponse } from "@/types/helpers";
 
@@ -59,11 +59,6 @@
       @interact-outside="handleClose">
       <dialog-header>
         <dialog-title>Manage Subscription</dialog-title>
-        <dialog-description>
-          <typography class="text-gray-500 text-sm">
-            Manage your subscription plan
-          </typography>
-        </dialog-description>
       </dialog-header>
       <div class="flex-grow mt-2 overflow-y-auto w-full">
         <stepper
@@ -106,7 +101,7 @@
             <template v-if="activeStep === 1">
               <div
                 v-if="subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() === SubscriptionLevel.LIFE"
-                class="mb-8 mt-2 text-center">
+                class="mb-4 mt-2 text-center">
                 <typography class="font-bold text-lg">
                   Good news!
                 </typography>
@@ -116,7 +111,7 @@
               </div>
               <div
                 v-else
-                class="mb-8 mt-2 text-center">
+                class="mb-4 mt-2 text-center">
                 <typography class="font-bold text-base-lg">
                   Here's what you've got.
                 </typography>

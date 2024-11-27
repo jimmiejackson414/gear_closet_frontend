@@ -1,5 +1,5 @@
 <script lang="ts" setup="">
-  import { Checkbox, Button as DialogButton, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, Dialog as DialogRoot, DialogTitle, Typography } from '@/components/ui';
+  import { Checkbox, Button as DialogButton, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, Dialog as DialogRoot, DialogTitle } from '@/components/ui';
 
   interface Props {
     isOpen: boolean;
@@ -8,7 +8,7 @@
   defineProps<Props>();
   const emits = defineEmits(['onClose']);
 
-  const confirmDeleteAccount = defineModel({ default: false });
+  const confirmDeleteAccount = defineModel({ default: false, type: Boolean });
 
   // TODO: Finish the implementation of the DeleteAccountDialog component
   const isSubmitting = ref(false);

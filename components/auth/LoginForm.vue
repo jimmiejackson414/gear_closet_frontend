@@ -23,7 +23,7 @@
 
   const onSubmit = handleSubmit(async (values) => {
     try {
-      const { error } = await supabase.auth.signInWithPassword({...values});
+      const { error } = await supabase.auth.signInWithPassword({ ...values });
 
       if (error) {
         loginError.value = error.message;

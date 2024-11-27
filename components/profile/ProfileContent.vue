@@ -1,13 +1,13 @@
 <script lang='ts' setup>
-  import { toTypedSchema }                                                                                                                                                                                                                              from '@vee-validate/zod';
-  import dayjs                                                                                                                                                                                                                                          from 'dayjs';
-  import utc                                                                                                                                                                                                                                            from 'dayjs/plugin/utc';
-  import type { FilePondFile }                                                                                                                                                                                                                          from 'filepond';
-  import { useForm }                                                                                                                                                                                                                                    from 'vee-validate';
-  import * as z                                                                                                                                                                                                                                         from 'zod';
-  import DeleteAccountDialog                                                                                                                                                                                                                            from '@/components/profile/dialogs/DeleteAccountDialog.vue';
-  import ManageSubscriptionDialog                                                                                                                                                                                                                       from '@/components/profile/dialogs/ManageSubscriptionDialog.vue';
-  import UpdatePaymentMethodDialog                                                                                                                                                                                                                      from '@/components/profile/dialogs/UpdatePaymentMethodDialog.vue';
+  import { toTypedSchema } from '@vee-validate/zod';
+  import dayjs from 'dayjs';
+  import utc from 'dayjs/plugin/utc';
+  import type { FilePondFile } from 'filepond';
+  import { useForm } from 'vee-validate';
+  import * as z from 'zod';
+  import DeleteAccountDialog from '@/components/profile/dialogs/DeleteAccountDialog.vue';
+  import ManageSubscriptionDialog from '@/components/profile/dialogs/ManageSubscriptionDialog.vue';
+  import UpdatePaymentMethodDialog from '@/components/profile/dialogs/UpdatePaymentMethodDialog.vue';
   import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button as FormButton, FormControl, FormField, FormInput, FormItem, FormLabel, SelectContent, SelectGroup, SelectRoot, SelectTrigger, SelectValue, Separator, Tabs, TabsList, Typography } from '@/components/ui';
   import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
   import type { SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
@@ -68,7 +68,12 @@
    * Handles the profile form submission
    */
   const onProfileSubmit = handleSubmit(async (values) => {
-    console.log({ values });
+    try {
+      const { success } = await $store.updateProfile(values);
+      if (!success) throw Error;
+    } catch (err) {
+      $appStore.notifyNegative('An error occurred while updating your profile.');
+    }
   });
 
   /**
@@ -130,9 +135,6 @@
     }
   });
 
-  const isManageSubscriptionOpen = ref(false);
-  const isUpdatePaymentDialogOpen = ref(false);
-
   /**
    * Handles the update password
    */
@@ -174,9 +176,12 @@
   };
 
   /**
-   * Deletes the user account
+   * Dialog states
    */
   const isDeleteAccountDialogOpen = ref(false);
+  const isManageSubscriptionOpen = ref(false);
+  const isUpdatePaymentDialogOpen = ref(false);
+
 </script>
 
 <template>
@@ -479,7 +484,7 @@
     <manage-subscription-dialog
       :is-open="isManageSubscriptionOpen"
       :selected-plan="selectedPlan"
-      :subscription-data="subscriptionData as SubscriptionApiResponse"
+      :subscription-data="( subscriptionData as SubscriptionApiResponse )"
       @on-close="isManageSubscriptionOpen = false" />
 
     <update-payment-method-dialog
