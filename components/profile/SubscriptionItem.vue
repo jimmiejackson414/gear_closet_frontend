@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  import { Button as DialogButton } from '@/components/ui';
+  import { UiButton } from '@/components/ui';
   import { SubscriptionLevel } from '@/types';
   import tailwindConfig from '@/utils/tailwind';
   import type { Tier } from '@/utils/tiers';
@@ -71,14 +71,14 @@
           {{ item }}
         </p>
       </div>
-      <dialog-button
+      <ui-button
         class="mt-auto self-center"
         :disabled="plan.buttonDisabled || (profile?.subscriptions[0]?.prices.identifier === plan.value)"
         size="sm"
         variant="secondary"
         @click="emit('handle-select', plan.value)">
         {{ plan.buttonText }}
-      </dialog-button>
+      </ui-button>
     </div>
   </div>
 </template>

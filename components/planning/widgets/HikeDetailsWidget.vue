@@ -25,7 +25,7 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
-          trip_id: selectedTripId?.value,
+          trip_id: Number(selectedTripId?.value),
           title: 'New detail',
           type: TripDetailsType.HIKE,
           value: 'New hike detail description',
@@ -49,12 +49,12 @@
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTrip, error } = await supabase.from('trips')
         .update(payload)
-        .eq('id', selectedTripId?.value as number)
+        .eq('id', Number(selectedTripId?.value))
         .select();
 
       // Update the trip in the store.
       if (updatedTrip?.length && selectedTripId && !error) {
-        const tripToUpdate = data.value.trips.find((t) => t.id === selectedTripId.value);
+        const tripToUpdate = data.value.trips.find((t) => t.id === Number(selectedTripId.value));
         if (tripToUpdate) {
           Object.assign(tripToUpdate, updatedTrip[0]);
         }
@@ -66,7 +66,7 @@
 </script>
 
 <template>
-  <div class="card card-main">
+  <card class="px-8 py-4 rounded-3xl">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
       <icon-mountain class="h-6 mr-6 text-primary w-6" />
       <p class="!font-bold text-base">
@@ -165,5 +165,5 @@
         </li>
       </ul>
     </div>
-  </div>
+  </card>
 </template>

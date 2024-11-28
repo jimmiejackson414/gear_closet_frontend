@@ -45,7 +45,7 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
-          trip_id: selectedTripId?.value as number,
+          trip_id: Number(selectedTripId?.value),
           title: 'New detail',
           type: TripDetailsType.TRIP,
           value: 'New trip detail description',
@@ -118,11 +118,11 @@
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTrip, error } = await supabase.from('trips')
         .update(payload)
-        .eq('id', selectedTripId?.value as number)
+        .eq('id', Number(selectedTripId?.value))
         .select();
 
       if (updatedTrip?.length && selectedTripId && !error) {
-        selectedTripId.value = updatedTrip[0].id;
+        selectedTripId.value = String(updatedTrip[0].id);
 
         // Find the index of the corresponding trip in data.value.trips and update it
         const tripIndex = data.value.trips.findIndex(trip => trip.id === updatedTrip[0].id);
@@ -156,7 +156,7 @@
 </script>
 
 <template>
-  <div class="card card-main">
+  <card class="px-8 py-4 rounded-3xl">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
       <icon-footprints class="h-6 mr-6 text-primary w-6" />
       <p class="!font-bold text-base">
@@ -322,5 +322,5 @@
         </div>
       </template>
     </gc-modal>
-  </div>
+  </card>
 </template>

@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { IconPlus} from '#components';
+  import { IconPlus } from '#components';
   import { type Database, ResourceType, type Tables, type TablesUpdate } from '@/types';
 
   const $appStore = useAppStore();
@@ -112,7 +112,7 @@
 </script>
 
 <template>
-  <div class="card card-aside">
+  <card class="px-8 py-4 rounded-3xl">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
       <icon-check-square-2 class="h-6 mr-6 text-primary w-6" />
       <p class="!font-bold text-base">
@@ -334,5 +334,5 @@
         </div>
       </div>
     </div>
-  </div>
+  </card>
 </template>

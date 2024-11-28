@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import VueDatePicker from '@vuepic/vue-datepicker';
   import dayjs from 'dayjs';
-  import { IconBackpack, IconMapPin, IconText} from '#components';
+  import { IconBackpack, IconMapPin, IconText } from '#components';
   import type { Database, TablesInsert } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
@@ -53,7 +53,7 @@
         $appStore.notifyPositive('Successfully created a new trip!');
         dialogStates.value.createTripDialog = false;
         if (selectedTripId?.value) {
-          selectedTripId.value = createdTrip[0].id;
+          selectedTripId.value = String(createdTrip[0].id);
           data.value.trips.push(createdTrip[0]);
         }
       }

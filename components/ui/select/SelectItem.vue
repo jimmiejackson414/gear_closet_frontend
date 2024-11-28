@@ -10,10 +10,10 @@
   import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
-  const props = defineProps<SelectItemProps & { class?: HTMLAttributes['class'] }>();
+  const props = defineProps<SelectItemProps & { class?: HTMLAttributes['class'], hideCheckmark?: boolean }>();
 
   const delegatedProps = computed(() => {
-    const { class: _, ...delegated } = props;
+    const { class: _, hideCheckmark, ...delegated } = props;
 
     return delegated;
   });
@@ -27,10 +27,13 @@
     :class="
       cn(
         'relative flex w-full cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+        hideCheckmark ? 'pl-2' : 'pl-8',
         props.class,
       )
     ">
-    <span class="absolute left-2 flex justify-center items-center h-3.5 w-3.5">
+    <span
+      v-if="!hideCheckmark"
+      class="absolute left-2 flex justify-center items-center h-3.5 w-3.5">
       <select-item-indicator>
         <icon-check class="h-4 w-4" />
       </select-item-indicator>

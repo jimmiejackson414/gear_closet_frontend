@@ -21,7 +21,7 @@ type State = {
     modifyDetailDialog: boolean;
   }
   pageLoading: boolean;
-  selectedTripId: number | null;
+  selectedTripId: string | undefined;
 };
 
 type Getters = {
@@ -52,13 +52,13 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           modifyDetailDialog: false,
         },
         pageLoading: true,
-        selectedTripId: null,
+        selectedTripId: undefined,
       };
     },
 
     getters: {
       selectedTrip () {
-        return this.data.trips.find(trip => trip.id === this.selectedTripId);
+        return this.data.trips.find(trip => String(trip.id) === this.selectedTripId);
       },
     },
 
@@ -82,7 +82,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
 
             // set selected trip if available
             const findSelectedTrip = pageData.trips.find(trip => trip.id === (tripId ? tripId : pageData.trips[0].id)) as Tables<'trips'>;
-            this.selectedTripId = findSelectedTrip.id;
+            this.selectedTripId = String(findSelectedTrip.id);
           }
         } catch (err: any) {
           $store.notifyNegative(err);

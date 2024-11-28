@@ -1,5 +1,5 @@
 <script lang="ts" setup="">
-  import { Checkbox, Button as DialogButton, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, Dialog as DialogRoot, DialogTitle } from '@/components/ui';
+  import { Checkbox, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, Dialog as DialogRoot, DialogTitle, UiButton } from '@/components/ui';
 
   interface Props {
     isOpen: boolean;
@@ -52,13 +52,13 @@
         <dialog-close @click="emits('onClose')">
           Cancel
         </dialog-close>
-        <dialog-button
+        <ui-button
           :disabled="!confirmDeleteAccount || isSubmitting"
           :loading="isSubmitting"
           variant="destructive"
           @click="handleConfirm">
           Delete Account
-        </dialog-button>
+        </ui-button>
       </dialog-footer>
     </dialog-content>
   </dialog-root>

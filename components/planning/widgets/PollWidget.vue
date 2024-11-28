@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { IconCheckCircle2, IconHelpCircle} from '#components';
+  import { IconCheckCircle2, IconHelpCircle } from '#components';
   import { usePlanningStore } from '@/stores/planning';
   import type { Database, Tables } from '@/types';
   import type { ExtendedPoll } from '@/types/helpers';
@@ -95,7 +95,7 @@
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const { data: newPoll, error } = await supabase.rpc('create_poll', {
-        trip_id: selectedTripId?.value as number,
+        trip_id: Number(selectedTripId?.value),
         question: modalForm.question?.title as string,
         answers: modalForm.answers.map(a => a.content) as string[],
       })
@@ -140,7 +140,7 @@
 </script>
 
 <template>
-  <div class="card card-aside">
+  <card class="px-8 py-4 rounded-3xl">
     <div class="flex justify-between items-center py-4">
       <div class="flex items-center">
         <icon-vote class="h-6 mr-6 text-primary w-6" />
@@ -151,7 +151,7 @@
       <div
         v-if="canAccessSettings"
         class="flex">
-        <headless-menu
+        <!-- <headless-menu
           as="div"
           class="inline-block relative text-left">
           <div class="bg-primary flex justify-center items-center h-6 rounded-full w-6">
@@ -173,7 +173,7 @@
               </headless-menu-item>
             </headless-menu-items>
           </zoom-transition>
-        </headless-menu>
+        </headless-menu> -->
       </div>
     </div>
     <gc-skeleton v-if="pageLoading" />
@@ -193,7 +193,7 @@
         @create-answer="data.poll?.answers.push($event)"
         @create-vote="data.poll?.votes.push($event)" />
     </div>
-  </div>
+  </card>
 
   <!-- Create & Edit Modal -->
   <gc-modal

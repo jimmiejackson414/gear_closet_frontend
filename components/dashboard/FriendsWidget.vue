@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { Card, Button as PageButton, Typography } from '@/components/ui';
+  import { Card, Typography, UiButton } from '@/components/ui';
   import type { ExtendedFriend } from '@/types/helpers';
 
   interface Props {
@@ -61,9 +61,9 @@
               You haven't connected with any friends yet!
             </typography>
             <nuxt-link :to="{ name: 'friends' }">
-              <page-button size="sm">
+              <ui-button size="sm">
                 Get Started
-              </page-button>
+              </ui-button>
             </nuxt-link>
           </div>
         </template>

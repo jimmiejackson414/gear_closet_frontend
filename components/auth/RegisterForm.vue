@@ -3,8 +3,8 @@
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
-  import { type Severity} from '@/components/common/GcAlert.vue';
-  import { Button as FormButton, FormControl, FormField, FormInput, FormItem, FormLabel, Separator, Typography } from '@/components/ui';
+  import { type Severity } from '@/components/common/GcAlert.vue';
+  import { FormControl, FormField, FormInput, FormItem, FormLabel, Separator, Typography, UiButton } from '@/components/ui';
 
   const supabase = useSupabaseClient();
   const $router = useRouter();
@@ -186,12 +186,12 @@
         v-if="submitAction"
         :message="submitAction.message"
         :severity="submitAction.severity" />
-      <form-button
+      <ui-button
         :disabled="isSubmitting"
         :loading="isSubmitting"
         type="submit">
         Create Account
-      </form-button>
+      </ui-button>
     </div>
     <div class="flex items-center flex-col mt-4">
       <typography>
@@ -199,9 +199,9 @@
         <nuxt-link
           class="no-underline"
           :to="{ name: 'login' }">
-          <form-button variant="link">
+          <ui-button variant="link">
             Login
-          </form-button>
+          </ui-button>
         </nuxt-link>
       </typography>
       <typography

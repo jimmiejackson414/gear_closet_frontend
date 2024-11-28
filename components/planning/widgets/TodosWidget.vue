@@ -31,7 +31,7 @@
           profile_id: user.value?.id as string,
           // resource_type: activeTab?.id as ResourceType,
           title: 'New todo',
-          trip_id: selectedTripId?.value as number,
+          trip_id: Number(selectedTripId?.value),
         })
         .select();
 
@@ -112,7 +112,7 @@
 </script>
 
 <template>
-  <div class="card card-aside">
+  <card class="px-8 py-4 rounded-3xl">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
       <icon-list-todo class="h-6 mr-6 text-primary w-6" />
       <p class="!font-bold text-base">
@@ -292,5 +292,5 @@
         </div>
       </div>
     </div>
-  </div>
+  </card>
 </template>

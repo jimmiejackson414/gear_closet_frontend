@@ -8,7 +8,7 @@
   import DeleteAccountDialog from '@/components/profile/dialogs/DeleteAccountDialog.vue';
   import ManageSubscriptionDialog from '@/components/profile/dialogs/ManageSubscriptionDialog.vue';
   import UpdatePaymentMethodDialog from '@/components/profile/dialogs/UpdatePaymentMethodDialog.vue';
-  import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, Button as FormButton, FormControl, FormField, FormInput, FormItem, FormLabel, SelectContent, SelectGroup, SelectRoot, SelectTrigger, SelectValue, Separator, Tabs, TabsList, Typography } from '@/components/ui';
+  import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, FormControl, FormField, FormInput, FormItem, FormLabel, SelectContent, SelectGroup, SelectRoot, SelectTrigger, SelectValue, Separator, Tabs, TabsList, Typography, UiButton } from '@/components/ui';
   import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
   import type { SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
 
@@ -309,12 +309,12 @@
                   </form-item>
                 </form-field>
 
-                <form-button
+                <ui-button
                   :disabled="isSubmitting"
                   :loading="isSubmitting"
                   type="submit">
                   Save Changes
-                </form-button>
+                </ui-button>
               </form>
             </card>
           </tabs-content>
@@ -334,12 +334,12 @@
                   <typography variant="small">
                     Current Subscription: <span class="font-bold">{{ capitalize(subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname) }}</span>
                   </typography>
-                  <form-button
+                  <ui-button
                     size="sm"
                     variant="outline"
                     @click="isManageSubscriptionOpen = true">
                     Manage Subscription
-                  </form-button>
+                  </ui-button>
                 </div>
                 <div class="flex items-start flex-col gap-2">
                   <typography
@@ -365,13 +365,13 @@
                     variant="small">
                     No payment methods on file.
                   </typography>
-                  <form-button
+                  <ui-button
                     class="mt-2"
                     size="sm"
                     variant="outline"
                     @click="isUpdatePaymentDialogOpen = true">
                     Update Billing Method
-                  </form-button>
+                  </ui-button>
                 </div>
                 <div>
                   <typography
@@ -455,23 +455,23 @@
                   </form-item>
                 </form-field>
                 <div class="flex justify-end items-center">
-                  <form-button
+                  <ui-button
                     :disabled="isSubmittingPassword"
                     :loading="isSubmittingPassword"
                     @click="handleUpdatePassword">
                     Update Password
-                  </form-button>
+                  </ui-button>
                 </div>
                 <separator />
                 <div class="flex items-start flex-col">
                   <typography class="font-bold mb-2 text-destructive">
                     Danger Zone
                   </typography>
-                  <form-button
+                  <ui-button
                     variant="destructive"
                     @click="isDeleteAccountDialogOpen = true">
                     Delete Account
-                  </form-button>
+                  </ui-button>
                 </div>
               </div>
             </card>

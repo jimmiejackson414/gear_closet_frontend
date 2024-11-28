@@ -53,7 +53,7 @@
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
       const existingFriendsPayload = friendsToInvite.value.map((f: Tables<'profiles'>) => ({
-        trip_id: selectedTripId.value,
+        trip_id: Number(selectedTripId.value),
         profile_id: f.id,
         status: TripFriendStatus.PENDING,
         invited_by_id: user.value?.id,
@@ -76,7 +76,7 @@
 </script>
 
 <template>
-  <div class="card card-aside">
+  <card class="px-8 py-4 rounded-3xl">
     <div class="flex justify-start items-center py-4">
       <icon-users-round class="h-6 mr-6 text-primary w-6" />
       <p class="!font-bold text-base">
@@ -97,7 +97,7 @@
     <div v-else>
       Display friends
     </div>
-  </div>
+  </card>
 
   <!-- Invite Friends Modal -->
   <gc-modal

@@ -78,6 +78,9 @@ export default {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
         },
+        text: {
+          DEFAULT: "hsl(var(--text))",
+        },
       },
       borderRadius: {
         xl: "calc(var(--radius) + 4px)",

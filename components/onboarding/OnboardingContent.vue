@@ -5,7 +5,7 @@
   import type { FunctionalComponent } from 'vue';
   import * as z from 'zod';
   import { IconAperture, IconCheck, IconCircleUser, IconHeart } from '#components';
-  import { AlertDialog, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, Button as FormButton, FormControl, FormField, FormInput, FormLabel, FormMessage, SelectRoot as FormSelect, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, Stepper, StepperDescription, StepperItem, StepperSeparator, StepperTitle, StepperTrigger } from '@/components/ui';
+  import { AlertDialog, AlertDialogContent, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, FormControl, FormField, FormInput, FormLabel, FormMessage, SelectRoot as FormSelect, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue, Stepper, StepperDescription, StepperItem, StepperSeparator, StepperTitle, StepperTrigger, UiButton } from '@/components/ui';
   import { useToast } from '@/components/ui/toast/use-toast';
   import { MeasuringSystem, SubscriptionLevel } from '@/types';
 
@@ -185,7 +185,7 @@
           class="absolute top-5 right-[calc(-50%+10px)] left-[calc(50%+20px)] bg-muted block group-data-[state=completed]:bg-primary h-0.5 rounded-full shrink-0" />
 
         <stepper-trigger as-child>
-          <form-button
+          <ui-button
             :ref="`step${step.step}Ref`"
             class="rounded-full shrink-0 z-10"
             :class="[state === 'active' && 'ring-2 ring-ring ring-offset-2 ring-offset-background']"
@@ -194,7 +194,7 @@
             :variant="state === 'completed' || state === 'active' ? 'default' : 'outline'"
             @click="stepIndex = step.step">
             <component :is="stepperIcon(step.step, state)" />
-          </form-button>
+          </ui-button>
         </stepper-trigger>
 
         <div class="flex items-center flex-col mt-5 text-center">
@@ -316,26 +316,26 @@
 
     <!-- Stepper Button Actions -->
     <div class="flex justify-between items-center mt-16">
-      <form-button
+      <ui-button
         :disabled="stepIndex === 1"
         variant="outline"
         @click="stepIndex > 1 ? stepIndex-- : undefined">
         Back
-      </form-button>
+      </ui-button>
       <div class="flex items-center gap-3">
-        <form-button
+        <ui-button
           v-if="stepIndex !== 3"
           :disabled="isSubmitting || isNextDisabled"
           :loading="isSubmitting"
           @click="handleNextStep">
           {{ stepIndex === 1 && !avatarFile ? 'Skip' : 'Next' }}
-        </form-button>
-        <form-button
+        </ui-button>
+        <ui-button
           v-if="stepIndex === 3"
           :disabled="isSubmitting"
           :loading="isSubmitting">
           Submit
-        </form-button>
+        </ui-button>
       </div>
     </div>
   </stepper>
@@ -361,12 +361,12 @@
         </div>
       </div>
       <alert-dialog-footer>
-        <form-button
+        <ui-button
           :disabled="isSubmitting"
           :loading="isSubmitting"
           @click="handleCompleteOnboarding">
           Continue
-        </form-button>
+        </ui-button>
       </alert-dialog-footer>
     </alert-dialog-content>
   </alert-dialog>

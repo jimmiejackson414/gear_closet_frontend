@@ -3,7 +3,7 @@
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
-  import { Button as FormButton, FormControl, FormField, FormInput, FormItem, FormLabel, Separator, Typography } from '@/components/ui';
+  import { FormControl, FormField, FormInput, FormItem, FormLabel, Separator, Typography, UiButton } from '@/components/ui';
   import type { Tables } from '@/types';
 
   const supabase = useSupabaseClient();
@@ -125,13 +125,13 @@
         v-if="loginError"
         data-testid="login-error"
         :message="loginError" />
-      <form-button
+      <ui-button
         data-testid="login-submit"
         :disabled="isSubmitting"
         :loading="isSubmitting"
         type="submit">
         Sign In
-      </form-button>
+      </ui-button>
     </div>
     <div class="flex items-center flex-col mt-4">
       <typography>
@@ -139,18 +139,18 @@
         <nuxt-link
           class="no-underline"
           to="/register">
-          <form-button variant="link">
+          <ui-button variant="link">
             Signup
-          </form-button>
+          </ui-button>
         </nuxt-link>
       </typography>
       <typography class="q-mb-none">
         <nuxt-link
           class="no-underline text-base"
           :to="{ name: 'forgot-password' }">
-          <form-button variant="link">
+          <ui-button variant="link">
             Forgot your password?
-          </form-button>
+          </ui-button>
         </nuxt-link>
       </typography>
       <typography

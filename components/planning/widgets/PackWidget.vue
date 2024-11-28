@@ -111,7 +111,7 @@
       const user = useSupabaseUser();
       const { data: createdTripPack, error } = await supabase.from('trip_packs')
         .insert([{
-          trip_id: selectedTripId.value,
+          trip_id: Number(selectedTripId.value),
           pack_id: selectedPackId.value,
           profile_id: user.value?.id,
         }])
@@ -142,7 +142,7 @@
       const user = useSupabaseUser();
       const { data: updatedTripPack, error } = await supabase.from('trip_packs')
         .update({ pack_id: selectedPackId.value })
-        .eq('trip_id', selectedTripId.value as number)
+        .eq('trip_id', Number(selectedTripId.value))
         .eq('profile_id', user.value?.id as string)
         .select();
 
@@ -166,7 +166,6 @@
   const selectedTheme = ref<Theme | undefined>((data.value.pack?.theme as Theme) || undefined);
   const themeOptions = computed(() => generateThemeOptions());
   const updateTheme = async () => {
-    console.log('updateTheme');
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
@@ -198,6 +197,7 @@
   };
 
   /* Donut Chart Options */
+  const legendTextColor = ref('');
   const chartRef = ref<typeof VChart | null>(null);
   const chartOptions = computed<EChartsOption>({
     get () {
@@ -207,6 +207,9 @@
           orient: 'vertical',
           left: 'left',
           top: 'center',
+          textStyle: {
+            color: legendTextColor.value,
+          },
           data: data.value.pack?.categories?.map(c => ({
             name: c.name as string,
             textStyle: {
@@ -275,16 +278,16 @@
             const weight = round(convert(categoryWeight, 'mg')
               .to('lb'), 2);
             return (`
-          <div class="flex flex-col gap-2 w-fit">
-            <p class="text-eyebrow !text-sm">
-              <span style="margin-right: 4px; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${value.color};"></span>
-              ${category?.name}
-            </p>
-            <p class="!font-bold text-base-lg text-center">
-              ${weight} lbs
-            </p>
-          </div>
-        `);
+              <div class="flex flex-col gap-2 w-fit">
+                <p class="text-eyebrow !text-sm">
+                  <span style="margin-right: 4px; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${value.color};"></span>
+                  ${category?.name}
+                </p>
+                <p class="!font-bold text-base-lg text-center">
+                  ${weight} lbs
+                </p>
+              </div>
+            `);
           },
         },
       };
@@ -294,14 +297,23 @@
     },
   });
 
-  const handleUpdateModelValue = (val: Option) => {
-    console.log(`handleUpdateModelValue`);
-    selectedTheme.value = val.value as Theme;
+  /**
+   * Dynamically update the legend text color based on the current theme.
+   */
+  const updateLegendTextColor = async () => {
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 100));
+    legendTextColor.value = await hslVarToHex('hsl(var(--text))');
   };
+
+  updateLegendTextColor();
+
+  const colorMode = useColorMode();
+  watch(() => colorMode.value, () => updateLegendTextColor());
 </script>
 
 <template>
-  <div class="card card-main">
+  <card class="px-8 py-4 rounded-3xl">
     <div class="flex justify-between items-center py-4">
       <div class="flex items-center">
         <icon-backpack class="h-6 mr-6 text-primary w-6" />
@@ -312,29 +324,23 @@
       <div
         v-if="data.pack"
         class="flex">
-        <headless-menu
-          as="div"
-          class="inline-block relative text-left">
-          <div class="bg-primary flex justify-center items-center h-6 rounded-full w-6">
-            <headless-menu-button class="duration-150 ease-snap focus-visible:ring-2 focus-visible:ring-white/0 font-medium inline-flex justify-center outline-none focus:outline-none px-0 py-2 rounded-md text-sm text-white">
-              <icon-settings class="h-4 w-4" />
-            </headless-menu-button>
-          </div>
-          <zoom-transition>
-            <headless-menu-items class="absolute right-0 bg-white divide-gray-100 divide-y mt-2 origin-top-right ring-1 ring-black/5 rounded-md shadow-lg w-56 z-10 focus:outline-none">
-              <headless-menu-item @click="[modalState = 'update', isAddPackModalOpen = true]">
-                <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-dark-grey hover:bg-gray-100">
-                  Change Pack
-                </p>
-              </headless-menu-item>
-              <headless-menu-item @click="isChangeThemeModalOpen = true">
-                <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-dark-grey hover:bg-gray-100">
-                  Update Theme Colors
-                </p>
-              </headless-menu-item>
-            </headless-menu-items>
-          </zoom-transition>
-        </headless-menu>
+        <dropdown-menu>
+          <dropdown-menu-trigger>
+            <icon-settings class="h-4 w-4" />
+          </dropdown-menu-trigger>
+          <dropdown-menu-content>
+            <dropdown-menu-label>
+              Actions
+            </dropdown-menu-label>
+            <dropdown-menu-separator />
+            <dropdown-menu-item @select="[modalState = 'update', isAddPackModalOpen = true]">
+              Change Pack
+            </dropdown-menu-item>
+            <dropdown-menu-item @select="isChangeThemeModalOpen = true">
+              Update Theme Colors
+            </dropdown-menu-item>
+          </dropdown-menu-content>
+        </dropdown-menu>
       </div>
     </div>
     <gc-skeleton v-if="pageLoading" />
@@ -362,7 +368,7 @@
         </client-only>
       </div>
     </div>
-  </div>
+  </card>
 
   <!-- Add or Update a Pack Modal -->
   <gc-modal
@@ -425,7 +431,7 @@
           label="Theme"
           :model-value="selectedTheme"
           :options="themeOptions"
-          @update:model-value="handleUpdateModelValue">
+          @update:model-value="selectedTheme = $event.value">
           <template #option="{ option }">
             <div class="flex items-center gap-3">
               <div class="flex items-center gap-1">

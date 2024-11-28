@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
-  import { Card, Button as PageButton, Typography } from '@/components/ui';
+  import { Card, Typography, UiButton } from '@/components/ui';
   import type { Tables } from '@/types';
 
   dayjs.extend(relativeTime);
@@ -97,9 +97,9 @@
           You don't have any upcoming trips yet!
         </typography>
         <nuxt-link :to="{ name: 'planning' }">
-          <page-button size="sm">
+          <ui-button size="sm">
             Get Started
-          </page-button>
+          </ui-button>
         </nuxt-link>
       </div>
     </div>

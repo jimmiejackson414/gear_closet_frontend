@@ -1,6 +1,6 @@
 <script lang="ts" setup="">
   import { IconCheckCircle, IconHeart } from '#components';
-  import { Button as DialogButton, DialogClose, DialogContent, DialogFooter, DialogHeader, Dialog as DialogRoot, DialogTitle, Stepper, StepperItem, StepperSeparator, StepperTitle, StepperTrigger, Typography } from '@/components/ui';
+  import { DialogClose, DialogContent, DialogFooter, DialogHeader, Dialog as DialogRoot, DialogTitle, Stepper, StepperItem, StepperSeparator, StepperTitle, StepperTrigger, Typography, UiButton } from '@/components/ui';
   import { SubscriptionLevel } from "@/types";
   import type { SubscriptionApiResponse } from "@/types/helpers";
 
@@ -75,7 +75,7 @@
                 v-if="step.step !== steps[steps.length - 1].step"
                 class="absolute top-5 right-[calc(-50%+10px)] left-[calc(50%+20px)] bg-muted block group-data-[state=completed]:bg-primary h-0.5 rounded-full shrink-0" />
               <stepper-trigger as-child>
-                <dialog-button
+                <ui-button
                   class="rounded-full shrink-0 z-10"
                   :class="[state === 'active' && 'ring-2 ring-ring ring-offset-2 ring-offset-background']"
                   :disabled="state !== 'active'"
@@ -84,7 +84,7 @@
                   <component
                     :is="step.icon"
                     class="h-2 w-2" />
-                </dialog-button>
+                </ui-button>
               </stepper-trigger>
 
               <div class="flex items-center flex-col mt-2 text-center">
@@ -148,9 +148,9 @@
           @click="handleClose">
           Cancel
         </dialog-close>
-        <dialog-button @click="activeStep === 1 ? activeStep = 2 : handleConfirm()">
+        <ui-button @click="activeStep === 1 ? activeStep = 2 : handleConfirm()">
           {{ activeStep === 1 ? 'Continue' : 'Confirm' }}
-        </dialog-button>
+        </ui-button>
       </dialog-footer>
     </dialog-content>
   </dialog-root>
