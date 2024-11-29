@@ -11,7 +11,8 @@
   /**
    * Leaves the current trip.
    */
-  const isLeaveTripModalOpen = ref(false);
+  const isLeaveTripDialogOpen = ref(false);
+  const isSubmitting = ref(false);
   const leaveTrip = async () => {
     // TODO: implement
   };
@@ -41,7 +42,7 @@
               Actions
             </dropdown-menu-label>
             <dropdown-menu-separator />
-            <dropdown-menu-item @select="isLeaveTripModalOpen = true">
+            <dropdown-menu-item @select="isLeaveTripDialogOpen = true">
               Leave Trip
             </dropdown-menu-item>
           </dropdown-menu-content>
@@ -76,5 +77,42 @@
         New Trip
       </button-root>
     </div>
+
+    <alert-dialog :open="isLeaveTripDialogOpen">
+      <alert-dialog-content>
+        <alert-dialog-header>
+          <alert-dialog-title>
+            Leave the "{{ data.trips.find((t: Tables<'trips'>) => t.id === Number(selectedTripId))?.name }}" trip?
+          </alert-dialog-title>
+        </alert-dialog-header>
+        <div class="flex items-center mb-4 space-x-2">
+          <div class="flex flex-col">
+            <typography class="mb-2">
+              Are you sure you want to leave this trip?
+            </typography>
+            <typography variant="small">
+              You will lose access to all the data associated with this trip.
+            </typography>
+          </div>
+        </div>
+        <alert-dialog-footer class="items-center w-full sm:justify-between">
+          <button-root
+            :disabled="isSubmitting"
+            :loading="isSubmitting"
+            variant="secondary"
+            @click="isLeaveTripDialogOpen = false"
+            @update:open="isLeaveTripDialogOpen = false">
+            Cancel
+          </button-root>
+          <button-root
+            :disabled="isSubmitting"
+            :loading="isSubmitting"
+            variant="destructive"
+            @click="leaveTrip">
+            Leave Trip
+          </button-root>
+        </alert-dialog-footer>
+      </alert-dialog-content>
+    </alert-dialog>
   </div>
 </template>
