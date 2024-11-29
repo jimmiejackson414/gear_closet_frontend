@@ -3,7 +3,6 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { type Severity } from '@/components/common/GcAlert.vue';
-  import { FormControl, FormField, FormInput, FormItem, FormLabel, UiButton } from '@/components/ui';
 
   const supabase = useSupabaseClient();
   const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
@@ -59,7 +58,7 @@
         <form-item>
           <form-label>New Password</form-label>
           <form-control>
-            <form-input
+            <input-root
               :disabled="isSubmitting"
               password-toggle
               type="password"
@@ -74,7 +73,7 @@
         <form-item>
           <form-label>Confirm New Password</form-label>
           <form-control>
-            <form-input
+            <input-root
               :disabled="isSubmitting"
               password-toggle
               type="password"
@@ -87,12 +86,12 @@
         class="w-full"
         :message="submitAction.message"
         :severity="submitAction.severity" />
-      <ui-button
+      <button-root
         :disabled="isSubmitting"
         :loading="isSubmitting"
         type="submit">
         Reset Password
-      </ui-button>
+      </button-root>
     </div>
   </form>
 </template>

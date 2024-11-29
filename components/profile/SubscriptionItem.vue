@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-  import { UiButton } from '@/components/ui';
   import { SubscriptionLevel } from '@/types';
   import tailwindConfig from '@/utils/tailwind';
   import type { Tier } from '@/utils/tiers';
@@ -71,14 +70,14 @@
           {{ item }}
         </p>
       </div>
-      <ui-button
+      <button-root
         class="mt-auto self-center"
         :disabled="plan.buttonDisabled || (profile?.subscriptions[0]?.prices.identifier === plan.value)"
         size="sm"
         variant="secondary"
         @click="emit('handle-select', plan.value)">
         {{ plan.buttonText }}
-      </ui-button>
+      </button-root>
     </div>
   </div>
 </template>

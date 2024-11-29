@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { Card, Typography } from '@/components/ui';
   import type { ForumCategory, ForumPost } from '@/types/helpers';
 
   interface Props {

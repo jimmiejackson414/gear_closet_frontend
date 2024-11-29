@@ -1,6 +1,5 @@
 <script lang='ts' setup>
   import GcSkeleton from '@/components/common/GcSkeleton.vue';
-  import { Card, Typography } from '@/components/ui';
   import type { Tables } from '@/types';
 
   interface Props {

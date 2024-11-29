@@ -4,7 +4,6 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { type Severity } from '@/components/common/GcAlert.vue';
-  import { FormControl, FormField, FormInput, FormItem, FormLabel, Separator, Typography, UiButton } from '@/components/ui';
 
   const supabase = useSupabaseClient();
   const $router = useRouter();
@@ -118,7 +117,7 @@
         <form-item>
           <form-label>Email</form-label>
           <form-control>
-            <form-input
+            <input-root
               :disabled="isSubmitting"
               type="email"
               v-bind="componentField" />
@@ -133,7 +132,7 @@
         <form-item>
           <form-label>First Name</form-label>
           <form-control>
-            <form-input
+            <input-root
               :disabled="isSubmitting"
               v-bind="componentField" />
           </form-control>
@@ -146,7 +145,7 @@
         <form-item>
           <form-label>Last Name</form-label>
           <form-control>
-            <form-input
+            <input-root
               :disabled="isSubmitting"
               v-bind="componentField" />
           </form-control>
@@ -159,7 +158,7 @@
         <form-item>
           <form-label>Password</form-label>
           <form-control>
-            <form-input
+            <input-root
               :disabled="isSubmitting"
               password-toggle
               type="password"
@@ -174,7 +173,7 @@
         <form-item>
           <form-label>Confirm Password</form-label>
           <form-control>
-            <form-input
+            <input-root
               :disabled="isSubmitting"
               password-toggle
               type="password"
@@ -186,12 +185,12 @@
         v-if="submitAction"
         :message="submitAction.message"
         :severity="submitAction.severity" />
-      <ui-button
+      <button-root
         :disabled="isSubmitting"
         :loading="isSubmitting"
         type="submit">
         Create Account
-      </ui-button>
+      </button-root>
     </div>
     <div class="flex items-center flex-col mt-4">
       <typography>
@@ -199,9 +198,9 @@
         <nuxt-link
           class="no-underline"
           :to="{ name: 'login' }">
-          <ui-button variant="link">
+          <button-root variant="link">
             Login
-          </ui-button>
+          </button-root>
         </nuxt-link>
       </typography>
       <typography

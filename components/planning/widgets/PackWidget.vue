@@ -326,7 +326,7 @@
         class="flex">
         <dropdown-menu>
           <dropdown-menu-trigger>
-            <icon-settings class="h-4 w-4" />
+            <icon-ellipsis-vertical class="h-6 w-6" />
           </dropdown-menu-trigger>
           <dropdown-menu-content>
             <dropdown-menu-label>

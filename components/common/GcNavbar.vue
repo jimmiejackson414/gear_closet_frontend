@@ -1,6 +1,5 @@
 <script lang='ts' setup>
   import { storeToRefs } from 'pinia';
-  import { UiButton } from '@/components/ui';
   import { useUserStore } from '@/stores/user';
   import type { ExtendedNotification } from '@/types/helpers';
 
@@ -75,7 +74,7 @@
         </gc-button>
       </span>
       <div class="relative">
-        <ui-button
+        <button-root
           class="bg-card duration-150 ease-in-out font-medium inline-flex items-center p-4 relative rounded-full shadow-md text-center dark:text-card-foreground hover:text-dark-grey text-gray-500 text-sm focus:outline-none"
           data-testid="notifications-button"
           size="icon"
@@ -85,7 +84,7 @@
           <div
             v-if="shouldShowBadge"
             class="absolute top-1 bg-destructive block border-2 border-white end-1 h-3 rounded-full w-3" />
-        </ui-button>
+        </button-root>
         <fade-transition>
           <div
             v-if="isDropdownOpen"

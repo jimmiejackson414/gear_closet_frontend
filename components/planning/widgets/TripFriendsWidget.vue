@@ -88,11 +88,12 @@
       <p class="mb-4 text-base">
         You haven't added any friends to this trip yet!
       </p>
-      <gc-button
-        label="Invite Friends"
-        outlined
+      <button-root
         size="sm"
-        @click="isInviteModalOpen = true" />
+        variant="outline"
+        @click="isInviteModalOpen = true">
+        Invite Friends
+      </button-root>
     </gc-empty-state>
     <div v-else>
       Display friends
@@ -151,18 +152,20 @@
       </div>
     </template>
     <template #actions>
-      <gc-button
+      <button-root
         :disabled="submitting"
-        label="Cancel"
         size="sm"
         variant="secondary"
-        @click="[isInviteModalOpen = false, friendsToInvite = []]" />
-      <gc-button
+        @click="[isInviteModalOpen = false, friendsToInvite = []]">
+        Cancel
+      </button-root>
+      <button-root
         :disabled="submitting || (!friendsToInvite.length && !emailsToInvite.length)"
-        label="Invite"
         :loading="submitting"
         size="sm"
-        @click="inviteFriends" />
+        @click="inviteFriends">
+        Invite
+      </button-root>
     </template>
   </gc-modal>
 </template>

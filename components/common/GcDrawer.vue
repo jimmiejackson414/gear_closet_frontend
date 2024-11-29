@@ -8,8 +8,8 @@
   const colorMode = useColorMode();
   const isLightMode = computed(() => colorMode.preference === 'light');
   const iconColor = (link: LinkItem) => {
-    if (link.disabled) return tailwind.theme.colors.gray['100'];
-    return isActiveRoute(link) ? tailwind.theme.colors.primary.DEFAULT : ( isLightMode.value ? tailwind.theme.colors.gray['500'] : tailwind.theme.colors.accent.alt );
+    if (link.disabled) return tailwind.theme.colors.destructive.foreground;
+    return isActiveRoute(link) ? tailwind.theme.colors.primary.DEFAULT : ( isLightMode.value ? tailwind.theme.colors.muted.foreground : tailwind.theme.colors.accent.alt );
   };
 
   const $router = useRouter();
@@ -56,7 +56,7 @@
         <template v-else>
           <nuxt-link
             class="duration-200 ease-in-out inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg transition dark:hover:bg-accent hover:bg-gray-100"
-            :class="[isActiveRoute(link) ? 'bg-accent-light' : '']"
+            :class="[isActiveRoute(link) ? 'bg-accent dark:bg-accent-light' : '']"
             :disabled="link.disabled"
             :to="{ name: link.to }">
             <gc-avatar

@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { UiButton } from '@/components/ui';
   import type { Tables } from '@/types';
   import type { SelectOption } from '@/types/helpers';
 
@@ -12,6 +11,7 @@
   /**
    * Leaves the current trip.
    */
+  const isLeaveTripModalOpen = ref(false);
   const leaveTrip = async () => {
     // TODO: implement
   };
@@ -41,7 +41,9 @@
               Actions
             </dropdown-menu-label>
             <dropdown-menu-separator />
-            <dropdown-menu-item>Leave Trip</dropdown-menu-item>
+            <dropdown-menu-item @select="isLeaveTripModalOpen = true">
+              Leave Trip
+            </dropdown-menu-item>
           </dropdown-menu-content>
         </dropdown-menu>
       </div>
@@ -67,12 +69,12 @@
     </div>
 
     <div v-tippy="{ content: !isPaidMember && data.trips.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }">
-      <ui-button
+      <button-root
         :disabled="pageLoading || (!isPaidMember && data.trips.length >= 1)"
         size="sm"
         @click="$store.dialogStates.createTripDialog = true">
         New Trip
-      </ui-button>
+      </button-root>
     </div>
   </div>
 </template>

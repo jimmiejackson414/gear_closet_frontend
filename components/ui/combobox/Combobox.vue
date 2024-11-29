@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { UiButton } from '@/components/ui/button';
+  import { ButtonRoot } from '@/components/ui/button';
   import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
   import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
   import { cn } from '@/lib/utils';
@@ -32,14 +32,14 @@
 <template>
   <popover v-model:open="open">
     <popover-trigger as-child>
-      <ui-button
+      <button-root
         :aria-expanded="open"
         class="justify-between w-full"
         role="combobox"
         variant="outline">
         {{ selectedLabel }}
         <icon-caret-sort class="h-4 ml-2 opacity-50 shrink-0 w-4" />
-      </ui-button>
+      </button-root>
     </popover-trigger>
     <popover-content class="p-0 w-full">
       <command>

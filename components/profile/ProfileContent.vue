@@ -8,7 +8,6 @@
   import DeleteAccountDialog from '@/components/profile/dialogs/DeleteAccountDialog.vue';
   import ManageSubscriptionDialog from '@/components/profile/dialogs/ManageSubscriptionDialog.vue';
   import UpdatePaymentMethodDialog from '@/components/profile/dialogs/UpdatePaymentMethodDialog.vue';
-  import { Accordion, AccordionContent, AccordionItem, AccordionTrigger, FormControl, FormField, FormInput, FormItem, FormLabel, SelectContent, SelectGroup, SelectRoot, SelectTrigger, SelectValue, Separator, Tabs, TabsList, Typography, UiButton } from '@/components/ui';
   import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
   import type { SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
 
@@ -245,7 +244,7 @@
                   <form-item>
                     <form-label>First Name</form-label>
                     <form-control>
-                      <form-input
+                      <input-root
                         autocomplete="given-name"
                         :disabled="isSubmitting"
                         v-bind="componentField" />
@@ -261,7 +260,7 @@
                   <form-item>
                     <form-label>Last Name</form-label>
                     <form-control>
-                      <form-input
+                      <input-root
                         :disabled="isSubmitting"
                         v-bind="componentField" />
                     </form-control>
@@ -274,7 +273,7 @@
                   <form-item>
                     <form-label>Trail Name</form-label>
                     <form-control>
-                      <form-input
+                      <input-root
                         :disabled="isSubmitting"
                         v-bind="componentField" />
                     </form-control>
@@ -309,12 +308,12 @@
                   </form-item>
                 </form-field>
 
-                <ui-button
+                <button-root
                   :disabled="isSubmitting"
                   :loading="isSubmitting"
                   type="submit">
                   Save Changes
-                </ui-button>
+                </button-root>
               </form>
             </card>
           </tabs-content>
@@ -334,12 +333,12 @@
                   <typography variant="small">
                     Current Subscription: <span class="font-bold">{{ capitalize(subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname) }}</span>
                   </typography>
-                  <ui-button
+                  <button-root
                     size="sm"
                     variant="outline"
                     @click="isManageSubscriptionOpen = true">
                     Manage Subscription
-                  </ui-button>
+                  </button-root>
                 </div>
                 <div class="flex items-start flex-col gap-2">
                   <typography
@@ -365,13 +364,13 @@
                     variant="small">
                     No payment methods on file.
                   </typography>
-                  <ui-button
+                  <button-root
                     class="mt-2"
                     size="sm"
                     variant="outline"
                     @click="isUpdatePaymentDialogOpen = true">
                     Update Billing Method
-                  </ui-button>
+                  </button-root>
                 </div>
                 <div>
                   <typography
@@ -430,7 +429,7 @@
                   <form-item>
                     <form-label>New Password</form-label>
                     <form-control>
-                      <form-input
+                      <input-root
                         v-model="newPassword"
                         :disabled="isSubmittingPassword"
                         password-toggle
@@ -445,7 +444,7 @@
                   <form-item>
                     <form-label>Confirm Password</form-label>
                     <form-control>
-                      <form-input
+                      <input-root
                         v-model="confirmPassword"
                         :disabled="isSubmittingPassword"
                         password-toggle
@@ -455,23 +454,23 @@
                   </form-item>
                 </form-field>
                 <div class="flex justify-end items-center">
-                  <ui-button
+                  <button-root
                     :disabled="isSubmittingPassword"
                     :loading="isSubmittingPassword"
                     @click="handleUpdatePassword">
                     Update Password
-                  </ui-button>
+                  </button-root>
                 </div>
                 <separator />
                 <div class="flex items-start flex-col">
                   <typography class="font-bold mb-2 text-destructive">
                     Danger Zone
                   </typography>
-                  <ui-button
+                  <button-root
                     variant="destructive"
                     @click="isDeleteAccountDialogOpen = true">
                     Delete Account
-                  </ui-button>
+                  </button-root>
                 </div>
               </div>
             </card>

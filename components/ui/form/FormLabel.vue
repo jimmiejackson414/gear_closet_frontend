@@ -2,7 +2,7 @@
   import type { LabelProps } from 'radix-vue';
   import type { HTMLAttributes } from 'vue';
   import { useFormField } from './useFormField';
-  import { Label as UiLabel } from '@/components/ui/label';
+  import { LabelRoot } from '@/components/ui/label';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<LabelProps & { class?: HTMLAttributes['class'] }>();
@@ -11,12 +11,12 @@
 </script>
 
 <template>
-  <ui-label
+  <label-root
     :class="cn(
       error && 'text-destructive',
       props.class,
     )"
     :for="formItemId">
     <slot />
-  </ui-label>
+  </label-root>
 </template>

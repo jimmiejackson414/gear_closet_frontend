@@ -1,4 +1,6 @@
 <script lang='ts' setup>
+  import type { InputRoot } from '@/components/ui/input';
+
   interface Props {
     modelValue?: string | number | null;
     name: string;
@@ -23,8 +25,8 @@
   const emits = defineEmits(['handleUpdate']);
 
   const isEditing = ref(false);
-  const localModel = ref<string | number | null | undefined>(undefined);
-  const inlineEditRef = ref<any>(null);
+  const localModel = ref<string | number | undefined | null>(undefined);
+  const inlineEditRef = ref<InstanceType<typeof InputRoot> | null>(null);
 
   const toggleEditing = () => {
     isEditing.value = !isEditing.value;
@@ -50,7 +52,7 @@
     localModel.value = val;
   }, { immediate: true });
 
-  onClickOutside(inlineEditRef, () => isEditing.value = false);
+  onClickOutside(inlineEditRef as unknown as HTMLElement, () => isEditing.value = false);
 </script>
 
 <template>
@@ -69,16 +71,16 @@
         v-if="!hideEditBtn"
         class="cursor-pointer duration-100 ease-snap group-hover:opacity-100 h-4 ml-4 opacity-0 text-grey hover:text-primary transition w-4" />
     </span>
-    <gc-input
+    <input-root
       v-show="isEditing"
       ref="inlineEditRef"
       v-model="localModel"
       :class="inputClasses"
+      dense
       :name="name"
       :placeholder="placeholder"
-      :size="size"
       @blur="handleEmit"
-      @enter="handleEmit"
+      @keydown.enter="handleEmit"
       @keydown.escape="handleEscape" />
   </div>
 </template>

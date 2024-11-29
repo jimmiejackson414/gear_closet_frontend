@@ -1,6 +1,5 @@
 <script lang="ts" setup="">
   import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js';
-  import { Checkbox, DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, Dialog as DialogRoot, DialogTitle, UiButton } from '@/components/ui';
 
   interface Props {
     isOpen: boolean;
@@ -98,12 +97,12 @@
         <dialog-close @click="emits('onClose')">
           Cancel
         </dialog-close>
-        <ui-button
+        <button-root
           :disabled="!acceptsConditions || isSubmitting"
           :loading="isSubmitting"
           @click="handleUpdate">
           Update Payment Method
-        </ui-button>
+        </button-root>
       </dialog-footer>
     </dialog-content>
   </dialog-root>

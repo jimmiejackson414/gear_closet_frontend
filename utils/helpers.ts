@@ -277,13 +277,22 @@ export const getPagination = (page: number, pageSize: number): { from: number, t
  * @param hslVar - The CSS variable value (e.g., 'hsl(var(--text))').
  * @returns The HEX color code.
  */
-export const hslVarToHex = async (hslVar: string) => {
+export const hslVarToHex = async (hslVar: string): Promise<string> => {
+  // Ensure the code runs only on the client side
+  if (typeof window === 'undefined' || !document.documentElement) {
+    return '#000000'; // Return a default color or handle appropriately
+  }
+
   // Extract the CSS variable name from the HSL string
   const varNameMatch = hslVar.match(/var\((--[^)]+)\)/);
   if (!varNameMatch) {
     throw new Error('Invalid HSL variable format');
   }
   const varName = varNameMatch[1];
+
+  // Add a slight delay and use nextTick to ensure styles are updated
+  await nextTick();
+  await new Promise(resolve => setTimeout(resolve, 100));
 
   // Get the computed HSL value from the CSS variable
   const root = document.documentElement;

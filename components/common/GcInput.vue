@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { Label as UiLabel } from '../ui';
   import { cn } from '@/lib/utils';
 
   interface Props {
@@ -89,21 +88,12 @@
 <template>
   <div class="w-fit">
     <div class="flex flex-col gap-2 relative">
-      <!-- <label
-        v-if="label"
-        class="font-bold text-grey text-sm"
-        :for="name">
-        {{ label }}
-      </label> -->
-      <ui-label
+      <label-root
         v-if="label"
         :for="name">
         {{ label }}
-      </ui-label>
+      </label-root>
       <div class="relative">
-        <!-- <component
-          :is="prependIcon"
-          class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-grey w-5" /> -->
         <input
           :id="name"
           ref="inputRef"

@@ -1,1 +1,1 @@
-export { default as Progress } from './Progress.vue';
+export { default as ProgressRoot } from './Progress.vue';

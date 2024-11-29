@@ -3,7 +3,6 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { type Severity } from '@/components/common/GcAlert.vue';
-  import { FormControl, FormField, FormInput, FormItem, FormLabel, Typography, UiButton } from '@/components/ui';
 
   const supabase = useSupabaseClient();
   const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
@@ -53,7 +52,7 @@
         <form-item>
           <form-label>Email</form-label>
           <form-control>
-            <form-input
+            <input-root
               :disabled="isSubmitting"
               type="email"
               v-bind="componentField" />
@@ -65,13 +64,13 @@
         class="w-full"
         :message="submitAction.message"
         :severity="submitAction.severity" />
-      <ui-button
+      <button-root
         class="w-full"
         :disabled="isSubmitting"
         :loading="isSubmitting"
         type="submit">
         Send Reset Link
-      </ui-button>
+      </button-root>
     </div>
     <div class="flex items-center flex-col mt-4">
       <typography>
@@ -79,9 +78,9 @@
         <nuxt-link
           class="no-underline text-primary"
           :to="{ name: 'login' }">
-          <form-button variant="link">
+          <button-root variant="link">
             Login
-          </form-button>
+          </button-root>
         </nuxt-link>
       </typography>
     </div>

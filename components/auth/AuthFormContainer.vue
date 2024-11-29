@@ -1,6 +1,5 @@
 <script lang='ts' setup>
   import GcLogoIcon from '@/components/icons/GcLogoIcon.vue';
-  import { Typography } from '@/components/ui';
 
   interface Props {
     title: string;

@@ -28,4 +28,5 @@ export * from './table';
 export * from './tabs';
 export * from './tags-input';
 export * from './textarea';
+export * from './toast';
 export * from './typography';
