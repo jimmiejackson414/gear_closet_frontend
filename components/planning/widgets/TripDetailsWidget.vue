@@ -198,19 +198,19 @@
             v-if="!editingTripDates"
             class="flex items-center gap-4 group"
             @click="editingTripDates = !editingTripDates">
-            <p class="cursor-pointer text-base text-grey">
+            <typography class="cursor-pointer text-grey">
               {{ selectedTrip?.starting_date ? formattedDate(selectedTrip?.starting_date) : 'Start Date' }}
-            </p>
+            </typography>
             <icon-move-right class="h-6 text-grey w-6" />
-            <p class="cursor-pointer text-base text-grey">
+            <typography class="cursor-pointer text-grey">
               {{ selectedTrip?.ending_date ? formattedDate(selectedTrip?.ending_date) : 'End Date' }}
-            </p>
-            <gc-button
-              class="group-hover:opacity-100 opacity-0"
-              ghost
-              :icon="IconPencil"
-              round
-              size="sm" />
+            </typography>
+            <button-root
+              class="group-hover:opacity-100 opacity-0 rounded-full"
+              size="sm"
+              variant="ghost">
+              <icon-pencil />
+            </button-root>
           </div>
           <vue-date-picker
             v-else
@@ -239,9 +239,9 @@
           class="mb-5">
           <div class="flex items-center gap-4 group space-between">
             <div class="flex justify-between items-center flex-1">
-              <p class="!font-bold text-base text-grey">
+              <typography class="!font-bold text-grey">
                 {{ detail.title }}
-              </p>
+              </typography>
               <a
                 v-if="detail.url"
                 class="font-bold hyperlink text-base"
@@ -250,19 +250,19 @@
                 target="_blank">
                 {{ detail.value }}
               </a>
-              <p
+              <typography
                 v-else
-                class="font-bold text-base text-grey">
+                class="text-muted-foreground">
                 {{ detail.value }}
-              </p>
+              </typography>
             </div>
-            <gc-button
-              class="group-hover:opacity-100 opacity-0"
-              ghost
-              :icon="IconPencil"
-              round
+            <button-root
+              class="group-hover:opacity-100 opacity-0 rounded-full"
               size="sm"
-              @click="toggleEditDialog(detail)" />
+              variant="ghost"
+              @click="toggleEditDialog(detail)">
+              <icon-pencil />
+            </button-root>
           </div>
         </li>
       </ul>

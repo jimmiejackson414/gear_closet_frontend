@@ -349,11 +349,9 @@
       </alert-dialog-header>
       <div class="flex items-center space-x-2">
         <div class="flex flex-col">
-          <!-- <div class="flex items-center gap-2"> -->
           <typography class="font-semibold">
             Lifetime Membership
           </typography>
-          <!-- </div> -->
           <typography>
             For a limited time, enjoy a free <b>LIFETIME</b> membership on us as a thank you for being one of our first members!
           </typography>

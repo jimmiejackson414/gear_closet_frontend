@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { IconPencil, IconPlus } from '#components';
   import { type Database, type Tables, type TablesUpdate, TripDetailsType } from '@/types';
 
   const $appStore = useAppStore();
@@ -69,30 +68,31 @@
   <card class="px-8 py-4 rounded-3xl">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
       <icon-mountain class="h-6 mr-6 text-primary w-6" />
-      <p class="!font-bold text-base">
+      <typography class="!font-bold">
         Hike Details
-      </p>
-      <gc-button
+      </typography>
+      <button-root
         v-if="!pageLoading && hikeDetails.length"
-        class="justify-self-end"
+        class="justify-self-end rounded-full"
         data-testid="create-new-detail-btn"
-        :icon="IconPlus"
-        round
-        size="sm"
-        @click="createNewDetail" />
+        size="icon"
+        @click="createNewDetail">
+        <icon-plus />
+      </button-root>
     </div>
     <gc-skeleton v-if="pageLoading" />
     <gc-empty-state
       v-else-if="!pageLoading && !hikeDetails.length"
       data-testid="hike-details-empty-state">
-      <p class="mb-4 text-base">
+      <typography class="mb-4">
         You haven't created any hike details yet!
-      </p>
-      <gc-button
-        label="Get Started"
-        outlined
+      </typography>
+      <button-root
         size="sm"
-        @click="createNewDetail" />
+        variant="outline"
+        @click="createNewDetail">
+        Get Started
+      </button-root>
     </gc-empty-state>
     <div v-else>
       <div class="flex items-center gap-6">
@@ -102,9 +102,11 @@
           placeholder="Ending point"
           size="sm"
           @handle-update="updateTrip({ starting_point: $event })">
-          <h5 class="!font-black text-base-lg">
+          <typography
+            class="!font-black"
+            variant="large">
             {{ selectedTrip?.starting_point }}
-          </h5>
+          </typography>
         </gc-inline-edit>
         <icon-move-right class="h-6 text-grey w-6" />
         <gc-inline-edit
@@ -113,9 +115,11 @@
           placeholder="Ending point"
           size="sm"
           @handle-update="updateTrip({ ending_point: $event })">
-          <h5 class="!font-black text-base-lg">
+          <typography
+            class="!font-black"
+            variant="large">
             {{ selectedTrip?.ending_point }}
-          </h5>
+          </typography>
         </gc-inline-edit>
       </div>
       <div class="flex items-center mb-6">
@@ -125,9 +129,9 @@
           placeholder="Trip description"
           size="sm"
           @handle-update="updateTrip({ description: $event })">
-          <p class="cursor-pointer text-base text-grey">
+          <typography class="cursor-pointer text-grey">
             {{ selectedTrip?.description }}
-          </p>
+          </typography>
         </gc-inline-edit>
       </div>
       <ul>
@@ -137,30 +141,30 @@
           class="mb-5">
           <div class="flex items-center gap-4 group space-between">
             <div class="flex justify-between items-center flex-1">
-              <p class="!font-bold text-base text-grey">
+              <typography class="!font-bold text-grey">
                 {{ detail.title }}
-              </p>
+              </typography>
               <a
                 v-if="detail.url"
-                class="font-bold hyperlink text-base"
+                class="font-semibold hyperlink text-base"
                 :href="detail.url"
                 rel="noopener noreferrer"
                 target="_blank">
                 {{ detail.value }}
               </a>
-              <p
+              <typography
                 v-else
-                class="font-bold text-base text-grey">
+                class="text-muted-foreground">
                 {{ detail.value }}
-              </p>
+              </typography>
             </div>
-            <gc-button
-              class="group-hover:opacity-100 opacity-0"
-              ghost
-              :icon="IconPencil"
-              round
+            <button-root
+              class="group-hover:opacity-100 opacity-0 rounded-full"
               size="sm"
-              @click="toggleEditDialog(detail)" />
+              variant="ghost"
+              @click="toggleEditDialog(detail)">
+              <icon-pencil />
+            </button-root>
           </div>
         </li>
       </ul>
