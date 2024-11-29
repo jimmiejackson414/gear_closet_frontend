@@ -25,7 +25,7 @@
         .insert({
           completed: false,
           profile_id: user.value?.id as string,
-          resource_type: activeTab.value as ResourceType,
+          resource_type: activeTab.value,
           title: 'New todo',
           trip_id: Number(selectedTripId?.value),
         })
@@ -63,9 +63,19 @@
   /**
    * Batch updates todos.
    */
-  const batchUpdateTodos = (checked: boolean) => {
-    const todos = activeTab.value === ResourceType.USER ? userTodos.value : groupTodos.value;
-    todos.forEach((t) => updateTodo(t, { completed: checked }));
+  const batchUpdateTodos = async () => {
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const { data: updatedTodos, error } = await supabase.from('todos')
+        .upsert(data.value.todos)
+        .select();
+
+      if (updatedTodos?.length && !error) {
+        data.value.todos = updatedTodos;
+      }
+    } catch (err) {
+      $appStore.notifyNegative('There was an error updating the todos.');
+    }
   };
 </script>
 
