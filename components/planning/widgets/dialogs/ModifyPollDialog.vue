@@ -101,8 +101,8 @@
   <dialog-root :open="isOpen">
     <dialog-content
       class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
-      @escape-key-down="emits('onClose')"
-      @interact-outside="emits('onClose')">
+      @escape-key-down="handleClose"
+      @interact-outside="handleClose">
       <dialog-header>
         <dialog-title>{{ capitalize(state) }} Poll</dialog-title>
         <dialog-description>

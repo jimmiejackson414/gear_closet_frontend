@@ -9,7 +9,7 @@
   import VChart from 'vue-echarts';
   import type { Database, Theme } from '@/types';
   import type { ExtendedCategory, ExtendedPack, SelectOption } from '@/types/helpers';
-  import generateThemeOptions, { findTheme } from '@/utils/chartTheme';
+  import { findTheme } from '@/utils/chartTheme';
 
   use([
     CanvasRenderer,
@@ -163,31 +163,18 @@
   * Update Theme associated with the pack
   */
   const isChangeThemeModalOpen = ref(false);
-  const selectedTheme = ref<Theme | undefined>((data.value.pack?.theme as Theme) || undefined);
-  const themeOptions = computed(() => generateThemeOptions());
-  const updateTheme = async () => {
+  const updateTheme = (theme: Theme) => {
     try {
-      submitting.value = true;
-      const supabase = useSupabaseClient<Database>();
-      const { data: pack, error } = await supabase
-        .from('packs')
-        .update({ theme: selectedTheme.value })
-        .eq('id', data.value.pack?.id as number)
-        .select();
-
-      if (error || !pack) throw error;
       chartRef.value?.setOption({
         series: [{
           itemStyle: {
             color: (params: any) => {
-              const theme = findTheme(selectedTheme.value);
-              return theme[params.dataIndex % theme.length];
+              const foundTheme = findTheme(theme);
+              return foundTheme[params.dataIndex % theme.length];
             },
           },
         }],
       });
-      data.value.pack!.theme = pack[0].theme;
-      $appStore.notifyPositive('Successfully updated your pack theme.');
     } catch (error) {
       $appStore.notifyNegative('There was an error updating your pack theme.');
     } finally {
@@ -416,68 +403,8 @@
   </gc-modal>
 
   <!-- Change Theme Modal -->
-  <gc-modal
+  <change-pack-theme-dialog
     :is-open="isChangeThemeModalOpen"
-    size="sm"
-    title="Change Theme"
-    @handle-cancel="isChangeThemeModalOpen = false">
-    <template #content>
-      <div class="flex flex-col">
-        <p class="mb-4 text-base">
-          Change the theme associated with your pack.
-        </p>
-        <gc-select
-          :disabled="submitting"
-          label="Theme"
-          :model-value="selectedTheme"
-          :options="themeOptions"
-          @update:model-value="selectedTheme = $event.value">
-          <template #option="{ option }">
-            <div class="flex items-center gap-3">
-              <div class="flex items-center gap-1">
-                <span
-                  v-for="color in (option as Option).colors"
-                  :key="color"
-                  class="border-1 border-white h-4 rounded-[3px] w-4"
-                  :style="{ backgroundColor: color }" />
-              </div>
-              <p class="text-base">
-                {{ option.label }}
-              </p>
-            </div>
-          </template>
-          <template #selected="{ selectedOption }">
-            <div class="flex items-center gap-3">
-              <div class="flex items-center gap-1">
-                <span
-                  v-for="color in findTheme(selectedOption)"
-                  :key="color"
-                  class="border-1 border-white h-4 rounded-[3px] w-4"
-                  :style="{ backgroundColor: color }" />
-              </div>
-              <p class="text-base">
-                {{ selectedOption }}
-              </p>
-            </div>
-          </template>
-        </gc-select>
-      </div>
-    </template>
-    <template #actions>
-      <div class="flex justify-end items-center gap-4 w-full">
-        <gc-button
-          :disabled="submitting"
-          label="Cancel"
-          size="sm"
-          variant="secondary"
-          @click="isChangeThemeModalOpen = false" />
-        <gc-button
-          :disabled="submitting"
-          label="Update"
-          :loading="submitting"
-          size="sm"
-          @click="updateTheme" />
-      </div>
-    </template>
-  </gc-modal>
+    @on-close="isChangeThemeModalOpen = false"
+    @update-theme="updateTheme" />
 </template>
