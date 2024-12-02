@@ -7,8 +7,8 @@
   import { CanvasRenderer } from 'echarts/renderers';
   import round from 'lodash.round';
   import VChart from 'vue-echarts';
-  import type { Database, Theme } from '@/types';
-  import type { ExtendedCategory, ExtendedPack, SelectOption } from '@/types/helpers';
+  import type { Theme } from '@/types';
+  import type { ExtendedCategory } from '@/types/helpers';
   import { findTheme } from '@/utils/chartTheme';
 
   use([
@@ -230,49 +230,6 @@
     :is-open="isAddPackModalOpen"
     :state="modalState"
     @on-close="isAddPackModalOpen = false" />
-  <!-- <gc-modal
-    :is-open="isAddPackModalOpen"
-    :title="modalState === 'insert' ? 'Add a Pack' : 'Change Pack'"
-    @handle-cancel="isAddPackModalOpen = false">
-    <template #content>
-      <div class="flex items-start flex-col gap-4 w-full">
-        <p class="text-base text-gray">
-          {{ !fetchingPacks && !packOptions.length ? 'You haven\'t created any packs yet!' : 'Choose one of your existing packs to add to this trip, or create a new pack!' }}
-        </p>
-        <gc-select
-          v-if="!fetchingPacks && packOptions.length"
-          class="mb-2 w-full"
-          :disabled="pageLoading"
-          label="Selected Pack"
-          :model-value="selectedPackId"
-          name="selected-pack-select"
-          :options="packOptions"
-          @update:model-value="(opt: SelectOption) => selectedPackId = ( opt.value as number )" />
-        <gc-button
-          label="Create a new pack"
-          outlined
-          size="sm"
-          :to="{ name: 'closet' }"
-          variant="positive" />
-      </div>
-    </template>
-    <template
-      v-if="!fetchingPacks && packOptions.length"
-      #actions>
-      <gc-button
-        :disabled="submitting"
-        label="Cancel"
-        size="sm"
-        variant="secondary"
-        @click="isAddPackModalOpen = false" />
-      <gc-button
-        :disabled="submitting"
-        :label="modalState === 'insert' ? 'Add Pack' : 'Change Pack'"
-        :loading="submitting"
-        size="sm"
-        @click="modalState === 'insert' ? addPackToTrip() : updateTripPack()" />
-    </template>
-  </gc-modal> -->
 
   <!-- Change Theme Modal -->
   <change-pack-theme-dialog
