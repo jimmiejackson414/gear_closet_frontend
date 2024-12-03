@@ -1,8 +1,8 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { computed, type HTMLAttributes } from 'vue';
   import { ComboboxRoot, useForwardPropsEmits } from 'radix-vue';
   import type { ComboboxRootEmits, ComboboxRootProps } from 'radix-vue';
+  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = withDefaults(defineProps<ComboboxRootProps & { class?: HTMLAttributes['class'] }>(), {

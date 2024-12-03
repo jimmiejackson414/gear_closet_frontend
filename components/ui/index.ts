@@ -12,6 +12,7 @@ export * from './dropdown-menu';
 export * from './form';
 export * from './input';
 export * from './label';
+export * from './multiselect';
 export * from './number-field';
 export * from './pin-input';
 export * from './popover';

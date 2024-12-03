@@ -1,6 +1,9 @@
 <script lang='ts' setup>
+  import { cn } from '@/lib/utils';
+
   interface Props {
     border?: boolean;
+    class?: string;
     size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
     url?: string;
     initials?: string;
@@ -8,6 +11,7 @@
 
   const props = withDefaults(defineProps<Props>(), {
     border: false,
+    class: '',
     url: undefined,
     initials: undefined,
     size: 'md',
@@ -36,12 +40,11 @@
     v-if="url"
     alt="User Avatar"
     class="object-cover rounded-full"
-    :class="[ sizeClass, { 'border-2 border-white': props.border } ]"
+    :class="cn(sizeClass, { 'border-2 border-white': props.border }, props.class)"
     :src="url">
   <div
     v-else
-    class="bg-gray-200 flex-shrink-0 justify-center items-center inline-flex overflow-hidden relative rounded-full"
-    :class="[ sizeClass, { 'border-2 border-white': props.border } ]">
+    :class="cn('bg-gray-200 flex-shrink-0 justify-center items-center inline-flex overflow-hidden relative rounded-full', sizeClass, { 'border-2 border-white': props.border }, props.class)">
     <span class="font-medium text-gray-600">
       {{ initials }}
     </span>

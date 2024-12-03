@@ -9,7 +9,7 @@
   <div
     :class="
       cn(
-        'flex flex-col-reverse sm:flex-row sm:justify-between sm:gap-x-2 border-t border-gray-200 pt-4',
+        'flex flex-col-reverse sm:flex-row sm:justify-between sm:gap-x-2 pt-4',
         props.class,
       )
     ">
