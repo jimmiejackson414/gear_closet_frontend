@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { type Database, type Tables, TripFriendStatus } from '@/types';
+  import { type Database, type Tables, type TablesInsert, TripFriendStatus } from '@/types';
   import type { SelectOption } from '@/types/helpers';
 
   type FriendSearchResult = Tables<'friends'> & {
@@ -17,16 +17,8 @@
 
   const $store = usePlanningStore();
   const $appStore = useAppStore();
+  const $userStore = useUserStore();
   const { data, selectedTripId, selectedTrip } = storeToRefs($store);
-
-  const selectedFriends = ref<string[]>([]);
-  const friendsToInvite = shallowRef<Tables<'profiles'>[]>([]);
-  const emailsToInvite = ref<string[]>([]);
-
-  const handleClose = () => {
-    friendsToInvite.value = [];
-    emits('onClose');
-  };
 
   /**
    * Performs search for existing friends.
@@ -34,6 +26,7 @@
   // const searchQuery = ref('');
   const searching = ref(false);
   const searchResults = ref<SelectOption[]>([]);
+  const friendObjects = ref<Tables<'profiles'>[]>([]);
   const searchForFriends = async (searchTerm: string) => {
     try {
       searching.value = true;
@@ -47,6 +40,8 @@
         .limit(10);
 
       if (friends?.length && !error) {
+        // @ts-ignore
+        friendObjects.value = friends.map(f => f.profile as Tables<'profiles'>);
         searchResults.value = friends.map(f => ({
           label: friendlyUsername(f.profile as Tables<'profiles'>),
           value: f.id,
@@ -69,6 +64,8 @@
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
+
+      // invite friends
       const existingFriendsPayload = friendsToInvite.value.map((f: Tables<'profiles'>) => ({
         trip_id: Number(selectedTripId.value),
         profile_id: f.id,
@@ -78,6 +75,18 @@
       const { data: invitedFriends, error } = await supabase.from('trip_friends')
         .insert(existingFriendsPayload)
         .select();
+
+      // send each friend a notification
+      const notificationsPayload = friendsToInvite.value.map(f => ({
+        title: "You've been invited to a trip!",
+        content: `${friendlyUsername($userStore.profile)} invited you to a trip!`,
+        read_on_date: null,
+        profile_id: f.id,
+        sender_id: user.value?.id,
+      })) as TablesInsert<'notifications'>;
+
+      await supabase.from('notifications')
+        .insert(notificationsPayload);
 
       if (invitedFriends?.length && !error) {
         $appStore.notifyPositive('Successfully invited friends to trip!');
@@ -89,6 +98,19 @@
       submitting.value = false;
       handleClose();
     }
+  };
+
+  const friendsToInvite = shallowRef<Tables<'profiles'>[]>([]);
+  const setFriendsPayload = (event: SelectOption[]) => {
+    friendsToInvite.value = event.map((f: SelectOption) => {
+      return friendObjects.value.find((friend) => friend.id === f.value) as Tables<'profiles'>;
+    })
+      .filter(Boolean) as Tables<'profiles'>[];
+  };
+
+  const handleClose = () => {
+    friendsToInvite.value = [];
+    emits('onClose');
   };
 </script>
 
@@ -106,39 +128,16 @@
           Invite existing friends to your trip and get started planning!
         </dialog-description>
       </dialog-header>
-      <div class="flex items-center flex-col gap-8 mt-4 mx-auto w-full lg:max-w-sm">
-        <!-- <combobox
-          :disabled="searching || submitting"
-          :loading="searching"
-          :model-value="searchQuery"
-          multiselect
-          :options="searchResults"
-          placeholder="Search for a friend..."
-          @update:model-value="selectedFriend = $event"
-          @update:search-term="searchForFriends">
-          <template #option="{ option }">
-            <div class="flex items-center">
-              <gc-avatar
-                class="mr-2"
-                size="xs"
-                :src="buildImageSrc(option.image)" />
-              <span>{{ option.label }}</span>
-            </div>
-          </template>
-        </combobox> -->
+      <div class="flex flex-col gap-2 mt-4 w-full lg:max-w-sm">
+        <label-root>
+          Search for friends
+        </label-root>
         <multiselect
-          :model-value="selectedFriends"
-          :options="searchResults"
-          title="Test"
-          @update:search-term="searchForFriends" />
-        <!-- <multiselect
-          :disabled="searching || submitting"
           :loading="searching"
-          :model-value="selectedFriends"
           :options="searchResults"
-          placeholder="Search for a friend..."
-          @update:model-value="selectedFriends = $event"
-          @update:search-term="searchForFriends">
+          placeholder="Abe Lincoln"
+          @search="searchForFriends"
+          @select="setFriendsPayload">
           <template #option="{ option }">
             <div class="flex items-center">
               <gc-avatar
@@ -148,36 +147,7 @@
               <span>{{ option.label }}</span>
             </div>
           </template>
-        </multiselect> -->
-        <div>
-          <typography
-            class="!font-bold"
-            variant="small">
-            Friends to invite:
-          </typography>
-          <typography
-            v-if="!friendsToInvite.length && !emailsToInvite.length"
-            class="text-muted-foreground">
-            You haven't added any friends to invite yet.
-          </typography>
-          <ul v-else>
-            <li
-              v-for="friend in friendsToInvite"
-              :key="friend.id"
-              class="flex items-center gap-4">
-              <gc-avatar
-                :initials="initials(friend)"
-                :url="buildImageSrc(friend.image)" />
-              {{ friendlyUsername(friend) }}
-            </li>
-            <li
-              v-for="email in emailsToInvite"
-              :key="email"
-              class="flex items-center gap-4">
-              {{ email }}
-            </li>
-          </ul>
-        </div>
+        </multiselect>
       </div>
       <dialog-footer>
         <dialog-close
