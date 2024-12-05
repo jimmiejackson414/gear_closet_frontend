@@ -86,7 +86,6 @@
       <button-root
         class="self-center"
         :disabled="!isPaidMember && data.allPacks.length >= 1"
-        size="sm"
         @click="$store.dialogStates.createPackDialog = true">
         <icon-plus class="h-4 text-primary-foreground w-4" />
         New Pack

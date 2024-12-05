@@ -1,5 +1,6 @@
 <script lang='ts' setup>
   import convert, { type Mass } from 'convert';
+  import type { EChartsOption } from 'echarts';
   import { BarChart } from 'echarts/charts';
   import {
     GridComponent,
@@ -11,9 +12,8 @@
   import { CanvasRenderer } from 'echarts/renderers';
   import round from 'lodash.round';
   import VChart from 'vue-echarts';
-  import type { ExtendedCategory } from '@/types/helpers';
-  import type { EChartsOption } from 'echarts';
   import { Theme } from '@/types';
+  import type { ExtendedCategory } from '@/types/helpers';
 
   use([
     CanvasRenderer,
@@ -107,11 +107,11 @@
   <div class="flex flex-col">
     <div class="flex items-center">
       <icon-backpack class="h-6 mr-6 text-primary w-6" />
-      <p class="!font-bold text-base">
+      <typography class="!font-bold">
         Pack Summary
-      </p>
+      </typography>
     </div>
-    <div class="h-[200px] lg:h-[375px] mb-4 mt-0 mx-auto w-full">
+    <div class="h-[200px] lg:h-[375px] mb-4 mt-0 w-auto">
       <client-only>
         <v-chart
           ref="chartRef"

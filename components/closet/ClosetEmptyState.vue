@@ -6,17 +6,20 @@
 <template>
   <div v-if="!data.allPacks.length && !pageLoading">
     <gc-empty-state data-testid="closet-empty-state">
-      <h5 class="font-bold mb-3 text-base-lg">
+      <typography
+        class="font-bold mb-3"
+        variant="h5">
         You haven't created any packs yet!
-      </h5>
-      <p class="mb-4 text-base">
+      </typography>
+      <typography class="mb-4">
         Click the button below to get started.
-      </p>
-      <gc-button
-        label="Create your first pack"
-        outlined
+      </typography>
+      <button-root
         size="sm"
-        @click="dialogStates.createPackDialog = true" />
+        variant="outline"
+        @click="dialogStates.createPackDialog = true">
+        Create your first pack
+      </button-root>
     </gc-empty-state>
   </div>
 </template>

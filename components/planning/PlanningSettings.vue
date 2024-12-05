@@ -76,7 +76,6 @@
     <div v-tippy="{ content: !isPaidMember && data.trips.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }">
       <button-root
         :disabled="pageLoading || (!isPaidMember && data.trips.length >= 1)"
-        size="sm"
         @click="emits('openDialog')">
         New Trip
       </button-root>

@@ -11,18 +11,21 @@
 <template>
   <div>
     <gc-empty-state>
-      <h5 class="font-bold mb-3 text-base-lg">
+      <typography
+        class="font-bold mb-3"
+        variant="h5">
         You haven't created any trips yet!
-      </h5>
-      <p class="mb-4 text-base">
+      </typography>
+      <typography class="mb-4">
         Click the button below to get started.
-      </p>
-      <gc-button
+      </typography>
+      <button-root
         :disabled="!isPaidMember && data.trips.length > 0"
-        label="Create your first trip"
-        outlined
         size="sm"
-        @click="emits('openDialog')" />
+        variant="outline"
+        @click="emits('openDialog')">
+        Create your first trip
+      </button-root>
     </gc-empty-state>
   </div>
 </template>

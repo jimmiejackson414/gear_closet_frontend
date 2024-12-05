@@ -33,48 +33,45 @@
     <div class="flex justify-between items-center mb-10">
       <div class="flex items-center">
         <icon-bar-chart-3 class="h-6 mr-6 text-primary w-6" />
-        <p class="!font-bold text-base">
+        <typography class="!font-bold">
           Stats
-        </p>
+        </typography>
       </div>
       <div class="flex pr-8">
-        <headless-menu
-          as="div"
-          class="inline-block relative text-left">
-          <div class="bg-primary flex justify-center items-center h-8 rounded-full w-8">
-            <headless-menu-button class="duration-150 ease-snap focus-visible:ring-2 focus-visible:ring-white/0 font-medium inline-flex justify-center outline-none focus:outline-none px-0 py-2 rounded-md text-sm text-white">
-              <icon-settings class="h-5 w-5 " />
-            </headless-menu-button>
-          </div>
-          <zoom-transition>
-            <headless-menu-items class="absolute right-0 bg-white divide-gray-100 divide-y mt-2 origin-top-right ring-1 ring-black/5 rounded-md shadow-lg w-56 z-10 focus:outline-none">
-              <headless-menu-item @click="dialogStates.updateThemeDialog = true">
-                <p class="block cursor-pointer duration-150 ease-in-out font-medium px-4 py-2 rounded-b-lg text-dark-grey hover:bg-gray-100">
-                  Change Theme
-                </p>
-              </headless-menu-item>
-            </headless-menu-items>
-          </zoom-transition>
-        </headless-menu>
+        <dropdown-menu>
+          <dropdown-menu-trigger>
+            <icon-ellipsis-vertical class="h-6 w-6" />
+          </dropdown-menu-trigger>
+          <dropdown-menu-content>
+            <dropdown-menu-label>
+              Actions
+            </dropdown-menu-label>
+            <dropdown-menu-separator />
+            <dropdown-menu-item @select="dialogStates.updateThemeDialog = true">
+              Change theme
+            </dropdown-menu-item>
+          </dropdown-menu-content>
+        </dropdown-menu>
       </div>
     </div>
     <div class="grid grid-cols-2 gap-6 h-full pb-4">
       <div
         v-for="detail in details"
         :key="detail.title"
-        class="border border-dashed border-gray-400 p-4 rounded-2xl"
+        class="border border-dashed border-gray-400 p-4 rounded-2xl w-auto"
         data-testid="pack-summary-detail">
-        <span
-          class="font-bold text-eyebrow text-grey-8"
-          data-testid="detail-title">
+        <typography
+          class="font-bold"
+          variant="large">
           {{ detail.title }}
-        </span>
-        <h6
-          class="duration-300 ease-snap font-bold text-lg transition-colors"
+        </typography>
+        <typography
+          class="duration-300 ease-snap font-bold transition-colors"
           data-testid="detail-weight"
-          :style="{ color: detail.color }">
+          :style="{ color: detail.color }"
+          variant="large">
           {{ detail.weight || '' }} lbs
-        </h6>
+        </typography>
       </div>
     </div>
   </div>
