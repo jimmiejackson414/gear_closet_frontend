@@ -19,7 +19,7 @@
   <div>
     <closet-settings />
 
-    <closet-empty-state />
+    <!-- <closet-empty-state />
 
     <pack-summary />
 
@@ -37,6 +37,6 @@
 
     <add-url-dialog />
 
-    <update-theme-dialog />
+    <update-theme-dialog /> -->
   </div>
 </template>
