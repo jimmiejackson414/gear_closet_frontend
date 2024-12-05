@@ -92,13 +92,13 @@
       <p class="!font-bold text-base">
         Trip Details
       </p>
-      <gc-button
+      <button-root
         v-if="!pageLoading && tripDetails.length"
-        class="justify-self-end"
-        :icon="IconPlus"
-        round
-        size="sm"
-        @click="createDetail" />
+        class="justify-self-end rounded-full"
+        size="icon"
+        @click="createDetail">
+        <icon-plus />
+      </button-root>
     </div>
     <gc-skeleton v-if="pageLoading" />
     <gc-empty-state v-else-if="!pageLoading && !tripDetails?.length">
@@ -119,9 +119,11 @@
           placeholder="Trip Name"
           size="sm"
           @handle-update="updateTrip({ name: $event })">
-          <h5 class="!font-black text-base-lg">
+          <typography
+            class="!font-black"
+            variant="large">
             {{ selectedTrip?.name }}
-          </h5>
+          </typography>
         </gc-inline-edit>
         <div>
           <div
@@ -166,7 +168,7 @@
         <li
           v-for="detail in tripDetails"
           :key="detail.id"
-          class="mb-5">
+          class="mb-0">
           <div class="flex items-center gap-4 group space-between">
             <div class="flex justify-between items-center flex-1">
               <typography class="!font-bold text-grey">

@@ -135,7 +135,7 @@
         <li
           v-for="detail in hikeDetails"
           :key="detail.id"
-          class="mb-5">
+          class="mb-0">
           <div class="flex items-center gap-4 group space-between">
             <div class="flex justify-between items-center flex-1">
               <typography class="!font-bold text-grey">
