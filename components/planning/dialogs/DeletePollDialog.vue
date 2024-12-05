@@ -49,11 +49,13 @@
         <alert-dialog-cancel @click="emits('onClose')">
           Cancel
         </alert-dialog-cancel>
-        <alert-dialog-action
+        <button-root
+          :disabled="isSubmitting"
+          :loading="isSubmitting"
           variant="destructive"
           @click="deletePoll">
           Delete Poll
-        </alert-dialog-action>
+        </button-root>
       </alert-dialog-footer>
     </alert-dialog-content>
   </alert-dialog>

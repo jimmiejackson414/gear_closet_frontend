@@ -14,7 +14,6 @@ export interface PlanningPageData {
 }
 
 type State = {
-  activeDetail?: Tables<'trip_details'>;
   data: PlanningPageData;
   dialogStates: {
     createTripDialog: boolean;
@@ -37,7 +36,6 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
   {
     state () {
       return {
-        activeDetail: undefined,
         data: {
           trips: [],
           pack: undefined,

@@ -1,13 +1,13 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
-import { beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
-import VueTippy from 'vue-tippy';
 import { createPinia, setActivePinia } from 'pinia';
-import PlanningSettings from '@/components/planning/PlanningSettings.vue';
-import PlanningEmptyState from '@/components/planning/PlanningEmptyState.vue';
-import HikeDetailsWidget from '@/components/planning/widgets/HikeDetailsWidget.vue';
+import { type MockInstance, beforeEach, describe, expect, it, vi } from 'vitest';
+import VueTippy from 'vue-tippy';
+import { tripDetails, trips } from './mocks/planning.mock';
 import ModifyDetailDialog from '@/components/planning/dialogs/ModifyDetailDialog.vue';
-import { trips, tripDetails } from './mocks/planning.mock';
+import PlanningEmptyState from '@/components/planning/PlanningEmptyState.vue';
+import PlanningSettings from '@/components/planning/PlanningSettings.vue';
+import HikeDetailsWidget from '@/components/planning/widgets/HikeDetailsWidget.vue';
 
 describe('Planning Page', async () => {
   beforeEach(() => {
@@ -27,7 +27,7 @@ describe('Planning Page', async () => {
     it('renders the trip options in the list correctly', async () => {
       const store = usePlanningStore();
 
-      store.$patch({ data: { trips }});
+      store.$patch({ data: { trips } });
       await wrapper.vm.$nextTick();
 
       const select = wrapper.findComponent({ name: 'GcSelect' });
@@ -50,7 +50,7 @@ describe('Planning Page', async () => {
       store.$patch({ data: { trips }, pageLoading: false });
       userStore.$patch({
         profile: {
-          subscriptions: [{ prices: { identifier: 'FREE' }}],
+          subscriptions: [{ prices: { identifier: 'FREE' } }],
         },
       });
       await wrapper.vm.$nextTick();
@@ -67,7 +67,7 @@ describe('Planning Page', async () => {
       store.$patch({ data: { trips }, pageLoading: false });
       userStore.$patch({
         profile: {
-          subscriptions: [{ prices: { identifier: 'ANNUAL' }}],
+          subscriptions: [{ prices: { identifier: 'ANNUAL' } }],
         },
       });
       await wrapper.vm.$nextTick();
@@ -188,7 +188,7 @@ describe('Planning Page', async () => {
     it('can update a detail', async () => {
       const store = usePlanningStore();
       store.$patch({
-        activeDetail: tripDetails[0],
+        // activeDetail: tripDetails[0],
         data: {
           trip_details: tripDetails,
         },
@@ -207,7 +207,7 @@ describe('Planning Page', async () => {
       expect(spy.getMockName())
         .toEqual('updateDetail');
 
-      const beforeDetail = { ...store.activeDetail };
+      const beforeDetail = {};
 
       const inputs = wrapper.findAllComponents({ name: 'GcInput' });
       await inputs[0].setValue('New Detail');

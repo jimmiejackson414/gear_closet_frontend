@@ -49,7 +49,7 @@
   <div class="items-center relative w-full">
     <component
       :is="prependIcon"
-      class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-grey w-5" />
+      class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-foreground w-5" />
     <input
       v-bind="$attrs"
       ref="inputRef"

@@ -1,24 +1,17 @@
 @layer base {
-  html, #app {
+  /* html, #app {
     @apply h-full
   }
 
   body {
     @apply font-sans text-base bg-white antialiased h-full;
-  }
-
-  /* .hyperlink {
-    @apply font-sans;
-    font-size: 1rem;
-    color: theme(colors.primary);
-    transition: color 0.2s ease-in-out;
-
-    &:hover {
-      color: theme(colors.primary / 75%);
-    }
   } */
 
-  .container,
+  .text-hyperlink {
+    @apply font-sans text-primary text-base hover:text-primary/75 transition-colors duration-200 ease-in-out;
+  }
+
+  /* .container,
   .container-fluid,
   .container-xxl,
   .container-xl,
@@ -56,7 +49,7 @@
     .container-xxl, .container-xl, .container-lg, .container-md, .container-sm, .container {
       max-width: 1320px;
     }
-  }
+  } */
 
   /* Datepicker Styles */
   .dp__main.gc-dp {
@@ -64,15 +57,20 @@
 
     .dp__input {
       &.gc-dp-input {
-        @apply bg-transparent border border-gray-300 rounded-lg active:border-primary placeholder:!text-gray-400 font-sans text-base py-2.5 ps-9;
+        /* @apply bg-transparent dark:bg-background border border-gray-300 rounded-lg active:border-primary placeholder:!text-gray-400 font-sans text-base py-2.5 ps-9; */
+        @apply flex w-full rounded-md border bg-transparent dark:bg-background px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-10 py-2 border-input ps-9;
       }
     }
+
     .dp__calendar_item {
-      .dp__range_start, .dp__range_end {
+
+      .dp__range_start,
+      .dp__range_end {
         &.gc-dp-cell {
           @apply !bg-primary;
         }
       }
+
       .dp__today .gc-dp-cell {
         @apply !border-primary;
       }
@@ -87,6 +85,7 @@
       .ql-editor {
         @apply min-h-[100px]
       }
+
       &.ql-disabled {
         @apply !bg-gray-100 pointer-events-none;
       }

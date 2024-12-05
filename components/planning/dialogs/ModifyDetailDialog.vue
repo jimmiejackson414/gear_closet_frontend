@@ -1,50 +1,93 @@
 <script lang='ts' setup>
-  import type { Database, TablesUpdate } from '@/types';
+  import { toTypedSchema } from '@vee-validate/zod';
+  import { useForm } from 'vee-validate';
+  import * as z from 'zod';
+  import { IconLink, IconType } from '#components';
+  import type { Database, Tables, TablesUpdate } from '@/types';
+
+  interface Props {
+    activeDetail: Tables<'trip_details'>;
+    isOpen: boolean;
+  }
+
+  const props = defineProps<Props>();
+  const emits = defineEmits(['onClose']);
 
   const $store = usePlanningStore();
   const $appStore = useAppStore();
-  const { activeDetail, data, dialogStates } = storeToRefs($store);
+  const { data } = storeToRefs($store);
   const submitting = ref(false);
-  const detailHasUrl = ref(false);
 
-  const updateDetailHasUrl = (value: boolean) => {
-    if (value) {
-      $store.activeDetail!.url = $store.activeDetail?.url ? prependProtocol($store.activeDetail?.url) : '';
-    } else {
-      $store.activeDetail!.url = null;
+  const formSchema = toTypedSchema(z.object({
+    title: z.string()
+      .min(3)
+      .max(50),
+    value: z.string()
+      .min(3)
+      .max(500)
+      .optional(),
+    has_url: z.boolean(),
+    url: z.string()
+      .url()
+      .nullable()
+      .optional(),
+  })
+    .refine(data => !data.has_url || (data.has_url && data.url), {
+      message: "URL is required.",
+      path: ["url"],
+    }));
+
+  const { isFieldDirty, handleSubmit, isSubmitting, values, setValues } = useForm({
+    validationSchema: formSchema,
+    initialValues: {
+      title: props.activeDetail?.title as string,
+      value: props.activeDetail?.value as string,
+      has_url: Boolean(props.activeDetail?.url),
+      url: props.activeDetail?.url as string,
+    },
+  });
+
+  // on open, set the initial values manually
+  watch(() => props.isOpen, (newValue) => {
+    if (newValue) {
+      setValues({
+        title: props.activeDetail?.title as string,
+        value: props.activeDetail?.value as string,
+        has_url: Boolean(props.activeDetail?.url),
+        url: props.activeDetail?.url as string,
+      });
     }
-    detailHasUrl.value = value;
-  };
-
-  watch(() => $store.activeDetail, (newVal) => {
-    detailHasUrl.value = Boolean(newVal?.url);
   });
 
   /**
    * Updates a detail.
    */
-  const updateDetail = async () => {
+  const updateDetail = handleSubmit(async (v) => {
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
-      const payload: TablesUpdate<'trip_details'> = { ...$store.activeDetail, url: detailHasUrl.value ? prependProtocol($store.activeDetail?.url as string) : null };
+      const payload: TablesUpdate<'trip_details'> = {
+        title: v.title,
+        value: v.value,
+        url: v.url ? prependProtocol(v?.url as string) : null,
+      };
 
       const { data: updatedDetail, error } = await supabase.from('trip_details')
         .update(payload)
-        .eq('id', $store.activeDetail?.id as number)
+        .eq('id', props.activeDetail?.id as number)
         .select();
 
       if (updatedDetail?.length && !error) {
-        const index = data.value.trip_details.findIndex((t) => t.id === $store.activeDetail?.id);
+        const index = data.value.trip_details.findIndex((t) => t.id === props.activeDetail?.id);
         data.value.trip_details[index] = updatedDetail[0];
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error updating the detail.');
     } finally {
       submitting.value = false;
-      dialogStates.value.modifyDetailDialog = false;
+      handleClose();
     }
-  };
+  });
 
   /**
    * Deletes a detail.
@@ -55,12 +98,12 @@
       const supabase = useSupabaseClient<Database>();
       const { error } = await supabase.from('trip_details')
         .delete()
-        .eq('id', $store.activeDetail?.id as number);
+        .eq('id', props.activeDetail?.id as number);
 
       if (!error) {
-        const index = data.value.trip_details.findIndex((t) => t.id === $store.activeDetail?.id);
+        const index = data.value.trip_details.findIndex((t) => t.id === props.activeDetail?.id);
         data.value.trip_details.splice(index, 1);
-        dialogStates.value.modifyDetailDialog = false;
+        handleClose();
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error deleting the detail.');
@@ -68,65 +111,117 @@
       submitting.value = false;
     }
   };
+
+  const handleClose = () => {
+    emits('onClose');
+  };
 </script>
 
 <template>
-  <gc-modal
-    :is-open="dialogStates.modifyDetailDialog"
-    title="Edit Hike Detail"
-    @handle-cancel="dialogStates.modifyDetailDialog = false">
-    <template #content>
-      <div class="flex flex-col gap-6">
-        <gc-input
-          class="w-full"
-          label="Title"
-          :model-value="activeDetail?.title"
-          name="title"
-          @update:model-value="e => activeDetail!.title = e" />
-        <gc-input
-          class="w-full"
-          label="Value"
-          :model-value="activeDetail?.value"
-          name="value"
-          @update:model-value="e => activeDetail!.value = e" />
-        <gc-checkbox
-          id="has-url"
-          v-model="detailHasUrl"
-          data-testid="has-url-checkbox"
-          label="Link to URL?"
-          @update="updateDetailHasUrl" />
-        <gc-input
-          v-show="detailHasUrl"
-          id="url"
-          class="w-full"
-          label="URL"
-          :model-value="activeDetail?.url"
-          name="url"
-          @update:model-value="e => activeDetail!.url = e" />
+  <dialog-root :open="isOpen">
+    <dialog-content
+      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      @escape-key-down="handleClose"
+      @interact-outside="handleClose">
+      <dialog-header>
+        <dialog-title>Edit Hike Detail</dialog-title>
+      </dialog-header>
+      <div class="w-full">
+        <form class="flex flex-col gap-6 w-full">
+          <!-- Title -->
+          <form-field
+            v-slot="{ componentField }"
+            name="title"
+            :validate-on-blur="!isFieldDirty">
+            <form-item>
+              <form-label>Trip Name</form-label>
+              <form-control>
+                <input-root
+                  :disabled="isSubmitting"
+                  :prepend-icon="IconType"
+                  v-bind="componentField" />
+              </form-control>
+              <form-message />
+            </form-item>
+          </form-field>
+
+          <!-- Value -->
+          <form-field
+            v-slot="{ componentField }"
+            name="value"
+            :validate-on-blur="!isFieldDirty">
+            <form-item>
+              <form-label>Description</form-label>
+              <form-control>
+                <input-root
+                  :disabled="isSubmitting"
+                  :prepend-icon="IconType"
+                  v-bind="componentField" />
+              </form-control>
+              <form-message />
+            </form-item>
+          </form-field>
+
+          <div class="flex flex-col gap-2">
+            <!-- Has Url -->
+            <form-field
+              v-slot="{ value, handleChange }"
+              name="has_url"
+              type="checkbox"
+              :validate-on-blur="!isFieldDirty">
+              <form-item class="flex items-start flex-row gap-x-3 space-y-0">
+                <form-control>
+                  <checkbox
+                    :checked="value"
+                    :disabled="isSubmitting"
+                    @update:checked="handleChange" />
+                </form-control>
+                <form-label>Link to URL?</form-label>
+                <form-message />
+              </form-item>
+            </form-field>
+
+            <!-- Url -->
+            <form-field
+              v-if="values.has_url"
+              v-slot="{ componentField }"
+              name="url"
+              :validate-on-blur="!isFieldDirty">
+              <form-item>
+                <form-label>URL</form-label>
+                <form-control>
+                  <input-root
+                    :disabled="isSubmitting"
+                    :prepend-icon="IconLink"
+                    v-bind="componentField" />
+                </form-control>
+                <form-message />
+              </form-item>
+            </form-field>
+          </div>
+        </form>
       </div>
-    </template>
-    <template #actions>
-      <gc-button
-        :disabled="submitting"
-        label="Delete"
-        outlined
-        size="sm"
-        variant="danger"
-        @click="deleteDetail" />
-      <div class="flex items-center gap-4">
-        <gc-button
-          :disabled="submitting"
-          label="Cancel"
-          size="sm"
-          variant="secondary"
-          @click="dialogStates.modifyDetailDialog = false" />
-        <gc-button
-          data-testid="submit-new-detail-btn"
-          :disabled="submitting"
-          label="Update"
-          size="sm"
-          @click="updateDetail" />
-      </div>
-    </template>
-  </gc-modal>
+      <dialog-footer>
+        <dialog-close
+          :disabled="isSubmitting"
+          @click="handleClose">
+          Cancel
+        </dialog-close>
+        <div class="flex items-center gap-4">
+          <button-root
+            :disabled="isSubmitting"
+            variant="destructive"
+            @click="deleteDetail">
+            Delete
+          </button-root>
+          <button-root
+            :disabled="isSubmitting"
+            :loading="isSubmitting"
+            @click="updateDetail">
+            Update
+          </button-root>
+        </div>
+      </dialog-footer>
+    </dialog-content>
+  </dialog-root>
 </template>

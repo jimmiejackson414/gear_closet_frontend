@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  import { IconBackpack } from '#components';
   import type { Database } from '@/types';
   import type { ExtendedPack, SelectOption } from '@/types/helpers';
 
@@ -162,7 +163,7 @@
       </dialog-header>
       <div class="flex items-center flex-col gap-8 mt-4 mx-auto w-full lg:max-w-sm">
         <select-root :model-value="String(selectedPackId)">
-          <select-trigger>
+          <select-trigger :prepend-icon="IconBackpack">
             <select-value placeholder="Select a pack" />
           </select-trigger>
           <select-content>

@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  import { IconCheck, IconCircleHelp } from '#components';
   import type { Database, Tables } from '@/types';
   import type { ExtendedPoll } from '@/types/helpers';
 
@@ -126,7 +127,8 @@
           <input-root
             id="question"
             v-model="localForm.question.title"
-            placeholder="Where should we go hiking this year?" />
+            placeholder="Where should we go hiking this year?"
+            :prepend-icon="IconCircleHelp" />
         </div>
         <div class="grid grid-cols-1 gap-4">
           <label-root for="answer">
@@ -139,7 +141,8 @@
             <input-root
               :id="`Answer-${index}`"
               v-model="localForm.answers[index].content"
-              :placeholder="`Answer ${index + 1}`" />
+              :placeholder="`Answer ${index + 1}`"
+              :prepend-icon="IconCheck" />
             <button-root
               class="justify-self-end ml-2"
               size="sm"

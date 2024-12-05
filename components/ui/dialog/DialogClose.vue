@@ -5,7 +5,11 @@
 </script>
 
 <template>
-  <dialog-close v-bind="props">
-    <slot />
+  <dialog-close
+    v-bind="props"
+    as-child>
+    <button-root variant="secondary">
+      <slot />
+    </button-root>
   </dialog-close>
 </template>

@@ -2,8 +2,8 @@
  * This injects Tailwind's base styles and any base styles registered by
  * plugins.
  */
- @import 'tailwindcss/base';
-/* @import './base/_index.css'; */
+@import 'tailwindcss/base';
+@import './base/_index.css';
 
 /**
   * This injects Tailwind's component classes and any component classes
@@ -31,7 +31,7 @@
 */
 
 @layer base {
-  :root  {
+  :root {
     --accent-foreground: 204 5% 5%;
     --accent: 166 30% 88%;
     --accent-light: 166 50% 95%;
@@ -61,7 +61,8 @@
     --tertiary: 21 69% 73%;
     --text: 204 5% 10%;
   }
-  .dark:root  {
+
+  .dark:root {
     --accent-foreground: 204 5% 90%;
     --accent: 166 30% 25%;
     --accent-light: 166 30% 55%;
@@ -94,6 +95,7 @@
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }

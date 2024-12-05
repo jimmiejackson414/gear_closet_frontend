@@ -3,18 +3,15 @@
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data, dialogStates, pageLoading, selectedTrip, selectedTripId } = storeToRefs($store);
+  const { data, pageLoading, selectedTrip, selectedTripId } = storeToRefs($store);
+  const activeDetail = ref<Tables<'trip_details'> | undefined>(undefined);
+  const isModifyDetailDialogOpen = ref(false);
 
   const hikeDetails = computed(() => {
     return data.value?.trip_details.filter((detail) => {
       return detail.type === TripDetailsType.HIKE;
     }) || [];
   });
-
-  const toggleEditDialog = (detail: Tables<'trip_details'>) => {
-    $store.activeDetail = { ...detail };
-    dialogStates.value.modifyDetailDialog = !dialogStates.value.modifyDetailDialog;
-  };
 
   /**
    * Creates a new detail for the selected trip.
@@ -146,7 +143,7 @@
               </typography>
               <a
                 v-if="detail.url"
-                class="font-semibold hyperlink text-base"
+                class="text-hyperlink"
                 :href="detail.url"
                 rel="noopener noreferrer"
                 target="_blank">
@@ -162,7 +159,7 @@
               class="group-hover:opacity-100 opacity-0 rounded-full"
               size="sm"
               variant="ghost"
-              @click="toggleEditDialog(detail)">
+              @click="[activeDetail = detail, isModifyDetailDialogOpen = true]">
               <icon-pencil />
             </button-root>
           </div>
@@ -170,4 +167,10 @@
       </ul>
     </div>
   </card>
+
+  <!-- Modify Detail Dialog -->
+  <modify-detail-dialog
+    :active-detail="( activeDetail as Tables<'trip_details'> )"
+    :is-open="isModifyDetailDialogOpen"
+    @on-close="isModifyDetailDialogOpen = false" />
 </template>
