@@ -153,11 +153,11 @@
         </nuxt-link>
       </typography>
       <typography
-        class="mt-8 text-center"
+        class="mt-8 mx-auto text-center lg:max-w-xs"
         variant="muted">
         By continuing to use GearCloset, you agree to our{{ ' ' }}
         <nuxt-link
-          class="no-underline text-primary"
+          class="text-hyperlink text-sm"
           :to="{ name: 'terms-and-conditions' }">
           Terms and Conditions.
         </nuxt-link>

@@ -1,7 +1,11 @@
 <script lang='ts' setup>
   const $store = usePlanningStore();
-  const { data, dialogStates } = storeToRefs($store);
+  const { data } = storeToRefs($store);
   const { isPaidMember } = storeToRefs(useUserStore());
+
+  const emits = defineEmits<{
+    (event: 'openDialog'): void;
+  }>();
 </script>
 
 <template>
@@ -18,7 +22,7 @@
         label="Create your first trip"
         outlined
         size="sm"
-        @click="dialogStates.createTripDialog = true" />
+        @click="emits('openDialog')" />
     </gc-empty-state>
   </div>
 </template>

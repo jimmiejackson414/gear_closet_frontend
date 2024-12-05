@@ -8,8 +8,17 @@
   import type { Database, TablesInsert } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
+  interface Props {
+    isOpen: boolean;
+  }
+
+  defineProps<Props>();
+  const emits = defineEmits<{
+    (event: 'onClose'): void;
+  }>();
+
   const $store = usePlanningStore();
-  const { data, dialogStates, selectedTripId } = storeToRefs($store);
+  const { data, selectedTripId } = storeToRefs($store);
 
   const formSchema = toTypedSchema(z.object({
     name: z.string()
@@ -71,7 +80,7 @@
       if (error) { $appStore.notifyNegative('There was an error creating a new trip.'); }
       else {
         $appStore.notifyPositive('Successfully created a new trip!');
-        dialogStates.value.createTripDialog = false;
+        emits('onClose');
         if (selectedTripId?.value) {
           selectedTripId.value = String(createdTrip[0].id);
           data.value.trips.push(createdTrip[0]);
@@ -83,20 +92,17 @@
       isSubmitting.value = false;
     }
   });
-
-  const handleClose = () => {
-    dialogStates.value.createTripDialog = false;
-  };
 </script>
 
 <template>
-  <dialog-root :open="dialogStates.createTripDialog">
+  <dialog-root :open="isOpen">
     <dialog-content
       class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
-      @escape-key-down="handleClose"
-      @interact-outside="handleClose">
+      @escape-key-down="emits('onClose')"
+      @interact-outside="emits('onClose')">
       <dialog-header>
         <dialog-title>Create A New Trip</dialog-title>
+        <dialog-description />
       </dialog-header>
       <div class="w-full">
         <form class="flex flex-col gap-6 w-full">
@@ -198,7 +204,7 @@
       <dialog-footer>
         <dialog-close
           :disabled="isSubmitting"
-          @click="handleClose">
+          @click="emits('onClose')">
           Cancel
         </dialog-close>
         <button-root

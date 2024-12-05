@@ -1,55 +1,7 @@
 @layer base {
-  /* html, #app {
-    @apply h-full
-  }
-
-  body {
-    @apply font-sans text-base bg-white antialiased h-full;
-  } */
-
   .text-hyperlink {
-    @apply font-sans text-primary text-base hover:text-primary/75 transition-colors duration-200 ease-in-out;
+    @apply font-sans text-primary text-base hover:text-primary/75 transition-all duration-200 ease-in-out hover:underline underline-offset-4;
   }
-
-  /* .container,
-  .container-fluid,
-  .container-xxl,
-  .container-xl,
-  .container-lg,
-  .container-md,
-  .container-sm {
-    width: 100%;
-    padding-right: calc(1.5rem * 0.5);
-    padding-left: calc(1.5rem * 0.5);
-    margin-right: auto;
-    margin-left: auto;
-  }
-  
-  @media (min-width: 576px) {
-    .container-sm, .container {
-      max-width: 540px;
-    }
-  }
-  @media (min-width: 768px) {
-    .container-md, .container-sm, .container {
-      max-width: 720px;
-    }
-  }
-  @media (min-width: 992px) {
-    .container-lg, .container-md, .container-sm, .container {
-      max-width: 960px;
-    }
-  }
-  @media (min-width: 1200px) {
-    .container-xl, .container-lg, .container-md, .container-sm, .container {
-      max-width: 1140px;
-    }
-  }
-  @media (min-width: 1400px) {
-    .container-xxl, .container-xl, .container-lg, .container-md, .container-sm, .container {
-      max-width: 1320px;
-    }
-  } */
 
   /* Datepicker Styles */
   .dp__main.gc-dp {
@@ -57,7 +9,6 @@
 
     .dp__input {
       &.gc-dp-input {
-        /* @apply bg-transparent dark:bg-background border border-gray-300 rounded-lg active:border-primary placeholder:!text-gray-400 font-sans text-base py-2.5 ps-9; */
         @apply flex w-full rounded-md border bg-transparent dark:bg-background px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-10 py-2 border-input ps-9;
       }
     }

@@ -192,9 +192,9 @@ describe('Planning Page', async () => {
         data: {
           trip_details: tripDetails,
         },
-        dialogStates: {
-          modifyDetailDialog: true,
-        },
+        // dialogStates: {
+        //   modifyDetailDialog: true,
+        // },
         pageLoading: false,
       });
       await wrapper.vm.$nextTick();

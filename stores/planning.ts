@@ -15,10 +15,6 @@ export interface PlanningPageData {
 
 type State = {
   data: PlanningPageData;
-  dialogStates: {
-    createTripDialog: boolean;
-    modifyDetailDialog: boolean;
-  }
   pageLoading: boolean;
   selectedTripId: string | undefined;
 };
@@ -44,10 +40,6 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           shopping_items: [],
           friends: [],
           poll: undefined,
-        },
-        dialogStates: {
-          createTripDialog: false,
-          modifyDetailDialog: false,
         },
         pageLoading: true,
         selectedTripId: undefined,

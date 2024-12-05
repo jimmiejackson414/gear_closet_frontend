@@ -25,6 +25,10 @@
     cookie.value = encrypt(value);
     selectedTripId.value = value;
   };
+
+  const emits = defineEmits<{
+    (event: 'openDialog'): void;
+  }>();
 </script>
 
 <template>
@@ -73,7 +77,7 @@
       <button-root
         :disabled="pageLoading || (!isPaidMember && data.trips.length >= 1)"
         size="sm"
-        @click="$store.dialogStates.createTripDialog = true">
+        @click="emits('openDialog')">
         New Trip
       </button-root>
     </div>
