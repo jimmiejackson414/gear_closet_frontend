@@ -7,7 +7,7 @@
 
 import Stripe from 'stripe';
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
-import { SubscriptionStatus, type Database } from '~/types';
+import { type Database, SubscriptionStatus } from '~/types';
 
 const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string, {
   apiVersion: '2024-04-10',

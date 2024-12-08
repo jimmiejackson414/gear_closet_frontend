@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   // import { Tabs, type InstanceOptions, type TabItem, type TabsOptions } from 'flowbite';
-  import type { Column } from '@/components/closet/PackItemsTable.vue';
+  // import type { Column } from '@/components/closet/PackItemsTable.vue';
   import type { Database } from '@/types';
   import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
   import tailwind from '@/utils/tailwind';
@@ -51,7 +51,7 @@
   /**
    * Instantiates the tabs component
    */
-  const activeTab = ref('tables');
+  // const activeTab = ref('tables');
   // const instantiateTabs = () => {
   //   const tabsElement = document?.getElementById('default-tab') as HTMLElement;
   //   if (tabsElement) {
@@ -85,7 +85,7 @@
   // onMounted(() => instantiateTabs());
 
   // define table columns
-  const columns: Column[] = [
+  const columns = [
     { name: 'name', label: 'Name', align: 'left' },
     { name: 'generic_type', label: 'Description', align: 'left' },
     { name: 'consumable', label: 'Consumable', align: 'center' },
@@ -95,7 +95,7 @@
     { name: 'quantity', label: 'Quantity', align: 'center' },
   ];
   // define item header classes
-  const headerClasses = (header: Column): string => {
+  const headerClasses = (header: any): string => {
     if (header.name === 'drag') return 'px-2 py-3 w-8';
     else if (header.name === 'actions') return 'text-right pl-6 pr-4 py-3';
     else if (header.name === 'name' || header.name === 'generic_type') return 'pr-6 pl-4 py-3 text-left';

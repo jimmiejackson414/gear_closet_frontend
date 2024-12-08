@@ -163,7 +163,7 @@
 
   const isNextDisabled = ref(false);
   watch(errorBag, () => {
-    isNextDisabled.value = Object.keys(errorBag.value).length > 0;
+    isNextDisabled.value = (stepIndex.value === 2 && Object.keys(errorBag.value).length > 0);
   });
 </script>
 
@@ -274,7 +274,7 @@
             name="measuring_system">
             <form-item>
               <form-label>Preferred Measuring System</form-label>
-              <form-select
+              <select-root
                 v-bind="componentField"
                 :default-value="formattedMeasuringSystem[0].value">
                 <form-control>
@@ -292,7 +292,7 @@
                     </select-item>
                   </select-group>
                 </select-content>
-              </form-select>
+              </select-root>
               <form-message />
             </form-item>
           </form-field>

@@ -113,18 +113,21 @@
 <template>
   <div class="mt-10">
     <div class="flex justify-between items-center mb-4">
-      <h6 class="text-xl">
+      <typography
+        class="font-semibold"
+        variant="h4">
         Pack Details
-      </h6>
-      <gc-button
-        outlined
+      </typography>
+      <button-root
         size="sm"
+        variant="outline"
         @click="createDefaultCategory">
-        <icon-plus class="h-4 mr-2 text-primary w-4" />
+        <icon-plus class="h-4 text-primary dark:text-primary-light w-4" />
         Add Category
-      </gc-button>
+      </button-root>
     </div>
-    <pack-items-table
+    <pack-items-table @handle-add-url="handleInitialAddUrl" />
+    <!-- <pack-items-table
       v-for="item in data.selectedPack?.categories"
       :key="item.id"
       :category="item"
@@ -140,6 +143,6 @@
       ]"
       @handle-update-category="($event: UpdateCategoryPayload) => {
         activeCategoryId = item.id, updateCategory($event)
-      }" />
+      }" /> -->
   </div>
 </template>

@@ -106,7 +106,7 @@
 <template>
   <div class="flex flex-col">
     <div class="flex items-center">
-      <icon-backpack class="h-6 mr-6 text-primary w-6" />
+      <icon-backpack class="h-6 mr-6 text-primary dark:text-primary-light w-6" />
       <typography class="!font-bold">
         Pack Summary
       </typography>

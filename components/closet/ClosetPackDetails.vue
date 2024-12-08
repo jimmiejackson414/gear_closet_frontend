@@ -32,12 +32,12 @@
   <div class="flex flex-col">
     <div class="flex justify-between items-center mb-10">
       <div class="flex items-center">
-        <icon-bar-chart-3 class="h-6 mr-6 text-primary w-6" />
+        <icon-bar-chart-3 class="h-6 mr-6 text-primary dark:text-primary-light w-6" />
         <typography class="!font-bold">
           Stats
         </typography>
       </div>
-      <div class="flex pr-8">
+      <div class="flex">
         <dropdown-menu>
           <dropdown-menu-trigger>
             <icon-ellipsis-vertical class="h-6 w-6" />

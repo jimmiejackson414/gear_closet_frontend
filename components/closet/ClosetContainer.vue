@@ -19,24 +19,24 @@
   <div>
     <closet-settings />
 
-    <!-- <closet-empty-state />
+    <closet-empty-state />
 
     <pack-summary />
 
-    <create-pack-dialog />
+    <!-- <create-pack-dialog /> -->
 
-    <csv-upload-dialog />
+    <!-- <csv-upload-dialog /> -->
 
-    <share-pack-dialog />
+    <!-- <share-pack-dialog /> -->
 
-    <delete-category-dialog />
+    <!-- <delete-category-dialog /> -->
 
-    <delete-pack-dialog />
+    <!-- <delete-pack-dialog /> -->
 
-    <remove-item-dialog />
+    <!-- <remove-item-dialog /> -->
 
-    <add-url-dialog />
+    <!-- <add-url-dialog /> -->
 
-    <update-theme-dialog /> -->
+    <!-- <update-theme-dialog /> -->
   </div>
 </template>

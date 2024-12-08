@@ -17,7 +17,7 @@
           <closet-pack-details />
         </div>
       </card>
-      <!-- <closet-pack-categories /> -->
+      <closet-pack-categories />
     </div>
   </div>
 </template>
