@@ -55,7 +55,8 @@
         :disabled="pageLoading"
         :model-value="String(data.selectedPack?.id)"
         @update:model-value="handleSelectPack">
-        <select-trigger>
+        <select-trigger class="min-w-[180px]">
+          <span v-if="!data.selectedPack?.id">Selected Pack</span>
           <select-value placeholder="Selected Pack" />
         </select-trigger>
         <select-content>
@@ -70,6 +71,7 @@
           </select-group>
           <select-group v-else>
             <select-item
+              disabled
               hide-checkmark
               value="0">
               No packs found

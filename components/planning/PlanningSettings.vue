@@ -56,17 +56,26 @@
         :default-value="String(selectedTripId)"
         :model-value="selectedTripId"
         @update:model-value="handleSelectTrip">
-        <select-trigger>
+        <select-trigger class="min-w-[180px]">
+          <span v-if="!selectedTripId">Selected Trip</span>
           <select-value placeholder="Selected Trip" />
         </select-trigger>
         <select-content>
-          <select-group>
+          <select-group v-if="tripOptions.length">
             <select-item
               v-for="trip in tripOptions"
               :key="trip.value"
               hide-checkmark
               :value="String(trip.value)">
               {{ trip.label }}
+            </select-item>
+          </select-group>
+          <select-group v-else>
+            <select-item
+              disabled
+              hide-checkmark
+              value="0">
+              No trips found
             </select-item>
           </select-group>
         </select-content>
