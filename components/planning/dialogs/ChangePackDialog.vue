@@ -167,12 +167,20 @@
             <select-value placeholder="Select a pack" />
           </select-trigger>
           <select-content>
-            <select-group>
+            <select-group v-if="packOptions.length">
               <select-item
                 v-for="pack in packOptions"
                 :key="pack.value"
                 :value="String(pack.value)">
                 {{ pack.label }}
+              </select-item>
+            </select-group>
+            <select-group v-else>
+              <select-item
+                disabled
+                hide-checkmark
+                value="0">
+                No packs found
               </select-item>
             </select-group>
           </select-content>

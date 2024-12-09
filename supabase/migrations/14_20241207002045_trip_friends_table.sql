@@ -10,15 +10,15 @@ ALTER TYPE "public"."trip_friend_status" OWNER TO "postgres";
 -- Create trip_friends table
 ------------------------
 CREATE TABLE IF NOT EXISTS "public"."trip_friends" (
-    "id" bigint NOT NULL,
-    "trip_id" bigint,
-    "accepted_invite_on" timestamp with time zone,
-    "created_at" timestamp with time zone DEFAULT "now"(),
+    "id" BIGINT NOT NULL,
+    "trip_id" BIGINT,
+    "accepted_invite_on" TIMESTAMP WITH TIME ZONE,
+    "created_at" TIMESTAMP WITH TIME ZONE DEFAULT "now"(),
     "status" "public"."trip_friend_status" DEFAULT 'PENDING'::"public"."trip_friend_status" NOT NULL,
-    "profile_id" "uuid",
-    "invited_by_id" "uuid",
-    "invite_token" character varying,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
+    "profile_id" UUID NOT NULL, -- Represents the friend
+    "invited_by_id" UUID NOT NULL, -- Represents the inviter
+    "invite_token" CHARACTER VARYING,
+    "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT "now"() NOT NULL
 );
 
 -- Alter trip_friends table
@@ -53,4 +53,3 @@ GRANT ALL ON TABLE "public"."trip_friends" TO "service_role";
 GRANT ALL ON SEQUENCE "public"."trip_friends_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."trip_friends_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."trip_friends_id_seq" TO "service_role";
-

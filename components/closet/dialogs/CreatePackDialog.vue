@@ -1,6 +1,10 @@
 <script lang='ts' setup>
+  import { toTypedSchema } from '@vee-validate/zod';
+  import { useForm } from 'vee-validate';
+  import * as z from 'zod';
+  import { IconBackpack } from '#components';
+  import { type Database, Theme } from '@/types';
   import type { ExtendedPack } from '@/types/helpers';
-  import { Theme, type Database } from '@/types';
   import generateThemeOptions from '@/utils/chartTheme';
 
   export interface CreatePack {
@@ -14,33 +18,39 @@
   const { data, dialogStates } = storeToRefs($store);
   const submitting = ref(false);
   const themeOptions = computed(() => generateThemeOptions());
-  const newPack = reactive<CreatePack>({
-    allow_comments: false,
-    name: '',
-    theme: Theme.BLUE6,
-    private: true,
-  });
 
-  const handleCancelModal = () => {
-    dialogStates.value.createPackDialog = false;
-    newPack.allow_comments = false;
-    newPack.name = '';
-    newPack.theme = Theme.BLUE6;
-    newPack.private = true;
-  };
+  const formSchema = toTypedSchema(z.object({
+    name: z.string()
+      .min(3)
+      .max(50),
+    allow_comments: z.boolean(),
+    theme: z.nativeEnum(Theme),
+    private: z.boolean(),
+  }));
+
+  const { isFieldDirty, handleSubmit, isSubmitting, setValues } = useForm({
+    keepValuesOnUnmount: true,
+    validationSchema: formSchema,
+    initialValues: {
+      name: '',
+      allow_comments: false,
+      theme: Theme.BLUE6,
+      private: true,
+    },
+  });
 
   /**
    * Creates a new pack.
    */
   const $appStore = useAppStore();
-  const handleSubmit = async () => {
+  const onSubmit = handleSubmit(async (values) => {
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
       const { data: createdPack, error } = await supabase.from('packs')
         .insert([{
-          ...newPack,
+          ...values,
           profile_id: user.value?.id as string,
         }])
         .select();
@@ -58,89 +68,141 @@
       submitting.value = false;
       dialogStates.value.createPackDialog = false;
     }
+  });
+
+  const handleClose = () => {
+    dialogStates.value.createPackDialog = false;
+    setValues({
+      name: '',
+      allow_comments: false,
+      theme: Theme.BLUE6,
+      private: true,
+    });
   };
 </script>
 
 <template>
-  <gc-modal
-    :is-open="dialogStates.createPackDialog"
-    size="sm"
-    title="Create a New Pack"
-    @handle-cancel="handleCancelModal">
-    <template #content>
+  <dialog-root :open="dialogStates.createPackDialog">
+    <dialog-content
+      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      @escape-key-down="handleClose"
+      @interact-outside="handleClose">
+      <dialog-header>
+        <dialog-title>
+          Create a new pack
+        </dialog-title>
+        <dialog-description />
+      </dialog-header>
       <div class="flex flex-col gap-6">
-        <gc-input
-          v-model="newPack.name"
-          class="w-full"
-          :disabled="submitting"
-          label="Pack Name"
-          name="pack-name"
-          placeholder="Summer Pack" />
-        <gc-select
-          :disabled="submitting"
-          label="Theme"
-          :model-value="newPack.theme"
-          :options="themeOptions"
-          @update:model-value="(value: Theme) => newPack.theme = value">
-          <template #option="{ option }">
-            <div class="flex items-center gap-3">
-              <div class="flex items-center gap-1">
-                <span
-                  v-for="color in (option as Option).colors"
-                  :key="color"
-                  class="border-1 border-white h-4 rounded-[3px] w-4"
-                  :style="{ backgroundColor: color }" />
-              </div>
-              <p class="text-base">
-                {{ option.label }}
-              </p>
+        <!-- New pack name -->
+        <form-field
+          v-slot="{ componentField }"
+          name="name"
+          :validate-on-blur="!isFieldDirty">
+          <form-item>
+            <form-label>Pack Name</form-label>
+            <form-control>
+              <input-root
+                :disabled="isSubmitting"
+                :prepend-icon="IconBackpack"
+                v-bind="componentField" />
+            </form-control>
+          </form-item>
+        </form-field>
+
+        <!-- Pack theme colors -->
+        <form-field
+          v-slot="{ componentField }"
+          name="theme">
+          <form-item>
+            <form-label>Theme</form-label>
+            <select-root v-bind="componentField">
+              <form-control>
+                <select-trigger>
+                  <select-value placeholder="Select a theme" />
+                </select-trigger>
+              </form-control>
+              <select-content>
+                <select-group>
+                  <select-item
+                    v-for="theme in themeOptions"
+                    :key="theme.value"
+                    :value="theme.value">
+                    <div class="flex items-center gap-3">
+                      <div class="flex items-center gap-1">
+                        <span
+                          v-for="color in theme.colors"
+                          :key="color"
+                          class="border-1 border-white h-4 rounded-[3px] w-4"
+                          :style="{ backgroundColor: color }" />
+                      </div>
+                      {{ theme.label }}
+                    </div>
+                  </select-item>
+                </select-group>
+              </select-content>
+            </select-root>
+          </form-item>
+        </form-field>
+
+        <!-- Private checkbox -->
+        <form-field
+          v-slot="{ value, handleChange }"
+          name="private"
+          :validate-on-blur="!isFieldDirty">
+          <FormItem class="border flex justify-between items-center flex-row p-4 rounded-lg">
+            <div class="space-y-0.5">
+              <FormLabel class="text-base">
+                Private?
+              </FormLabel>
+              <FormDescription>
+                Private packs cannot be viewed by other users. This setting can be changed later.
+              </FormDescription>
             </div>
-          </template>
-        </gc-select>
-        <div class="flex flex-col gap-3">
-          <gc-toggle
-            v-model="newPack.private"
-            :disabled="submitting"
-            variant="positive">
-            <div class="flex items-center gap-2">
-              <p class="text-base">
-                Private
-              </p>
-              <icon-info
-                v-tippy="{ content: 'Private packs cannot be viewed by other users. This setting can be changed later.' }"
-                class="h-4 w-4" />
+            <FormControl>
+              <Switch
+                :checked="value"
+                @update:checked="handleChange" />
+            </FormControl>
+          </FormItem>
+        </form-field>
+
+        <!-- Allow comments checkbox -->
+        <form-field
+          v-slot="{ value, handleChange }"
+          name="allow_comments"
+          :validate-on-blur="!isFieldDirty">
+          <FormItem class="border flex justify-between items-center flex-row p-4 rounded-lg">
+            <div class="space-y-0.5">
+              <FormLabel class="text-base">
+                Allow comments?
+              </FormLabel>
+              <FormDescription>
+                Allow users you share this pack with list to make comments? This setting can be changed later.
+              </FormDescription>
             </div>
-          </gc-toggle>
-          <gc-toggle
-            v-model="newPack.allow_comments"
-            :disabled="submitting"
-            variant="positive">
-            <div class="flex items-center gap-2">
-              <p class="text-base">
-                Allow Comments
-              </p>
-              <info-icon
-                v-tippy="{ content: 'Allow users you share this pack with list to make comments? This setting can be changed later.' }"
-                class="h-4 w-4" />
-            </div>
-          </gc-toggle>
-        </div>
+            <FormControl>
+              <Switch
+                :checked="value"
+                @update:checked="handleChange" />
+            </FormControl>
+          </FormItem>
+        </form-field>
       </div>
-    </template>
-    <template #actions>
-      <gc-button
-        :disabled="submitting"
-        label="Cancel"
-        size="sm"
-        variant="secondary"
-        @click="handleCancelModal" />
-      <gc-button
-        :disabled="submitting"
-        label="Create Pack"
-        :loading="submitting"
-        size="sm"
-        @click="handleSubmit" />
-    </template>
-  </gc-modal>
+      <dialog-footer>
+        <dialog-close
+          :disabled="submitting"
+          @click="handleClose">
+          Cancel
+        </dialog-close>
+        <button-root
+          :disabled="submitting"
+          :loading="submitting"
+          @click="onSubmit">
+          Create pack
+        </button-root>
+      </dialog-footer>
+    </dialog-content>
+  </dialog-root>
 </template>
 

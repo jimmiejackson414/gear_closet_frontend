@@ -1,6 +1,6 @@
 <script lang='ts' setup>
-  import generateThemeOptions, { findTheme } from '@/utils/chartTheme';
   import type { Database, Theme } from '@/types';
+  import generateThemeOptions, { findTheme } from '@/utils/chartTheme';
 
   const $store = useClosetStore();
   const $appStore = useAppStore();

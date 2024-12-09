@@ -59,28 +59,27 @@
       <span
         v-tippy="{ content: 'Toggle color mode' }"
         class="flex">
-        <gc-button
-          ghost
-          size="lg"
+        <button-root
+          size="icon"
+          variant="ghost"
           @click="toggleColorMode">
-          <template #icon>
-            <icon-sun
-              v-if="colorMode.value === 'dark'"
-              class="h-6 text-gray-500 dark:text-card-foreground w-6" />
-            <icon-moon
-              v-else
-              class="h-6 text-gray-500 dark:text-card-foreground w-6" />
-          </template>
-        </gc-button>
+          <icon-sun
+            v-if="colorMode.value === 'dark'"
+            class="!size-6 text-accent-alt dark:text-card-foreground"
+            :size="20" />
+          <icon-moon
+            v-else
+            class="!size-6 text-accent-alt dark:text-card-foreground"
+            :size="40" />
+        </button-root>
       </span>
       <div class="relative">
         <button-root
-          class="bg-card duration-150 ease-in-out font-medium inline-flex items-center p-4 relative rounded-full shadow-md text-center dark:text-card-foreground hover:text-dark-grey text-gray-500 text-sm focus:outline-none"
           data-testid="notifications-button"
           size="icon"
           variant="ghost"
           @click="isDropdownOpen = !isDropdownOpen">
-          <icon-bell-ring class="h-8 text-gray-500 dark:text-card-foreground w-8" />
+          <icon-bell-ring class="!size-max text-accent-alt dark:text-card-foreground" />
           <div
             v-if="shouldShowBadge"
             class="absolute top-1 bg-destructive block border-2 border-white end-1 h-3 rounded-full w-3" />

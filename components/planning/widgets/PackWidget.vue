@@ -203,11 +203,12 @@
       <p class="mb-4 text-base">
         You haven't added a pack to this trip yet!
       </p>
-      <gc-button
-        label="Add a pack"
-        outlined
+      <button-root
         size="sm"
-        @click="[modalState = 'insert', isAddPackModalOpen = true]" />
+        variant="outline"
+        @click="[modalState = 'insert', isAddPackModalOpen = true]">
+        Add a pack
+      </button-root>
     </gc-empty-state>
     <div v-else>
       <h5 class="text-base-lg">

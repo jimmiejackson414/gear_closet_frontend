@@ -159,12 +159,12 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
       'friend_trip_packs', (
         SELECT COALESCE(json_agg(row_to_json(tp.*)), '[]'::JSON)
         FROM trip_packs tp
-        WHERE tp.profile_id = tf.friend_id
+        WHERE tp.profile_id = tf.profile_id
           AND (p_trip_id = 0 OR tp.trip_id = dynamic_trip_id)
       )
     )), '[]'::JSON) INTO friends_data
     FROM trip_friends tf
-    JOIN profiles p ON tf.friend_id = p.id  -- Join on friend_id instead of profile_id
+    JOIN profiles p ON tf.profile_id = p.id  -- Use profile_id for the friend
     WHERE tf.invited_by_id = auth.uid();  -- Select only the records where the authenticated user is the inviter
 
     -- Fetch poll data

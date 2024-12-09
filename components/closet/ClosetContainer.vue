@@ -23,9 +23,9 @@
 
     <pack-summary />
 
-    <!-- <create-pack-dialog /> -->
+    <create-pack-dialog />
 
-    <!-- <csv-upload-dialog /> -->
+    <csv-upload-dialog />
 
     <!-- <share-pack-dialog /> -->
 
