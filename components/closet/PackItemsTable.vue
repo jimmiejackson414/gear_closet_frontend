@@ -30,31 +30,14 @@
     },
     {
       id: 'drag',
+      accessorKey: 'drag',
       header: () => null,
-      cell: ({ row }) => {
-        console.log('Rendering drag handle for row:', row.id); // Debug here
-        return h('div', {
-          class: 'px-2 py-3 stroke-primary',
-        }, () => [
-          h(IconGripVertical, {
-            class: 'cursor-move',
-          }),
-        ]);
-      },
+      cell: () => h(IconGripVertical, { class: 'cursor-move text-muted-foreground opacity-0 group-hover:opacity-100 stroke-1 !size-6' }),
       enableHiding: false,
+      meta: {
+        headerClassName: 'w-12',
+      },
     },
-    // {
-    //   id: 'drag',
-    //   header: () => null,
-    //   cell: () => h('div', {
-    //     class: 'px-2 py-3 w-12 stroke-primary',
-    //   }, () => [
-    //     h(IconGripVertical, {
-    //       class: 'cursor-move',
-    //     }),
-    //   ]),
-    //   enableHiding: false,
-    // },
     {
       accessorKey: 'name',
       header: () => h(Typography, {
@@ -62,7 +45,7 @@
         variant: 'muted',
       }, () => 'Name'),
       cell: ({ row }) => h('div', {
-        class: 'pr-6 pl-4 py-3 text-left',
+        class: 'text-left',
       }, row.getValue('name')),
     },
     {
@@ -72,7 +55,7 @@
         variant: 'muted',
       }, () => 'Description'),
       cell: ({ row }) => h('div', {
-        class: 'pr-6 pl-4 py-3 text-left',
+        class: 'text-left',
       }, row.getValue('generic_type')),
     },
     // {
@@ -152,18 +135,26 @@
     getGroupedRowModel: getGroupedRowModel(),
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
-    // getRowId: row => row.id,
+    defaultColumn: {
+      size: 5,
+      minSize: 5,
+      maxSize: 50,
+    },
     state: {
       columnVisibility: visibility,
       grouping: ['category_name'],
     },
   });
+
+  const activeCategory = (categoryName: string) => {
+    return data.value.selectedPack?.categories.find(category => category.name === categoryName) as ExtendedCategory;
+  };
 </script>
 
 <template>
   <card class="mb-6 overflow-y-visible px-4 lg:px-8 py-4">
     <div class="overflow-x-auto relative">
-      <table-root>
+      <table-root :style="{ width: table.getCenterTotalSize() }">
         <table-body>
           <template v-if="table.getRowModel().rows.length">
             <template
@@ -172,35 +163,51 @@
               <!-- Group Title -->
               <table-row v-if="row.getIsGrouped()">
                 <table-cell
-                  class="bg-gray-100 dark:bg-accent font-bold rounded-t-2xl"
+                  class="bg-gray-100 dark:bg-accent font-bold py-2"
                   :colspan="columns.length">
-                  <typography variant="h5">
-                    {{ row.getGroupingValue('category_name') }}
-                  </typography>
+                  <gc-inline-edit
+                    data-testid="category-name"
+                    input-classes="w-full max-w-[25rem]"
+                    :model-value="activeCategory(row.getGroupingValue('category_name') as string).name"
+                    :name="`category_name_${activeCategory(row.getGroupingValue('category_name') as string).id}`"
+                    size="sm"
+                    @update:model-value="emit('handleUpdateCategory', {
+                      id: activeCategory(row.getGroupingValue('category_name') as string).id,
+                      field: 'name',
+                      value: $event
+                    })">
+                    <typography variant="h5">
+                      {{ row.getGroupingValue('category_name') }}
+                    </typography>
+                  </gc-inline-edit>
                 </table-cell>
               </table-row>
 
               <!-- Table Header -->
               <table-row no-hover-effect>
-                <th
+                <table-cell
                   v-for="header in table.getHeaderGroups()[0].headers"
                   :key="header.id"
-                  class="px-4 py-2 text-left">
+                  class="p-4 text-left"
+                  :class="header.column.columnDef.meta?.headerClassName">
                   <flex-render
                     v-if="!header.isPlaceholder"
                     :props="header.getContext()"
                     :render="header.column.columnDef.header" />
-                </th>
+                </table-cell>
               </table-row>
 
               <!-- Render Sub-Rows -->
               <template
                 v-for="( subRow, index ) in row.subRows"
                 :key="subRow.id">
-                <table-row :class="{ 'border-b-0': index === row.subRows.length - 1 }">
+                <table-row
+                  class="group"
+                  :class="{ 'border-b-0': index === row.subRows.length - 1 }">
                   <table-cell
                     v-for="cell in subRow.getVisibleCells()"
-                    :key="cell.id">
+                    :key="cell.id"
+                    :style="{ minWidth: `${cell.column.columnDef.size}px`, maxWidth: `${cell.column.columnDef.size}px` }">
                     <flex-render
                       :props="cell.getContext()"
                       :render="cell.column.columnDef.cell" />

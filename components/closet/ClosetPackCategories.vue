@@ -78,7 +78,7 @@
    * Updates a category.
    */
   const submitting = ref(false);
-  const updateCategory = async ({ field, value }: UpdateCategoryPayload) => {
+  const updateCategory = debounce(async ({ field, value }: UpdateCategoryPayload) => {
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
@@ -107,7 +107,7 @@
     } finally {
       submitting.value = false;
     }
-  };
+  }, 300);
 </script>
 
 <template>
@@ -126,23 +126,20 @@
         Add Category
       </button-root>
     </div>
-    <pack-items-table @handle-add-url="handleInitialAddUrl" />
-    <!-- <pack-items-table
-      v-for="item in data.selectedPack?.categories"
-      :key="item.id"
-      :category="item"
+    <pack-items-table
       @handle-add-url="handleInitialAddUrl"
       @handle-remove-category="[
-        activeCategoryId = item.id,
+        activeCategoryId = $event,
         dialogStates.deleteCategoryDialog = true
       ]"
       @handle-remove-item="[
-        activeCategoryId = item.id,
+        activeCategoryId = $event.category_id,
         activeItem = $event,
         dialogStates.removeItemDialog = true
       ]"
-      @handle-update-category="($event: UpdateCategoryPayload) => {
-        activeCategoryId = item.id, updateCategory($event)
-      }" /> -->
+      @handle-update-category="[
+        activeCategoryId = $event.id,
+        updateCategory($event)
+      ]" />
   </div>
 </template>

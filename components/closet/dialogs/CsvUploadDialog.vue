@@ -59,10 +59,10 @@
             p_pack_id: data.value.selectedPack?.id as number,
             csv_data: parseResults.data,
           })
-          .returns<ExtendedCategory>();
+          .returns<ExtendedCategory[]>();
 
         if (createdCategory && !error) {
-          (data.value.selectedPack as ExtendedPack).categories.push(createdCategory);
+          (data.value.selectedPack as ExtendedPack).categories.push(...createdCategory);
           $appStore.notifyPositive('Successfully imported your items!');
         } else {
           $appStore.notifyNegative('There was an error importing the CSV.');
