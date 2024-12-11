@@ -1,5 +1,6 @@
 <script lang='ts' setup>
-  import type { Database, Tables, TablesInsert } from '@/types';
+  import type { RowItem } from './PackItemsTable.vue';
+  import type { Database, TablesInsert } from '@/types';
   import type { ExtendedCategory, ExtendedPack } from '@/types/helpers';
 
   const $store = useClosetStore();
@@ -8,11 +9,6 @@
   interface UpdateCategoryPayload {
     field: keyof ExtendedCategory;
     value: string;
-  }
-
-  interface RowItem extends Tables<'items'> {
-    category_item_id: number;
-    position: number;
   }
 
   /**
@@ -78,7 +74,7 @@
    * Updates a category.
    */
   const submitting = ref(false);
-  const updateCategory = debounce(async ({ field, value }: UpdateCategoryPayload) => {
+  const updateCategory = async ({ field, value }: UpdateCategoryPayload) => {
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
@@ -107,7 +103,7 @@
     } finally {
       submitting.value = false;
     }
-  }, 300);
+  };
 </script>
 
 <template>

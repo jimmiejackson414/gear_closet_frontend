@@ -3,7 +3,7 @@ import type { Mass } from 'convert';
 import Dinero from 'dinero.js';
 import type { Currency } from 'dinero.js';
 import { v4 as uuidv4 } from 'uuid';
-import { type Database, MeasuringSystem, type Tables, type TablesInsert } from '@/types';
+import { type Database, ItemUnit, MeasuringSystem, type Tables, type TablesInsert } from '@/types';
 import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '@/types/helpers';
 
 interface FriendlyUsernameOptions {
@@ -377,6 +377,22 @@ export const truncate = (str: string | null | undefined, num = 100) => {
   if (!str) return '';
   return num >= str.length ? str : `${str.substring(0, num)}...`;
 };
+
+/**
+ * Generates an array of weight options
+ * @param shortLabel - If true, returns the short label (e.g., 'g' instead of 'Grams (g)')
+ */
+export const weightOptions = ({ shortLabel = false } = {}) =>
+  Object.values(ItemUnit)
+    .map(value => ({
+      value,
+      label: shortLabel
+        ? value // If shortLabel is true, return the enum value itself (e.g., 'g')
+        : value === ItemUnit.g ? 'Grams (g)' :
+          value === ItemUnit.kg ? 'Kilograms (kg)' :
+            value === ItemUnit.oz ? 'Ounces (oz)' :
+              value === ItemUnit.lb ? 'Pounds (lb)' : value,
+    }));
 
 /**
  * Validates an email address.

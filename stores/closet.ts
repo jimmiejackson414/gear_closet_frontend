@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
+import type { RowItem } from '@/components/closet/PackItemsTable.vue';
 import type { Database } from "@/types";
 import type { ExtendedPack } from "@/types/helpers";
-import type { RowItem } from '@/components/closet/PackItemsTable.vue';
 
 export interface ClosetPageData {
   selectedPack?: ExtendedPack;

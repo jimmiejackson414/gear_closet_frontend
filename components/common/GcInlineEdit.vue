@@ -17,7 +17,7 @@
     hideEditBtn: false,
     type: 'text',
     size: 'md',
-    inputClasses: 'w-fit',
+    inputClasses: 'w-full',
     spanClasses: undefined,
   });
 
@@ -42,17 +42,19 @@
 
   const toggleEditing = () => {
     isEditing.value = !isEditing.value;
-    nextTick(() => inlineEditRef.value?.focusInput());
+    nextTick(() => {
+      inlineEditRef.value?.focusInput();
+    });
   };
 
-  const saveChanges = () => {
+  const saveChanges = debounce(() => {
     if (localModel.value !== modelValue.value) {
       modelValue.value = localModel.value;
     }
     setTimeout(() => {
       isEditing.value = false;
     }, 10);
-  };
+  }, 200);
 
   const cancelEditing = () => {
     isEditing.value = false;
@@ -66,7 +68,7 @@
     :class="inputClasses">
     <!-- Display Mode -->
     <span
-      v-show="!isEditing"
+      v-if="!isEditing"
       class="cursor-pointer duration-100 ease-snap flex items-center group py-1.5 transition-all"
       :class="[spanClasses, { 'border border-transparent hover:border-gray-300 min-h-[34px] rounded-lg': !modelValue }]"
       @click="toggleEditing">
@@ -78,7 +80,7 @@
 
     <!-- Edit Mode -->
     <input-root
-      v-show="isEditing"
+      v-else
       ref="inlineEditRef"
       v-model="localModel"
       :class="inputClasses"

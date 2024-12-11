@@ -33,9 +33,9 @@
 
     <!-- <delete-pack-dialog /> -->
 
-    <!-- <remove-item-dialog /> -->
+    <remove-item-dialog />
 
-    <!-- <add-url-dialog /> -->
+    <add-url-dialog />
 
     <!-- <update-theme-dialog /> -->
   </div>
