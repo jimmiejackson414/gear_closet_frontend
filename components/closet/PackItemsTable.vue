@@ -1,9 +1,11 @@
 <script lang='ts' setup>
   import { FlexRender, getCoreRowModel, getGroupedRowModel, getSortedRowModel, useVueTable } from '@tanstack/vue-table';
   import type { ColumnDef, Row, VisibilityState } from '@tanstack/vue-table';
+  import convert from 'convert';
+  import type { Mass } from 'convert';
   import { ButtonRoot, IconApple, IconGripVertical, IconLink, IconShirt, IconTrash, SelectContent , SelectGroup, SelectItem, SelectRoot, SelectTrigger, Typography } from '#components';
   import GcInlineEdit from '@/components/common/GcInlineEdit.vue';
-  import type { Tables } from '@/types';
+  import type { ItemUnit, Tables } from '@/types';
   import type { ExtendedCategory } from '@/types/helpers';
   import { weightOptions } from '@/utils/helpers';
 
@@ -116,6 +118,7 @@
             }),
           ]),
         ]),
+      meta: { headerClassName: 'w-28' },
     },
     {
       accessorKey: 'worn',
@@ -144,6 +147,7 @@
           }),
         ]),
       ]),
+      meta: { headerClassName: 'w-28' },
     },
     {
       accessorKey: 'weight',
@@ -153,7 +157,7 @@
       }, () => 'Weight'),
       cell: ({ row }) => {
         return h('div', {
-          class: 'px-6 py-3 text-center flex justify-center items-center',
+          class: 'px-6 py-3 text-center flex justify-center items-center w-fit mx-auto',
         }, [
           h(GcInlineEdit, {
             key: `weight-inline-edit-${row.id}`,
@@ -162,7 +166,7 @@
             'model-value': row.getValue('weight'),
             'name': `item_weight_${row.id}`,
             'size': 'sm',
-            'span-classes': 'justify-center min-w-[3rem]',
+            'span-classes': 'justify-center min-w-[3rem] w-fit',
             'onUpdate:model-value': (value: any) => $store.updateItem(row.original, 'weight', Number(value), row.original.category_id),
           }, () => row.getValue('weight')),
 
@@ -174,7 +178,7 @@
             'onUpdate:model-value': (value: any) => $store.updateItem(row.original, 'unit', value, row.original.category_id),
           }, {
             default: () => [
-              h(SelectTrigger, { class: 'border-0' }, () => [
+              h(SelectTrigger, { class: 'border-0 justify-start w-fit' }, () => [
                 h('span', { class: row.original.unit ? '' : 'text-muted' }, weightOptions({ shortLabel: true })
                   .find(w => w.value === row.original.unit)?.label || 'Select Unit'),
               ]),
@@ -195,6 +199,7 @@
           }),
         ]);
       },
+      meta: { headerClassName: 'w-24' },
     },
     {
       accessorKey: 'price',
@@ -205,6 +210,7 @@
       cell: ({ row }) => h('div', {
         class: 'px-6 py-3 text-center',
       }, row.getValue('price')),
+      meta: { headerClassName: 'w-28' },
     },
     {
       accessorKey: 'quantity',
@@ -215,6 +221,7 @@
       cell: ({ row }) => h('div', {
         class: 'px-6 py-3 text-center',
       }, row.getValue('quantity')),
+      meta: { headerClassName: 'w-28' },
     },
     {
       id: 'actions',
@@ -260,7 +267,7 @@
       },
       enableHiding: false,
       meta: {
-        headerClassName: 'w-12',
+        headerClassName: 'w-28',
       },
     },
   ];
@@ -322,6 +329,33 @@
       return total + (typeof cellValue === 'number' ? cellValue : 0);
     }, 0);
   };
+
+  const computeGroupWeight = (subRows: Row<RowItem>[]) => {
+    return subRows.reduce((total, subRow) => {
+      // Find the corresponding category in selectedPack.categories
+      const categoryItem = data.value?.selectedPack?.categories.find(
+        (category: any) => category.id === subRow.original.category_id,
+      );
+
+      if (categoryItem && categoryItem.category_items) {
+        const item = categoryItem.category_items.find((categoryItem: any) => categoryItem.item);
+
+        if (item && item.item.weight && item.item.unit) {
+          // If category unit is different from item unit, perform the conversion
+          const convertedWeight = convert(
+            parseFloat(item.item.weight || '0'),
+            item.item.unit as Mass, // item's unit
+          )
+            .to(categoryItem.unit as Mass || 'g'); // category's unit for display or total calculation
+
+          // Add the converted weight multiplied by the quantity to the total
+          return total + (convertedWeight * (item.item.quantity || 0));
+        }
+      }
+
+      return total;
+    }, 0);
+  };
 </script>
 
 <template>
@@ -361,7 +395,7 @@
                 <table-cell
                   v-for="header in table.getHeaderGroups()[0].headers"
                   :key="header.id"
-                  class="p-4 text-left"
+                  class="px-0 py-4 text-left"
                   :class="header.column.columnDef.meta?.headerClassName">
                   <flex-render
                     v-if="!header.isPlaceholder"
@@ -392,7 +426,7 @@
                 <table-cell
                   v-for="header in table.getHeaderGroups()[0].headers"
                   :key="header.id"
-                  class="p-4 text-center">
+                  class="p-4 text-center w-fit">
                   <template v-if="header.column.id === 'name'">
                     <div class="text-left">
                       Totals
@@ -403,6 +437,30 @@
                   </template>
                   <template v-else-if="header.column.id === 'quantity'">
                     {{ computeGroupTotal('quantity', row.subRows) }}
+                  </template>
+                  <template v-else-if="header.column.id === 'weight'">
+                    <div class="flex items-center mx-auto w-fit">
+                      {{ computeGroupWeight(row.subRows) }}
+                      <select-root
+                        class="max-w-4"
+                        :model-value="(activeCategory(row.getGroupingValue('category_name') as string).unit as ItemUnit)"
+                        @update:model-value="emit('handleUpdateCategory', { field: 'unit', value: $event })">
+                        <select-trigger class="border-0 justify-start">
+                          <select-value placeholder="Select a theme" />
+                        </select-trigger>
+                        <select-content>
+                          <select-group>
+                            <select-item
+                              v-for="opt in weightOptions({ shortLabel: true })"
+                              :key="opt.value"
+                              hide-checkmark
+                              :value="opt.value">
+                              {{ opt.label }}
+                            </select-item>
+                          </select-group>
+                        </select-content>
+                      </select-root>
+                    </div>
                   </template>
                   <template v-else>
                     <!-- Empty cells for other columns -->
