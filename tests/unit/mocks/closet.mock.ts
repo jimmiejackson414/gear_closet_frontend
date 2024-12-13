@@ -18,6 +18,7 @@ export const selectedPack: ExtendedPack = {
       "unit": "g",
       "slug": "884312a5-52c3-412b-a0e8-74a32969ca64",
       "pack_id": 1,
+      "position": 1,
       "updated_at": "2024-04-11T20:05:57.865833+00:00",
       "category_items": [
         {
@@ -197,6 +198,7 @@ export const selectedPack: ExtendedPack = {
       "unit": "g",
       "slug": "40bde8e0-02af-4280-ac0e-e9e4a62c13d3",
       "pack_id": 1,
+      "position": 2,
       "updated_at": "2024-04-11T20:05:57.865833+00:00",
       "category_items": [
         {
@@ -352,6 +354,7 @@ export const selectedPack: ExtendedPack = {
       "unit": "g",
       "slug": "f5dd1f31-bc44-4c7e-9bde-70999f12cd73",
       "pack_id": 1,
+      "position": 3,
       "updated_at": "2024-04-11T20:05:57.865833+00:00",
       "category_items": [
         {
@@ -411,6 +414,7 @@ export const selectedPack: ExtendedPack = {
       "unit": "g",
       "slug": "e2d69f5e-285e-46fe-a328-9e2e8fc5ed52",
       "pack_id": 1,
+      "position": 4,
       "updated_at": "2024-04-11T20:05:57.865833+00:00",
       "category_items": [
         {
@@ -590,6 +594,7 @@ export const selectedPack: ExtendedPack = {
       "unit": "g",
       "slug": "0780ddb3-75f2-48d8-a722-abc29456d90b",
       "pack_id": 1,
+      "position": 5,
       "updated_at": "2024-04-11T20:05:57.865833+00:00",
       "category_items": [
         {
@@ -841,6 +846,7 @@ export const selectedPack: ExtendedPack = {
       "unit": "g",
       "slug": "c7d692cc-4ade-411a-b8db-ce550e56297c",
       "pack_id": 1,
+      "position": 6,
       "updated_at": "2024-04-11T20:05:57.865833+00:00",
       "category_items": [
         {
@@ -948,6 +954,7 @@ export const selectedPack: ExtendedPack = {
       "unit": "g",
       "slug": "7e648ab6-086a-47af-9fc2-8c4eb7f41126",
       "pack_id": 1,
+      "position": 7,
       "updated_at": "2024-04-11T20:05:57.865833+00:00",
       "category_items": [
         {
@@ -1007,6 +1014,7 @@ export const selectedPack: ExtendedPack = {
       "unit": "g",
       "slug": "030e4ca4-b9bd-4552-8ea4-7fcfe59b371c",
       "pack_id": 1,
+      "position": 8,
       "updated_at": "2024-04-11T20:05:57.865833+00:00",
       "category_items": [
         {

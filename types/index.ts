@@ -82,6 +82,7 @@ export type Database = {
           id: number
           name: string | null
           pack_id: number | null
+          position: number
           slug: string | null
           unit: string | null
           updated_at: string
@@ -91,6 +92,7 @@ export type Database = {
           id?: number
           name?: string | null
           pack_id?: number | null
+          position?: number
           slug?: string | null
           unit?: string | null
           updated_at?: string
@@ -100,6 +102,7 @@ export type Database = {
           id?: number
           name?: string | null
           pack_id?: number | null
+          position?: number
           slug?: string | null
           unit?: string | null
           updated_at?: string

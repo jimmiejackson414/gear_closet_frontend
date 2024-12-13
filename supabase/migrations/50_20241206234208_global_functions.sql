@@ -266,7 +266,7 @@ CREATE OR REPLACE FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) R
               ) AS category_items
             FROM categories c
             WHERE c.pack_id = dynamic_pack_id
-            ORDER BY c.id ASC
+            ORDER BY c.position ASC
           ) AS sub
         )
       ),
@@ -373,8 +373,21 @@ CREATE OR REPLACE FUNCTION "public"."create_category_and_item"(
     FOR item IN SELECT * FROM jsonb_array_elements("p_items")
     LOOP
       -- Insert the new item
-      INSERT INTO "public"."items" ("name", "generic_type", "weight", "quantity", "price", "consumable", "worn", "profile_id")
-      VALUES (item->>'name', item->>'generic_type', item->>'weight', (item->>'quantity')::bigint, (item->>'price')::bigint, (item->>'consumable')::boolean, (item->>'worn')::boolean, auth.uid())
+      INSERT INTO "public"."items" (
+        "name", "generic_type", "weight", "quantity", "price", 
+        "consumable", "worn", "profile_id", "unit"
+      )
+      VALUES (
+        item->>'name', 
+        item->>'generic_type', 
+        item->>'weight', 
+        (item->>'quantity')::bigint, 
+        (item->>'price')::bigint, 
+        (item->>'consumable')::boolean, 
+        (item->>'worn')::boolean, 
+        auth.uid(),
+        COALESCE((item->>'unit')::item_unit, 'oz'::item_unit) -- Use default "oz" if NULL
+      )
       RETURNING "id" INTO "new_item_id";
 
       -- Link the new category and item in the category_items table
@@ -386,25 +399,16 @@ CREATE OR REPLACE FUNCTION "public"."create_category_and_item"(
     RETURN (
       SELECT row_to_json(t)
       FROM (
-        SELECT c."id", c."name", c."slug", c."unit", c."pack_id", c."created_at", c."updated_at", json_agg(json_build_object(
-          'id', ci."id",
-          'category_id', ci."category_id",
-          'item_id', ci."item_id",
-          'position', ci."position",
-          'created_at', ci."created_at",
-          'updated_at', ci."updated_at",
-          'item', json_build_object(
-            'id', i."id",
-            'name', i."name",
-            'generic_type', i."generic_type",
-            'weight', i."weight",
-            'quantity', i."quantity",
-            'price', i."price",
-            'consumable', i."consumable",
-            'worn', i."worn",
-            'profile_id', i."profile_id"
-          )
-        )) AS "category_items"
+        SELECT c."id", c."name", c."slug", c."unit", c."pack_id", c."created_at", c."updated_at",
+          json_agg(json_build_object(
+            'id', ci."id",
+            'category_id', ci."category_id",
+            'item_id', ci."item_id",
+            'position', ci."position",
+            'created_at', ci."created_at",
+            'updated_at', ci."updated_at",
+            'item', row_to_json(i)
+          )) AS "category_items"
         FROM "public"."categories" c
         JOIN "public"."category_items" ci ON c."id" = ci."category_id"
         JOIN "public"."items" i ON ci."item_id" = i."id"

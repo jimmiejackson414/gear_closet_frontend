@@ -1,6 +1,7 @@
 <script lang="ts" setup>
   import { nextTick, ref, watch } from 'vue';
   import type { InputRoot } from '@/components/ui/input';
+  import { cn } from '@/lib/utils';
 
   interface Props {
     name: string;
@@ -70,7 +71,7 @@
     <span
       v-if="!isEditing"
       class="cursor-pointer duration-100 ease-snap flex items-center group py-1.5 transition-all"
-      :class="[spanClasses, { 'border border-transparent hover:border-gray-300 min-h-[34px] rounded-lg': !modelValue }]"
+      :class="cn(spanClasses, { 'border border-transparent hover:border-gray-300 min-h-[34px] rounded-lg': !modelValue })"
       @click="toggleEditing">
       <slot />
       <icon-pencil

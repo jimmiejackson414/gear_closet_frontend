@@ -1,19 +1,20 @@
 <script lang='ts' setup>
   import { FlexRender, getCoreRowModel, getGroupedRowModel, getSortedRowModel, useVueTable } from '@tanstack/vue-table';
-  import type { ColumnDef, Row, VisibilityState } from '@tanstack/vue-table';
+  import type { Row, VisibilityState } from '@tanstack/vue-table';
   import convert from 'convert';
   import type { Mass } from 'convert';
-  import { ButtonRoot, IconApple, IconGripVertical, IconLink, IconShirt, IconTrash, SelectContent , SelectGroup, SelectItem, SelectRoot, SelectTrigger, Typography } from '#components';
+  import { SelectContent , SelectGroup, SelectItem, SelectRoot, SelectTrigger, Typography } from '#components';
   import GcInlineEdit from '@/components/common/GcInlineEdit.vue';
-  import type { ItemUnit, Tables } from '@/types';
+  import { useTableColumns } from '@/composables/useTableColumns';
+  import type { Tables } from '@/types';
   import type { ExtendedCategory } from '@/types/helpers';
   import { weightOptions } from '@/utils/helpers';
 
   export interface RowItem extends Tables<'items'> {
-    category_item_id: number;
-    category_id: number;
-    category_name: string | null;
+    category_item_id: number | null;
     position: number;
+    meta: { category: ExtendedCategory };
+    placeholder?: boolean;
   }
 
   const $store = useClosetStore();
@@ -25,268 +26,21 @@
     'handleRemoveItem',
   ]);
 
-  // define table columns
-  const columns: ColumnDef<RowItem>[] = [
-    {
-      accessorKey: 'category_name',
-      header: () => null,
-      enableSorting: false,
-      enableHiding: true,
-    },
-    {
-      id: 'drag',
-      accessorKey: 'drag',
-      header: () => null,
-      cell: () => h(IconGripVertical, {
-        class: 'cursor-move text-muted-foreground opacity-0 group-hover:opacity-100 stroke-1 !size-6',
-      }),
-      enableHiding: false,
-      meta: { headerClassName: 'w-12' },
-    },
-    {
-      accessorKey: 'name',
-      header: () => h(Typography, {
-        class: 'font-semibold',
-        variant: 'muted',
-      }, () => 'Name'),
-      cell: ({ row }) => {
-        const name = row.getValue('name');
-        return h('div', { class: 'text-left' }, [
-          h(GcInlineEdit, {
-            hideEditBtn: true,
-            'model-value': name,
-            name: `item_name_${row.id}`,
-            size: 'sm',
-            spanClasses: 'min-w-[5rem]',
-            'onUpdate:model-value': (newValue: string) => $store.updateItem(row.original, 'name', newValue, row.original.category_id),
-          }, {
-            default: () => [
-              h(Typography, { class: 'text-left', variant: 'muted' }, () => name),
-            ],
-          }),
-        ]);
-      },
-    },
-    {
-      accessorKey: 'generic_type',
-      header: () => h(Typography, {
-        class: 'font-semibold',
-        variant: 'muted',
-      }, () => 'Description'),
-      cell: ({ row }) => {
-        const genericType = row.getValue('generic_type');
-        return h('div', { class: 'text-left' }, [
-          h(GcInlineEdit, {
-            hideEditBtn: true,
-            'model-value': genericType,
-            name: `item_generic_type_${row.id}`,
-            size: 'sm',
-            spanClasses: 'min-w-[5rem]',
-            'onUpdate:model-value': (newValue: string) => $store.updateItem(row.original, 'generic_type', newValue, row.original.category_id),
-          }, {
-            default: () => [
-              h(Typography, { class: 'text-left' }, () => genericType),
-            ],
-          }),
-        ]);
-      },
-    },
-    {
-      accessorKey: 'consumable',
-      header: () => h(Typography, {
-        class: 'font-semibold text-center',
-        variant: 'muted',
-      }, () => 'Consumable'),
-      cell: ({ row }) =>
-        h('div', { class: 'flex justify-center items-center' }, [
-          h('button', {
-            class: `cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 w-8 rounded-full transition ${
-              row.getValue('consumable') ? 'bg-primary hover:bg-primary/70' : 'bg-transparent hover:bg-gray-200'
-            }`,
-            onClick: () =>
-              $store.updateItem(
-                row.original,
-                'consumable',
-                !row.getValue('consumable'),
-                row.original.category_id,
-              ),
-          }, [
-            h(IconApple, {
-              class: `h-5 w-5 ${
-                row.getValue('consumable') ? 'text-primary-foreground' : 'text-dark-grey'
-              }`,
-            }),
-          ]),
-        ]),
-      meta: { headerClassName: 'w-28' },
-    },
-    {
-      accessorKey: 'worn',
-      header: () =>
-        h(Typography, {
-          class: 'font-semibold text-center',
-          variant: 'muted',
-        }, () => 'Worn'),
-      cell: ({ row }) => h('div', { class: 'flex justify-center items-center' }, [
-        h('button', {
-          class: `cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 w-8 rounded-full transition ${
-            row.getValue('worn') ? 'bg-accent-alt hover:bg-accent-alt/70' : 'bg-transparent hover:bg-gray-200'
-          }`,
-          onClick: () =>
-            $store.updateItem(
-              row.original,
-              'worn',
-              !row.getValue('worn'),
-              row.original.category_id,
-            ),
-        }, [
-          h(IconShirt, {
-            class: `h-5 w-5 ${
-              row.getValue('worn') ? 'text-primary-foreground' : 'text-dark-grey'
-            }`,
-          }),
-        ]),
-      ]),
-      meta: { headerClassName: 'w-28' },
-    },
-    {
-      accessorKey: 'weight',
-      header: () => h(Typography, {
-        class: 'font-semibold text-center',
-        variant: 'muted',
-      }, () => 'Weight'),
-      cell: ({ row }) => {
-        return h('div', {
-          class: 'px-6 py-3 text-center flex justify-center items-center w-fit mx-auto',
-        }, [
-          h(GcInlineEdit, {
-            key: `weight-inline-edit-${row.id}`,
-            'data-testid': 'weight-cell',
-            'hide-edit-btn': true,
-            'model-value': row.getValue('weight'),
-            'name': `item_weight_${row.id}`,
-            'size': 'sm',
-            'span-classes': 'justify-center min-w-[3rem] w-fit',
-            'onUpdate:model-value': (value: any) => $store.updateItem(row.original, 'weight', Number(value), row.original.category_id),
-          }, () => row.getValue('weight')),
-
-          h(SelectRoot, {
-            key: `weight-select-${row.id}`,
-            class: 'w-4',
-            'model-value': row.original.unit,
-            'name': `weight-total-unit-select-${row.id}`,
-            'onUpdate:model-value': (value: any) => $store.updateItem(row.original, 'unit', value, row.original.category_id),
-          }, {
-            default: () => [
-              h(SelectTrigger, { class: 'border-0 justify-start w-fit' }, () => [
-                h('span', { class: row.original.unit ? '' : 'text-muted' }, weightOptions({ shortLabel: true })
-                  .find(w => w.value === row.original.unit)?.label || 'Select Unit'),
-              ]),
-              h(SelectContent, () => [
-                h(SelectGroup, { key: 'weight-options' }, () => [
-                  weightOptions()
-                    .map((weightOption: any) =>
-                      h(SelectItem, {
-                        key: weightOption.value,
-                        'value': weightOption.value,
-                        'hide-checkmark': true,
-                      }, () => weightOption.label),
-                    ),
-                ],
-                ),
-              ]),
-            ],
-          }),
-        ]);
-      },
-      meta: { headerClassName: 'w-24' },
-    },
-    {
-      accessorKey: 'price',
-      header: () => h(Typography, {
-        class: 'font-semibold text-center',
-        variant: 'muted',
-      }, () => 'Price'),
-      cell: ({ row }) => h('div', {
-        class: 'px-6 py-3 text-center',
-      }, row.getValue('price')),
-      meta: { headerClassName: 'w-28' },
-    },
-    {
-      accessorKey: 'quantity',
-      header: () => h(Typography, {
-        class: 'font-semibold text-center',
-        variant: 'muted',
-      }, () => 'Quantity'),
-      cell: ({ row }) => h('div', {
-        class: 'px-6 py-3 text-center',
-      }, row.getValue('quantity')),
-      meta: { headerClassName: 'w-28' },
-    },
-    {
-      id: 'actions',
-      accessorKey: 'actions',
-      header: () =>
-        h(Typography, {
-          class: 'font-semibold text-right',
-          variant: 'muted',
-        }, () => 'Actions'),
-      cell: ({ row }) => {
-        const rowData = row.original;
-        return h('div', {
-          class: 'grid grid-cols-[auto,auto] gap-1 justify-end items-center',
-        }, [
-          // Add/Modify URL Button
-          h(ButtonRoot, {
-            class: `cursor-pointer duration-150 ease-snap flex justify-center items-center h-8 w-8 rounded-full transition ${
-              rowData.url ? 'bg-tertiary hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200'
-            }`,
-            'data-testid': 'add-url-btn',
-            onClick: () => emit('handleAddUrl', rowData, rowData.category_id),
-            variant: 'ghost',
-          }, {
-            default: () => h(IconLink, {
-              class: `h-5 w-5 ${
-                rowData.url ? 'text-primary-foreground' : 'text-dark-grey'
-              }`,
-            }),
-          }),
-
-          // Remove from Category Button
-          h(ButtonRoot, {
-            class: 'cursor-pointer duration-150 ease-snap justify-center items-center w-8 h-8 rounded-full transition bg-transparent hover:bg-destructive/10',
-            'data-testid': 'remove-item-btn',
-            onClick: () => emit('handleRemoveItem', rowData),
-            variant: 'ghost',
-          }, {
-            default: () => h(IconTrash, {
-              class: 'h-5 w-5 text-destructive transition',
-            }),
-          }),
-        ]);
-      },
-      enableHiding: false,
-      meta: {
-        headerClassName: 'w-28',
-      },
-    },
-  ];
-
-  // generate table rows
+  // generate table rows and columns
+  const columns = useTableColumns(emit);
   const rows = ref<RowItem[]>([]);
   watch(() => data.value.selectedPack, (newVal) => {
     rows.value = newVal?.categories?.map(category => category.category_items.map(categoryItem => ({
       ...categoryItem?.item,
       position: categoryItem.position || 0,
       category_item_id: categoryItem.id,
-      category_name: category.name,
-      category_id: category.id,
+      meta: { category },
     })))
       .flat() || [];
   }, { immediate: true, deep: true });
 
   const visibility = reactive<VisibilityState>({
-    category_name: false,
+    category_id: false,
     drag: true,
     name: true,
     generic_type: true,
@@ -311,13 +65,9 @@
     },
     state: {
       columnVisibility: visibility,
-      grouping: ['category_name'],
+      grouping: ['category_id'],
     },
   });
-
-  const activeCategory = (categoryName: string) => {
-    return data.value.selectedPack?.categories.find(category => category.name === categoryName) as ExtendedCategory;
-  };
 
   const computeGroupTotal = (columnId: string, subRows: Row<RowItem>[]) => {
     return subRows.reduce((total, subRow) => {
@@ -332,23 +82,20 @@
 
   const computeGroupWeight = (subRows: Row<RowItem>[]) => {
     return subRows.reduce((total, subRow) => {
-      // Find the corresponding category in selectedPack.categories
       const categoryItem = data.value?.selectedPack?.categories.find(
-        (category: any) => category.id === subRow.original.category_id,
+        (category: any) => category.id === subRow.original.meta.category.id,
       );
 
       if (categoryItem && categoryItem.category_items) {
         const item = categoryItem.category_items.find((categoryItem: any) => categoryItem.item);
 
         if (item && item.item.weight && item.item.unit) {
-          // If category unit is different from item unit, perform the conversion
           const convertedWeight = convert(
             parseFloat(item.item.weight || '0'),
-            item.item.unit as Mass, // item's unit
+            item.item.unit as Mass,
           )
-            .to(categoryItem.unit as Mass || 'g'); // category's unit for display or total calculation
+            .to(categoryItem.unit as Mass || 'g');
 
-          // Add the converted weight multiplied by the quantity to the total
           return total + (convertedWeight * (item.item.quantity || 0));
         }
       }
@@ -375,16 +122,19 @@
                   <gc-inline-edit
                     data-testid="category-name"
                     input-classes="w-full max-w-[25rem]"
-                    :model-value="activeCategory(row.getGroupingValue('category_name') as string).name"
-                    :name="`category_name_${activeCategory(row.getGroupingValue('category_name') as string).id}`"
+                    :model-value="row.original.meta.category.name"
+                    :name="`category_id_${row.original.meta.category.id}`"
+                    placeholder="Category Name"
                     size="sm"
                     @update:model-value="emit('handleUpdateCategory', {
-                      id: activeCategory(row.getGroupingValue('category_name') as string).id,
+                      id: row.original.meta.category.id,
                       field: 'name',
                       value: $event
                     })">
-                    <typography variant="h5">
-                      {{ row.getGroupingValue('category_name') }}
+                    <typography
+                      :class="!row.original.meta.category.name ? 'text-gray-400' : ''"
+                      variant="h5">
+                      {{ row.original.meta.category.name || 'Category Name' }}
                     </typography>
                   </gc-inline-edit>
                 </table-cell>
@@ -426,7 +176,7 @@
                 <table-cell
                   v-for="header in table.getHeaderGroups()[0].headers"
                   :key="header.id"
-                  class="p-4 text-center w-fit">
+                  class="px-0 py-4 text-center w-fit">
                   <template v-if="header.column.id === 'name'">
                     <div class="text-left">
                       Totals
@@ -443,7 +193,7 @@
                       {{ computeGroupWeight(row.subRows) }}
                       <select-root
                         class="max-w-4"
-                        :model-value="(activeCategory(row.getGroupingValue('category_name') as string).unit as ItemUnit)"
+                        :model-value="(row.original.meta.category.unit as string)"
                         @update:model-value="emit('handleUpdateCategory', { field: 'unit', value: $event })">
                         <select-trigger class="border-0 justify-start">
                           <select-value placeholder="Select a theme" />

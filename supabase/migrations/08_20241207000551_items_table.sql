@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS "public"."items" (
     "consumable" boolean DEFAULT false,
     "worn" boolean DEFAULT false,
     "quantity" bigint DEFAULT '0'::bigint,
-    "unit" "public"."item_unit" DEFAULT 'g'::"public"."item_unit" NOT NULL,
+    "unit" "public"."item_unit" DEFAULT 'oz'::"public"."item_unit" NOT NULL,
     "weight" "text",
     "url" "text",
     "slug" character varying NOT NULL,
