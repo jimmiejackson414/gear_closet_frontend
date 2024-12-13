@@ -75,13 +75,25 @@
           Remove from Category
         </alert-dialog-title>
         <alert-dialog-description>
-          <typography class="mb-0">
-            Are you sure you want to remove this item from the category?
+          <typography class="mb-4">
+            Are you sure you want to remove this item from the category? <span class="font-bold">This action cannot be undone!</span>
           </typography>
-          <typography class="font-bold mb-4">
-            This action cannot be undone!
-          </typography>
-          <!-- checkbox with icon and tooltip -->
+          <div class="flex items-center gap-x-2">
+            <checkbox
+              id="accept-checkbox"
+              v-model:checked="removeItemCheckbox"
+              variant="destructive" />
+            <div class="flex items-center gap-1.5 leading-none">
+              <label
+                class="font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-destructive text-sm"
+                for="accept-checkbox">
+                Remove from closet?
+              </label>
+              <icon-info
+                v-tippy="{ content: 'Checking this will remove the item from your closet as well.' }"
+                class="h-4 w-4" />
+            </div>
+          </div>
         </alert-dialog-description>
       </alert-dialog-header>
       <alert-dialog-footer>

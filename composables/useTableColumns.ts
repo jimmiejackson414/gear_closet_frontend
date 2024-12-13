@@ -140,7 +140,7 @@ export const useTableColumns = (emit: any) => {
       }, () => 'Weight'),
       cell: ({ row }) => {
         return h('div', {
-          class: 'px-6 py-3 text-center flex justify-center items-center w-fit mx-auto',
+          class: 'px-0 py-3 text-center flex justify-center items-center w-fit mx-auto',
         }, [
           h(GcInlineEdit, {
             key: `weight-inline-edit-${row.id}`,
@@ -225,7 +225,7 @@ export const useTableColumns = (emit: any) => {
               rowData.url ? 'bg-tertiary hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200'
             }`,
             'data-testid': 'add-url-btn',
-            onClick: () => emit('handleAddUrl', rowData, rowData.meta.category.id),
+            onClick: () => emit('handleAddUrl', rowData.meta.category.id),
             variant: 'ghost',
           }, {
             default: () => h(IconLink, {
@@ -250,7 +250,7 @@ export const useTableColumns = (emit: any) => {
       },
       enableHiding: false,
       meta: {
-        headerClassName: 'w-28',
+        headerClassName: 'w-28 !pr-2',
       },
     },
   ];

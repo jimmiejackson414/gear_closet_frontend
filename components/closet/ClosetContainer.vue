@@ -29,7 +29,7 @@
 
     <!-- <share-pack-dialog /> -->
 
-    <!-- <delete-category-dialog /> -->
+    <delete-category-dialog />
 
     <!-- <delete-pack-dialog /> -->
 

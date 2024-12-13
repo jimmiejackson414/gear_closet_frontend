@@ -81,27 +81,30 @@
   };
 
   const computeGroupWeight = (subRows: Row<RowItem>[]) => {
-    return subRows.reduce((total, subRow) => {
-      const categoryItem = data.value?.selectedPack?.categories.find(
-        (category: any) => category.id === subRow.original.meta.category.id,
-      );
+    let totalWeightInMg = subRows.reduce((total, subRow) => {
+      const item = subRow.original;
 
-      if (categoryItem && categoryItem.category_items) {
-        const item = categoryItem.category_items.find((categoryItem: any) => categoryItem.item);
+      // Ensure item has weight, unit, and quantity
+      if (item.weight && item.unit && item.quantity) {
+        const weightValue = parseFloat(item.weight);
 
-        if (item && item.item.weight && item.item.unit) {
-          const convertedWeight = convert(
-            parseFloat(item.item.weight || '0'),
-            item.item.unit as Mass,
-          )
-            .to(categoryItem.unit as Mass || 'g');
-
-          return total + (convertedWeight * (item.item.quantity || 0));
+        // If the weight is valid, convert it to mg and add it to the total (multiply by quantity if exists)
+        if (!isNaN(weightValue)) {
+          const weightInMg = convert(weightValue, item.unit)
+            .to('mg'); // Convert each item to mg
+          total += weightInMg * item.quantity;
         }
       }
 
       return total;
     }, 0);
+
+    // Convert the total weight in mg to the category unit
+    const categoryUnit = subRows[0].original.meta.category.unit as Mass;
+    const convertedTotalWeight = convert(totalWeightInMg, 'mg')
+      .to(categoryUnit);
+
+    return parseFloat(convertedTotalWeight.toFixed(2));
   };
 </script>
 
@@ -115,10 +118,13 @@
               v-for="row in table.getRowModel().rows"
               :key="row.id">
               <!-- Group Title -->
-              <table-row v-if="row.getIsGrouped()">
+              <table-row
+                v-if="row.getIsGrouped()"
+                class="bg-gray-100 dark:bg-accent"
+                no-hover-effect>
                 <table-cell
-                  class="bg-gray-100 dark:bg-accent font-bold py-2"
-                  :colspan="columns.length">
+                  class="font-bold"
+                  :colspan="columns.length - 2">
                   <gc-inline-edit
                     data-testid="category-name"
                     input-classes="w-full max-w-[25rem]"
@@ -138,6 +144,17 @@
                     </typography>
                   </gc-inline-edit>
                 </table-cell>
+                <table-cell>
+                  <div class="flex justify-end">
+                    <button-root
+                      class="rounded-full hover:bg-destructive/10"
+                      size="icon"
+                      variant="ghost"
+                      @click="emit('handleRemoveCategory', row.original.meta.category.id)">
+                      <icon-trash class="text-destructive" />
+                    </button-root>
+                  </div>
+                </table-cell>
               </table-row>
 
               <!-- Table Header -->
@@ -146,7 +163,7 @@
                   v-for="header in table.getHeaderGroups()[0].headers"
                   :key="header.id"
                   class="px-0 py-4 text-left"
-                  :class="header.column.columnDef.meta?.headerClassName">
+                  :class="[ header.column.columnDef.meta?.headerClassName, { '!pr-2': header.column.columnDef.id === 'actions' } ]">
                   <flex-render
                     v-if="!header.isPlaceholder"
                     :props="header.getContext()"
@@ -162,7 +179,7 @@
                   <table-cell
                     v-for="cell in subRow.getVisibleCells()"
                     :key="cell.id"
-                    class="p-0"
+                    :class="cell.column.columnDef.id === 'actions' ? 'p-0 pr-2' : 'p-0'"
                     :style="{ minWidth: `${cell.column.columnDef.size}px`, maxWidth: `${cell.column.columnDef.size}px` }">
                     <flex-render
                       :props="cell.getContext()"
@@ -176,7 +193,7 @@
                 <table-cell
                   v-for="header in table.getHeaderGroups()[0].headers"
                   :key="header.id"
-                  class="px-0 py-4 text-center w-fit">
+                  class="p-0 text-center w-fit">
                   <template v-if="header.column.id === 'name'">
                     <div class="text-left">
                       Totals
@@ -189,12 +206,18 @@
                     {{ computeGroupTotal('quantity', row.subRows) }}
                   </template>
                   <template v-else-if="header.column.id === 'weight'">
-                    <div class="flex items-center mx-auto w-fit">
-                      {{ computeGroupWeight(row.subRows) }}
+                    <div class="flex justify-center items-center mx-auto p-0 text-center w-fit">
+                      <span class="min-w-[3rem]">
+                        {{ computeGroupWeight(row.subRows) }}
+                      </span>
                       <select-root
                         class="max-w-4"
                         :model-value="(row.original.meta.category.unit as string)"
-                        @update:model-value="emit('handleUpdateCategory', { field: 'unit', value: $event })">
+                        @update:model-value="emit('handleUpdateCategory', {
+                          id: row.original.meta.category.id,
+                          field: 'unit',
+                          value: $event
+                        })">
                         <select-trigger class="border-0 justify-start">
                           <select-value placeholder="Select a theme" />
                         </select-trigger>
