@@ -6,7 +6,7 @@
   import { SelectContent , SelectGroup, SelectItem, SelectRoot, SelectTrigger, Typography } from '#components';
   import GcInlineEdit from '@/components/common/GcInlineEdit.vue';
   import { useTableColumns } from '@/composables/useTableColumns';
-  import type { Tables } from '@/types';
+  import type { Database, Tables } from '@/types';
   import type { ExtendedCategory } from '@/types/helpers';
   import { weightOptions } from '@/utils/helpers';
 
@@ -14,7 +14,7 @@
     category_item_id: number | null;
     position: number;
     meta: { category: ExtendedCategory };
-    placeholder?: boolean;
+    isEmptyCategory?: boolean;
   }
 
   const $store = useClosetStore();
@@ -30,12 +30,27 @@
   const columns = useTableColumns(emit);
   const rows = ref<RowItem[]>([]);
   watch(() => data.value.selectedPack, (newVal) => {
-    rows.value = newVal?.categories?.map(category => category.category_items.map(categoryItem => ({
-      ...categoryItem?.item,
-      position: categoryItem.position || 0,
-      category_item_id: categoryItem.id,
-      meta: { category },
-    })))
+    rows.value = newVal?.categories?.map(category => {
+      // Check if the category has no items and render a placeholder row if empty
+      const categoryItems = category.category_items?.map(categoryItem => ({
+        ...categoryItem?.item,
+        position: categoryItem.position || 0,
+        category_item_id: categoryItem.id,
+        meta: { category },
+        isEmptyCategory: false,
+      })) || [];
+
+      if (categoryItems.length === 0) {
+        // If the category is empty, return a single row with a message
+        return [{
+          position: 0,
+          meta: { category },
+          isEmptyCategory: true,
+        }] as RowItem[];
+      }
+
+      return categoryItems;
+    })
       .flat() || [];
   }, { immediate: true, deep: true });
 
@@ -106,6 +121,90 @@
 
     return parseFloat(convertedTotalWeight.toFixed(2));
   };
+
+  /**
+   * Optimistically create a new item
+   */
+  const $appStore = useAppStore();
+  const createDefaultItem = async (categoryId: number) => {
+    try {
+      const user = useSupabaseUser();
+      const supabase = useSupabaseClient<Database>();
+
+      // Find the category up front for later use
+      const category = data.value.selectedPack?.categories.find(cat => cat.id === categoryId);
+      if (!category) throw new Error('Category not found');
+
+      // Generate the new item for both server request and optimistic update
+      const newItem = { ...generateItem(), profile_id: user.value?.id } as Tables<'items'>;
+      const optimisticItem = { ...newItem, id: 0 };
+
+      // Optimistic update for category item
+      const optimisticCategoryItem = {
+        id: 0,
+        category_id: categoryId,
+        item_id: optimisticItem.id,
+        position: (category?.category_items?.length ?? 0) + 1,
+        created_at: new Date()
+          .toISOString(),
+        updated_at: new Date()
+          .toISOString(),
+        item: optimisticItem,
+      };
+
+      // Optimistically update category's category_items
+      const updatedCategoryItems = [...category.category_items, optimisticCategoryItem];
+
+      // Perform optimistic update
+      data.value.selectedPack!.categories = data.value.selectedPack!.categories.map(cat =>
+        cat.id === categoryId ? { ...cat, category_items: updatedCategoryItems } : cat,
+      );
+
+      // Insert the new item into the database
+      const { data: createdItem, error: itemError } = await supabase.from('items')
+        .insert([newItem])
+        .select();
+
+      if (itemError) throw itemError;
+
+      // Create the new category_item after item is created
+      const newCategoryItem = {
+        category_id: categoryId,
+        item_id: createdItem[0].id,
+        position: updatedCategoryItems.length,
+      };
+
+      const { data: createdCategoryItem, error: categoryItemError } = await supabase.from('category_items')
+        .insert([newCategoryItem])
+        .select();
+
+      if (categoryItemError) throw categoryItemError;
+
+      // Replace the temporary optimistic item with the real item after creation
+      const finalCategoryItem = {
+        ...optimisticCategoryItem,
+        id: createdCategoryItem[0].id,
+        item_id: createdItem[0].id,
+        item: createdItem[0],
+      };
+
+      // Final optimistic update of category items
+      data.value.selectedPack!.categories = data.value.selectedPack!.categories.map(cat =>
+        cat.id === categoryId
+          ? { ...cat, category_items: cat.category_items.map(item =>
+            item.item_id === optimisticCategoryItem.item_id ? finalCategoryItem : item,
+          ) }
+          : cat,
+      );
+    } catch (err) {
+      const category = data.value.selectedPack?.categories.find(cat => cat.id === categoryId);
+      if (category) {
+        // Rollback the optimistic update by filtering out the item
+        category.category_items = category.category_items.filter(item => item.id !== 0);
+      }
+      $appStore.notifyNegative('Error creating item');
+    }
+  };
 </script>
 
 <template>
@@ -175,25 +274,36 @@
               <template
                 v-for="subRow in row.subRows"
                 :key="subRow.id">
-                <table-row class="group">
-                  <table-cell
-                    v-for="cell in subRow.getVisibleCells()"
-                    :key="cell.id"
-                    :class="cell.column.columnDef.id === 'actions' ? 'p-0 pr-2' : 'p-0'"
-                    :style="{ minWidth: `${cell.column.columnDef.size}px`, maxWidth: `${cell.column.columnDef.size}px` }">
-                    <flex-render
-                      :props="cell.getContext()"
-                      :render="cell.column.columnDef.cell" />
-                  </table-cell>
+                <table-row>
+                  <template v-if="subRow.original.isEmptyCategory">
+                    <table-cell
+                      class="text-center"
+                      :colspan="columns.length">
+                      No items in this category.
+                    </table-cell>
+                  </template>
+                  <template v-else>
+                    <table-cell
+                      v-for="cell in subRow.getVisibleCells()"
+                      :key="cell.id"
+                      :class="cell.column.columnDef.id === 'actions' ? 'p-0 pr-2' : 'p-0'"
+                      :style="{ minWidth: `${cell.column.columnDef.size}px`, maxWidth: `${cell.column.columnDef.size}px` }">
+                      <flex-render
+                        :props="cell.getContext()"
+                        :render="cell.column.columnDef.cell" />
+                    </table-cell>
+                  </template>
                 </table-row>
               </template>
 
               <!-- Totals Row for the Current Group -->
-              <table-row class="font-bold">
+              <table-row
+                class="font-bold"
+                no-hover-effect>
                 <table-cell
                   v-for="header in table.getHeaderGroups()[0].headers"
                   :key="header.id"
-                  class="p-0 text-center w-fit">
+                  class="px-0 py-2 text-center w-fit">
                   <template v-if="header.column.id === 'name'">
                     <div class="text-left">
                       Totals
@@ -234,6 +344,15 @@
                         </select-content>
                       </select-root>
                     </div>
+                  </template>
+                  <template v-else-if="header.column.id === 'actions'">
+                    <button-root
+                      size="sm"
+                      variant="outline"
+                      @click="() => createDefaultItem(row.original.meta.category.id)">
+                      <icon-plus class="h-4 text-primary dark:text-primary-light w-4" />
+                      New Item
+                    </button-root>
                   </template>
                   <template v-else>
                     <!-- Empty cells for other columns -->
