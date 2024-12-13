@@ -135,7 +135,7 @@
         dialogStates.deleteCategoryDialog = true
       ]"
       @handle-remove-item="[
-        activeCategoryId = $event.category_id,
+        activeCategoryId = $event.meta.category.id,
         activeItem = $event,
         dialogStates.removeItemDialog = true
       ]"

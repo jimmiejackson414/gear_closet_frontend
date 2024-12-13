@@ -52,7 +52,7 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
     state () {
       return {
         activeCategoryId: undefined,
-        activeRow: undefined,
+        activeItem: undefined,
         data: {
           selectedPack: undefined,
           allPacks: [],

@@ -52,14 +52,15 @@
     } catch (err) {
       $appStore.notifyNegative('There was an error removing the item.');
     } finally {
-      submitting.value = false;
-      dialogStates.value.removeItemDialog = false;
-      $store.activeItem = undefined;
-      $store.activeCategoryId = undefined;
+      handleClose();
     }
   };
 
   const handleClose = () => {
+    submitting.value = false;
+    $store.activeItem = undefined;
+    $store.activeCategoryId = undefined;
+    removeItemCheckbox.value = false;
     dialogStates.value.removeItemDialog = false;
   };
 </script>
@@ -99,10 +100,7 @@
       <alert-dialog-footer>
         <alert-dialog-cancel
           :disabled="submitting"
-          @click="[
-            dialogStates.removeItemDialog = false,
-            removeItemCheckbox = false
-          ]">
+          @click="handleClose">
           Cancel
         </alert-dialog-cancel>
         <button-root
