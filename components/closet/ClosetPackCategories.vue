@@ -125,7 +125,7 @@
         variant="outline"
         @click="createDefaultCategory">
         <icon-plus class="h-4 text-primary dark:text-primary-light w-4" />
-        Add Category
+        New Category
       </button-root>
     </div>
     <pack-items-table

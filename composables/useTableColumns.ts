@@ -1,4 +1,5 @@
 import type { ColumnDef } from '@tanstack/vue-table';
+import { Tippy } from 'vue-tippy';
 import { ButtonRoot, IconApple, IconGripVertical, IconLink, IconShirt, IconTrash, SelectContent , SelectGroup, SelectItem, SelectRoot, SelectTrigger, Typography } from '#components';
 import type { RowItem } from '@/components/closet/PackItemsTable.vue';
 import GcInlineEdit from '@/components/common/GcInlineEdit.vue';
@@ -68,7 +69,7 @@ export const useTableColumns = (emit: any) => {
             'onUpdate:model-value': (newValue: string) => $store.updateItem(row.original, 'generic_type', newValue, row.original.meta.category.id),
           }, {
             default: () => [
-              h(Typography, { class: 'text-left' }, () => genericType),
+              h(Typography, { class: 'text-left' }, () => genericType || 'Item Description'),
             ],
           }),
         ]);
@@ -220,18 +221,23 @@ export const useTableColumns = (emit: any) => {
           class: 'grid grid-cols-[auto,auto] gap-1 justify-end items-center',
         }, [
           // Add/Modify URL Button
-          h(ButtonRoot, {
-            class: `cursor-pointer duration-150 ease-snap flex justify-center items-center h-8 w-8 rounded-full transition ${
-              rowData.url ? 'bg-tertiary hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200'
-            }`,
-            'data-testid': 'add-url-btn',
-            onClick: () => emit('handleAddUrl', rowData.meta.category.id),
-            variant: 'ghost',
+          h(Tippy, {
+            content: 'Add/Modify URL',
+            placement: 'top', // Adjust placement if needed
           }, {
-            default: () => h(IconLink, {
-              class: `h-5 w-5 ${
-                rowData.url ? 'text-primary-foreground' : 'text-dark-grey'
+            default: () => h(ButtonRoot, {
+              class: `cursor-pointer duration-150 ease-snap flex justify-center items-center h-8 w-8 rounded-full transition ${
+                rowData.url ? 'bg-tertiary hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200'
               }`,
+              'data-testid': 'add-url-btn',
+              onClick: () => emit('handleAddUrl', rowData.meta.category.id),
+              variant: 'ghost',
+            }, {
+              default: () => h(IconLink, {
+                class: `h-5 w-5 ${
+                  rowData.url ? 'text-primary-foreground' : 'text-dark-grey'
+                }`,
+              }),
             }),
           }),
 
