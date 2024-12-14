@@ -205,6 +205,68 @@
       $appStore.notifyNegative('Error creating item');
     }
   };
+
+  /**
+   * Update the item positions when reordered within the same table
+   */
+  // const onSortEnd = async () => {
+  //   try {
+  //     await nextTick();
+
+  //     const originalPositions = rows.value.map(row => row.position);
+  //     const updatedRows = rows.value.map((row, index) => ({ ...row, position: index + 1 }));
+
+  //     const payload = updatedRows.map((row, index) => {
+  //       return {
+  //         category_item_id: row.category_item_id,
+  //         category_id: props.category.id,
+  //         item_id: row.id,
+  //         new_position: index + 1,
+  //       };
+  //     })
+  //       .filter((row, index) => row.new_position !== originalPositions[index]);
+  //     if (!payload.length) return;
+  //     await updatePositions(payload);
+  //   } catch (err: any) {
+  //     $appStore.notifyNegative('Error updating item position');
+  //   }
+  // };
+
+  /**
+   * Updates the item positions when the user inserts a new item
+   */
+  // const onSortInsert = ({ newIndex, value }: { newIndex: number, value: RowItem }) => {
+  //   value.position = newIndex + 1;
+  //   const payload = [{
+  //     category_item_id: value.category_item_id,
+  //     category_id: props.category.id,
+  //     item_id: value.id,
+  //     new_position: newIndex + 1,
+  //   }];
+  //   updatePositions(payload);
+  // };
+
+  /**
+   *  Updates the item positions when the user removes an item
+   */
+  // const onSortRemove = ({ oldIndex }: { oldIndex: number }) => {
+  //   // Get the removed item based on the oldIndex
+  //   const removedItem = rows.value[oldIndex];
+  //   if (!removedItem) {
+  //     console.error('The removed item is undefined');
+  //     return;
+  //   }
+  //   // Update the positions of the remaining items and persist the changes
+  //   const updatedRows = rows.value.filter(row => row.id !== removedItem.id)
+  //     .map((row, index) => ({ ...row, position: index + 1 }));
+  //   const payload = updatedRows.map((row, index) => ({
+  //     category_item_id: row.category_item_id,
+  //     category_id: props.category.id,
+  //     item_id: row.id,
+  //     new_position: index + 1,
+  //   }));
+  //   updatePositions(payload);
+  // };
 </script>
 
 <template>
