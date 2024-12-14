@@ -94,7 +94,7 @@
                 Remove items from closet?
               </label>
               <icon-info
-                v-tippy="{ content: 'Checking this will remove all items from the category as well as your closet.' }"
+                v-tippy="{ content: 'Checking this will additionally remove all items associated with this category from your closet.' }"
                 class="h-4 w-4" />
             </div>
           </div>

@@ -31,12 +31,12 @@
 
     <delete-category-dialog />
 
-    <!-- <delete-pack-dialog /> -->
+    <delete-pack-dialog />
 
     <remove-item-dialog />
 
     <add-url-dialog />
 
-    <!-- <update-theme-dialog /> -->
+    <update-theme-dialog />
   </div>
 </template>

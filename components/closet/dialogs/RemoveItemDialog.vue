@@ -91,7 +91,7 @@
                 Remove from closet?
               </label>
               <icon-info
-                v-tippy="{ content: 'Checking this will remove the item from your closet as well.' }"
+                v-tippy="{ content: 'Checking this will additionally remove the item from your closet.' }"
                 class="h-4 w-4" />
             </div>
           </div>

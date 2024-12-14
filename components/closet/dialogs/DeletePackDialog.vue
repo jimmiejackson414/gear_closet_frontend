@@ -41,43 +41,51 @@
 </script>
 
 <template>
-  <gc-modal
-    :is-open="dialogStates.deletePackDialog"
-    title="Delete Pack"
-    @handle-cancel="dialogStates.deletePackDialog = false">
-    <template #content>
-      <div>
-        <p class="font-bold mb-0 text-base">
-          Are you sure you want to delete this pack?
-        </p>
-        <p class="!font-bold mb-4 text-base text-danger">
-          This action cannot be undone!
-        </p>
-      </div>
-      <div class="flex items-center gap-4">
-        <gc-checkbox
-          id="remove-item-checkbox"
-          v-model="removeItemCheckbox"
-          label="Also remove from closet?" />
-        <icon-info
-          v-tippy="{ content: 'Checking this will remove all items from your closet as well.' }"
-          class="h-4 w-4" />
-      </div>
-    </template>
-    <template #actions>
-      <gc-button
-        :disabled="submitting"
-        label="Cancel"
-        size="sm"
-        variant="secondary"
-        @click="dialogStates.deletePackDialog = false" />
-      <gc-button
-        :disabled="submitting"
-        label="Delete Pack"
-        :loading="submitting"
-        size="sm"
-        variant="danger"
-        @click="handleSubmit" />
-    </template>
-  </gc-modal>
+  <alert-dialog v-model:open="dialogStates.deletePackDialog">
+    <alert-dialog-content
+      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      @escape-key-down="dialogStates.deletePackDialog = false"
+      @interact-outside="dialogStates.deletePackDialog = false">
+      <alert-dialog-header>
+        <alert-dialog-title>
+          Delete Pack
+        </alert-dialog-title>
+        <alert-dialog-description>
+          <typography class="mb-4">
+            Are you sure you want to delete this pack? <span class="font-bold">This action cannot be undone!</span>
+          </typography>
+          <div class="flex items-center gap-x-2">
+            <checkbox
+              id="accept-checkbox"
+              v-model:checked="removeItemCheckbox"
+              variant="destructive" />
+            <div class="flex items-center gap-1.5 leading-none">
+              <label
+                class="font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-destructive text-sm"
+                for="accept-checkbox">
+                Remove items from closet?
+              </label>
+              <icon-info
+                v-tippy="{ content: 'Checking this will additionally remove all items associated with this pack from your closet.' }"
+                class="h-4 w-4" />
+            </div>
+          </div>
+        </alert-dialog-description>
+      </alert-dialog-header>
+      <alert-dialog-footer>
+        <alert-dialog-cancel
+          :disabled="submitting"
+          @click="dialogStates.deletePackDialog = false">
+          Cancel
+        </alert-dialog-cancel>
+        <button-root
+          :disabled="submitting"
+          :loading="submitting"
+          variant="destructive"
+          @click="handleSubmit">
+          Delete Pack
+        </button-root>
+      </alert-dialog-footer>
+    </alert-dialog-content>
+  </alert-dialog>
 </template>
