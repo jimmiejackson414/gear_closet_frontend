@@ -328,13 +328,14 @@
                     placeholder="Add a comment"
                     theme="snow" />
                 </client-only>
-                <gc-button
+                <button-root
                   class="mt-2"
                   :disabled="submitting"
-                  label="Submit"
                   :loading="submitting"
                   size="sm"
-                  @click="addComment" />
+                  @click="addComment">
+                  Submit
+                </button-root>
               </div>
               <public-pack-comment
                 v-for="comment in pack?.comments"

@@ -101,11 +101,12 @@
                   :notification="(notification as ExtendedNotification)" />
               </ul>
               <div class="bg-gray-50 block px-4 py-2 rounded-b-lg text-center text-dark-grey">
-                <gc-button
-                  ghost
-                  label="Mark all as read"
+                <button-root
                   size="sm"
-                  @click="$userStore.markAllAsRead()" />
+                  variant="ghost"
+                  @click="$userStore.markAllAsRead()">
+                  Mark all as read
+                </button-root>
               </div>
             </span>
             <div

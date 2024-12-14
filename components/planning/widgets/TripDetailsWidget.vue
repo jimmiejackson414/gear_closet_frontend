@@ -105,11 +105,12 @@
       <p class="mb-4 text-base">
         You haven't added any trip details yet!
       </p>
-      <gc-button
-        label="Get Started"
-        outlined
+      <button-root
         size="sm"
-        @click="createDetail" />
+        variant="outline"
+        @click="createDetail">
+        Get Started
+      </button-root>
     </gc-empty-state>
     <div v-else>
       <div class="flex flex-col mb-6">

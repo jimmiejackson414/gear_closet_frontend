@@ -30,7 +30,7 @@ describe('Planning Page', async () => {
       store.$patch({ data: { trips } });
       await wrapper.vm.$nextTick();
 
-      const select = wrapper.findComponent({ name: 'GcSelect' });
+      const select = wrapper.findComponent({ name: 'select-root' });
       expect(select.exists())
         .toBe(true);
       expect(select.props('options'))
@@ -99,7 +99,7 @@ describe('Planning Page', async () => {
       expect(wrapper.find('p')
         .text())
         .toMatch(/Click the button below to get started./);
-      expect(wrapper.findComponent({ name: 'gc-button' })
+      expect(wrapper.findComponent({ name: 'button-root' })
         .exists())
         .toBe(true);
     });

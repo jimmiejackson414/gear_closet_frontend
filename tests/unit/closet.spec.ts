@@ -49,7 +49,7 @@ describe('Closet Page', async () => {
 
       store.$patch({ data: { allPacks } });
       await wrapper.vm.$nextTick();
-      const select = wrapper.findComponent({ name: 'GcSelect' });
+      const select = wrapper.findComponent({ name: 'select-root' });
       const transformedAllPacks = allPacks.map(p => ({ label: p.name, value: p.id }));
 
       expect(select.exists())
@@ -111,7 +111,7 @@ describe('Closet Page', async () => {
       });
       await wrapper.vm.$nextTick();
 
-      const newPackButton = wrapper.findComponent({ name: 'gc-button' });
+      const newPackButton = wrapper.findComponent({ name: 'button-root' });
       expect(newPackButton.props('disabled'))
         .toBe(true);
     });
@@ -128,7 +128,7 @@ describe('Closet Page', async () => {
       });
       await wrapper.vm.$nextTick();
 
-      const newPackButton = wrapper.findComponent({ name: 'gc-button' });
+      const newPackButton = wrapper.findComponent({ name: 'button-root' });
       expect(newPackButton.props('disabled'))
         .toBe(false);
     });
@@ -156,7 +156,7 @@ describe('Closet Page', async () => {
       expect(wrapper.find('p')
         .text())
         .toMatch(/Click the button below to get started./);
-      expect(wrapper.findComponent({ name: 'gc-button' })
+      expect(wrapper.findComponent({ name: 'button-root' })
         .exists())
         .toBe(true);
     });

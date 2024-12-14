@@ -1,8 +1,8 @@
 <script lang='ts' setup>
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
-  import type { ExtendedComment, ExtendedReply } from '@/types/helpers';
   import type { Database } from '@/types';
+  import type { ExtendedComment, ExtendedReply } from '@/types/helpers';
 
   dayjs.extend(relativeTime);
 
@@ -178,13 +178,14 @@
               placeholder="Add a reply"
               theme="snow" />
           </client-only>
-          <gc-button
+          <button-root
             class="mt-2"
             :disabled="submitting"
-            label="Submit"
             :loading="submitting"
             size="sm"
-            @click="addReply" />
+            @click="addReply">
+            Submit
+          </button-root>
         </div>
         <ul
           v-if="comment.replies.length"
