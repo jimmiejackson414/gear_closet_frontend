@@ -62,7 +62,7 @@ module.exports = {
     '@stylistic/js/no-trailing-spaces': 'warn',
     '@stylistic/js/semi': ['warn', 'always'],
     '@stylistic/js/space-before-function-paren': ['warn', 'always'],
-    'object-curly-spacing': ['warn', 'always'],
+    // 'object-curly-spacing': ['warn', 'always'],
     'no-relative-import-paths/no-relative-import-paths': [
       'warn',
       { 'allowSameFolder': true, 'prefix': '@' },
@@ -70,7 +70,7 @@ module.exports = {
 
     // Vue specific tweaks
     'vue/object-curly-spacing': ['warn', 'always'],
-    'vue/component-name-in-template-casing': ['warn', 'kebab-case'],
+    'vue/component-name-in-template-casing': ['warn', 'kebab-case', { registeredComponentsOnly: false }],
     'vue/no-v-html': 'off',
     'vue/html-closing-bracket-spacing': [
       'warn',

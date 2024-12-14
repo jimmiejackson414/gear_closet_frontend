@@ -27,7 +27,7 @@
 
     <csv-upload-dialog />
 
-    <!-- <share-pack-dialog /> -->
+    <share-pack-dialog />
 
     <delete-category-dialog />
 

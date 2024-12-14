@@ -150,21 +150,21 @@
           v-slot="{ value, handleChange }"
           name="private"
           :validate-on-blur="!isFieldDirty">
-          <FormItem class="border flex justify-between items-center flex-row p-4 rounded-lg">
+          <form-item class="border flex justify-between items-center flex-row p-4 rounded-lg">
             <div class="space-y-0.5">
-              <FormLabel class="text-base">
+              <form-label class="text-base">
                 Private?
-              </FormLabel>
-              <FormDescription>
+              </form-label>
+              <form-description>
                 Private packs cannot be viewed by other users. This setting can be changed later.
-              </FormDescription>
+              </form-description>
             </div>
-            <FormControl>
-              <Switch
+            <form-control>
+              <switch
                 :checked="value"
                 @update:checked="handleChange" />
-            </FormControl>
-          </FormItem>
+            </form-control>
+          </form-item>
         </form-field>
 
         <!-- Allow comments checkbox -->
@@ -172,21 +172,21 @@
           v-slot="{ value, handleChange }"
           name="allow_comments"
           :validate-on-blur="!isFieldDirty">
-          <FormItem class="border flex justify-between items-center flex-row p-4 rounded-lg">
+          <form-item class="border flex justify-between items-center flex-row p-4 rounded-lg">
             <div class="space-y-0.5">
-              <FormLabel class="text-base">
+              <form-label class="text-base">
                 Allow comments?
-              </FormLabel>
-              <FormDescription>
+              </form-label>
+              <form-description>
                 Allow users you share this pack with list to make comments? This setting can be changed later.
-              </FormDescription>
+              </form-description>
             </div>
-            <FormControl>
-              <Switch
+            <form-control>
+              <switch
                 :checked="value"
                 @update:checked="handleChange" />
-            </FormControl>
-          </FormItem>
+            </form-control>
+          </form-item>
         </form-field>
       </div>
       <dialog-footer>

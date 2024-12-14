@@ -22,41 +22,46 @@
 </script>
 
 <template>
-  <gc-modal
-    :is-open="dialogStates.sharePackDialog"
-    title="Share Pack List"
-    @handle-cancel="dialogStates.sharePackDialog = false">
-    <template #content>
-      <div class="flex flex-col">
-        <p class="mb-4 text-base">
+  <dialog-root :open="dialogStates.sharePackDialog">
+    <dialog-content
+      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      @escape-key-down="dialogStates.sharePackDialog = false"
+      @interact-outside="dialogStates.sharePackDialog = false">
+      <dialog-header>
+        <dialog-title>
+          Create a new pack
+        </dialog-title>
+        <dialog-description>
           Share your pack list with other users by sending them the link below.
-        </p>
-        <div class="flex items-center gap-4">
-          <div class="flex items-end gap-4 w-full">
-            <gc-input
-              class="w-full"
-              label="Shareable Link"
+        </dialog-description>
+      </dialog-header>
+      <div class="flex flex-col gap-6">
+        <div class="flex items-end gap-4 w-full">
+          <div class="grid gap-1.5 items-center max-w-sm w-full">
+            <label-root for="url">
+              Shareabe Link
+            </label-root>
+            <input-root
+              id="url"
               :model-value="shareLink"
-              name="url"
               :prepend-icon="IconLink"
               readonly />
-            <button
-              v-tippy="{ content: 'Copy link' }"
-              class="cursor-pointer duration-150 ease-snap flex justify-center justify-self-end items-center h-8 mb-2 rounded-full transition w-8"
-              @click="copyToClipboard">
-              <icon-copy class="cursor-pointer duration-150 ease-expo h-6 text-gray-500 hover:text-primary transition w-6" />
-            </button>
           </div>
+          <button-root
+            v-tippy="{ content: 'Copy link to clipboard' }"
+            class="cursor-pointer duration-150 ease-snap flex justify-center justify-self-end items-center h-8 mb-2 rounded-full transition w-8"
+            @click="copyToClipboard">
+            <icon-copy class="cursor-pointer duration-150 ease-expo h-6 text-gray-500 dark:text-gray-200 hover:text-primary transition w-6" />
+          </button-root>
         </div>
       </div>
-    </template>
-    <template #actions>
-      <gc-button
-        :disabled="submitting"
-        label="Close"
-        size="sm"
-        variant="secondary"
-        @click="dialogStates.sharePackDialog = false" />
-    </template>
-  </gc-modal>
+      <dialog-footer>
+        <dialog-close
+          :disabled="submitting"
+          @click="dialogStates.sharePackDialog = false">
+          Cancel
+        </dialog-close>
+      </dialog-footer>
+    </dialog-content>
+  </dialog-root>
 </template>
