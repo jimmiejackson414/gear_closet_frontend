@@ -51,7 +51,7 @@
             v-tippy="{ content: 'Copy link to clipboard' }"
             class="cursor-pointer duration-150 ease-snap flex justify-center justify-self-end items-center h-8 mb-2 rounded-full transition w-8"
             @click="copyToClipboard">
-            <icon-copy class="cursor-pointer duration-150 ease-expo h-6 text-gray-500 dark:text-gray-200 hover:text-primary transition w-6" />
+            <icon-copy class="cursor-pointer duration-150 ease-expo h-6 transition w-6" />
           </button-root>
         </div>
       </div>

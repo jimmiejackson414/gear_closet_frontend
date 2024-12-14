@@ -114,7 +114,7 @@ export const useTableColumns = (emit: any) => {
       cell: ({ row }) => h('div', { class: 'flex justify-center items-center' }, [
         h('button', {
           class: `cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 w-8 rounded-full transition ${
-            row.getValue('worn') ? 'bg-accent-alt hover:bg-accent-alt/70' : 'bg-transparent hover:bg-gray-200'
+            row.getValue('worn') ? 'bg-accent-alt dark:bg-accent-light hover:bg-accent-alt/70' : 'bg-transparent hover:bg-gray-200'
           }`,
           onClick: () =>
             $store.updateItem(
@@ -227,7 +227,7 @@ export const useTableColumns = (emit: any) => {
           }, {
             default: () => h(ButtonRoot, {
               class: `cursor-pointer duration-150 ease-snap flex justify-center items-center h-8 w-8 rounded-full transition ${
-                rowData.url ? 'bg-tertiary hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200'
+                rowData.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground'
               }`,
               'data-testid': 'add-url-btn',
               onClick: () => emit('handleAddUrl', rowData.meta.category.id),
@@ -243,13 +243,13 @@ export const useTableColumns = (emit: any) => {
 
           // Remove from Category Button
           h(ButtonRoot, {
-            class: 'cursor-pointer duration-150 ease-snap justify-center items-center w-8 h-8 rounded-full transition bg-transparent hover:bg-destructive/10',
+            class: 'cursor-pointer duration-150 ease-snap justify-center items-center w-8 h-8 rounded-full bg-transparent hover:bg-destructive/10 dark:hover:bg-destructive-light dark:hover:text-destructive transition',
             'data-testid': 'remove-item-btn',
             onClick: () => emit('handleRemoveItem', rowData),
             variant: 'ghost',
           }, {
             default: () => h(IconTrash, {
-              class: 'h-5 w-5 text-destructive transition',
+              class: 'h-5 w-5',
             }),
           }),
         ]);

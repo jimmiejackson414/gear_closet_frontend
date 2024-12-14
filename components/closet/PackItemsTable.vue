@@ -226,6 +226,7 @@
                   :colspan="columns.length - 2">
                   <gc-inline-edit
                     data-testid="category-name"
+                    hide-edit-btn
                     input-classes="w-full max-w-[25rem]"
                     :model-value="row.original.meta.category.name"
                     :name="`category_id_${row.original.meta.category.id}`"
@@ -246,11 +247,11 @@
                 <table-cell>
                   <div class="flex justify-end">
                     <button-root
-                      class="rounded-full hover:bg-destructive/10"
+                      class="bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8"
                       size="icon"
                       variant="ghost"
                       @click="emit('handleRemoveCategory', row.original.meta.category.id)">
-                      <icon-trash class="text-destructive" />
+                      <icon-trash />
                     </button-root>
                   </div>
                 </table-cell>

@@ -28,11 +28,13 @@
   const { data } = storeToRefs($store);
 
   /* Bar Chart Options */
+  const legendTextColor = ref('');
   const chartRef = ref<InstanceType<typeof VChart> | undefined>(undefined);
   const chartOptions = ref<EChartsOption>({
     animationDuration: 300,
     xAxis: {
       type: 'category',
+      axisLine: { lineStyle: { color: legendTextColor.value } },
       axisTick: { alignWithLabel: true },
       axisLabel: { rotate: 30, overflow: 'break', width: 100, margin: 24 },
       data: data.value.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
@@ -40,13 +42,7 @@
     yAxis: {
       type: 'value',
       splitLine: { show: false },
-      axisLabel: {
-        formatter: (value: any) => {
-          const weight = round(convert(value as number, 'g')
-            .to('lb'));
-          return `${weight} lbs`;
-        },
-      },
+      axisLabel: { formatter: (value: any) => `${value} lbs` },
     },
     grid: { show: false },
     series: [
@@ -88,6 +84,29 @@
       },
     },
   });
+
+  /**
+   * Dynamically update the legend text color based on the current theme.
+   */
+  const updateLegendTextColor = async () => {
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 100));
+    legendTextColor.value = await hslVarToHex('hsl(var(--card-foreground))');
+
+    chartRef.value?.setOption({
+      xAxis: {
+        axisLine: { lineStyle: { color: legendTextColor.value } },
+      },
+      yAxis: {
+        axisLine: { lineStyle: { color: legendTextColor.value } },
+      },
+    });
+  };
+
+  updateLegendTextColor();
+
+  const colorMode = useColorMode();
+  watch(() => colorMode.value, () => updateLegendTextColor(), { immediate: true });
 
   watch(() => data.value.selectedPack?.theme, (newTheme) => {
     chartRef.value?.setOption({
