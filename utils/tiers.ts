@@ -42,7 +42,7 @@ const tiers: Tier[] = [
       'Email Support',
       '20% discount',
     ],
-    borderColor: tailwind.theme.colors.primary,
+    borderColor: tailwind.theme.colors.primary.DEFAULT,
     buttonText: 'Select',
     buttonDisabled: false,
     value: SubscriptionLevel.ANNUAL,

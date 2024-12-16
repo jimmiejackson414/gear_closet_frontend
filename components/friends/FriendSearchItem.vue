@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
-  import { FriendRequestStatus, type Database, type Tables } from '@/types';
+  import { type Database, FriendRequestStatus, type Tables } from '@/types';
 
   dayjs.extend(relativeTime);
 
@@ -68,26 +68,27 @@
         size="lg"
         :url="buildImageSrc(profile.image)" />
       <div class="flex flex-col">
-        <p class="!font-bold text-dark-grey">
+        <typography class="!font-bold">
           {{ friendlyUsername(profile) }}
-        </p>
-        <p class="text-sm">
+        </typography>
+        <typography size="sm">
           {{ mutualFriends }}
-        </p>
+        </typography>
       </div>
-      <gc-button
+      <button-root
         v-if="!submittedRequest"
         :disabled="submitting"
-        label="Add Friend"
         :loading="submitting"
         size="sm"
-        @click="handleAddFriend" />
+        @click="handleAddFriend">
+        Add Friend
+      </button-root>
       <div
         v-else
         class="flex mt-2">
-        <p class="italic text-gray-500 text-xs">
+        <typography class="italic text-muted-foreground text-xs">
           Invite requested
-        </p>
+        </typography>
       </div>
     </div>
   </div>

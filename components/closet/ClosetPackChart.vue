@@ -1,4 +1,6 @@
 <script lang='ts' setup>
+  import convert, { type Mass } from 'convert';
+  import type { EChartsOption } from 'echarts';
   import { BarChart } from 'echarts/charts';
   import {
     GridComponent,
@@ -8,13 +10,10 @@
   } from 'echarts/components';
   import { use } from 'echarts/core';
   import { CanvasRenderer } from 'echarts/renderers';
-  import VChart from 'vue-echarts';
-  import { BackpackIcon } from 'lucide-vue-next';
-  import type { EChartsOption } from 'echarts';
-  import convert, { type Mass } from 'convert';
   import round from 'lodash.round';
-  import type { ExtendedCategory } from '@/types/helpers';
+  import VChart from 'vue-echarts';
   import { Theme } from '@/types';
+  import type { ExtendedCategory } from '@/types/helpers';
 
   use([
     CanvasRenderer,
@@ -29,11 +28,13 @@
   const { data } = storeToRefs($store);
 
   /* Bar Chart Options */
+  const legendTextColor = ref('');
   const chartRef = ref<InstanceType<typeof VChart> | undefined>(undefined);
   const chartOptions = ref<EChartsOption>({
     animationDuration: 300,
     xAxis: {
       type: 'category',
+      axisLine: { lineStyle: { color: legendTextColor.value } },
       axisTick: { alignWithLabel: true },
       axisLabel: { rotate: 30, overflow: 'break', width: 100, margin: 24 },
       data: data.value.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
@@ -41,13 +42,7 @@
     yAxis: {
       type: 'value',
       splitLine: { show: false },
-      axisLabel: {
-        formatter: (value: any) => {
-          const weight = round(convert(value as number, 'g')
-            .to('lb'));
-          return `${weight} lbs`;
-        },
-      },
+      axisLabel: { formatter: (value: any) => `${value} lbs` },
     },
     grid: { show: false },
     series: [
@@ -90,6 +85,29 @@
     },
   });
 
+  /**
+   * Dynamically update the legend text color based on the current theme.
+   */
+  const updateLegendTextColor = async () => {
+    await nextTick();
+    await new Promise(resolve => setTimeout(resolve, 100));
+    legendTextColor.value = await hslVarToHex('hsl(var(--card-foreground))');
+
+    chartRef.value?.setOption({
+      xAxis: {
+        axisLine: { lineStyle: { color: legendTextColor.value } },
+      },
+      yAxis: {
+        axisLine: { lineStyle: { color: legendTextColor.value } },
+      },
+    });
+  };
+
+  updateLegendTextColor();
+
+  const colorMode = useColorMode();
+  watch(() => colorMode.value, () => updateLegendTextColor(), { immediate: true });
+
   watch(() => data.value.selectedPack?.theme, (newTheme) => {
     chartRef.value?.setOption({
       series: [{
@@ -107,12 +125,12 @@
 <template>
   <div class="flex flex-col">
     <div class="flex items-center">
-      <backpack-icon class="h-6 mr-6 text-primary w-6" />
-      <p class="!font-bold text-base">
+      <icon-backpack class="h-6 mr-6 text-primary dark:text-primary-light w-6" />
+      <typography class="!font-bold">
         Pack Summary
-      </p>
+      </typography>
     </div>
-    <div class="h-[200px] lg:h-[375px] mb-4 mt-0 mx-auto w-full">
+    <div class="h-[200px] lg:h-[375px] mb-4 mt-0 w-auto">
       <client-only>
         <v-chart
           ref="chartRef"

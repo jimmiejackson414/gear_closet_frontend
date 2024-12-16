@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  import { ConfigProvider } from 'radix-vue';
   import type { Database } from '@/types';
 
   const supabase = useSupabaseClient<Database>();
@@ -8,16 +9,19 @@
     }
   });
 
-  // Use SSR-safe IDs for Headless UI
-  provideHeadlessUseId(() => useId());
+  // fixes SSR hydration issue with radix-vue
+  const ssrId = () => useId();
 </script>
 
 <template>
-  <div class="bg-white dark:bg-black h-full">
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
-  </div>
+  <config-provider :use-id="ssrId">
+    <div class="bg-background h-full">
+      <NuxtLayout>
+        <NuxtPage />
+        <toaster />
+      </NuxtLayout>
+    </div>
+  </config-provider>
 </template>
 
 <style scoped>

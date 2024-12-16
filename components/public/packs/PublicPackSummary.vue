@@ -1,4 +1,6 @@
 <script lang='ts' setup>
+  import convert, { type Mass } from 'convert';
+  import type { EChartsOption } from 'echarts';
   import { BarChart } from 'echarts/charts';
   import {
     GridComponent,
@@ -8,14 +10,11 @@
   } from 'echarts/components';
   import { use } from 'echarts/core';
   import { CanvasRenderer } from 'echarts/renderers';
-  import VChart from 'vue-echarts';
   import round from 'lodash.round';
-  import { BackpackIcon, BarChart3Icon } from 'lucide-vue-next';
-  import { findTheme } from '@/utils/chartTheme';
+  import VChart from 'vue-echarts';
   import { Theme } from '@/types';
-  import convert, { type Mass } from 'convert';
   import type { ExtendedCategory, PublicPack } from '@/types/helpers';
-  import type { EChartsOption } from 'echarts';
+  import { findTheme } from '@/utils/chartTheme';
 
   use([
     CanvasRenderer,
@@ -118,7 +117,7 @@
   <div class="flex lg:flex-row flex-col gap-6 pt-4">
     <div class="flex flex-col lg:w-3/5">
       <div class="flex items-center">
-        <backpack-icon class="h-6 mr-6 text-primary w-6" />
+        <icon-backpack class="h-6 mr-6 text-primary w-6" />
         <p class="!font-bold text-base">
           Pack Summary
         </p>
@@ -135,7 +134,7 @@
     <div class="flex flex-col lg:w-2/5">
       <div class="flex justify-between items-center mb-10">
         <div class="flex items-center">
-          <bar-chart-3-icon class="h-6 mr-6 text-primary w-6" />
+          <icon-bar-chart-3 class="h-6 mr-6 text-primary w-6" />
           <p class="!font-bold text-base">
             Stats
           </p>

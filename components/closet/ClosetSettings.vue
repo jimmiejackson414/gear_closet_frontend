@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { PlusIcon, SettingsIcon } from 'lucide-vue-next';
   import type { SelectOption } from '@/types/helpers';
 
   const $store = useClosetStore();
@@ -8,9 +7,10 @@
 
   const packOptions = computed(() => data.value.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
 
-  const handleSelectPack = async (pack: { label: string, value: number }) => {
+  const handleSelectPack = async (val: string) => {
     const cookie = useCookie('selectedPackId');
-    cookie.value = encrypt(pack.value);
+    const foundPack = data.value.allPacks.find(p => p.id === Number(val));
+    cookie.value = encrypt(foundPack?.id);
   };
 </script>
 
@@ -18,75 +18,80 @@
   <div class="flex justify-between lg:justify-end items-center gap-6 mb-8">
     <div class="flex justify-center items-center gap-4">
       <div class="flex">
-        <headless-menu
-          as="div"
-          class="inline-block relative text-left">
-          <div>
-            <headless-menu-button class="duration-150 ease-snap focus-visible:ring-2 focus-visible:ring-white/0 font-medium inline-flex justify-center outline-none focus:outline-none px-4 py-2 rounded-md text-gray-500 hover:text-dark-grey text-sm w-full">
-              <settings-icon
-                class="h-6 w-6"
-                data-testid="settings-icon-btn" />
-            </headless-menu-button>
-          </div>
-          <zoom-transition>
-            <headless-menu-items class="absolute right-0 bg-white divide-gray-100 divide-y mt-2 origin-top-right ring-1 ring-black/5 rounded-md shadow-lg w-56 focus:outline-none">
-              <headless-menu-item
-                v-tippy="{ content: !data.selectedPack ? 'Please select a pack to import items.' : '' }"
-                as="p"
-                class="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                :class="{
-                  'cursor-not-allowed opacity-50': !data.selectedPack,
-                }"
-                :disabled="!data.selectedPack"
-                @click="$store.dialogStates.uploadCsvDialog = true">
-                Import from CSV
-              </headless-menu-item>
-              <headless-menu-item
-                v-tippy="{ content: !data.selectedPack ? 'Please select a pack to share.' : '' }"
-                as="p"
-                class="cursor-pointer px-4 py-2 hover:bg-gray-100"
-                :class="{
-                  'cursor-not-allowed opacity-50': !data.selectedPack,
-                }"
-                :disabled="!data.selectedPack"
-                @click="dialogStates.sharePackDialog = true">
-                Share pack list
-              </headless-menu-item>
-              <headless-menu-item
-                v-tippy="{ content: !data.selectedPack ? 'Please select a pack to delete.' : '' }"
-                as="p"
-                class="cursor-pointer px-4 py-2 text-danger hover:bg-gray-100"
-                :class="{
-                  'cursor-not-allowed opacity-50': !data.selectedPack,
-                }"
-                :disabled="!data.selectedPack"
-                @click="$store.dialogStates.deletePackDialog = true">
-                Delete pack
-              </headless-menu-item>
-            </headless-menu-items>
-          </zoom-transition>
-        </headless-menu>
+        <dropdown-menu>
+          <dropdown-menu-trigger>
+            <icon-settings
+              class="h-6 w-6"
+              data-testid="settings-icon" />
+          </dropdown-menu-trigger>
+          <dropdown-menu-content>
+            <dropdown-menu-label>
+              Actions
+            </dropdown-menu-label>
+            <dropdown-menu-separator />
+            <dropdown-menu-item
+              v-tippy="{ content: !data.selectedPack ? 'Please select a pack to import items.' : '' }"
+              :disabled="!data.selectedPack"
+              @select="dialogStates.uploadCsvDialog = true">
+              Import from CSV
+            </dropdown-menu-item>
+            <dropdown-menu-item
+              v-tippy="{ content: !data.selectedPack ? 'Please select a pack to share.' : '' }"
+              :disabled="!data.selectedPack"
+              @select="dialogStates.sharePackDialog = true">
+              Share pack list
+            </dropdown-menu-item>
+            <dropdown-menu-item
+              v-tippy="{ content: !data.selectedPack ? 'Please select a pack to delete.' : '' }"
+              :disabled="!data.selectedPack"
+              @select="dialogStates.deletePackDialog = true">
+              Delete pack
+            </dropdown-menu-item>
+          </dropdown-menu-content>
+        </dropdown-menu>
       </div>
-      <gc-select
+      <select-root
+        :default-value="String(data.selectedPack?.id)"
         :disabled="pageLoading"
-        :model-value="(data.selectedPack?.id as number)"
-        name="selected-trip-select"
-        no-options-copy="No packs found"
-        :options="packOptions"
-        placeholder="Selected Pack"
-        size="sm"
-        @update:model-value="handleSelectPack" />
+        :model-value="String(data.selectedPack?.id)"
+        @update:model-value="handleSelectPack">
+        <select-trigger class="min-w-[180px]">
+          <span v-if="!data.selectedPack?.id">Selected Pack</span>
+          <select-value placeholder="Selected Pack" />
+        </select-trigger>
+        <select-content>
+          <select-group v-if="packOptions.length">
+            <select-item
+              v-for="pack in packOptions"
+              :key="pack.value"
+              hide-checkmark
+              :value="String(pack.value)">
+              {{ pack.label }}
+            </select-item>
+          </select-group>
+          <select-group v-else>
+            <select-item
+              disabled
+              hide-checkmark
+              value="0">
+              No packs found
+            </select-item>
+          </select-group>
+        </select-content>
+      </select-root>
     </div>
 
-    <div v-tippy="{ content: !isPaidMember && data.allPacks.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }">
-      <gc-button
+    <div
+      v-tippy="{
+        content: !isPaidMember && data.allPacks.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : ''
+      }">
+      <button-root
         class="self-center"
         :disabled="!isPaidMember && data.allPacks.length >= 1"
-        size="sm"
         @click="$store.dialogStates.createPackDialog = true">
-        <plus-icon class="h-4 mr-2 text-white w-4" />
+        <icon-plus class="h-4 text-primary-foreground w-4" />
         New Pack
-      </gc-button>
+      </button-root>
     </div>
   </div>
 </template>

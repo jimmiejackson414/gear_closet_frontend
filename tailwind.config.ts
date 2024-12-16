@@ -1,7 +1,7 @@
-import defaultTheme from 'tailwindcss/defaultTheme';
-import tailwindForms from '@tailwindcss/forms';
-import flowbite from 'flowbite/plugin';
-import type { Config } from 'tailwindcss';
+import type { Config } from "tailwindcss";
+import animate from "tailwindcss-animate";
+
+// const animate = require("tailwindcss-animate");
 
 export default {
   content: [
@@ -9,11 +9,20 @@ export default {
     "./layouts/**/*.vue",
     "./pages/**/*.vue",
     "./nuxt.config.{js,ts}",
-    "./node_modules/flowbite/**/*.{js,ts}",
     "./node_modules/vue-tailwind-datepicker/**/*.js",
   ],
-  darkMode: 'class',
+  darkMode: ["class"],
+  safelist: ["dark"],
+  prefix: "",
+
   theme: {
+    container: {
+      center: true,
+      padding: "2rem",
+      screens: {
+        "2xl": "1400px",
+      },
+    },
     extend: {
       backgroundImage: {
         'charlie-brown': `
@@ -26,51 +35,84 @@ export default {
           url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='32' viewBox='0 0 16 32'%3E%3Cg fill='%23d3e1ec' fill-opacity='0.4'%3E%3Cpath fill-rule='evenodd' d='M0 24h4v2H0v-2zm0 4h6v2H0v-2zm0-8h2v2H0v-2zM0 0h4v2H0V0zm0 4h2v2H0V4zm16 20h-6v2h6v-2zm0 4H8v2h8v-2zm0-8h-4v2h4v-2zm0-20h-6v2h6V0zm0 4h-4v2h4V4zm-2 12h2v2h-2v-2zm0-8h2v2h-2V8zM2 8h10v2H2V8zm0 8h10v2H2v-2zm-2-4h14v2H0v-2zm4-8h6v2H4V4zm0 16h6v2H4v-2zM6 0h2v2H6V0zm0 24h2v2H6v-2z'/%3E%3C/g%3E%3C/svg%3E") 
         `,
       },
-      borderRadius: {
-        '4xl': '2.5rem',
-      },
-      boxShadow: {
-        'default': '0 48px 75px 0 rgb(17 12 46 / 15%), 0 12px 17px 2px rgb(0 0 0 / 8%), 0 5px 22px 4px rgb(0 0 0 / 12%)',
-        'light': '0 48px 75px 0 rgb(17 12 46 / 3%), 0 12px 17px 2px rgb(0 0 0 / 3%), 0 5px 22px 4px rgb(0 0 0 / 3%)',
-      },
       colors: {
-        'primary-light': '#c5ddf2',
-        'primary': '#2368a2',
-        'primary-dark': '#1d3f5d',
-
-        'positive-light': '#dcfce3',
-        'positive': '#21ba45',
-        'positive-dark': '#16652a',
-
-        'danger-light': '#fdd5d1',
-        'danger': '#d9534f',
-        'danger-dark': '#a94442',
-
-        'info-light': '#e3f0fb',
-        'info': '#88ccf1',
-        'info-dark': '#165974',
-
-        'warning-light': '#fcf3c9',
-        'warning': '#f2c037',
-        'warning-dark': '#733714',
-
-        'light-grey': '#e7e7e7',
-        'grey': '#6d6d6d',
-        'dark-grey': '#4a4a4a',
-
-        'vtd-primary': '#2368a2',
-        'vtd-secondary': '#2368a2',
+        border: "hsl(var(--border))",
+        input: "hsl(var(--input))",
+        ring: "hsl(var(--ring))",
+        background: "hsl(var(--background))",
+        foreground: "hsl(var(--foreground))",
+        primary: {
+          DEFAULT: "hsl(var(--primary))",
+          light: "hsl(var(--primary-light))",
+          foreground: "hsl(var(--primary-foreground))",
+        },
+        secondary: {
+          DEFAULT: "hsl(var(--secondary))",
+          light: "hsl(var(--secondary-light))",
+          foreground: "hsl(var(--secondary-foreground))",
+        },
+        destructive: {
+          DEFAULT: "hsl(var(--destructive))",
+          light: "hsl(var(--destructive-light))",
+          foreground: "hsl(var(--destructive-foreground))",
+        },
+        muted: {
+          DEFAULT: "hsl(var(--muted))",
+          foreground: "hsl(var(--muted-foreground))",
+        },
+        accent: {
+          DEFAULT: "hsl(var(--accent))",
+          light: "hsl(var(--accent-light))",
+          foreground: "hsl(var(--accent-foreground))",
+          alt: "hsl(var(--accent-alt))",
+        },
+        tertiary: {
+          DEFAULT: "hsl(var(--tertiary))",
+          foreground: "hsl(var(--tertiary-foreground))",
+        },
+        popover: {
+          DEFAULT: "hsl(var(--popover))",
+          foreground: "hsl(var(--popover-foreground))",
+        },
+        card: {
+          DEFAULT: "hsl(var(--card))",
+          foreground: "hsl(var(--card-foreground))",
+        },
+        text: {
+          DEFAULT: "hsl(var(--text))",
+        },
       },
-      fontFamily: {
-        sans: ['Lato', ...defaultTheme.fontFamily.sans],
+      borderRadius: {
+        xl: "calc(var(--radius) + 4px)",
+        lg: "var(--radius)",
+        md: "calc(var(--radius) - 2px)",
+        sm: "calc(var(--radius) - 4px)",
       },
-      transitionTimingFunction: {
-        'snap': 'cubic-bezier(1, 0, 0, 1)',
+      keyframes: {
+        "accordion-down": {
+          from: { height: "0" },
+          to: { height: "var(--radix-accordion-content-height)" },
+        },
+        "accordion-up": {
+          from: { height: "var(--radix-accordion-content-height)" },
+          to: { height: "0" },
+        },
+        "collapsible-down": {
+          from: { height: "0" },
+          to: { height: 'var(--radix-collapsible-content-height)' },
+        },
+        "collapsible-up": {
+          from: { height: 'var(--radix-collapsible-content-height)' },
+          to: { height: "0" },
+        },
+      },
+      animation: {
+        "accordion-down": "accordion-down 0.2s ease-out",
+        "accordion-up": "accordion-up 0.2s ease-out",
+        "collapsible-down": "collapsible-down 0.2s ease-in-out",
+        "collapsible-up": "collapsible-up 0.2s ease-in-out",
       },
     },
   },
-  plugins: [
-    flowbite,
-    tailwindForms,
-  ],
+  plugins: [animate],
 } satisfies Config;

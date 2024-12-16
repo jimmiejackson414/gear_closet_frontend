@@ -1,6 +1,6 @@
 <script lang='ts' setup>
-  import generateThemeOptions, { findTheme } from '@/utils/chartTheme';
   import type { Database, Theme } from '@/types';
+  import generateThemeOptions from '@/utils/chartTheme';
 
   const $store = useClosetStore();
   const $appStore = useAppStore();
@@ -32,68 +32,58 @@
 </script>
 
 <template>
-  <gc-modal
-    :is-open="dialogStates.updateThemeDialog"
-    size="sm"
-    title="Change Theme"
-    @handle-cancel="dialogStates.updateThemeDialog = false">
-    <template #content>
-      <div class="flex flex-col">
-        <p class="mb-4 text-base">
-          Change the theme associated with your pack.
-        </p>
-        <gc-select
-          :disabled="submitting"
-          label="Theme"
-          :model-value="selectedTheme"
-          :options="themeOptions"
-          @update:model-value="(val: Option) => selectedTheme = val.value">
-          <template #option="{ option }">
-            <div class="flex items-center gap-3">
-              <div class="flex items-center gap-1">
-                <span
-                  v-for="color in (option as Option).colors"
-                  :key="color"
-                  class="border-1 border-white h-4 rounded-[3px] w-4"
-                  :style="{ backgroundColor: color }" />
-              </div>
-              <p class="text-base">
-                {{ option.label }}
-              </p>
-            </div>
-          </template>
-          <template #selected="{ selectedOption }">
-            <div class="flex items-center gap-3">
-              <div class="flex items-center gap-1">
-                <span
-                  v-for="color in findTheme(selectedOption)"
-                  :key="color"
-                  class="border-1 border-white h-4 rounded-[3px] w-4"
-                  :style="{ backgroundColor: color }" />
-              </div>
-              <p class="text-base">
-                {{ selectedOption }}
-              </p>
-            </div>
-          </template>
-        </gc-select>
+  <dialog-root :open="dialogStates.updateThemeDialog">
+    <dialog-content
+      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      @escape-key-down="dialogStates.updateThemeDialog = false"
+      @interact-outside="dialogStates.updateThemeDialog = false">
+      <dialog-header>
+        <dialog-title>
+          Change Theme Colors
+        </dialog-title>
+        <dialog-description>
+          Change the theme colors of the pack.
+        </dialog-description>
+      </dialog-header>
+      <div class="w-full lg:max-w-sm">
+        <select-root v-model="selectedTheme">
+          <select-trigger>
+            <select-value placeholder="Select a theme" />
+          </select-trigger>
+          <select-content>
+            <select-group>
+              <select-item
+                v-for="theme in themeOptions"
+                :key="theme.value"
+                :value="theme.value">
+                <div class="flex items-center gap-3">
+                  <div class="flex items-center gap-1">
+                    <span
+                      v-for="color in theme.colors"
+                      :key="color"
+                      class="border-1 border-white h-4 rounded-[3px] w-4"
+                      :style="{ backgroundColor: color }" />
+                  </div>
+                  {{ theme.label }}
+                </div>
+              </select-item>
+            </select-group>
+          </select-content>
+        </select-root>
       </div>
-    </template>
-    <template #actions>
-      <div class="flex justify-end items-center gap-4 w-full">
-        <gc-button
+      <dialog-footer>
+        <dialog-close
           :disabled="submitting"
-          label="Cancel"
-          size="sm"
-          variant="secondary"
-          @click="dialogStates.updateThemeDialog = false" />
-        <gc-button
+          @click="dialogStates.updateThemeDialog = false">
+          Cancel
+        </dialog-close>
+        <button-root
           :disabled="submitting"
-          label="Update"
           :loading="submitting"
-          size="sm"
-          @click="handleSubmit" />
-      </div>
-    </template>
-  </gc-modal>
+          @click="handleSubmit">
+          Update
+        </button-root>
+      </dialog-footer>
+    </dialog-content>
+  </dialog-root>
 </template>

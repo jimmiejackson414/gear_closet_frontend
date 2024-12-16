@@ -1,6 +1,5 @@
 <script lang='ts' setup>
   import { storeToRefs } from 'pinia';
-  import { BellRingIcon, MoonIcon, SunIcon } from 'lucide-vue-next';
   import { useUserStore } from '@/stores/user';
   import type { ExtendedNotification } from '@/types/helpers';
 
@@ -57,32 +56,34 @@
     <div class="grow" />
 
     <div class="flex items-center gap-8">
-      <div v-tippy="{ content: 'Toggle color mode' }">
-        <gc-button
-          ghost
-          size="lg"
+      <span
+        v-tippy="{ content: 'Toggle color mode' }"
+        class="flex">
+        <button-root
+          size="icon"
+          variant="ghost"
           @click="toggleColorMode">
-          <template #icon>
-            <sun-icon
-              v-if="colorMode.value === 'dark'"
-              class="h-6 w-6" />
-            <moon-icon
-              v-else
-              class="h-6 w-6" />
-          </template>
-        </gc-button>
-      </div>
+          <icon-sun
+            v-if="colorMode.value === 'dark'"
+            class="!size-6 text-accent-alt dark:text-card-foreground"
+            :size="20" />
+          <icon-moon
+            v-else
+            class="!size-6 text-accent-alt dark:text-card-foreground"
+            :size="40" />
+        </button-root>
+      </span>
       <div class="relative">
-        <button
-          class="!bg-white duration-150 ease-in-out font-medium inline-flex items-center p-4 relative rounded-full shadow-md text-center hover:text-dark-grey text-gray-500 text-sm focus:outline-none"
+        <button-root
           data-testid="notifications-button"
-          type="button"
+          size="icon"
+          variant="ghost"
           @click="isDropdownOpen = !isDropdownOpen">
-          <bell-ring-icon class="h-6 w-6" />
+          <icon-bell-ring class="!size-max text-accent-alt dark:text-card-foreground" />
           <div
             v-if="shouldShowBadge"
-            class="absolute top-1 bg-danger block border-2 border-white end-1 h-3 rounded-full w-3" />
-        </button>
+            class="absolute top-1 bg-destructive block border-2 border-white end-1 h-3 rounded-full w-3" />
+        </button-root>
         <fade-transition>
           <div
             v-if="isDropdownOpen"
@@ -100,11 +101,12 @@
                   :notification="(notification as ExtendedNotification)" />
               </ul>
               <div class="bg-gray-50 block px-4 py-2 rounded-b-lg text-center text-dark-grey">
-                <gc-button
-                  ghost
-                  label="Mark all as read"
+                <button-root
                   size="sm"
-                  @click="$userStore.markAllAsRead()" />
+                  variant="ghost"
+                  @click="$userStore.markAllAsRead()">
+                  Mark all as read
+                </button-root>
               </div>
             </span>
             <div

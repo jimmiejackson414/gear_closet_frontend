@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { useAppStore } from '@/stores/app';
-import { type Tables, type Database, type TablesUpdate, SubscriptionLevel } from '@/types';
+import { type Database, SubscriptionLevel, type Tables, type TablesUpdate } from '@/types';
 import type { ProfileApiResponse } from '@/types/helpers';
 
 type State = {
@@ -19,7 +19,7 @@ type Actions = {
   markAllAsRead(): void;
   deleteAvatar(): Promise<{ success: boolean }>
   updateAvatar(file: File): Promise<{ success: boolean }>;
-  updateProfile(id: string, profile: TablesUpdate<'profiles'>): void;
+  updateProfile(profile: TablesUpdate<'profiles'>): Promise<{ success: boolean }>;
 };
 
 export const useUserStore = defineStore<'user', State, Getters, Actions>(
@@ -43,14 +43,12 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
     actions: {
       async fetchProfile () {
         const $store = useAppStore();
-        $store.loading = true;
 
         try {
           const user = useSupabaseUser();
 
           if (!user.value) {
             this.profile = null;
-            $store.loading = false;
             $store.notifyNegative('An error occurred while loading your profile.');
             return;
           }
@@ -68,18 +66,14 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           if (!data || error) {
             this.profile = null;
             this.profile!.notifications = [];
-            $store.loading = false;
             $store.notifyNegative('An error occurred while loading your account.');
             return;
           }
 
           this.profile = data as any;
           this.profile!.notifications = (data as any).notifications;
-          $store.loading = false;
         } catch (err) {
           console.error({ err });
-        } finally {
-          $store.loading = false;
         }
       },
 
@@ -185,30 +179,29 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         }
       },
 
-      async updateProfile (id: string, profile: TablesUpdate<'profiles'>) {
+      async updateProfile (profile: TablesUpdate<'profiles'>) {
         const $appStore = useAppStore();
         try {
           const supabase = useSupabaseClient<Database>();
-          const { data, error } = await supabase.from('profiles')
-            .update({
-              first_name: profile.first_name,
-              last_name: profile.last_name,
-              trail_name: profile.trail_name,
-              measuring_system: profile.measuring_system,
-            })
-            .eq('id', id)
+          const user = useSupabaseUser();
+          const { error } = await supabase.from('profiles')
+            .update(profile)
+            .eq('id', user.value!.id)
+            .returns<Tables<'profiles'>>()
             .select();
 
-          if (error) { $appStore.notifyNegative('An error occurred while updating your profile.'); }
+          if (error) {
+            $appStore.notifyNegative('An error occurred while updating your profile.');
+            return { success: false };
+          }
           else {
-            this.profile!.first_name = data[0].first_name;
-            this.profile!.last_name = data[0].last_name;
-            this.profile!.trail_name = data[0].trail_name;
-            this.profile!.measuring_system = data[0].measuring_system;
+            await this.fetchProfile();
             $appStore.notifyPositive('Successfully updated your profile!');
+            return { success: true };
           }
         } catch (err) {
           $appStore.notifyNegative('An error occurred while updating your profile.');
+          return { success: false };
         }
       },
     },

@@ -1,26 +1,26 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
-import { beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
-import VueTippy from 'vue-tippy';
-import round from 'lodash.round';
 import convert, { type Mass } from 'convert';
+import round from 'lodash.round';
 import { createPinia, setActivePinia } from 'pinia';
-import { useClosetStore } from '@/stores/closet';
-import ClosetSettings from '@/components/closet/ClosetSettings.vue';
+import { type MockInstance, beforeEach, describe, expect, it, vi } from 'vitest';
+import VueTippy from 'vue-tippy';
+import { selectedPack } from './mocks/closet.mock';
 import ClosetEmptyState from '@/components/closet/ClosetEmptyState.vue';
-import PackSummaryEmptyState from '@/components/closet/dialogs/PackSummaryEmptyState.vue';
-import ClosetPackDetails from '@/components/closet/ClosetPackDetails.vue';
 import ClosetPackCategories from '@/components/closet/ClosetPackCategories.vue';
-import PackItemsTable from '@/components/closet/PackItemsTable.vue';
+import ClosetPackDetails from '@/components/closet/ClosetPackDetails.vue';
+import ClosetSettings from '@/components/closet/ClosetSettings.vue';
+import AddUrlDialog from '@/components/closet/dialogs/AddUrlDialog.vue';
 import CreatePackDialog from '@/components/closet/dialogs/CreatePackDialog.vue';
 import CsvUploadDialog from '@/components/closet/dialogs/CsvUploadDialog.vue';
-import SharePackDialog from '@/components/closet/dialogs/SharePackDialog.vue';
 import DeleteCategoryDialog from '@/components/closet/dialogs/DeleteCategoryDialog.vue';
 import DeletePackDialog from '@/components/closet/dialogs/DeletePackDialog.vue';
+import PackSummaryEmptyState from '@/components/closet/dialogs/PackSummaryEmptyState.vue';
 import RemoveItemDialog from '@/components/closet/dialogs/RemoveItemDialog.vue';
-import AddUrlDialog from '@/components/closet/dialogs/AddUrlDialog.vue';
+import SharePackDialog from '@/components/closet/dialogs/SharePackDialog.vue';
 import UpdateThemeDialog from '@/components/closet/dialogs/UpdateThemeDialog.vue';
-import { selectedPack } from './mocks/closet.mock';
+import PackItemsTable from '@/components/closet/PackItemsTable.vue';
+import { useClosetStore } from '@/stores/closet';
 import type { Tables } from '@/types';
 
 const allPacks = [
@@ -47,9 +47,9 @@ describe('Closet Page', async () => {
     it('renders the available packs in the list correctly', async () => {
       const store = useClosetStore();
 
-      store.$patch({ data: { allPacks }});
+      store.$patch({ data: { allPacks } });
       await wrapper.vm.$nextTick();
-      const select = wrapper.findComponent({ name: 'GcSelect' });
+      const select = wrapper.findComponent({ name: 'select-root' });
       const transformedAllPacks = allPacks.map(p => ({ label: p.name, value: p.id }));
 
       expect(select.exists())
@@ -82,7 +82,7 @@ describe('Closet Page', async () => {
     it('enables menu items when a pack is selected', async () => {
       const store = useClosetStore();
 
-      store.$patch({ data: { allPacks, selectedPack: allPacks[0] }});
+      store.$patch({ data: { allPacks, selectedPack: allPacks[0] } });
       await wrapper.vm.$nextTick();
 
       const button = wrapper.find('[data-testid="settings-icon-btn"]');
@@ -103,7 +103,7 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       const userStore = useUserStore();
 
-      store.$patch({ data: { allPacks, selectedPack }});
+      store.$patch({ data: { allPacks, selectedPack } });
       userStore.$patch({
         profile: {
           subscriptions: [{ prices: { identifier: 'FREE' } }],
@@ -111,7 +111,7 @@ describe('Closet Page', async () => {
       });
       await wrapper.vm.$nextTick();
 
-      const newPackButton = wrapper.findComponent({ name: 'gc-button' });
+      const newPackButton = wrapper.findComponent({ name: 'button-root' });
       expect(newPackButton.props('disabled'))
         .toBe(true);
     });
@@ -120,7 +120,7 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       const userStore = useUserStore();
 
-      store.$patch({ data: { allPacks, selectedPack }});
+      store.$patch({ data: { allPacks, selectedPack } });
       userStore.$patch({
         profile: {
           subscriptions: [{ prices: { identifier: 'ANNUAL' } }],
@@ -128,7 +128,7 @@ describe('Closet Page', async () => {
       });
       await wrapper.vm.$nextTick();
 
-      const newPackButton = wrapper.findComponent({ name: 'gc-button' });
+      const newPackButton = wrapper.findComponent({ name: 'button-root' });
       expect(newPackButton.props('disabled'))
         .toBe(false);
     });
@@ -156,7 +156,7 @@ describe('Closet Page', async () => {
       expect(wrapper.find('p')
         .text())
         .toMatch(/Click the button below to get started./);
-      expect(wrapper.findComponent({ name: 'gc-button' })
+      expect(wrapper.findComponent({ name: 'button-root' })
         .exists())
         .toBe(true);
     });
@@ -321,6 +321,7 @@ describe('Closet Page', async () => {
           pack_id: 0,
           slug: '',
           unit: 'g',
+          position: 1,
           id: 0,
           created_at: new Date()
             .toISOString(),

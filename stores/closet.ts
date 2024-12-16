@@ -1,7 +1,7 @@
 import { defineStore } from "pinia";
+import type { RowItem } from '@/components/closet/PackItemsTable.vue';
 import type { Database } from "@/types";
 import type { ExtendedPack } from "@/types/helpers";
-import type { RowItem } from '@/components/closet/PackItemsTable.vue';
 
 export interface ClosetPageData {
   selectedPack?: ExtendedPack;
@@ -52,7 +52,7 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
     state () {
       return {
         activeCategoryId: undefined,
-        activeRow: undefined,
+        activeItem: undefined,
         data: {
           selectedPack: undefined,
           allPacks: [],

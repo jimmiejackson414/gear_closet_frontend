@@ -1,30 +1,24 @@
 <script lang='ts' setup>
-  import { ref } from 'vue';
+  import { toTypedSchema } from '@vee-validate/zod';
+  import { useForm } from 'vee-validate';
+  import * as z from 'zod';
   import { type Severity } from '@/components/common/GcAlert.vue';
 
   const supabase = useSupabaseClient();
-  const form = reactive({ email: '' });
   const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
-  const submitting = ref(false);
 
-  const rules = {
-    email: [
-      (val: string): boolean | string => (val && val.length > 0) || 'Email is required',
-      (val: string): boolean | string => isValidEmail(val) || 'Not a valid email',
-    ],
-  };
+  const formSchema = toTypedSchema(z.object({
+    email: z.string()
+      .email(),
+  }));
 
-  const { fieldErrors, validateForm, validateFieldOnBlur } = useValidate(form, rules);
+  const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
+    validationSchema: formSchema,
+  });
 
-  const handleSubmit = async () => {
+  const onSubmit = handleSubmit(async ({ email }) => {
     try {
-      submitting.value = true;
-
-      if (!validateForm()) {
-        return;
-      }
-
-      const { error } = await supabase.auth.resetPasswordForEmail(form.email, {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/reset-password`,
       });
 
@@ -41,47 +35,57 @@
       if (error instanceof Error) {
         submitAction.value = { message: error.message, severity: 'error' };
       }
-    } finally {
-      submitting.value = false;
     }
-  };
+  });
 </script>
 
 <template>
-  <form @submit.prevent.stop="handleSubmit">
+  <form
+    class="max-w-md w-full"
+    @keydown.enter="onSubmit"
+    @submit.prevent="onSubmit">
     <div class="auto-rows-auto grid grid-cols-1 gap-4">
-      <gc-input
-        v-model="form.email"
-        class="w-full"
-        :error="fieldErrors.email"
-        label="Email"
+      <form-field
+        v-slot="{ componentField }"
         name="email"
-        placeholder="Enter your email address"
-        required
-        type="email"
-        @blur="validateFieldOnBlur('email')" />
+        :validate-on-blur="!isFieldDirty">
+        <form-item>
+          <form-label class="text-gray-800">
+            Email
+          </form-label>
+          <form-control>
+            <input-root
+              :disabled="isSubmitting"
+              force-color-mode="light"
+              type="email"
+              v-bind="componentField" />
+          </form-control>
+        </form-item>
+      </form-field>
       <gc-alert
         v-if="submitAction"
         class="w-full"
         :message="submitAction.message"
         :severity="submitAction.severity" />
-      <gc-button
+      <button-root
         class="w-full"
-        :disabled="submitting"
-        :loading="submitting"
+        :disabled="isSubmitting"
+        :loading="isSubmitting"
         type="submit">
         Send Reset Link
-      </gc-button>
+      </button-root>
     </div>
     <div class="flex items-center flex-col mt-4">
-      <p class="text-base">
+      <typography class="text-gray-800">
         Remembered your password?
         <nuxt-link
           class="no-underline text-primary"
           :to="{ name: 'login' }">
-          Login
+          <button-root variant="link">
+            Login
+          </button-root>
         </nuxt-link>
-      </p>
+      </typography>
     </div>
   </form>
 </template>

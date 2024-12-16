@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import dayjs, { type Dayjs } from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
-  import { FriendRequestStatus, type Database } from '@/types';
+  import { type Database, FriendRequestStatus } from '@/types';
   import type { ExtendedFriendInvite } from '@/types/helpers';
 
   dayjs.extend(relativeTime);
@@ -110,36 +110,40 @@
         size="xl"
         :url="buildImageSrc(friend.sender.image)" />
       <div class="flex flex-col">
-        <p class="font-bold text-dark-grey">
+        <typography class="font-bold">
           {{ friendlyUsername(friend.sender, { includeTrailName: true }) }}
-        </p>
-        <p class="text-gray-500 text-sm">
+        </typography>
+        <typography
+          class="text-muted-foreground"
+          size="sm">
           {{ mutualFriends }}
-        </p>
+        </typography>
         <div
           v-if="!madeSelection"
           class="flex gap-4 mt-2">
-          <gc-button
+          <button-root
             :disabled="submittingDecline || submittingAccept"
-            label="Decline"
             :loading="submittingDecline"
             size="sm"
             variant="secondary"
-            @click="declineFriendRequest" />
-          <gc-button
+            @click="declineFriendRequest">
+            Decline
+          </button-root>
+          <button-root
             :disabled="submittingAccept || submittingDecline"
-            label="Accept"
             :loading="submittingAccept"
             size="sm"
-            variant="positive"
-            @click="acceptFriendRequest" />
+            variant="accent"
+            @click="acceptFriendRequest">
+            Accept
+          </button-root>
         </div>
         <div
           v-else
           class="flex mt-2">
-          <p class="italic text-gray-500 text-xs">
+          <typography class="italic text-muted-foreground text-xs">
             {{ capitalize(madeSelection) }} {{ dayjs().to(selectionTimestamp) }}
-          </p>
+          </typography>
         </div>
       </div>
     </div>

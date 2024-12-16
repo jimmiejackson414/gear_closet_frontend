@@ -1,6 +1,4 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-// import fs from 'fs';
-
 export default defineNuxtConfig({
   app: {
     head: {
@@ -62,9 +60,8 @@ export default defineNuxtConfig({
     enabled: true,
   },
 
-
-  headlessui: {
-    prefix: 'Headless',
+  lucide: {
+    namePrefix: 'Icon',
   },
 
   modules: [
@@ -72,11 +69,11 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@nuxtjs/tailwindcss',
     '@vueuse/nuxt',
-    'nuxt-headlessui',
     '@fixers/nuxt-stripe',
-    "@nuxtjs/storybook",
     '@nuxt/test-utils/module',
     "@nuxtjs/color-mode",
+    "shadcn-nuxt",
+    "nuxt-lucide-icons",
   ],
 
   postcss: {
@@ -110,6 +107,11 @@ export default defineNuxtConfig({
     },
   },
 
+  shadcn: {
+    prefix: '',
+    componentDir: './components/ui',
+  },
+
   stripe: {
     publishableKey: process.env.NUXT_STRIPE_PUBLISHABLE_KEY,
   },
@@ -131,6 +133,7 @@ export default defineNuxtConfig({
     tsConfig: {
       include: ['vendor.d.ts'],
       compilerOptions: {
+        baseUrl: '.',
         paths: {
           '@': ['.'],
           '@/*': ['./*'],

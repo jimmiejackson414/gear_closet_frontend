@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-  import { CheckCircle2Icon } from 'lucide-vue-next';
   import { SubscriptionLevel } from '@/types';
   import tailwindConfig from '@/utils/tailwind';
   import type { Tier } from '@/utils/tiers';
@@ -18,14 +17,14 @@
     const classes = ['border-2', 'transition', 'duration-200', 'ease-snap border-t-8'];
 
     // define the border top color based on the plan
-    if (props.plan.value === SubscriptionLevel.FREE) { classes.push('border-t-warning'); }
-    else if (props.plan.value === SubscriptionLevel.MONTHLY) { classes.push('border-t-positive'); }
+    if (props.plan.value === SubscriptionLevel.FREE) { classes.push('border-t-tertiary'); }
+    else if (props.plan.value === SubscriptionLevel.MONTHLY) { classes.push('border-t-accent-alt'); }
     else if (props.plan.value === SubscriptionLevel.ANNUAL) { classes.push('border-t-primary'); }
 
     // apply the border color based on the selected plan and whether the plan is selected
     if (props.selectedPlan !== undefined && props.plan.value === props.selectedPlan) {
-      if (props.plan.value === SubscriptionLevel.FREE) { classes.push('border-warning'); }
-      else if (props.plan.value === SubscriptionLevel.MONTHLY) { classes.push('border-positive'); }
+      if (props.plan.value === SubscriptionLevel.FREE) { classes.push('border-tertiary'); }
+      else if (props.plan.value === SubscriptionLevel.MONTHLY) { classes.push('border-accent-alt'); }
       else if (props.plan.value === SubscriptionLevel.ANNUAL) { classes.push('border-primary'); }
     } else {
       classes.push('border-transparent');
@@ -39,11 +38,12 @@
 
 <template>
   <div
-    class="flex flex-col h-full rounded-2xl shadow-light"
+    class="flex flex-col h-full rounded-2xl shadow"
     :class="computedBorder">
-    <div class="flex justify-center items-center flex-col p-4">
+    <div class="flex justify-center items-center flex-col pb-2 pt-4">
       <gc-pill
         :copy="plan.value"
+        size="sm"
         :variant="{
           [SubscriptionLevel.MONTHLY]: 'positive' as const,
           [SubscriptionLevel.ANNUAL]: 'primary' as const,
@@ -58,25 +58,26 @@
       </p>
     </div>
     <hr class="bg-gray-200 border-0 h-px my-2">
-    <div class="flex flex-col flex-grow p-4">
+    <div class="flex flex-col flex-grow px-4 py-2">
       <div
         v-for="(item, index) in plan.description"
         :key="`${plan.value}-${item}-${index}`"
-        class="flex items-center gap-4 mb-4 last:mb-0">
-        <check-circle-2-icon
-          :color="tailwindConfig.theme.colors.primary"
+        class="flex items-center gap-4 mb-2 last:mb-0">
+        <icon-check-circle-2
+          :color="tailwindConfig.theme.colors.primary.DEFAULT"
           :size="20" />
         <p class="text-base">
           {{ item }}
         </p>
       </div>
-      <gc-button
+      <button-root
         class="mt-auto self-center"
         :disabled="plan.buttonDisabled || (profile?.subscriptions[0]?.prices.identifier === plan.value)"
-        :label="plan.buttonText"
         size="sm"
-        variant="positive"
-        @click="emit('handle-select', plan.value)" />
+        variant="secondary"
+        @click="emit('handle-select', plan.value)">
+        {{ plan.buttonText }}
+      </button-root>
     </div>
   </div>
 </template>

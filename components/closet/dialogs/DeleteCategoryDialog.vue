@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { InfoIcon } from 'lucide-vue-next';
   import type { Database } from '@/types';
   import type { ExtendedPack } from '@/types/helpers';
 
@@ -19,20 +18,27 @@
       const supabase = useSupabaseClient<Database>();
       let closetError = null;
 
+      // If removeFromCloset is true, remove items from closet as well
+      if (removeItemCheckbox.value) {
+        const { data: deletedCategoryItems, error: categoryItemsError } = await supabase
+          .from('category_items')
+          .delete()
+          .match({ category_id: $store.activeCategoryId })
+          .select();
+
+        const { error: removeItemsError } = await supabase
+          .from('items')
+          .delete()
+          .in('id', deletedCategoryItems?.map((ci: any) => ci.item_id) || []);
+
+        closetError = categoryItemsError || removeItemsError;
+      }
+
       // Remove category from pack
       const { error } = await supabase
         .from('categories')
         .delete()
         .eq('id', $store.activeCategoryId as number);
-
-      // If removeFromCloset is true, remove items from closet as well
-      if (removeItemCheckbox.value) {
-        const result = await supabase
-          .from('category_items')
-          .delete()
-          .match({ category_id: $store.activeCategoryId });
-        closetError = result.error;
-      }
 
       if (!error && !closetError) {
         // Find the index of the category in the pack
@@ -54,50 +60,60 @@
       isRemoveCategoryModalOpen.value = false;
     }
   };
+
+  const handleClose = () => {
+    dialogStates.value.deleteCategoryDialog = false;
+    removeItemCheckbox.value = false;
+    activeCategoryId!.value = undefined;
+  };
 </script>
 
 <template>
-  <gc-modal
-    :is-open="dialogStates.deleteCategoryDialog"
-    title="Remove Category from Pack"
-    @handle-cancel="[
-      dialogStates.deleteCategoryDialog = false,
-      removeItemCheckbox = false,
-      activeCategoryId = undefined
-    ]">
-    <template #content>
-      <div>
-        <p class="font-bold mb-0 text-base">
-          Are you sure you want to remove this category from this pack?
-        </p>
-        <p class="!font-bold mb-4 text-base text-danger">
-          This action cannot be undone!
-        </p>
-      </div>
-      <div class="flex items-center gap-4">
-        <gc-checkbox
-          id="remove-item-checkbox"
-          v-model="removeItemCheckbox"
-          label="Remove items from closet?" />
-        <info-icon
-          v-tippy="{ content: 'Checking this will remove all items from the category as well as your closet.' }"
-          class="h-4 w-4" />
-      </div>
-    </template>
-    <template #actions>
-      <gc-button
-        :disabled="submitting"
-        label="Cancel"
-        size="sm"
-        variant="secondary"
-        @click="dialogStates.deleteCategoryDialog = false" />
-      <gc-button
-        :disabled="submitting"
-        label="Remove Category"
-        :loading="submitting"
-        size="sm"
-        variant="danger"
-        @click="handleSubmit" />
-    </template>
-  </gc-modal>
+  <dialog-root v-model:open="dialogStates.deleteCategoryDialog">
+    <dialog-content
+      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      @escape-key-down="handleClose"
+      @interact-outside="handleClose">
+      <dialog-header>
+        <dialog-title>
+          Remove Category from Pack
+        </dialog-title>
+        <dialog-description>
+          <typography class="mb-4">
+            Are you sure you want to remove this category from your pack? The items within this category will still remain in your closet. <span class="font-bold">This action cannot be undone!</span>
+          </typography>
+          <div class="flex items-center gap-x-2">
+            <checkbox
+              id="accept-checkbox"
+              v-model:checked="removeItemCheckbox"
+              variant="destructive" />
+            <div class="flex items-center gap-1.5 leading-none">
+              <label
+                class="font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-destructive text-sm"
+                for="accept-checkbox">
+                Remove items from closet?
+              </label>
+              <icon-info
+                v-tippy="{ content: 'Checking this will additionally remove all items associated with this category from your closet.' }"
+                class="h-4 w-4" />
+            </div>
+          </div>
+        </dialog-description>
+      </dialog-header>
+      <dialog-footer>
+        <dialog-close
+          :disabled="submitting"
+          @click="handleClose">
+          Cancel
+        </dialog-close>
+        <button-root
+          :disabled="submitting"
+          :loading="submitting"
+          variant="destructive"
+          @click="handleSubmit">
+          Remove Category
+        </button-root>
+      </dialog-footer>
+    </dialog-content>
+  </dialog-root>
 </template>

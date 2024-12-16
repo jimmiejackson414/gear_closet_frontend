@@ -47,25 +47,29 @@
 <template>
   <div>
     <gc-empty-state data-testid="pack-summary-empty-state">
-      <h5 class="font-bold mb-2 text-base-lg">
+      <typography
+        class="font-bold mb-2"
+        variant="h5">
         Successfully created your new {{ data.selectedPack?.name }} pack!
-      </h5>
-      <p class="mb-0 text-base">
+      </typography>
+      <typography class="mb-0">
         The next step is to add some items to your pack.
-      </p>
-      <p class="mb-4 text-base">
+      </typography>
+      <typography class="mb-4">
         You can add items to your pack by clicking the Get Started button below or by uploading a CSV file.
-      </p>
+      </typography>
       <div class="flex justify-center items-center gap-4">
-        <gc-button
-          label="Get started"
+        <button-root
           size="sm"
-          @click="createDefaultCategory" />
-        <gc-button
-          label="Upload CSV"
-          outlined
+          @click="createDefaultCategory">
+          Get started
+        </button-root>
+        <button-root
           size="sm"
-          @click="dialogStates.uploadCsvDialog = true" />
+          variant="outline"
+          @click="dialogStates.uploadCsvDialog = true">
+          Upload CSV
+        </button-root>
       </div>
     </gc-empty-state>
   </div>

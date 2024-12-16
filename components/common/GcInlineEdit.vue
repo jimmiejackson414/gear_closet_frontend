@@ -1,8 +1,9 @@
-<script lang='ts' setup>
-  import { PencilIcon } from 'lucide-vue-next';
+<script lang="ts" setup>
+  import { nextTick, ref, watch } from 'vue';
+  import type { InputRoot } from '@/components/ui/input';
+  import { cn } from '@/lib/utils';
 
   interface Props {
-    modelValue?: string | number | null;
     name: string;
     placeholder?: string;
     hideEditBtn?: boolean;
@@ -12,75 +13,83 @@
     spanClasses?: string;
   }
 
-  const props = withDefaults(defineProps<Props>(), {
-    modelValue: undefined,
+  withDefaults(defineProps<Props>(), {
     placeholder: '',
     hideEditBtn: false,
     type: 'text',
     size: 'md',
-    inputClasses: 'w-fit',
+    inputClasses: 'w-full',
     spanClasses: undefined,
   });
 
-  const emits = defineEmits(['handleUpdate']);
+  const modelValue = defineModel<string | number | null>({
+    required: false,
+    default: null,
+  });
 
   const isEditing = ref(false);
-  const localModel = ref<string | number | null | undefined>(undefined);
-  const inlineEditRef = ref<any>(null);
+  const localModel = ref<string | number | null>(modelValue.value);
+
+  watch(
+    () => modelValue,
+    (newVal) => {
+      if (!isEditing.value) {
+        localModel.value = newVal.value;
+      }
+    },
+  );
+
+  const inlineEditRef = ref<InstanceType<typeof InputRoot> | null>(null);
 
   const toggleEditing = () => {
     isEditing.value = !isEditing.value;
-    if (isEditing.value) {
-      nextTick(() => inlineEditRef.value?.focusInput());
+    nextTick(() => {
+      inlineEditRef.value?.focusInput();
+    });
+  };
+
+  const saveChanges = debounce(() => {
+    if (localModel.value !== modelValue.value) {
+      modelValue.value = localModel.value;
     }
-  };
+    setTimeout(() => {
+      isEditing.value = false;
+    }, 10);
+  }, 200);
 
-  const handleEmit = () => {
+  const cancelEditing = () => {
     isEditing.value = false;
-    // only emit if the value has changed
-    if (localModel.value !== props.modelValue) {
-      emits('handleUpdate', localModel.value);
-    }
+    localModel.value = modelValue.value; // Revert to the original value.
   };
-
-  const handleEscape = () => {
-    isEditing.value = false;
-    localModel.value = props.modelValue;
-  };
-
-  watch(() => props.modelValue, (val) => {
-    localModel.value = val;
-  }, { immediate: true });
-
-  onClickOutside(inlineEditRef, () => isEditing.value = false);
 </script>
 
 <template>
   <div
     class="grid grid-cols-[auto] h-full relative"
     :class="inputClasses">
+    <!-- Display Mode -->
     <span
-      v-show="!isEditing"
+      v-if="!isEditing"
       class="cursor-pointer duration-100 ease-snap flex items-center group py-1.5 transition-all"
-      :class="[ spanClasses, { 'border border-transparent hover:border-gray-300 min-h-[34px] rounded-lg': !modelValue } ]"
-      @click="toggleEditing"
-      @keydown="toggleEditing"
-      @trigger="toggleEditing">
+      :class="cn(spanClasses, [ 'border border-transparent hover:border-gray-300 min-h-[34px] rounded-lg px-1 -ml-1' ])"
+      @click="toggleEditing">
       <slot />
-      <pencil-icon
+      <icon-pencil
         v-if="!hideEditBtn"
-        class="cursor-pointer duration-100 ease-snap group-hover:opacity-100 h-4 ml-4 opacity-0 text-grey hover:text-primary transition w-4" />
+        class="cursor-pointer group-hover:opacity-100 h-4 ml-4 opacity-0 text-grey hover:text-primary transition w-4" />
     </span>
-    <gc-input
-      v-show="isEditing"
+
+    <!-- Edit Mode -->
+    <input-root
+      v-else
       ref="inlineEditRef"
       v-model="localModel"
       :class="inputClasses"
+      dense
       :name="name"
       :placeholder="placeholder"
-      :size="size"
-      @blur="handleEmit"
-      @enter="handleEmit"
-      @keydown.escape="handleEscape" />
+      @blur="saveChanges"
+      @keydown.enter="saveChanges"
+      @keydown.escape="cancelEditing" />
   </div>
 </template>

@@ -1,7 +1,5 @@
 <script lang='ts' setup>
-  import { MessagesSquareIcon } from 'lucide-vue-next';
   import type { ForumCategory, ForumPost } from '@/types/helpers';
-  import { LockIcon } from 'lucide-vue-next';
 
   interface Props {
     data: {
@@ -23,13 +21,13 @@
 </script>
 
 <template>
-  <div class="bg-white p-4 rounded-4xl shadow-light">
+  <card class="p-4 px-8 rounded-3xl">
     <div class="flex justify-start items-center py-4">
-      <messages-square-icon class="h-6 mr-6 text-primary w-6" />
+      <icon-messages-square class="h-6 mr-6 text-primary dark:text-primary-foreground w-6" />
       <p class="!font-bold text-base">
         Latest From The Community
       </p>
-      <lock-icon
+      <icon-lock
         v-if="!isPaidMember"
         v-tippy="{ content: 'Upgrade to access the forums', placement: 'top', offset: [0, 10] }"
         class="h-4 ml-2 text-gray-400 w-4" />
@@ -58,21 +56,21 @@
               class="h-3 rounded-full w-3"
               :style="{ backgroundColor: `#${category.color}` }" />
             <div class="flex justify-center flex-col">
-              <p class="!font-bold">
+              <typography class="!font-bold">
                 {{ category.name }}
-              </p>
-              <p class="text-grey">
+              </typography>
+              <typography class="text-grey">
                 {{ category.topic_count }} topics
-              </p>
+              </typography>
             </div>
           </div>
         </div>
       </div>
       <div v-else>
-        <p class="text-base text-center">
+        <typography class="text-center">
           Error occurred fetching forum posts.
-        </p>
+        </typography>
       </div>
     </div>
-  </div>
+  </card>
 </template>

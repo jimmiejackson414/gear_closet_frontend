@@ -1,6 +1,6 @@
 <script lang='ts' setup>
-  import { SearchIcon } from 'lucide-vue-next';
-  import { type Tables, type Database, FriendRequestStatus } from '@/types';
+  import { IconSearch } from '#components';
+  import { type Database, FriendRequestStatus, type Tables } from '@/types';
   import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
 
   definePageMeta({ layout: 'page-layout' });
@@ -129,15 +129,16 @@
   <div class="pb-8">
     <div>
       <div class="flex justify-start items-center">
-        <p class="!font-bold text-base">
+        <typography class="!font-bold">
           Friend Requests ({{ requests.length }})
-        </p>
-        <gc-button
+        </typography>
+        <button-root
           class="ml-4"
           :disabled="!requests.length || showAllRequests || requests.length < 5"
-          ghost
-          label="See All"
-          @click="showAllRequests = true" />
+          variant="ghost"
+          @click="showAllRequests = true">
+          See All
+        </button-root>
       </div>
       <div
         v-if="filteredRequests.length"
@@ -149,29 +150,29 @@
           @accept="handleAcceptRequest"
           @decline="handleDeclineRequest" />
       </div>
-      <p
+      <typography
         v-else
-        class="mb-8 text-gray-400">
+        class="mb-8 text-muted-foreground">
         You don't have any pending requests at this time.
-      </p>
+      </typography>
     </div>
 
-    <hr class="bg-gray-200 border-0 h-px my-8">
+    <separator class="my-8" />
 
     <div class="flex justify-center flex-col">
       <div>
-        <div class="flex justify-start items-center gap-8">
-          <p class="!font-bold text-base">
+        <div class="grid grid-cols-[auto,1fr] gap-8 justify-start items-center">
+          <typography class="!font-bold">
             Find New Friends
-          </p>
-          <gc-input
+          </typography>
+          <input-root
             v-model="searchQuery"
-            class="!w-96"
+            class="w-96"
             :disabled="searching"
             :loading="searching"
             name="friend-search"
             placeholder="Search by name or email"
-            :prepend-icon="SearchIcon" />
+            :prepend-icon="IconSearch" />
         </div>
         <div
           v-if="searching"
@@ -182,15 +183,18 @@
           v-else-if="results.length && !searching"
           class="mt-8">
           <div class="flex justify-start items-center">
-            <p class="font-bold text-sm uppercase">
+            <typography
+              class="font-bold uppercase"
+              size="sm">
               Results ({{ results.length }})
-            </p>
-            <gc-button
+            </typography>
+            <button-root
               class="ml-4"
               :disabled="!results.length || showAllResults || results.length < 5"
-              ghost
-              label="See All"
-              @click="showAllResults = true" />
+              variant="ghost"
+              @click="showAllResults = true">
+              See All
+            </button-root>
           </div>
           <div class="flex gap-4">
             <friend-search-item
@@ -201,26 +205,27 @@
           </div>
         </div>
         <div v-else-if="!searching && !results.length && performedSearch">
-          <p class="mt-8 text-gray-400">
+          <typography class="mt-8 text-muted-foreground">
             No results found for "{{ searchQuery }}".
-          </p>
+          </typography>
         </div>
       </div>
     </div>
 
-    <hr class="bg-gray-200 border-0 h-px my-8">
+    <separator class="my-8" />
 
     <div>
       <div class="flex justify-start items-center">
-        <p class="!font-bold text-base">
+        <typography class="!font-bold">
           All Friends ({{ currentFriends.length }})
-        </p>
-        <gc-button
+        </typography>
+        <button-root
           class="ml-4"
           :disabled="!currentFriends.length || showAllFriends || currentFriends.length < 21"
-          ghost
-          label="See All"
-          @click="showAllFriends = true" />
+          variant="ghost"
+          @click="showAllFriends = true">
+          See All
+        </button-root>
       </div>
       <div
         v-if="filteredFriends.length"
@@ -230,11 +235,11 @@
           :key="friend.id"
           :friend="friend" />
       </div>
-      <p
+      <typography
         v-else
-        class="mb-8 text-gray-400">
+        class="mb-8 text-muted-foreground">
         You haven't connected with any friends quite yet.
-      </p>
+      </typography>
     </div>
   </div>
 </template>

@@ -82,6 +82,7 @@ export type Database = {
           id: number
           name: string | null
           pack_id: number | null
+          position: number
           slug: string | null
           unit: string | null
           updated_at: string
@@ -91,6 +92,7 @@ export type Database = {
           id?: number
           name?: string | null
           pack_id?: number | null
+          position?: number
           slug?: string | null
           unit?: string | null
           updated_at?: string
@@ -100,6 +102,7 @@ export type Database = {
           id?: number
           name?: string | null
           pack_id?: number | null
+          position?: number
           slug?: string | null
           unit?: string | null
           updated_at?: string
@@ -328,7 +331,7 @@ export type Database = {
           profile_id: string | null
           quantity: number | null
           slug: string
-          unit: string | null
+          unit: Database["public"]["Enums"]["item_unit"] | null
           updated_at: string | null
           url: string | null
           weight: string | null
@@ -344,7 +347,7 @@ export type Database = {
           profile_id?: string | null
           quantity?: number | null
           slug: string
-          unit?: string | null
+          unit?: Database["public"]["Enums"]["item_unit"] | null
           updated_at?: string | null
           url?: string | null
           weight?: string | null
@@ -360,7 +363,7 @@ export type Database = {
           profile_id?: string | null
           quantity?: number | null
           slug?: string
-          unit?: string | null
+          unit?: Database["public"]["Enums"]["item_unit"] | null
           updated_at?: string | null
           url?: string | null
           weight?: string | null
@@ -1301,6 +1304,7 @@ export type Database = {
     }
     Enums: {
       friend_request_status: "PENDING" | "ACCEPTED" | "DECLINED"
+      item_unit: "g" | "kg" | "oz" | "lb"
       measuring_system: "IMPERIAL" | "METRIC"
       pricing_plan_interval: "day" | "week" | "month" | "year"
       pricing_type: "one_time" | "recurring"
@@ -1334,23 +1338,14 @@ export type Database = {
         | "HUECIRCLE19"
       trip_details_type: "HIKE" | "TRIP"
       trip_friend_status: "ACCEPTED" | "DECLINED" | "PENDING"
-      trip_invitation_status: "ACCEPTED" | "DECLINED" | "PENDING"
       user_role: "ADMIN" | "USER"
     }
     CompositeTypes: {
-      answer_type: {
-        answer_id: number | null
-        answer: string | null
-      }
       category_item_position: {
         category_item_id: number | null
         category_id: number | null
         item_id: number | null
         new_position: number | null
-      }
-      question_type: {
-        question_id: number | null
-        question: string | null
       }
     }
   }
@@ -1428,6 +1423,7 @@ export type Database = {
           owner_id: string | null
           path_tokens: string[] | null
           updated_at: string | null
+          user_metadata: Json | null
           version: string | null
         }
         Insert: {
@@ -1441,6 +1437,7 @@ export type Database = {
           owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          user_metadata?: Json | null
           version?: string | null
         }
         Update: {
@@ -1454,6 +1451,7 @@ export type Database = {
           owner_id?: string | null
           path_tokens?: string[] | null
           updated_at?: string | null
+          user_metadata?: Json | null
           version?: string | null
         }
         Relationships: [
@@ -1475,6 +1473,7 @@ export type Database = {
           key: string
           owner_id: string | null
           upload_signature: string
+          user_metadata: Json | null
           version: string
         }
         Insert: {
@@ -1485,6 +1484,7 @@ export type Database = {
           key: string
           owner_id?: string | null
           upload_signature: string
+          user_metadata?: Json | null
           version: string
         }
         Update: {
@@ -1495,6 +1495,7 @@ export type Database = {
           key?: string
           owner_id?: string | null
           upload_signature?: string
+          user_metadata?: Json | null
           version?: string
         }
         Relationships: [
@@ -1631,6 +1632,10 @@ export type Database = {
           updated_at: string
         }[]
       }
+      operation: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       search: {
         Args: {
           prefix: string
@@ -1750,6 +1755,13 @@ export enum FriendRequestStatus {
   DECLINED = "DECLINED"
 }
 
+export enum ItemUnit {
+  g = "g",
+  kg = "kg",
+  oz = "oz",
+  lb = "lb"
+}
+
 export enum MeasuringSystem {
   IMPERIAL = "IMPERIAL",
   METRIC = "METRIC"
@@ -1815,12 +1827,6 @@ export enum TripDetailsType {
 }
 
 export enum TripFriendStatus {
-  ACCEPTED = "ACCEPTED",
-  DECLINED = "DECLINED",
-  PENDING = "PENDING"
-}
-
-export enum TripInvitationStatus {
   ACCEPTED = "ACCEPTED",
   DECLINED = "DECLINED",
   PENDING = "PENDING"

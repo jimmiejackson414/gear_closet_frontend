@@ -1,41 +1,20 @@
 <script lang='ts' setup>
-  import dayjs from 'dayjs';
   import VueDatePicker from '@vuepic/vue-datepicker';
-  import { FootprintsIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
+  import dayjs from 'dayjs';
+  import { IconPencil, IconPlus } from '#components';
   import { usePlanningStore } from '@/stores/planning';
-  import { prependProtocol } from '~/utils/helpers';
-  import { TripDetailsType, type Database, type Tables, type TablesUpdate } from '@/types';
+  import { type Database, type Tables, type TablesUpdate, TripDetailsType } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
   const { data, pageLoading, selectedTripId, selectedTrip } = storeToRefs($store);
+  const activeDetail = ref<Tables<'trip_details'> | undefined>(undefined);
+  const isModifyDetailDialogOpen = ref(false);
 
   const tripDetails = computed(() => {
     return data.value?.trip_details.filter((detail) => detail.type === TripDetailsType.TRIP) || [];
   });
-
-  const isEditDialogOpen = ref(false);
-  const activeDetail = ref<Tables<'trip_details'> | null>(null);
-  const detailHasUrl = ref(false);
-
-  const updateDetailHasUrl = (value: boolean) => {
-    if (value) {
-      activeDetail.value!.url = activeDetail.value?.url ? prependProtocol(activeDetail.value?.url) : '';
-    } else {
-      activeDetail.value!.url = null;
-    }
-    detailHasUrl.value = value;
-  };
-
-  watch(activeDetail, (newVal) => {
-    detailHasUrl.value = Boolean(newVal?.url);
-  });
-
-  const toggleEditDialog = (detail: Tables<'trip_details'>) => {
-    activeDetail.value = { ...detail };
-    isEditDialogOpen.value = !isEditDialogOpen.value;
-  };
 
   /**
    * Creates a new detail for the selected trip.
@@ -45,7 +24,7 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
-          trip_id: selectedTripId?.value as number,
+          trip_id: Number(selectedTripId?.value),
           title: 'New detail',
           type: TripDetailsType.TRIP,
           value: 'New trip detail description',
@@ -61,55 +40,6 @@
   };
 
   /**
-   *  Updates a detail.
-   * @param detail
-   */
-  const submitting = ref(false);
-  const updateDetail = async () => {
-    try {
-      submitting.value = true;
-      const supabase = useSupabaseClient<Database>();
-      const payload: TablesUpdate<'trip_details'> = { ...activeDetail.value, url: detailHasUrl.value ? prependProtocol(activeDetail.value?.url as string) : null };
-
-      const { data: updatedDetail, error } = await supabase.from('trip_details')
-        .update(payload)
-        .eq('id', activeDetail.value?.id as number)
-        .select();
-
-      if (updatedDetail?.length && !error) {
-        const index = data.value.trip_details.findIndex((detail) => detail.id === activeDetail.value?.id);
-        data.value.trip_details[index] = updatedDetail[0];
-        isEditDialogOpen.value = false;
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error updating the detail.');
-    } finally {
-      submitting.value = false;
-    }
-  };
-
-  /**
-   * Deletes a detail.
-   */
-  const deleteDetail = async () => {
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const { data: deletedDetail, error } = await supabase.from('trip_details')
-        .delete()
-        .eq('id', activeDetail.value?.id as number)
-        .select();
-
-      if (deletedDetail?.length && !error) {
-        const index = data.value.trip_details.findIndex((detail) => detail.id === activeDetail.value?.id);
-        data.value.trip_details.splice(index, 1);
-        isEditDialogOpen.value = false;
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error deleting the detail.');
-    }
-  };
-
-  /**
    * Update a trip
    * @param payload
    */
@@ -118,11 +48,11 @@
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTrip, error } = await supabase.from('trips')
         .update(payload)
-        .eq('id', selectedTripId?.value as number)
+        .eq('id', Number(selectedTripId?.value))
         .select();
 
       if (updatedTrip?.length && selectedTripId && !error) {
-        selectedTripId.value = updatedTrip[0].id;
+        selectedTripId.value = String(updatedTrip[0].id);
 
         // Find the index of the corresponding trip in data.value.trips and update it
         const tripIndex = data.value.trips.findIndex(trip => trip.id === updatedTrip[0].id);
@@ -156,30 +86,31 @@
 </script>
 
 <template>
-  <div class="card card-main">
+  <card class="px-8 py-4 rounded-3xl">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
-      <footprints-icon class="h-6 mr-6 text-primary w-6" />
+      <icon-footprints class="h-6 mr-6 text-primary w-6" />
       <p class="!font-bold text-base">
         Trip Details
       </p>
-      <gc-button
+      <button-root
         v-if="!pageLoading && tripDetails.length"
-        class="justify-self-end"
-        :icon="PlusIcon"
-        round
-        size="sm"
-        @click="createDetail" />
+        class="justify-self-end rounded-full"
+        size="icon"
+        @click="createDetail">
+        <icon-plus />
+      </button-root>
     </div>
     <gc-skeleton v-if="pageLoading" />
     <gc-empty-state v-else-if="!pageLoading && !tripDetails?.length">
       <p class="mb-4 text-base">
         You haven't added any trip details yet!
       </p>
-      <gc-button
-        label="Get Started"
-        outlined
+      <button-root
         size="sm"
-        @click="createDetail" />
+        variant="outline"
+        @click="createDetail">
+        Get Started
+      </button-root>
     </gc-empty-state>
     <div v-else>
       <div class="flex flex-col mb-6">
@@ -189,28 +120,30 @@
           placeholder="Trip Name"
           size="sm"
           @handle-update="updateTrip({ name: $event })">
-          <h5 class="!font-black text-base-lg">
+          <typography
+            class="!font-black"
+            variant="large">
             {{ selectedTrip?.name }}
-          </h5>
+          </typography>
         </gc-inline-edit>
         <div>
           <div
             v-if="!editingTripDates"
             class="flex items-center gap-4 group"
             @click="editingTripDates = !editingTripDates">
-            <p class="cursor-pointer text-base text-grey">
+            <typography class="cursor-pointer text-grey">
               {{ selectedTrip?.starting_date ? formattedDate(selectedTrip?.starting_date) : 'Start Date' }}
-            </p>
-            <move-right-icon class="h-6 text-grey w-6" />
-            <p class="cursor-pointer text-base text-grey">
+            </typography>
+            <icon-move-right class="h-6 text-grey w-6" />
+            <typography class="cursor-pointer text-grey">
               {{ selectedTrip?.ending_date ? formattedDate(selectedTrip?.ending_date) : 'End Date' }}
-            </p>
-            <gc-button
-              class="group-hover:opacity-100 opacity-0"
-              ghost
-              :icon="PencilIcon"
-              round
-              size="sm" />
+            </typography>
+            <button-root
+              class="group-hover:opacity-100 opacity-0 rounded-full"
+              size="sm"
+              variant="ghost">
+              <icon-pencil />
+            </button-root>
           </div>
           <vue-date-picker
             v-else
@@ -236,91 +169,42 @@
         <li
           v-for="detail in tripDetails"
           :key="detail.id"
-          class="mb-5">
+          class="mb-0">
           <div class="flex items-center gap-4 group space-between">
             <div class="flex justify-between items-center flex-1">
-              <p class="!font-bold text-base text-grey">
+              <typography class="!font-bold text-grey">
                 {{ detail.title }}
-              </p>
+              </typography>
               <a
                 v-if="detail.url"
-                class="font-bold hyperlink text-base"
+                class="text-hyperlink"
                 :href="detail.url"
                 rel="noopener noreferrer"
                 target="_blank">
                 {{ detail.value }}
               </a>
-              <p
+              <typography
                 v-else
-                class="font-bold text-base text-grey">
+                class="text-muted-foreground">
                 {{ detail.value }}
-              </p>
+              </typography>
             </div>
-            <gc-button
-              class="group-hover:opacity-100 opacity-0"
-              ghost
-              :icon="PencilIcon"
-              round
+            <button-root
+              class="group-hover:opacity-100 opacity-0 rounded-full"
               size="sm"
-              @click="toggleEditDialog(detail)" />
+              variant="ghost"
+              @click="[activeDetail = detail, isModifyDetailDialogOpen = true]">
+              <icon-pencil />
+            </button-root>
           </div>
         </li>
       </ul>
     </div>
-    <gc-modal
-      :is-open="isEditDialogOpen"
-      title="Edit Trip Detail"
-      @handle-cancel="isEditDialogOpen = false">
-      <template #content>
-        <div class="flex flex-col gap-6">
-          <gc-input
-            class="w-full"
-            label="Title"
-            :model-value="activeDetail?.title"
-            name="title"
-            @update:model-value="e => activeDetail!.title = e" />
-          <gc-input
-            class="w-full"
-            label="Value"
-            :model-value="activeDetail?.value"
-            name="value"
-            @update:model-value="e => activeDetail!.value = e" />
-          <gc-checkbox
-            id="has-url"
-            label="Link to URL?"
-            :model-value="detailHasUrl"
-            @update:model-value="updateDetailHasUrl" />
-          <gc-input
-            v-if="detailHasUrl"
-            class="w-full"
-            label="URL"
-            :model-value="activeDetail?.url"
-            name="url"
-            @update:model-value="e => activeDetail!.url = e" />
-        </div>
-      </template>
-      <template #actions>
-        <gc-button
-          :disabled="submitting"
-          label="Delete"
-          outlined
-          size="sm"
-          variant="danger"
-          @click="deleteDetail" />
-        <div class="flex items-center gap-4">
-          <gc-button
-            :disabled="submitting"
-            label="Cancel"
-            size="sm"
-            variant="secondary"
-            @click="isEditDialogOpen = false" />
-          <gc-button
-            :disabled="submitting"
-            label="Update"
-            size="sm"
-            @click="updateDetail" />
-        </div>
-      </template>
-    </gc-modal>
-  </div>
+
+    <!-- Modify Detail Dialog -->
+    <modify-detail-dialog
+      :active-detail="( activeDetail as Tables<'trip_details'> )"
+      :is-open="isModifyDetailDialogOpen"
+      @on-close="isModifyDetailDialogOpen = false" />
+  </card>
 </template>

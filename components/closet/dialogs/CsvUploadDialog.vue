@@ -2,7 +2,6 @@
   import Papa, { type ParseResult } from 'papaparse';
   import type { Database } from '@/types';
   import type { ExtendedCategory, ExtendedPack, ParsedResults } from '@/types/helpers';
-  import { InfoIcon } from 'lucide-vue-next';
 
   const $store = useClosetStore();
   const { data, dialogStates } = storeToRefs($store);
@@ -60,10 +59,10 @@
             p_pack_id: data.value.selectedPack?.id as number,
             csv_data: parseResults.data,
           })
-          .returns<ExtendedCategory>();
+          .returns<ExtendedCategory[]>();
 
         if (createdCategory && !error) {
-          (data.value.selectedPack as ExtendedPack).categories.push(createdCategory);
+          (data.value.selectedPack as ExtendedPack).categories.push(...createdCategory);
           $appStore.notifyPositive('Successfully imported your items!');
         } else {
           $appStore.notifyNegative('There was an error importing the CSV.');
@@ -89,50 +88,52 @@
       };
     }
   });
+
+  const handleClose = () => {
+    dialogStates.value.uploadCsvDialog = false;
+  };
 </script>
 
 <template>
-  <gc-modal
-    :is-open="dialogStates.uploadCsvDialog"
-    title="Import from CSV"
-    @handle-cancel="dialogStates.uploadCsvDialog = false">
-    <template #content>
-      <div class="flex items-center flex-col gap-4">
-        <p class="mb-0 text-base text-gray">
+  <dialog-root :open="dialogStates.uploadCsvDialog">
+    <dialog-content
+      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      @escape-key-down="handleClose"
+      @interact-outside="handleClose">
+      <dialog-header>
+        <dialog-title>Import from CSV</dialog-title>
+        <dialog-description>
           Upload a CSV file to automatically add items to your pack. Any items that already exist will not be affected.
-        </p>
-        <gc-file-input
-          class="my-4 w-full"
-          @update:model-value="file = $event">
-          <template #label>
-            <div class="flex items-center gap-2">
-              Import pack items (optional)
-              <info-icon
-                v-tippy="{ content: 'Uploading a CSV will automatically add them to your pack.' }"
-                class="h-4 w-4" />
-            </div>
-          </template>
-          <template #help-text>
-            <a
-              class="hyperlink inline-block"
-              href="gear_closet_template.csv">Download CSV template</a>
-          </template>
-        </gc-file-input>
+        </dialog-description>
+      </dialog-header>
+      <div class="flex items-center flex-col gap-6">
+        <div class="flex flex-col gap-1.5">
+          <label-root for="file-upload">
+            Import pack items (optional)
+          </label-root>
+          <input-root
+            id="file-upload"
+            accept=".csv"
+            type="file"
+            @change="file = $event.target.files?.[0]" />
+          <a
+            class="inline-block text-hyperlink"
+            href="gear_closet_template.csv">Download CSV template</a>
+        </div>
       </div>
-    </template>
-    <template #actions>
-      <gc-button
-        :disabled="submitting"
-        label="Cancel"
-        size="sm"
-        variant="secondary"
-        @click="dialogStates.uploadCsvDialog = false" />
-      <gc-button
-        :disabled="submitting"
-        label="Add Items"
-        :loading="submitting"
-        size="sm"
-        @click="handleSubmit" />
-    </template>
-  </gc-modal>
+      <dialog-footer>
+        <dialog-close
+          :disabled="submitting"
+          @click="handleClose">
+          Cancel
+        </dialog-close>
+        <button-root
+          :disabled="submitting"
+          :loading="submitting"
+          @click="handleSubmit">
+          Import items
+        </button-root>
+      </dialog-footer>
+    </dialog-content>
+  </dialog-root>
 </template>

@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { CheckCircle2Icon, PlusIcon } from 'lucide-vue-next';
   import type { Database, Tables } from '~/types';
   import type { ExtendedPoll } from '~/types/helpers';
 
@@ -94,28 +93,30 @@
 
 <template>
   <div>
-    <h5 class="font-bold text-center text-xl">
+    <typography
+      class="font-bold text-center text-xl"
+      variant="large">
       {{ poll.question.title }}
-    </h5>
+    </typography>
     <div class="grid grid-cols-1-col my-4">
       <div
         v-for="(answer, i) in calcAnswers"
         :key="i">
         <!-- Show buttons if user has not voted yet -->
         <template v-if="!hasVoted">
-          <gc-button
+          <button-root
             class="mb-3 w-full"
-            :label="answer.content"
-            outlined
-            variant="positive"
-            @click="createVote(answer)" />
+            variant="outline"
+            @click="createVote(answer)">
+            {{ answer.content }}
+          </button-root>
         </template>
 
         <!-- Else, show the results -->
         <template v-else>
-          <div class="bg-gray-200 flex justify-center items-center h-10 mb-3 relative rounded-lg w-full">
+          <div class="bg-accent-light flex justify-center items-center h-10 mb-3 relative rounded-lg w-full">
             <div
-              class="absolute bg-positive-light h-10 rounded-lg"
+              class="absolute left-0 bg-accent h-10 rounded-lg"
               :style="{ width: answer.percent + '%' }" />
             <div
               class="absolute ml-2"
@@ -128,29 +129,33 @@
 
       <!-- Show the add answer button if user has not voted yet -->
       <SlideUpTransition v-if="!hasVoted && poll.answers.length < 6">
-        <gc-button
+        <button-root
           v-if="!isAdding"
           class="justify-self-center"
           size="sm"
           @click="isAdding = true">
-          <plus-icon class="h-4 mr-2 w-4" />
+          <icon-plus class="h-4 mr-2 w-4" />
           Add Answer
-        </gc-button>
-        <gc-input
+        </button-root>
+        <div
           v-else
-          ref="newAnswerInputRef"
-          v-model="newAnswer"
-          class="mt-2 w-full"
-          label="New Answer"
-          name="newAnswer"
-          :prepend-icon="CheckCircle2Icon"
-          @blur="createAnswer"
-          @enter="createAnswer"
-          @keyup.escape="resetNewAnswer" />
+          class="grid gap-1.5 items-center mb-4 w-full">
+          <label-root for="newAnswer">
+            New Answer
+          </label-root>
+          <input-root
+            id="newAnswer"
+            ref="newAnswerInputRef"
+            v-model="newAnswer"
+            class="mt-2 w-full"
+            @blur="createAnswer"
+            @keyup.enter="createAnswer"
+            @keyup.escape="resetNewAnswer" />
+        </div>
       </SlideUpTransition>
     </div>
-    <div
-      class="font-bold text-grey text-right text-sm"
-      v-text="`${poll.votes.length} ${poll.votes.length === 1 ? 'vote' : 'votes'}`" />
+    <typography class="font-bold text-grey text-right text-sm">
+      {{ poll.votes.length }} {{ poll.votes.length === 1 ? 'vote' : 'votes' }}
+    </typography>
   </div>
 </template>

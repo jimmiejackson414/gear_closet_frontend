@@ -16,20 +16,22 @@
     identifier = $route.query?.trip ? Number(decrypt($route.query.trip)) || 0 : identifier;
     await $store.fetchPlanningPage(identifier);
   });
+
+  const isCreateTripDialogOpen = ref(false);
 </script>
 
 <template>
   <div class="pb-8">
-    <planning-settings />
+    <planning-settings @open-dialog="isCreateTripDialogOpen = true" />
 
-    <planning-empty-state v-if="!data.trips.length && !pageLoading" />
+    <planning-empty-state
+      v-if="!data.trips.length && !pageLoading"
+      @open-dialog="isCreateTripDialogOpen = true" />
 
     <planning-content v-else />
 
-    <create-trip-dialog />
-
-    <!-- 2. Walkthrough -->
-    <!-- 3. Create Poll Dialog -->
-    <!-- 4. Alert Dialog -->
+    <create-trip-dialog
+      :is-open="isCreateTripDialogOpen"
+      @on-close="isCreateTripDialogOpen = false" />
   </div>
 </template>

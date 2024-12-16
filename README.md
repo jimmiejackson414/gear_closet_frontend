@@ -1,11 +1,11 @@
 # Gear Closet
 
 ## Included
-* [Vue 3](https://v3.vuejs.org)
+* [Nuxt 3](https://nuxt.com/)
 * [Vite](https://vitejs.dev)
 * [Typescript](https://v3.vuejs.org/guide/typescript-support.html)
 * [Vue Router](https://next.router.vuejs.org/guide/)
-* [Flowbite](https://flowbite.com/docs/getting-started/introduction/)
+* [Shadcn Vue](https://www.shadcn-vue.com/docs/introduction.html)
 * [Pinia](https://pinia.vuejs.org)
 * [Eslint](https://eslint.vuejs.org)
 

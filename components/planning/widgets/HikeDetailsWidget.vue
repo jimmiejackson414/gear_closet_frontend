@@ -1,21 +1,17 @@
 <script lang='ts' setup>
-  import { MountainIcon, MoveRightIcon, PencilIcon, PlusIcon } from 'lucide-vue-next';
-  import { TripDetailsType, type Database, type Tables, type TablesUpdate } from '@/types';
+  import { type Database, type Tables, type TablesUpdate, TripDetailsType } from '@/types';
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data, dialogStates, pageLoading, selectedTrip, selectedTripId } = storeToRefs($store);
+  const { data, pageLoading, selectedTrip, selectedTripId } = storeToRefs($store);
+  const activeDetail = ref<Tables<'trip_details'> | undefined>(undefined);
+  const isModifyDetailDialogOpen = ref(false);
 
   const hikeDetails = computed(() => {
     return data.value?.trip_details.filter((detail) => {
       return detail.type === TripDetailsType.HIKE;
     }) || [];
   });
-
-  const toggleEditDialog = (detail: Tables<'trip_details'>) => {
-    $store.activeDetail = { ...detail };
-    dialogStates.value.modifyDetailDialog = !dialogStates.value.modifyDetailDialog;
-  };
 
   /**
    * Creates a new detail for the selected trip.
@@ -25,7 +21,7 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
-          trip_id: selectedTripId?.value,
+          trip_id: Number(selectedTripId?.value),
           title: 'New detail',
           type: TripDetailsType.HIKE,
           value: 'New hike detail description',
@@ -49,12 +45,12 @@
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTrip, error } = await supabase.from('trips')
         .update(payload)
-        .eq('id', selectedTripId?.value as number)
+        .eq('id', Number(selectedTripId?.value))
         .select();
 
       // Update the trip in the store.
       if (updatedTrip?.length && selectedTripId && !error) {
-        const tripToUpdate = data.value.trips.find((t) => t.id === selectedTripId.value);
+        const tripToUpdate = data.value.trips.find((t) => t.id === Number(selectedTripId.value));
         if (tripToUpdate) {
           Object.assign(tripToUpdate, updatedTrip[0]);
         }
@@ -66,33 +62,34 @@
 </script>
 
 <template>
-  <div class="card card-main">
+  <card class="px-8 py-4 rounded-3xl">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
-      <mountain-icon class="h-6 mr-6 text-primary w-6" />
-      <p class="!font-bold text-base">
+      <icon-mountain class="h-6 mr-6 text-primary w-6" />
+      <typography class="!font-bold">
         Hike Details
-      </p>
-      <gc-button
+      </typography>
+      <button-root
         v-if="!pageLoading && hikeDetails.length"
-        class="justify-self-end"
+        class="justify-self-end rounded-full"
         data-testid="create-new-detail-btn"
-        :icon="PlusIcon"
-        round
-        size="sm"
-        @click="createNewDetail" />
+        size="icon"
+        @click="createNewDetail">
+        <icon-plus />
+      </button-root>
     </div>
     <gc-skeleton v-if="pageLoading" />
     <gc-empty-state
       v-else-if="!pageLoading && !hikeDetails.length"
       data-testid="hike-details-empty-state">
-      <p class="mb-4 text-base">
+      <typography class="mb-4">
         You haven't created any hike details yet!
-      </p>
-      <gc-button
-        label="Get Started"
-        outlined
+      </typography>
+      <button-root
         size="sm"
-        @click="createNewDetail" />
+        variant="outline"
+        @click="createNewDetail">
+        Get Started
+      </button-root>
     </gc-empty-state>
     <div v-else>
       <div class="flex items-center gap-6">
@@ -102,20 +99,24 @@
           placeholder="Ending point"
           size="sm"
           @handle-update="updateTrip({ starting_point: $event })">
-          <h5 class="!font-black text-base-lg">
+          <typography
+            class="!font-black"
+            variant="large">
             {{ selectedTrip?.starting_point }}
-          </h5>
+          </typography>
         </gc-inline-edit>
-        <move-right-icon class="h-6 text-grey w-6" />
+        <icon-move-right class="h-6 text-grey w-6" />
         <gc-inline-edit
           :model-value="selectedTrip?.ending_point"
           name="ending_point"
           placeholder="Ending point"
           size="sm"
           @handle-update="updateTrip({ ending_point: $event })">
-          <h5 class="!font-black text-base-lg">
+          <typography
+            class="!font-black"
+            variant="large">
             {{ selectedTrip?.ending_point }}
-          </h5>
+          </typography>
         </gc-inline-edit>
       </div>
       <div class="flex items-center mb-6">
@@ -125,45 +126,51 @@
           placeholder="Trip description"
           size="sm"
           @handle-update="updateTrip({ description: $event })">
-          <p class="cursor-pointer text-base text-grey">
+          <typography class="cursor-pointer text-grey">
             {{ selectedTrip?.description }}
-          </p>
+          </typography>
         </gc-inline-edit>
       </div>
       <ul>
         <li
           v-for="detail in hikeDetails"
           :key="detail.id"
-          class="mb-5">
+          class="mb-0">
           <div class="flex items-center gap-4 group space-between">
             <div class="flex justify-between items-center flex-1">
-              <p class="!font-bold text-base text-grey">
+              <typography class="!font-bold text-grey">
                 {{ detail.title }}
-              </p>
+              </typography>
               <a
                 v-if="detail.url"
-                class="font-bold hyperlink text-base"
+                class="text-hyperlink"
                 :href="detail.url"
                 rel="noopener noreferrer"
                 target="_blank">
                 {{ detail.value }}
               </a>
-              <p
+              <typography
                 v-else
-                class="font-bold text-base text-grey">
+                class="text-muted-foreground">
                 {{ detail.value }}
-              </p>
+              </typography>
             </div>
-            <gc-button
-              class="group-hover:opacity-100 opacity-0"
-              ghost
-              :icon="PencilIcon"
-              round
+            <button-root
+              class="group-hover:opacity-100 opacity-0 rounded-full"
               size="sm"
-              @click="toggleEditDialog(detail)" />
+              variant="ghost"
+              @click="[activeDetail = detail, isModifyDetailDialogOpen = true]">
+              <icon-pencil />
+            </button-root>
           </div>
         </li>
       </ul>
     </div>
-  </div>
+  </card>
+
+  <!-- Modify Detail Dialog -->
+  <modify-detail-dialog
+    :active-detail="( activeDetail as Tables<'trip_details'> )"
+    :is-open="isModifyDetailDialogOpen"
+    @on-close="isModifyDetailDialogOpen = false" />
 </template>

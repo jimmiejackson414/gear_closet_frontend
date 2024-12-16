@@ -24,8 +24,6 @@ logs
 !.env.example
 
 # Tests
-*storybook.log
-.nuxt-storybook/*
 /test-results/
 /playwright-report/
 /blob-report/

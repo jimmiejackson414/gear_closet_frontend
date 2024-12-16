@@ -112,6 +112,7 @@ export type ForumCategories = {
 export type SelectOption = {
   label: string;
   value: string | number;
+  [key: string]: any;
 }
 
 // Closet page CSV import results

@@ -1,7 +1,7 @@
 <script lang='ts' setup>
-  import { PlusIcon } from 'lucide-vue-next';
+  import type { RowItem } from './PackItemsTable.vue';
+  import type { Database } from '@/types';
   import type { ExtendedCategory, ExtendedPack } from '@/types/helpers';
-  import type { Database, Tables, TablesInsert } from '@/types';
 
   const $store = useClosetStore();
   const { activeCategoryId, activeItem, data, dialogStates } = storeToRefs($store);
@@ -11,30 +11,20 @@
     value: string;
   }
 
-  interface RowItem extends Tables<'items'> {
-    category_item_id: number;
-    position: number;
-  }
-
   /**
    * Optimistically creates a category.
    */
   const $appStore = useAppStore();
   const createDefaultCategory = async () => {
     try {
-      // This is the category for the server request
-      const newCategory: TablesInsert<'categories'> = {
-        name: '',
-        pack_id: data.value.selectedPack?.id as number,
-      };
-
       // This is the category for the optimistic update
       const optimisticCategory = {
-        name: '' as string,
+        id: 0, // temporary id
+        name: '',
         pack_id: data.value.selectedPack?.id as number,
         slug: '',
         unit: 'g',
-        id: 0, // or some temporary id
+        position: 1,
         created_at: new Date()
           .toISOString(),
         updated_at: new Date()
@@ -44,18 +34,29 @@
 
       data.value.selectedPack?.categories.unshift(optimisticCategory);
 
+      // This is the item data for the optimistic update
+      const itemData = [{
+        name: 'New Item',
+        generic_type: 'Description',
+        weight: "0",
+        quantity: 1,
+        price: 0,
+        consumable: false,
+        worn: false,
+        slug: '',
+      }];
+
       const supabase = useSupabaseClient<Database>();
-      const { data: createdCategory, error: categoryError } = await supabase.from('categories')
-        .insert([newCategory])
-        .select();
+      const { data: createdCategory, error: categoryError } = await supabase.rpc('create_category_and_item', {
+        p_name: 'Category Name',
+        p_pack_id: data.value.selectedPack?.id as number,
+        p_items: itemData,
+      })
+        .returns<ExtendedCategory>();
       if (categoryError) throw categoryError;
 
-      // replace the temporary category with the new category
-      const newCategoryWithId = {
-        ...optimisticCategory,
-        id: createdCategory[0].id,
-      };
-      data.value.selectedPack?.categories.splice(0, 1, newCategoryWithId);
+      // Update the category with the created category
+      data.value.selectedPack?.categories.splice(0, 1, { ...createdCategory });
     } catch (err) {
       data.value.selectedPack?.categories.shift();
       $appStore.notifyNegative('Error creating category');
@@ -114,33 +115,33 @@
 <template>
   <div class="mt-10">
     <div class="flex justify-between items-center mb-4">
-      <h6 class="text-xl">
+      <typography
+        class="font-semibold"
+        variant="h4">
         Pack Details
-      </h6>
-      <gc-button
-        outlined
+      </typography>
+      <button-root
         size="sm"
+        variant="outline"
         @click="createDefaultCategory">
-        <plus-icon class="h-4 mr-2 text-primary w-4" />
-        Add Category
-      </gc-button>
+        <icon-plus class="h-4 text-primary dark:text-primary-light w-4" />
+        New Category
+      </button-root>
     </div>
     <pack-items-table
-      v-for="item in data.selectedPack?.categories"
-      :key="item.id"
-      :category="item"
       @handle-add-url="handleInitialAddUrl"
       @handle-remove-category="[
-        activeCategoryId = item.id,
+        activeCategoryId = $event,
         dialogStates.deleteCategoryDialog = true
       ]"
       @handle-remove-item="[
-        activeCategoryId = item.id,
+        activeCategoryId = $event.meta.category.id,
         activeItem = $event,
         dialogStates.removeItemDialog = true
       ]"
-      @handle-update-category="($event: UpdateCategoryPayload) => {
-        activeCategoryId = item.id, updateCategory($event)
-      }" />
+      @handle-update-category="[
+        activeCategoryId = $event.id,
+        updateCategory($event)
+      ]" />
   </div>
 </template>

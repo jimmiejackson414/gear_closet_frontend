@@ -1,0 +1,31 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
+<script setup lang="ts">
+  import { ComboboxGroup, ComboboxLabel } from 'radix-vue';
+  import type { ComboboxGroupProps } from 'radix-vue';
+  import { type HTMLAttributes } from 'vue';
+  import { cn } from '@/lib/utils';
+
+  const props = defineProps<ComboboxGroupProps & {
+    class?: HTMLAttributes['class']
+    heading?: string
+  }>();
+
+  const delegatedProps = computed(() => {
+    const { class: _, ...delegated } = props;
+
+    return delegated;
+  });
+</script>
+
+<template>
+  <combobox-group
+    v-bind="delegatedProps"
+    :class="cn('overflow-hidden p-1 text-foreground [&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:py-1.5 [&_[cmdk-group-heading]]:text-xs [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground', props.class)">
+    <combobox-label
+      v-if="heading"
+      class="font-medium px-2 py-1.5 text-muted-foreground text-xs">
+      {{ heading }}
+    </combobox-label>
+    <slot />
+  </combobox-group>
+</template>

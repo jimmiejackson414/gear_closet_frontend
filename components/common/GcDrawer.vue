@@ -1,20 +1,22 @@
 <script lang='ts' setup>
-  import { LogOutIcon } from 'lucide-vue-next';
+  import { IconLogOut } from '#components';
 
   const $route = useRoute();
 
   const isActiveRoute = (link: LinkItem) => $route.name === link.to;
 
+  const colorMode = useColorMode();
+  const isLightMode = computed(() => colorMode.preference === 'light');
   const iconColor = (link: LinkItem) => {
-    if (link.disabled) return tailwind.theme.colors['light-grey'];
-    return isActiveRoute(link) ? tailwind.theme.colors.primary : tailwind.theme.colors['grey'];
+    if (link.disabled) return tailwind.theme.colors.destructive.foreground;
+    return isActiveRoute(link) ? tailwind.theme.colors.primary.DEFAULT : ( isLightMode.value ? tailwind.theme.colors.muted.foreground : tailwind.theme.colors.accent.alt );
   };
 
   const $router = useRouter();
   const handleLogout = async () => {
     const supabase = useSupabaseClient();
     await supabase.auth.signOut();
-    $router.push({ name: 'login' });
+    await $router.push({ name: 'login' });
   };
 
   const $store = useUserStore();
@@ -23,13 +25,13 @@
 
 <template>
   <div
-    class="bg-white fixed h-screen pb-4 pt-12 px-2 z-50"
+    class="bg-background fixed h-screen pb-4 pt-12 px-2 z-50"
     data-testid="gc-drawer">
     <ul class="flex items-center flex-col gap-4 h-full">
       <li class="border-b border-light-grey">
         <span class="block mb-4 px-4 py-2">
           <gc-logo-icon
-            :fill="tailwind.theme.colors.primary"
+            :fill="tailwind.theme.colors.primary.DEFAULT"
             wrapper-class="w-8 h-8" />
         </span>
       </li>
@@ -39,7 +41,7 @@
         :class="link.disabled ? 'cursor-not-allowed' : 'cursor-pointer'">
         <template v-if="link.external">
           <a
-            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
+            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg dark:hover:bg-accent hover:bg-gray-100"
             :href="link.disabled ? undefined : link.to"
             rel="noopener noreferrer"
             target="_blank"
@@ -53,12 +55,13 @@
         </template>
         <template v-else>
           <nuxt-link
-            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
-            :class="[isActiveRoute(link) ? 'bg-gray-100' : '']"
+            class="duration-200 ease-in-out inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg transition dark:hover:bg-accent hover:bg-gray-100"
+            :class="[isActiveRoute(link) ? 'bg-accent dark:bg-accent-light' : '']"
             :disabled="link.disabled"
             :to="{ name: link.to }">
             <gc-avatar
               v-if="profile?.image && link.to === 'profile'"
+              v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
               :initials="initials(profile)"
               size="xs"
               :url="buildImageSrc(profile.image)" />
@@ -77,12 +80,11 @@
       <li class="cursor-pointer">
         <span
           v-tippy="{ content: 'Logout', placement: 'right' }"
-          class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg hover:bg-gray-100"
+          class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg dark:hover:bg-accent hover:bg-gray-100"
           data-testid="logout"
           @click="handleLogout">
-          <component
-            :is="LogOutIcon"
-            :color="tailwind.theme.colors['grey']"
+          <icon-log-out
+            :color="isLightMode ? tailwind.theme.colors.gray['500'] : tailwind.theme.colors.card.foreground"
             :size="24" />
         </span>
       </li>
