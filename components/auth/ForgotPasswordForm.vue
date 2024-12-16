@@ -50,10 +50,13 @@
         name="email"
         :validate-on-blur="!isFieldDirty">
         <form-item>
-          <form-label>Email</form-label>
+          <form-label class="text-gray-800">
+            Email
+          </form-label>
           <form-control>
             <input-root
               :disabled="isSubmitting"
+              force-color-mode="light"
               type="email"
               v-bind="componentField" />
           </form-control>
@@ -73,7 +76,7 @@
       </button-root>
     </div>
     <div class="flex items-center flex-col mt-4">
-      <typography>
+      <typography class="text-gray-800">
         Remembered your password?
         <nuxt-link
           class="no-underline text-primary"

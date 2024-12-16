@@ -11,6 +11,7 @@
     prependIcon?: any;
     type?: string;
     dense?: boolean;
+    forceColorMode?: 'light' | 'dark';
   }>();
 
   const showPassword = ref(false);
@@ -26,13 +27,29 @@
 
   const attrs = useAttrs();
   const computedClasses = computed(() => {
-    const baseClasses = 'flex w-full rounded-md border bg-transparent dark:bg-background px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+    const baseClasses =
+      'flex w-full rounded-md border bg-transparent px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
     const heightClass = props.dense ? 'h-8 py-1' : 'h-10 py-2'; // Adjust height and padding for dense variant
     const borderClass = attrs['aria-invalid'] ? 'border-destructive' : 'border-input';
     const prependIconClass = props.prependIcon ? 'ps-9' : '';
     const passwordToggleClass = props.passwordToggle ? 'pr-9' : '';
 
-    return cn(baseClasses, heightClass, borderClass, prependIconClass, passwordToggleClass, props.class);
+    // Apply light or dark mode adjustments based on forceColorMode
+    const colorModeClasses = props.forceColorMode === 'dark'
+      ? 'dark:bg-background dark:placeholder:text-muted-foreground'
+      : props.forceColorMode === 'light'
+        ? '!bg-white !text-black !placeholder:text-gray-500'
+        : 'bg-transparent dark:bg-background placeholder:text-muted-foreground';
+
+    return cn(
+      baseClasses,
+      heightClass,
+      borderClass,
+      prependIconClass,
+      passwordToggleClass,
+      colorModeClasses,
+      props.class,
+    );
   });
 
   const computedType = computed(() => showPassword.value ? 'text' : props.type);

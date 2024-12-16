@@ -88,6 +88,7 @@
     <div clas="flex justify-center">
       <separator
         class="max-w-60 mb-6 mt-8 mx-auto"
+        force-color-mode="light"
         label="OR" />
     </div>
     <div class="auto-rows-auto grid grid-cols-1 gap-4">
@@ -96,10 +97,13 @@
         name="email"
         :validate-on-blur="!isFieldDirty">
         <form-item>
-          <form-label>Email</form-label>
+          <form-label class="text-gray-800">
+            Email
+          </form-label>
           <form-control>
             <input-root
               :disabled="isSubmitting"
+              force-color-mode="light"
               type="email"
               v-bind="componentField" />
           </form-control>
@@ -110,10 +114,13 @@
         name="password"
         :validate-on-blur="!isFieldDirty">
         <form-item>
-          <form-label>Password</form-label>
+          <form-label class="text-gray-800">
+            Password
+          </form-label>
           <form-control>
             <input-root
               :disabled="isSubmitting"
+              force-color-mode="light"
               password-toggle
               type="password"
               v-bind="componentField" />
@@ -133,7 +140,7 @@
       </button-root>
     </div>
     <div class="flex items-center flex-col mt-4">
-      <typography>
+      <typography class="text-gray-800">
         Don't have an account?
         <nuxt-link
           class="no-underline"

@@ -56,10 +56,13 @@
         name="password"
         :validate-on-blur="!isFieldDirty">
         <form-item>
-          <form-label>New Password</form-label>
+          <form-label class="text-gray-800">
+            New Password
+          </form-label>
           <form-control>
             <input-root
               :disabled="isSubmitting"
+              force-color-mode="light"
               password-toggle
               type="password"
               v-bind="componentField" />
@@ -71,10 +74,13 @@
         name="passwordConfirm"
         :validate-on-blur="!isFieldDirty">
         <form-item>
-          <form-label>Confirm New Password</form-label>
+          <form-label class="text-gray-800">
+            Confirm New Password
+          </form-label>
           <form-control>
             <input-root
               :disabled="isSubmitting"
+              force-color-mode="light"
               password-toggle
               type="password"
               v-bind="componentField" />
