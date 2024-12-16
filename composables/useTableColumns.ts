@@ -191,9 +191,24 @@ export const useTableColumns = (emit: any) => {
         class: 'font-semibold text-center',
         variant: 'muted',
       }, () => 'Price'),
-      cell: ({ row }) => h('div', {
-        class: 'px-6 py-3 text-center',
-      }, row.getValue('price')),
+      cell: ({ row }) => {
+        const price = row.getValue('price');
+        return h('div', { class: 'text-center' }, [
+          h(GcInlineEdit, {
+            hideEditBtn: true,
+            'model-value': price,
+            name: `item_price_${row.id}`,
+            size: 'sm',
+            type: 'number',
+            spanClasses: 'min-w-[2rem] !mx-auto',
+            'onUpdate:model-value': (newValue: string) => $store.updateItem(row.original, 'price', newValue, row.original.meta.category.id),
+          }, {
+            default: () => [
+              h(Typography, { class: 'text-left' }, () => `$${price}` || '$0'),
+            ],
+          }),
+        ]);
+      },
       meta: { headerClassName: 'w-28' },
     },
     {
@@ -202,9 +217,24 @@ export const useTableColumns = (emit: any) => {
         class: 'font-semibold text-center',
         variant: 'muted',
       }, () => 'Quantity'),
-      cell: ({ row }) => h('div', {
-        class: 'px-6 py-3 text-center',
-      }, row.getValue('quantity')),
+      cell: ({ row }) => {
+        const quantity = row.getValue('quantity');
+        return h('div', { class: 'text-center' }, [
+          h(GcInlineEdit, {
+            hideEditBtn: true,
+            'model-value': quantity,
+            name: `item_quantity_${row.id}`,
+            size: 'sm',
+            type: 'number',
+            spanClasses: 'min-w-[2rem] w-fit !mx-auto justify-center',
+            'onUpdate:model-value': (newValue: string) => $store.updateItem(row.original, 'quantity', newValue, row.original.meta.category.id),
+          }, {
+            default: () => [
+              h(Typography, { class: 'text-left' }, () => quantity || '0'),
+            ],
+          }),
+        ]);
+      },
       meta: { headerClassName: 'w-28' },
     },
     {

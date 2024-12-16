@@ -373,7 +373,7 @@
                     </div>
                   </template>
                   <template v-if="header.column.id === 'price'">
-                    {{ computeGroupTotal('price', row.subRows) }}
+                    ${{ computeGroupTotal('price', row.subRows) }}
                   </template>
                   <template v-else-if="header.column.id === 'quantity'">
                     {{ computeGroupTotal('quantity', row.subRows) }}
