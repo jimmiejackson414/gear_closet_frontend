@@ -100,10 +100,10 @@
     "uuid": "^9.0.1",
     "v-onboarding": "^2.6.0",
     "vee-validate": "^4.14.6",
-    "vue-draggable-plus": "^0.6.0",
     "vue-echarts": "^6.7.2",
     "vue-filepond": "^7.0.4",
     "vue-gtag": "^2.0.1",
+    "vue-slicksort": "^2.0.5",
     "vue-sonner": "^1.2.5",
     "vue-tippy": "v6",
     "zod": "^3.23.8"

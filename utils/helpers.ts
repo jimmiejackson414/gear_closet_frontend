@@ -280,13 +280,15 @@ export const getPagination = (page: number, pageSize: number): { from: number, t
 export const hslVarToHex = async (hslVar: string): Promise<string> => {
   // Ensure the code runs only on the client side
   if (typeof window === 'undefined' || !document.documentElement) {
-    return '#000000'; // Return a default color or handle appropriately
+    console.warn(`hslVarToHex: Attempted to resolve '${hslVar}' on the server.`);
+    return '#000000'; // Fallback to black
   }
 
   // Extract the CSS variable name from the HSL string
   const varNameMatch = hslVar.match(/var\((--[^)]+)\)/);
   if (!varNameMatch) {
-    throw new Error('Invalid HSL variable format');
+    console.error(`hslVarToHex: Invalid CSS variable format in '${hslVar}'`);
+    return '#000000'; // Fallback to black
   }
   const varName = varNameMatch[1];
 
@@ -298,13 +300,21 @@ export const hslVarToHex = async (hslVar: string): Promise<string> => {
   const root = document.documentElement;
   const computedStyle = getComputedStyle(root);
   const hslValue = computedStyle.getPropertyValue(varName)
-    .trim();
+    ?.trim();
+
+  // Handle undefined or empty HSL values
+  if (!hslValue) {
+    console.warn(`hslVarToHex: Variable '${varName}' is not defined in styles.`);
+    return '#000000'; // Fallback to black
+  }
 
   // Match the HSL values
   const hslMatch = hslValue.match(/\d+/g);
-  if (!hslMatch) {
-    throw new Error('Invalid HSL value');
+  if (!hslMatch || hslMatch.length < 3) {
+    console.error(`hslVarToHex: Invalid HSL value for '${varName}': '${hslValue}'`);
+    return '#000000'; // Fallback to black
   }
+
   const [h, s, l] = hslMatch.map(Number);
 
   // Convert the HSL values to HEX
@@ -317,6 +327,7 @@ export const hslVarToHex = async (hslVar: string): Promise<string> => {
       .toString(16)
       .padStart(2, '0'); // Convert to hex and pad with zeroes
   };
+
   return `#${f(0)}${f(8)}${f(4)}`;
 };
 
