@@ -27,7 +27,7 @@
     ">
     <span
       v-if="props.label"
-      :class="cn('text-xs text-muted-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center items-center', props.orientation === 'vertical' ? 'w-[1px] px-1 py-2' : 'h-[1px] py-1 px-2', forceColorMode === 'light' ? 'dark:bg-white' : 'bg-background'
+      :class="cn('text-xs text-muted-foreground absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex justify-center items-center', props.orientation === 'vertical' ? 'w-[1px] px-1 py-2' : 'h-[1px] py-1 px-2', forceColorMode === 'dark' ? 'dark:bg-white' : 'bg-background'
       )">
       {{ props.label }}
     </span>
