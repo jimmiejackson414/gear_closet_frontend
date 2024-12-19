@@ -22,7 +22,7 @@ export const useTableColumns = (emit: any) => {
       accessorKey: 'drag',
       header: () => null,
       cell: () => h(IconGripVertical, {
-        class: 'cursor-move text-muted-foreground opacity-0 group-hover:opacity-100 stroke-1 !size-6',
+        class: 'cursor-move text-muted-foreground opacity-0 group-hover:opacity-100 stroke-1 !size-6 handle',
       }),
       enableHiding: false,
       meta: { headerClassName: 'w-12' },
