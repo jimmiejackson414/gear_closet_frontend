@@ -1,6 +1,5 @@
 <script lang='ts' setup>
-  import type { RowItem } from './PackItemsTable.vue';
-  import type { Database } from '@/types';
+  import type { Database, Tables } from '@/types';
   import type { ExtendedCategory, ExtendedPack } from '@/types/helpers';
 
   const $store = useClosetStore();
@@ -67,7 +66,7 @@
    * Adds a new URL to a category.
    */
   const newUrl = ref('');
-  const handleInitialAddUrl = (row: RowItem, categoryId: number) => {
+  const handleInitialAddUrl = (row: Tables<'items'>, categoryId: number) => {
     dialogStates.value.addUrlDialog = true;
     $store.activeItem = row;
     $store.activeCategoryId = categoryId;

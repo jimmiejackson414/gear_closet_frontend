@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { IconLink } from '#components';
-  import type { RowItem } from '@/components/closet/PackItemsTable.vue';
+  import type { Tables } from '@/types';
 
   const $store = useClosetStore();
   const { activeCategoryId, activeItem, dialogStates } = storeToRefs($store);
@@ -21,7 +21,7 @@
   const submitting = ref(false);
   const handleSubmit = async () => {
     submitting.value = true;
-    await $store.updateItem($store.activeItem as RowItem, 'url', newUrl.value, $store.activeCategoryId as number);
+    await $store.updateItem($store.activeItem as Tables<'items'>, 'url', newUrl.value, $store.activeCategoryId as number);
     dialogStates.value.addUrlDialog = false;
     submitting.value = false;
   };
