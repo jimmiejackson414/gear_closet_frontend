@@ -44,61 +44,68 @@
    * @returns Promise<void>
    */
   const updatePositions = async (payload: TablesUpdate<'category_items'>[]) => {
-    console.log({ payload });
+    await $store.updateCategoryItems(payload);
   };
 
   // Calculate the updated positions when a row is moved and build the payload
-  // TODO: Fix this method
   const calculateUpdatedPositions = (event: DraggableEvent) => {
     const { oldIndex, newIndex, to, from } = event;
 
-    if (!oldIndex || !newIndex) return [];
-
-    // Parse category IDs
-    const newCategoryId = parseInt(to?.getAttribute('data-category-id')!);
-    const oldCategoryId = parseInt(from?.getAttribute('data-category-id')!);
-
-    // Early return if positions haven't changed
     if (oldIndex === newIndex) return [];
 
-    const updatedRows: TablesUpdate<'category_items'>[] = [];
+    const newCategoryId = parseInt(to?.getAttribute('data-category-id')!);
+    const oldCategoryId = parseInt(from?.getAttribute('data-category-id')!);
     const movedRow = event.data;
 
-    // Handle if the item is moved within the same category
+    // Find the categories by ID
+    const getCategoryItems = (categoryId: number) =>
+      data.value.selectedPack?.categories.find(c => c.id === categoryId)?.category_items || [];
+
+    const oldCategoryItems = getCategoryItems(oldCategoryId);
+    const newCategoryItems = oldCategoryId === newCategoryId
+      ? oldCategoryItems
+      : getCategoryItems(newCategoryId);
+
+    const updatedRows: TablesUpdate<'category_items'>[] = [];
+
     if (oldCategoryId === newCategoryId) {
-      // Get the category items for the oldCategoryId
-      const categoryItems = data.value.selectedPack?.categories.find(
-        (c) => c.id === oldCategoryId,
-      )?.category_items;
-
-      if (!categoryItems) return []; // Return early if no category items are found
-
-      // Update position for each item
-      categoryItems.forEach((row, index) => {
-        if (row.id === movedRow.id) {
+      // Reorder within the same category
+      oldCategoryItems.forEach((item, index) => {
+        if (item.position !== index + 1) {
           updatedRows.push({
-            id: movedRow.id,
+            id: item.id,
             position: index + 1,
-            category_id: oldCategoryId,
-          });
-        } else if (
-          (oldIndex < newIndex && index > oldIndex && index <= newIndex) ||
-          (oldIndex > newIndex && index < oldIndex && index >= newIndex)
-        ) {
-          // For rows that shift positions due to the move, update their positions
-          updatedRows.push({
-            id: row.id,
-            position: index + (oldIndex < newIndex ? -1 : 1), // Adjust position based on direction of move
             category_id: oldCategoryId,
           });
         }
       });
     } else {
-      // Handle if the item is moved to a different category
-      updatedRows.push({
-        id: movedRow.id,
-        category_id: newCategoryId,
-        position: Number(newIndex) + 1, // Position in the new category
+      // Reorder in the old category
+      oldCategoryItems.forEach((item, index) => {
+        if (item.id !== movedRow.id && item.position !== index + 1) {
+          updatedRows.push({
+            id: item.id,
+            position: index + 1,
+            category_id: oldCategoryId,
+          });
+        }
+      });
+
+      // Reorder in the new category
+      newCategoryItems.forEach((item, index) => {
+        if (item.id === movedRow.id) {
+          updatedRows.push({
+            id: movedRow.id,
+            position: index + 1,
+            category_id: newCategoryId,
+          });
+        } else if (item.position !== index + 1) {
+          updatedRows.push({
+            id: item.id,
+            position: index + 1,
+            category_id: newCategoryId,
+          });
+        }
       });
     }
 
@@ -189,10 +196,8 @@
               },
               handle: '.row-handle',
               onEnd: (event: DraggableEvent) => {
-                console.log({ event });
                 const updatedRows = calculateUpdatedPositions(event);
-                console.log({ updatedRows });
-                // updatePositions(updatedRows);
+                updatePositions(updatedRows);
               },
             }]"
             :data-category-id="category.id">

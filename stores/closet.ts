@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
-import type { Database, Tables } from "@/types";
-import type { ExtendedPack } from "@/types/helpers";
+import type { Database, Tables, TablesUpdate } from "@/types";
+import type { ExtendedCategoryItem, ExtendedPack } from "@/types/helpers";
 
 export interface ClosetPageData {
   selectedPack?: ExtendedPack;
@@ -43,6 +43,7 @@ type Getters = {};
 type Actions = {
   fetchClosetPage(packId: number): Promise<void>;
   createItem(categoryId: number): Promise<void>;
+  updateCategoryItems(payload: TablesUpdate<'category_items'>[]): Promise<void>;
   updateItem(item: Tables<'items'>, key: string, value: string | number | boolean | undefined, categoryId: number): Promise<void>;
 };
 
@@ -181,6 +182,90 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
             category.category_items = category.category_items.filter(item => item.id !== 0);
           }
           $store.notifyNegative('Error creating item');
+        }
+      },
+
+      /**
+       * Updates the category items.
+       * @param payload Tables<'category_items'>[]
+       * @returns void
+       */
+      async updateCategoryItems (payload: TablesUpdate<'category_items'>[]) {
+        const $appStore = useAppStore();
+        try {
+          const supabase = useSupabaseClient<Database>();
+
+          const { data: updatedCategoryItems, error } = await supabase.from('category_items')
+            .upsert(payload)
+            .returns<ExtendedCategoryItem[]>()
+            .select(`*, item:items(*)`);
+
+          if (error || !updatedCategoryItems) {
+            $appStore.notifyNegative('There was an error updating the category items.');
+            return;
+          }
+
+          // Check if all category_id values are the same (indicating a single category or multiple)
+          const isSingleCategory = updatedCategoryItems.every(
+            (item) => item.category_id === updatedCategoryItems[0].category_id,
+          );
+
+          if (isSingleCategory) {
+            const singleCategoryId = updatedCategoryItems[0].category_id;
+            const categoryIndex = this.data.selectedPack?.categories.findIndex(
+              (c) => c.id === singleCategoryId,
+            );
+
+            if (categoryIndex !== undefined && categoryIndex !== -1) {
+              const category = this.data.selectedPack!.categories[categoryIndex];
+
+              category.category_items = category.category_items.map(item => {
+                const updatedItem = updatedCategoryItems.find(updated => updated.id === item.id) as ExtendedCategoryItem;
+                if (updatedItem) {
+                  return { ...item, ...updatedItem };
+                }
+                return item;
+              });
+            }
+          } else {
+            // Handle multiple categories by grouping items by category_id
+            const groupedItems = updatedCategoryItems.reduce<Record<string, ExtendedCategoryItem[]>>(
+              (acc, item) => {
+                const key = String(item.category_id);
+                if (!acc[key]) acc[key] = [];
+                acc[key].push(item as ExtendedCategoryItem);
+                return acc;
+              },
+              {},
+            );
+
+            // Loop through each grouped category and update the category_items
+            for (const [categoryId, items] of Object.entries(groupedItems)) {
+              const categoryIndex = this.data.selectedPack?.categories.findIndex((c) => c.id === parseInt(categoryId));
+              if (categoryIndex !== undefined && categoryIndex !== -1) {
+                const category = this.data.selectedPack!.categories[categoryIndex];
+
+                category.category_items = category.category_items.map(item => {
+                  const updatedItem = items.find(updated => updated.id === item.id);
+                  if (updatedItem) {
+                    return { ...item, ...updatedItem };
+                  }
+                  return item;
+                });
+
+                // Add any new items that were moved into the category
+                items.forEach(item => {
+                  if (!category.category_items.some(existingItem => existingItem.id === item.id)) {
+                    category.category_items.push(item);
+                  }
+                });
+              }
+            }
+          }
+
+        } catch (err) {
+          console.error('Error updating category items:', err);
+          $appStore.notifyNegative('There was an error updating the category items.');
         }
       },
 
