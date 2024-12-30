@@ -8,9 +8,7 @@ import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '@/types';
 import type { SubscriptionApiResponse } from '@/types/helpers';
 
-const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string, {
-  apiVersion: '2024-12-18.acacia',
-});
+const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string);
 
 /**
  * @param event - the H3 event
