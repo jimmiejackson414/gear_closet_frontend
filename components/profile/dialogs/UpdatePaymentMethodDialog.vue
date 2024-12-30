@@ -15,18 +15,17 @@
     console.log('handleUpdate');
   };
 
-  const { createClient: createStripeClient } = useStripe();
+  const stripe = useStripe();
+  const elements = useStripeElements();
   const cardElementRef = ref<HTMLDivElement | null>(null);
   const cardValid = ref(false);
-  let stripe: Stripe | null = null;
-  let elements: StripeElements | null = null;
   let cardElement: StripeCardElement | null = null;
   const setupCardElement = async () => {
-    stripe = await createStripeClient();
+    if (!stripe.value || !elements.value) return;
+
     if (stripe) {
-      elements = stripe.elements();
       if (elements && cardElementRef.value) {
-        cardElement  = elements.create('card', {
+        cardElement  = elements.value.create('card', {
           classes: {
             base: 'h-12 py-3.5 px-4 rounded-lg w-full border border-gray-300 focus:border-primary',
             invalid: 'border-red-500',

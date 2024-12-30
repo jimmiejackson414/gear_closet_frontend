@@ -20,7 +20,6 @@
   };
 
   const $store = useUserStore();
-  const { profile } = storeToRefs($store);
 </script>
 
 <template>
@@ -61,11 +60,11 @@
               :disabled="link.disabled"
               :to="{ name: link.to }">
               <gc-avatar
-                v-if="profile?.image && link.to === 'profile'"
+                v-if="$store.profile?.image && link.to === 'profile'"
                 v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
-                :initials="initials(profile)"
+                :initials="initials($store.profile)"
                 size="xs"
-                :url="buildImageSrc(profile.image)" />
+                :url="buildImageSrc($store.profile.image)" />
               <component
                 :is="link.icon"
                 v-else

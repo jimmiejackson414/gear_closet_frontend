@@ -5,10 +5,11 @@
  */
 import Stripe from 'stripe';
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
+import type { Database } from '@/types';
 import type { SubscriptionApiResponse } from '@/types/helpers';
 
 const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string, {
-  apiVersion: '2024-04-10',
+  apiVersion: '2024-06-20',
 });
 
 /**
@@ -16,14 +17,15 @@ const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string, {
  */
 export default defineEventHandler(async (event) => {
   try {
-    const supabase = await serverSupabaseClient(event);
+    const supabase = await serverSupabaseClient<Database>(event);
     const user = await serverSupabaseUser(event);
 
     // fetch customer from supabase first
-    const { data: customer, error } = await supabase.from('customers')
+    const { data: customer, error } = await supabase
+      .from('customers')
       .select('stripe_customer_id')
       .eq('profile_id', user!.id)
-      .single();
+      .maybeSingle();
 
     if (error || !customer) {
       throw createError({
@@ -33,11 +35,11 @@ export default defineEventHandler(async (event) => {
     }
 
     // fetch the customer from stripe
-    const stripeCustomer = await stripe.customers.retrieve(customer.stripe_customer_id);
+    const stripeCustomer = await stripe.customers.retrieve(customer.stripe_customer_id as string);
 
     // fetch the subscriptions
     const subscriptions = await stripe.subscriptions.list({
-      customer: customer.stripe_customer_id,
+      customer: customer.stripe_customer_id as string,
     });
 
     // get the next billing date
@@ -45,13 +47,13 @@ export default defineEventHandler(async (event) => {
 
     // fetch the payment methods
     const paymentMethods = await stripe.paymentMethods.list({
-      customer: customer.stripe_customer_id,
+      customer: customer.stripe_customer_id as string,
       type: 'card',
     });
 
     // fetch the invoices
     const invoices = await stripe.invoices.list({
-      customer: customer.stripe_customer_id,
+      customer: customer.stripe_customer_id as string,
       limit: 15,
     });
 

@@ -9,9 +9,9 @@
 
   const props = defineProps<Props>();
 
+  const $config = useRuntimeConfig();
   const avatarSrc = computed(() => {
-    const config = useRuntimeConfig();
-    return `${config.public.forumsUrl}/${props.post.avatar_template.replace('{size}', '50')}`;
+    return `${$config.public.forumsUrl}/${props.post.avatar_template.replace('{size}', '50')}`;
   });
 </script>
 

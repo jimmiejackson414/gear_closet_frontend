@@ -142,13 +142,13 @@
                   <table-cell>
                     <checkbox
                       :checked="todo.completed"
-                      @update:checked="e => updateTodo(todo, { completed: e })" />
+                      @update:checked="updateTodo(todo, { completed: $event })" />
                   </table-cell>
                   <table-cell>
                     <gc-inline-edit
                       :model-value="todo.title ?? undefined"
                       name="title"
-                      @handle-update="e => updateTodo(todo, { title: e })">
+                      @handle-update="updateTodo(todo, { title: $event })">
                       {{ todo.title }}
                     </gc-inline-edit>
                   </table-cell>
@@ -182,13 +182,13 @@
                   <table-cell>
                     <checkbox
                       :checked="todo.completed"
-                      @update:checked="e => updateTodo(todo, { completed: e })" />
+                      @update:checked="updateTodo(todo, { completed: $event })" />
                   </table-cell>
                   <table-cell>
                     <gc-inline-edit
                       :model-value="todo.title ?? undefined"
                       name="title"
-                      @handle-update="e => updateTodo(todo, { title: e })">
+                      @handle-update="updateTodo(todo, { title: $event })">
                       {{ todo.title }}
                     </gc-inline-edit>
                   </table-cell>

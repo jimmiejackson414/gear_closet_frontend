@@ -2,8 +2,8 @@
   import type { SelectOption } from '@/types/helpers';
 
   const $store = useClosetStore();
+  const $userStore = useUserStore();
   const { data, dialogStates, pageLoading } = storeToRefs($store);
-  const { isPaidMember } = storeToRefs(useUserStore());
 
   const packOptions = computed(() => data.value.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
 
@@ -83,11 +83,11 @@
 
     <div
       v-tippy="{
-        content: !isPaidMember && data.allPacks.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : ''
+        content: !$userStore.isPaidMember && data.allPacks.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : ''
       }">
       <button-root
         class="self-center"
-        :disabled="!isPaidMember && data.allPacks.length >= 1"
+        :disabled="!$userStore.isPaidMember && data.allPacks.length >= 1"
         @click="$store.dialogStates.createPackDialog = true">
         <icon-plus class="h-4 text-primary-foreground w-4" />
         New Pack
