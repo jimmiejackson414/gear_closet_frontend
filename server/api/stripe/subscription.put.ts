@@ -10,7 +10,7 @@ import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '@/types';
 
 const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2024-12-18.acacia',
 });
 
 export default defineEventHandler(async (event) => {

@@ -9,7 +9,7 @@ import type { Database } from '@/types';
 import type { SubscriptionApiResponse } from '@/types/helpers';
 
 const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string, {
-  apiVersion: '2024-06-20',
+  apiVersion: '2024-12-18.acacia',
 });
 
 /**
