@@ -20,9 +20,6 @@ export default defineNuxtConfig({
         { "property": "twitter:description", "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!" },
         { "property": "twitter:image", "content": "/logo-og.jpeg" },
       ],
-      script: [
-        { src: 'https://js.stripe.com/v3/' }
-      ]
     },
   },
 

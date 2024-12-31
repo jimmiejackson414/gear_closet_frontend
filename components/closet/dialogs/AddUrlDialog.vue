@@ -5,9 +5,8 @@
   const $store = useClosetStore();
   const { activeCategoryId, activeItem, dialogStates } = storeToRefs($store);
   const newUrl = ref('');
-  const isAddUrlModalOpen = ref(false);
 
-  watch(isAddUrlModalOpen, (newVal) => {
+  watch(() => dialogStates.value.addUrlDialog, (newVal) => {
     newVal ? nextTick(() => newUrl.value = $store.activeItem?.url || '') : newUrl.value = '';
   });
 

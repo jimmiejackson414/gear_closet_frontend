@@ -44,6 +44,7 @@
    * @returns Promise<void>
    */
   const updatePositions = async (payload: TablesUpdate<'category_items'>[]) => {
+    if (!payload.length) return;
     await $store.updateCategoryItems(payload);
   };
 
@@ -111,6 +112,13 @@
 
     return updatedRows;
   };
+
+  // TODO: Figure out category drag and drop
+  // calculate the updated category positions
+  // const calculatUpdatedCategoryPositions = (event: DraggableEvent) => {
+  //   const { oldIndex, newIndex } = event;
+  //   console.log({ oldIndex, newIndex });
+  // };
 </script>
 
 <template>
@@ -128,7 +136,7 @@
               <table-head
                 class="p-0 w-8"
                 colspan="1">
-                <icon-grip-vertical class="!size-6 category-handle cursor-move ease-snap group-hover:opacity-100 opacity-0 stroke-1 text-muted-foreground transition" />
+                <!-- <icon-grip-vertical class="!size-6 category-handle cursor-move ease-snap group-hover:opacity-100 opacity-0 stroke-1 text-muted-foreground transition" /> -->
               </table-head>
               <table-head
                 class="font-bold px-0 py-2"
@@ -191,7 +199,8 @@
               direction: 'vertical',
               group: {
                 name: 'category_items',
-                put: true,
+                put: ['category_items'],
+                // put: true,
                 pull: true,
               },
               handle: '.row-handle',
@@ -351,14 +360,14 @@
                     :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
                     size="icon"
                     variant="ghost"
-                    @click="emit('handleAddUrl', catItem.category_id)">
+                    @click="emit('handleAddUrl', catItem.item, catItem.category_id)">
                     <icon-link :class="cn('h-5 w-5', catItem.item.url ? 'text-primary-foreground' : 'text-dark-gray')" />
                   </button-root>
                   <button-root
                     class="bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8"
                     size="icon"
                     variant="ghost"
-                    @click="emit('handleRemoveItem', catItem.id)">
+                    @click="emit('handleRemoveItem', catItem)">
                     <icon-trash class="h-5 w-5" />
                   </button-root>
                 </div>
