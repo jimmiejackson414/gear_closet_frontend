@@ -19,7 +19,7 @@
 
 <template>
   <stepper-description
-    v-slot="slotProps"
+    v-slot="slotProps: { [key: string]: any }"
     v-bind="forwarded"
     :class="cn('text-xs text-muted-foreground', props.class)">
     <slot v-bind="slotProps" />

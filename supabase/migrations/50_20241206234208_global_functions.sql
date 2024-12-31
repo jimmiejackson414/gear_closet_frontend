@@ -4,8 +4,8 @@ CREATE OR REPLACE FUNCTION "public"."handle_new_user"() RETURNS "trigger"
     LANGUAGE "plpgsql" SECURITY DEFINER
     AS $$
 begin
-  INSERT INTO public.profiles (id, email, first_name, last_name, image, role, measuring_system)
-  values (new.id, new.email, new.raw_user_meta_data ->> 'first_name', new.raw_user_meta_data ->> 'last_name', null, 'USER', 'IMPERIAL')
+  INSERT INTO public.profiles (id, email, image, role, measuring_system)
+  values (new.id, new.email, null, 'USER', 'IMPERIAL')
   ON CONFLICT (id) DO UPDATE SET email = new.email;
   INSERT INTO public.notifications (title, content, read_on_date, profile_id, sender_id)
   values ('Welcome!', 'Welcome to Gear Closet! This is where you will receive all of your important updates.', null, new.id, '00000000-0000-0000-0000-000000000000');

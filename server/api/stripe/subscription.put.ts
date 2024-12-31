@@ -9,9 +9,7 @@ import Stripe from 'stripe';
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '@/types';
 
-const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string, {
-  apiVersion: '2024-04-10',
-});
+const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string);
 
 export default defineEventHandler(async (event) => {
   try {

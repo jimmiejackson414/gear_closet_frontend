@@ -146,13 +146,13 @@
                   <table-cell>
                     <checkbox
                       :checked="item.completed"
-                      @update:checked="e => updateShoppingItem(item, { completed: e })" />
+                      @update:checked="updateShoppingItem(item, { completed: $event })" />
                   </table-cell>
                   <table-cell>
                     <gc-inline-edit
                       :model-value="item.title ?? undefined"
                       name="title"
-                      @handle-update="e => updateShoppingItem(item, { title: e })">
+                      @handle-update="updateShoppingItem(item, { title: $event })">
                       {{ item.title }}
                     </gc-inline-edit>
                   </table-cell>
@@ -160,7 +160,7 @@
                     <gc-inline-edit
                       :model-value="item.quantity ?? undefined"
                       name="quantity"
-                      @handle-update="e => updateShoppingItem(item, { quantity: e })">
+                      @handle-update="updateShoppingItem(item, { quantity: $event })">
                       {{ item.quantity }}
                     </gc-inline-edit>
                   </table-cell>
@@ -199,13 +199,13 @@
                   <table-cell>
                     <checkbox
                       :checked="item.completed"
-                      @update:checked="e => updateShoppingItem(item, { completed: e })" />
+                      @update:checked="updateShoppingItem(item, { completed: $event })" />
                   </table-cell>
                   <table-cell>
                     <gc-inline-edit
                       :model-value="item.title ?? undefined"
                       name="title"
-                      @handle-update="e => updateShoppingItem(item, { title: e })">
+                      @handle-update="updateShoppingItem(item, { title: $event })">
                       {{ item.title }}
                     </gc-inline-edit>
                   </table-cell>
@@ -213,7 +213,7 @@
                     <gc-inline-edit
                       :model-value="item.quantity ?? undefined"
                       name="quantity"
-                      @handle-update="e => updateShoppingItem(item, { quantity: e })">
+                      @handle-update="updateShoppingItem(item, { quantity: $event })">
                       {{ item.quantity }}
                     </gc-inline-edit>
                   </table-cell>

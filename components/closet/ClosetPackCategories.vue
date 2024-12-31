@@ -1,6 +1,5 @@
 <script lang='ts' setup>
-  import type { RowItem } from './PackItemsTable.vue';
-  import type { Database } from '@/types';
+  import type { Database, Tables } from '@/types';
   import type { ExtendedCategory, ExtendedPack } from '@/types/helpers';
 
   const $store = useClosetStore();
@@ -67,7 +66,7 @@
    * Adds a new URL to a category.
    */
   const newUrl = ref('');
-  const handleInitialAddUrl = (row: RowItem, categoryId: number) => {
+  const handleInitialAddUrl = (row: Tables<'items'>, categoryId: number) => {
     dialogStates.value.addUrlDialog = true;
     $store.activeItem = row;
     $store.activeCategoryId = categoryId;
@@ -93,11 +92,9 @@
         .select();
 
       if (updatedCategory && !error) {
-        // Find the category
         const category = (data.value.selectedPack as ExtendedPack).categories.find(c => c.id === Number(activeCategoryId?.value));
 
         if (category) {
-          // Update the category
           category[field] = value;
         }
         $appStore.notifyPositive('Category updated successfully.');
@@ -135,12 +132,12 @@
         dialogStates.deleteCategoryDialog = true
       ]"
       @handle-remove-item="[
-        activeCategoryId = $event.meta.category.id,
-        activeItem = $event,
+        activeCategoryId = $event.category_id,
+        activeItem = $event.item,
         dialogStates.removeItemDialog = true
       ]"
       @handle-update-category="[
-        activeCategoryId = $event.id,
+        activeCategoryId = $event,
         updateCategory($event)
       ]" />
   </div>

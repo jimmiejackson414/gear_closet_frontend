@@ -3,10 +3,9 @@
  * @apiName StripeWebhook
  * @param event - the H3 event
  * @param stipe - the Stripe instance
- * @param stripeEvent - the Stripe Webhook event
+ * @param event - the Stripe Webhook event
  */
 
-import { defineStripeWebhook } from '#stripe';
 import { serverSupabaseClient } from '#supabase/server';
 import { type Database, SubscriptionLevel, SubscriptionStatus } from '@/types';
 
@@ -17,17 +16,17 @@ const throwError = (msg?: string) => {
   });
 };
 
-export default defineStripeWebhook(async ({ event, stripeEvent }) => {
-  const supabase = await serverSupabaseClient<Database>(event);
+export default stripeWebhookHandler(async ( event, context ) => {
+  const supabase = await serverSupabaseClient<Database>(context.$event);
 
-  switch (stripeEvent.type) {
+  switch (event.type) {
   /**
     * Occurs whenever a new customer is created.
     * @see {@link https://docs.stripe.com/api/events/types#event_types-customer.created}
     */
   case 'customer.created': {
     try {
-      const customer = stripeEvent.data.object;
+      const customer = event.data.object;
       console.log('***** STRIPE EVENT: customer.created *****');
 
       const { data, error } = await supabase
@@ -52,7 +51,7 @@ export default defineStripeWebhook(async ({ event, stripeEvent }) => {
     */
   case 'customer.deleted': {
     try {
-      const customer = stripeEvent.data.object;
+      const customer = event.data.object;
       console.log('***** STRIPE EVENT: customer.deleted *****');
 
       const { data, error } = await supabase
@@ -78,7 +77,7 @@ export default defineStripeWebhook(async ({ event, stripeEvent }) => {
     */
   case 'customer.subscription.created': {
     try {
-      const subscription = stripeEvent.data.object;
+      const subscription = event.data.object;
       console.log('***** STRIPE EVENT: customer.subscription.created *****');
 
       const { data, error } = await supabase
@@ -115,7 +114,7 @@ export default defineStripeWebhook(async ({ event, stripeEvent }) => {
     */
   case 'customer.subscription.updated': {
     try {
-      const subscription = stripeEvent.data.object;
+      const subscription = event.data.object;
       console.log('***** STRIPE EVENT: customer.subscription.updated *****');
 
       const { data, error } = await supabase
@@ -149,7 +148,7 @@ export default defineStripeWebhook(async ({ event, stripeEvent }) => {
     */
   case 'customer.subscription.deleted': {
     try {
-      const subscription = stripeEvent.data.object;
+      const subscription = event.data.object;
       console.log('***** STRIPE EVENT: customer.subscription.deleted *****');
 
       const { data, error } = await supabase
@@ -176,7 +175,7 @@ export default defineStripeWebhook(async ({ event, stripeEvent }) => {
     */
   case 'product.created': {
     try {
-      const product = stripeEvent.data.object;
+      const product = event.data.object;
       console.log('***** STRIPE EVENT: product.created *****');
 
       const { data, error } = await supabase
@@ -206,7 +205,7 @@ export default defineStripeWebhook(async ({ event, stripeEvent }) => {
     */
   case 'product.updated': {
     try {
-      const product = stripeEvent.data.object;
+      const product = event.data.object;
       console.log('***** STRIPE EVENT: product.updated *****');
 
       const { data, error } = await supabase
@@ -236,7 +235,7 @@ export default defineStripeWebhook(async ({ event, stripeEvent }) => {
     */
   case 'product.deleted': {
     try {
-      const product = stripeEvent.data.object;
+      const product = event.data.object;
       console.log('***** STRIPE EVENT: product.deleted *****');
 
       const { error } = await supabase
@@ -258,7 +257,7 @@ export default defineStripeWebhook(async ({ event, stripeEvent }) => {
     */
   case 'price.created': {
     try {
-      const price = stripeEvent.data.object;
+      const price = event.data.object;
       console.log('***** STRIPE EVENT: price.created *****');
 
       const { data, error } = await supabase
@@ -292,7 +291,7 @@ export default defineStripeWebhook(async ({ event, stripeEvent }) => {
     */
   case 'price.updated': {
     try {
-      const price = stripeEvent.data.object;
+      const price = event.data.object;
       console.log('***** STRIPE EVENT: price.updated *****');
 
       const { data, error } = await supabase
@@ -325,7 +324,7 @@ export default defineStripeWebhook(async ({ event, stripeEvent }) => {
     */
   case 'price.deleted': {
     try {
-      const price = stripeEvent.data.object;
+      const price = event.data.object;
       console.log('***** STRIPE EVENT: price.deleted *****');
 
       const { error } = await supabase

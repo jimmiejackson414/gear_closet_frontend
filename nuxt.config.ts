@@ -147,4 +147,6 @@ export default defineNuxtConfig({
       include: ['@vueup/vue-quill', 'tailwind.config.ts'],
     },
   },
+
+  compatibilityDate: "2024-12-30",
 });

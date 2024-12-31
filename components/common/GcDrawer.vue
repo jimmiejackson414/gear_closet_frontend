@@ -20,7 +20,6 @@
   };
 
   const $store = useUserStore();
-  const { profile } = storeToRefs($store);
 </script>
 
 <template>
@@ -35,59 +34,63 @@
             wrapper-class="w-8 h-8" />
         </span>
       </li>
-      <li
-        v-for="link in drawerLinks()"
-        :key="link.to"
-        :class="link.disabled ? 'cursor-not-allowed' : 'cursor-pointer'">
-        <template v-if="link.external">
-          <a
-            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg dark:hover:bg-accent hover:bg-gray-100"
-            :href="link.disabled ? undefined : link.to"
-            rel="noopener noreferrer"
-            target="_blank"
-            @click="link.disabled && $event.preventDefault()">
-            <component
-              :is="link.icon"
-              v-tippy="{ content: (link.requiresSubscription && link.disabled ? link.requiresSubscriptionCopy : link.title), placement: 'right', offset: [0, 30] }"
-              :color="iconColor(link)"
-              :size="24" />
-          </a>
-        </template>
-        <template v-else>
-          <nuxt-link
-            class="duration-200 ease-in-out inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg transition dark:hover:bg-accent hover:bg-gray-100"
-            :class="[isActiveRoute(link) ? 'bg-accent dark:bg-accent-light' : '']"
-            :disabled="link.disabled"
-            :to="{ name: link.to }">
-            <gc-avatar
-              v-if="profile?.image && link.to === 'profile'"
-              v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
-              :initials="initials(profile)"
-              size="xs"
-              :url="buildImageSrc(profile.image)" />
-            <component
-              :is="link.icon"
-              v-else
-              v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
-              :color="iconColor(link)"
-              :size="24" />
-          </nuxt-link>
-        </template>
-      </li>
+      <client-only>
+        <li
+          v-for="link in drawerLinks()"
+          :key="link.to"
+          :class="link.disabled ? 'cursor-not-allowed' : 'cursor-pointer'">
+          <template v-if="link.external">
+            <a
+              class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg dark:hover:bg-accent hover:bg-gray-100"
+              :href="link.disabled ? undefined : link.to"
+              rel="noopener noreferrer"
+              target="_blank"
+              @click="link.disabled && $event.preventDefault()">
+              <component
+                :is="link.icon"
+                v-tippy="{ content: (link.requiresSubscription && link.disabled ? link.requiresSubscriptionCopy : link.title), placement: 'right', offset: [0, 30] }"
+                :color="iconColor(link)"
+                :size="24" />
+            </a>
+          </template>
+          <template v-else>
+            <nuxt-link
+              class="duration-200 ease-in-out inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg transition dark:hover:bg-accent hover:bg-gray-100"
+              :class="[isActiveRoute(link) ? 'bg-accent dark:bg-accent-light' : '']"
+              :disabled="link.disabled"
+              :to="{ name: link.to }">
+              <gc-avatar
+                v-if="$store.profile?.image && link.to === 'profile'"
+                v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
+                :initials="initials($store.profile)"
+                size="xs"
+                :url="buildImageSrc($store.profile.image)" />
+              <component
+                :is="link.icon"
+                v-else
+                v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
+                :color="iconColor(link)"
+                :size="24" />
+            </nuxt-link>
+          </template>
+        </li>
+      </client-only>
 
       <div class="grow" />
 
-      <li class="cursor-pointer">
-        <span
-          v-tippy="{ content: 'Logout', placement: 'right' }"
-          class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg dark:hover:bg-accent hover:bg-gray-100"
-          data-testid="logout"
-          @click="handleLogout">
-          <icon-log-out
-            :color="isLightMode ? tailwind.theme.colors.gray['500'] : tailwind.theme.colors.card.foreground"
-            :size="24" />
-        </span>
-      </li>
+      <client-only>
+        <li class="cursor-pointer">
+          <span
+            v-tippy="{ content: 'Logout', placement: 'right' }"
+            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg dark:hover:bg-accent hover:bg-gray-100"
+            data-testid="logout"
+            @click="handleLogout">
+            <icon-log-out
+              :color="isLightMode ? tailwind.theme.colors.gray['500'] : tailwind.theme.colors.card.foreground"
+              :size="24" />
+          </span>
+        </li>
+      </client-only>
     </ul>
   </div>
 </template>

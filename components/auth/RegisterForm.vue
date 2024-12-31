@@ -12,10 +12,6 @@
   const formSchema = toTypedSchema(z.object({
     email: z.string()
       .email(),
-    firstName: z.string()
-      .min(1),
-    lastName: z.string()
-      .min(1),
     password: z.string()
       .min(8),
     passwordConfirm: z.string()
@@ -35,13 +31,7 @@
       const { error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
-        options: {
-          data: {
-            first_name: values.firstName,
-            last_name: values.lastName,
-          },
-          emailRedirectTo: `${window.location.origin}/onboarding`,
-        },
+        options: { emailRedirectTo: `${window.location.origin}/onboarding` },
       });
 
       if (error) {
@@ -128,39 +118,6 @@
           </form-control>
         </form-item>
       </form-field>
-
-      <form-field
-        v-slot="{ componentField }"
-        name="firstName"
-        :validate-on-blur="!isFieldDirty">
-        <form-item>
-          <form-label class="text-gray-800">
-            First Name
-          </form-label>
-          <form-control>
-            <input-root
-              :disabled="isSubmitting"
-              force-color-mode="light"
-              v-bind="componentField" />
-          </form-control>
-        </form-item>
-      </form-field>
-      <form-field
-        v-slot="{ componentField }"
-        name="lastName"
-        :validate-on-blur="!isFieldDirty">
-        <form-item>
-          <form-label class="text-gray-800">
-            Last Name
-          </form-label>
-          <form-control>
-            <input-root
-              :disabled="isSubmitting"
-              force-color-mode="light"
-              v-bind="componentField" />
-          </form-control>
-        </form-item>
-      </form-field>
       <form-field
         v-slot="{ componentField }"
         name="password"
@@ -202,6 +159,7 @@
         :message="submitAction.message"
         :severity="submitAction.severity" />
       <button-root
+        class="mt-4"
         :disabled="isSubmitting"
         :loading="isSubmitting"
         type="submit">

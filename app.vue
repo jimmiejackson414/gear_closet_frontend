@@ -16,10 +16,12 @@
 <template>
   <config-provider :use-id="ssrId">
     <div class="bg-background h-full">
-      <NuxtLayout>
-        <NuxtPage />
-        <toaster />
-      </NuxtLayout>
+      <suspense>
+        <nuxt-layout>
+          <nuxt-page />
+          <toaster />
+        </nuxt-layout>
+      </suspense>
     </div>
   </config-provider>
 </template>

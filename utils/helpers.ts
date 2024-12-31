@@ -4,7 +4,7 @@ import Dinero from 'dinero.js';
 import type { Currency } from 'dinero.js';
 import { v4 as uuidv4 } from 'uuid';
 import { type Database, ItemUnit, MeasuringSystem, type Tables, type TablesInsert } from '@/types';
-import type { ExtendedCategory, ExtendedCategoryItem, ExtendedPack, ExtendedUser } from '@/types/helpers';
+import type { ExtendedCategory, ExtendedPack, ExtendedUser } from '@/types/helpers';
 
 interface FriendlyUsernameOptions {
   includeTrailName?: boolean;
@@ -29,16 +29,29 @@ export const buildImageSrc = (url: string | undefined | null) => {
  * @returns number
  */
 export const calculateCategoryWeight = (category: ExtendedCategory) => {
-  if (!category || !category.category_items?.length) return 0;
+  const totalWeightInMg = category.category_items.reduce((total, subRow) => {
+    const { item } = subRow;
 
-  return (category.category_items).reduce(
-    (sum: number, elem: ExtendedCategoryItem) => {
-      const converted = convert(parseFloat(elem.item!.weight || '0'), elem.item!.unit as Mass)
-        .to('mg');
-      return sum + (converted * (elem.item!.quantity || 0) as number);
-    },
-    0,
-  );
+    // Ensure item has weight, unit, and quantity
+    if (item.weight && item.unit && item.quantity) {
+      const weightValue = parseFloat(item.weight);
+
+      // If the weight is valid, convert it to mg and add it to the total (multiply by quantity if exists)
+      if (!isNaN(weightValue)) {
+        const weightInMg = convert(weightValue, item.unit)
+          .to('mg'); // Convert each item to mg
+        total += weightInMg * item.quantity;
+      }
+    }
+
+    return total;
+  }, 0);
+
+  // Convert the total weight in mg to the category unit
+  const convertedTotalWeight = convert(totalWeightInMg, 'mg')
+    .to(category.unit as Mass);
+
+  return parseFloat(convertedTotalWeight.toFixed(2));
 };
 
 /**
