@@ -51,7 +51,8 @@
           borderRadius: 5,
           color: (params: any) => {
             const theme = findTheme(data.value.selectedPack?.theme as Theme);
-            return theme[params.dataIndex];
+            const extendedTheme = Array.from({ length: data.value.selectedPack?.categories?.length || 0 }, (_, i) => theme[i % theme.length]);
+            return extendedTheme[params.dataIndex];
           },
         },
       },
@@ -112,6 +113,17 @@
       }],
     });
   });
+
+  watch(() => data.value.selectedPack?.categories, () => {
+    chartRef.value?.setOption({
+      xAxis: {
+        data: data.value.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
+      },
+      series: [{
+        data: data.value.selectedPack?.categories?.map(category => calculateCategoryWeight(category as ExtendedCategory)),
+      }],
+    });
+  }, { deep: true, immediate: true });
 </script>
 
 <template>
