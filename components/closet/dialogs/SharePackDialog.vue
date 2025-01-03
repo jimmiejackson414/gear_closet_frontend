@@ -18,7 +18,7 @@
     if (newValue) {
       shareLink.value = `${window.location.origin}/p/packs/${data.value.selectedPack?.slug}`;
     }
-  });
+  }, { immediate: true });
 </script>
 
 <template>
@@ -29,7 +29,7 @@
       @interact-outside="dialogStates.sharePackDialog = false">
       <dialog-header>
         <dialog-title>
-          Create a new pack
+          Share your pack
         </dialog-title>
         <dialog-description>
           Share your pack list with other users by sending them the link below.

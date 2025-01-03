@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { storeToRefs } from 'pinia';
   import { useUserStore } from '@/stores/user';
   import type { ExtendedNotification } from '@/types/helpers';
 
@@ -11,19 +10,17 @@
     pageTitle: '',
   });
 
-  const $userStore = useUserStore();
-  const { profile, unreadNotifications } = storeToRefs($userStore);
-
+  const $store = useUserStore();
   onMounted(() => {
-    $userStore.subscribeToNotifications();
+    $store.subscribeToNotifications();
   });
 
-  const shouldShowBadge = computed(() => ( $userStore.unreadNotifications?.length ?? 0 ) > 0);
+  const shouldShowBadge = computed(() => ( $store.unreadNotifications?.length ?? 0 ) > 0);
   const welcomeMessage = computed(() => {
-    if (profile.value?.first_name) {
+    if ($store.profile?.first_name) {
       const arr = ['Hello', 'Welcome', 'Hey'];
       const rand = Math.floor(Math.random() * arr.length);
-      return `${arr[rand]}, ${profile.value.first_name}!`;
+      return `${arr[rand]}, ${$store.profile.first_name}!`;
     }
     return 'Welcome!';
   });
@@ -91,12 +88,12 @@
             class="absolute top-full right-0 bg-white border divide-gray-100 duration-300 max-w-sm min-w-[300px] mt-2 rounded-lg shadow transition-all w-max z-20"
             data-testid="notifications-dropdown">
             <div class="bg-gray-50 block font-bold px-4 py-2 rounded-t-lg text-center text-dark-grey">
-              Notifications ({{ unreadNotifications?.length ?? 0 }})
+              Notifications ({{ $store.unreadNotifications?.length ?? 0 }})
             </div>
-            <span v-if="unreadNotifications?.length">
+            <span v-if="$store.unreadNotifications?.length">
               <ul class="divide-gray-100 divide-y">
                 <notification-item
-                  v-for="notification in unreadNotifications"
+                  v-for="notification in $store.unreadNotifications"
                   :key="notification.id"
                   :notification="(notification as ExtendedNotification)" />
               </ul>
@@ -104,7 +101,7 @@
                 <button-root
                   size="sm"
                   variant="ghost"
-                  @click="$userStore.markAllAsRead()">
+                  @click="$store.markAllAsRead()">
                   Mark all as read
                 </button-root>
               </div>

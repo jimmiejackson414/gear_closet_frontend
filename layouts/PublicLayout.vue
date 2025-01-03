@@ -1,6 +1,6 @@
 <script lang='ts' setup>
-  import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
   import GcFooter from '@/components/common/GcFooter.vue';
+  import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
   import type { Tables } from '@/types';
 
   const loading = ref(false);
@@ -9,13 +9,12 @@
   const isLoggedIn = computed(() => !!user.value);
 
   const $store = useUserStore();
-  const { profile } = storeToRefs($store);
 
   const { data, error } = await useFetch<Tables<'profiles'> | null>('/api/profile', {
     headers: useRequestHeaders(['cookie']),
   });
 
-  profile.value = data.value as any;
+  $store.profile = data.value as any;
 
   const $router = useRouter();
   if (!error.value && data.value && !data.value.onboard_date) {

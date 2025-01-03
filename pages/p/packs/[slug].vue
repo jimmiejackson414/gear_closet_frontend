@@ -5,7 +5,8 @@
   import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
   import tailwind from '@/utils/tailwind';
 
-  definePageMeta({ layout: 'public-layout' });
+  const $store = useUserStore();
+  definePageMeta({ layout: 'public-layout', colorMode: $store.profile ? undefined : 'light' });
 
   /**
    * Fetches the pack data.

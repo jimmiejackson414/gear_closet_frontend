@@ -3,8 +3,8 @@
   import type { SelectOption } from '@/types/helpers';
 
   const $store = usePlanningStore();
+  const $userStore = useUserStore();
   const { data, pageLoading, selectedTripId } = storeToRefs($store);
-  const { isPaidMember } = storeToRefs(useUserStore());
 
   const tripOptions = computed(() => data.value.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
 
@@ -82,9 +82,9 @@
       </select-root>
     </div>
 
-    <div v-tippy="{ content: !isPaidMember && data.trips.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }">
+    <div v-tippy="{ content: !$userStore.isPaidMember && data.trips.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }">
       <button-root
-        :disabled="pageLoading || (!isPaidMember && data.trips.length >= 1)"
+        :disabled="pageLoading || (!$userStore.isPaidMember && data.trips.length >= 1)"
         @click="emits('openDialog')">
         New Trip
       </button-root>
