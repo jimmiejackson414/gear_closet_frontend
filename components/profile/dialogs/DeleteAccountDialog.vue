@@ -1,4 +1,5 @@
 <script lang="ts" setup="">
+  import type { Database } from '@/types';
 
   interface Props {
     isOpen: boolean;
@@ -9,11 +10,26 @@
 
   const confirmDeleteAccount = defineModel({ default: false, type: Boolean });
 
-  // TODO: Finish the implementation of the DeleteAccountDialog component
+  const $store = useUserStore();
+  const $appStore = useAppStore();
+  const $router = useRouter();
+  const supabase = useSupabaseClient<Database>();
   const isSubmitting = ref(false);
   const handleConfirm = async () => {
     isSubmitting.value = true;
-    console.log('handleConfirm');
+    if ($store.profile) {
+      const { error } = await supabase.from('profiles')
+        .update({ deactivated_at: new Date()
+          .toISOString() })
+        .eq('id', $store.profile?.id);
+      if (error) {
+        $appStore.notifyNegative('There was an error deactivating your account. Please contact customer support.');
+      } else {
+        $appStore.notifyPositive('Your account has been deactivated.');
+        await supabase.auth.signOut();
+        $router.push({ name: 'login' });
+      }
+    }
     isSubmitting.value = false;
   };
 </script>
@@ -25,16 +41,17 @@
       @escape-key-down="emits('onClose')"
       @interact-outside="emits('onClose')">
       <dialog-header>
-        <dialog-title>Delete Account</dialog-title>
+        <dialog-title>Deactivate Account</dialog-title>
         <dialog-description>
-          Are you sure you want to delete your account? This action is irreversible and will delete all your data.
+          Are you sure you want to deactivate your account? This action is irreversible.
         </dialog-description>
       </dialog-header>
       <div class="w-full">
-        <div class="flex items-top gap-x-2 mt-6">
+        <div class="flex items-top gap-x-2">
           <checkbox
             id="accept-checkbox"
-            v-model:checked="confirmDeleteAccount" />
+            v-model:checked="confirmDeleteAccount"
+            variant="destructive" />
           <div class="grid gap-1.5 leading-none">
             <label
               class="font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-destructive text-sm"
@@ -42,7 +59,7 @@
               I accept
             </label>
             <p class="text-destructive text-sm">
-              I understand that this action is irreversible and will delete all my data.
+              I understand that this action is irreversible.
             </p>
           </div>
         </div>
@@ -56,7 +73,7 @@
           :loading="isSubmitting"
           variant="destructive"
           @click="handleConfirm">
-          Delete Account
+          Deactivate Account
         </button-root>
       </dialog-footer>
     </dialog-content>

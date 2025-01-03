@@ -331,7 +331,7 @@ export type Database = {
           profile_id: string | null
           quantity: number | null
           slug: string
-          unit: Database["public"]["Enums"]["item_unit"] | null
+          unit: Database["public"]["Enums"]["item_unit"]
           updated_at: string | null
           url: string | null
           weight: string | null
@@ -347,7 +347,7 @@ export type Database = {
           profile_id?: string | null
           quantity?: number | null
           slug: string
-          unit?: Database["public"]["Enums"]["item_unit"] | null
+          unit?: Database["public"]["Enums"]["item_unit"]
           updated_at?: string | null
           url?: string | null
           weight?: string | null
@@ -363,7 +363,7 @@ export type Database = {
           profile_id?: string | null
           quantity?: number | null
           slug?: string
-          unit?: Database["public"]["Enums"]["item_unit"] | null
+          unit?: Database["public"]["Enums"]["item_unit"]
           updated_at?: string | null
           url?: string | null
           weight?: string | null
@@ -684,6 +684,7 @@ export type Database = {
           city: string | null
           country: string | null
           created_at: string | null
+          deactivated_at: string | null
           email: string
           first_name: string | null
           fts: unknown | null
@@ -707,6 +708,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string | null
+          deactivated_at?: string | null
           email: string
           first_name?: string | null
           fts?: unknown | null
@@ -730,6 +732,7 @@ export type Database = {
           city?: string | null
           country?: string | null
           created_at?: string | null
+          deactivated_at?: string | null
           email?: string
           first_name?: string | null
           fts?: unknown | null
@@ -1054,8 +1057,8 @@ export type Database = {
           created_at: string | null
           id: number
           invite_token: string | null
-          invited_by_id: string | null
-          profile_id: string | null
+          invited_by_id: string
+          profile_id: string
           status: Database["public"]["Enums"]["trip_friend_status"]
           trip_id: number | null
           updated_at: string
@@ -1065,8 +1068,8 @@ export type Database = {
           created_at?: string | null
           id?: number
           invite_token?: string | null
-          invited_by_id?: string | null
-          profile_id?: string | null
+          invited_by_id: string
+          profile_id: string
           status?: Database["public"]["Enums"]["trip_friend_status"]
           trip_id?: number | null
           updated_at?: string
@@ -1076,8 +1079,8 @@ export type Database = {
           created_at?: string | null
           id?: number
           invite_token?: string | null
-          invited_by_id?: string | null
-          profile_id?: string | null
+          invited_by_id?: string
+          profile_id?: string
           status?: Database["public"]["Enums"]["trip_friend_status"]
           trip_id?: number | null
           updated_at?: string
@@ -1261,6 +1264,7 @@ export type Database = {
           city: string | null
           country: string | null
           created_at: string | null
+          deactivated_at: string | null
           email: string
           first_name: string | null
           fts: unknown | null

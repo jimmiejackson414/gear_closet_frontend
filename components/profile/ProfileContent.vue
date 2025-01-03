@@ -18,15 +18,14 @@
    */
   const $appStore = useAppStore();
   const $store = useUserStore();
-  const { profile } = storeToRefs($store);
 
   /**
    * Defines the new avatar file
    */
   const newAvatarFile = ref<FilePondFile | undefined>(undefined);
   const profileAvatar = computed(() => {
-    if (profile.value?.image) {
-      return buildImageSrc(profile.value.image);
+    if ($store.profile?.image) {
+      return buildImageSrc($store.profile.image);
     }
     return undefined;
   });
@@ -56,10 +55,10 @@
     keepValuesOnUnmount: true,
     validationSchema: formSchema,
     initialValues: {
-      first_name: profile.value?.first_name ?? undefined,
-      last_name: profile.value?.last_name ?? undefined,
-      trail_name: profile.value?.trail_name ?? undefined,
-      measuring_system: profile.value?.measuring_system as MeasuringSystem ?? undefined,
+      first_name: $store.profile?.first_name ?? undefined,
+      last_name: $store.profile?.last_name ?? undefined,
+      trail_name: $store.profile?.trail_name ?? undefined,
+      measuring_system: $store.profile?.measuring_system as MeasuringSystem ?? undefined,
     },
   });
 
@@ -105,11 +104,11 @@
       const supabase = useSupabaseClient<Database>();
       const { data: subscription } = await supabase.from('subscriptions')
         .select('*, prices(*)')
-        .eq('profile_id', profile.value!.id)
+        .eq('profile_id', $store.profile!.id)
         .returns<SubscriptionType>()
         .single();
 
-      if (subscription) profile.value!.subscriptions[0] = subscription;
+      if (subscription) $store.profile!.subscriptions[0] = subscription;
 
       // set selectedPlan if the user has a subscription
       if (response.subscriptions.length) {
@@ -196,24 +195,24 @@
       <div>
         <div class="mb-6">
           <typography
-            v-if="profile?.trail_name"
+            v-if="$store.profile?.trail_name"
             variant="h2">
-            {{ profile.trail_name }}
+            {{ $store.profile.trail_name }}
           </typography>
           <typography
             class="mb-2"
             variant="large">
-            {{ friendlyUsername((profile as any), { includeTrailName: false }) }}
+            {{ friendlyUsername(($store.profile as any), { includeTrailName: false }) }}
           </typography>
           <gc-pill
-            :copy="capitalize(profile!.subscriptions[0]?.prices.identifier) + ' Subscription'"
+            :copy="capitalize($store.profile!.subscriptions[0]?.prices.identifier) + ' Subscription'"
             size="sm"
             :variant="{
               [SubscriptionLevel.FREE]: 'warning' as const,
               [SubscriptionLevel.LIFE]: 'positive' as const,
               [SubscriptionLevel.ANNUAL]: 'positive' as const,
               [SubscriptionLevel.MONTHLY]: 'primary' as const,
-            }[profile!.subscriptions[0].prices.identifier as keyof typeof SubscriptionLevel] || 'primary'" />
+            }[$store.profile!.subscriptions[0].prices.identifier as keyof typeof SubscriptionLevel] || 'primary'" />
         </div>
         <tabs
           v-model="activeTab"
@@ -463,13 +462,13 @@
                 </div>
                 <separator />
                 <div class="flex items-start flex-col">
-                  <typography class="font-bold mb-2 text-destructive">
+                  <typography class="!font-bold mb-2 text-destructive">
                     Danger Zone
                   </typography>
                   <button-root
                     variant="destructive"
                     @click="isDeleteAccountDialogOpen = true">
-                    Delete Account
+                    Deactivate Account
                   </button-root>
                 </div>
               </div>

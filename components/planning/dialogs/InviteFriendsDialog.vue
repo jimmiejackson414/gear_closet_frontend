@@ -70,7 +70,7 @@
         trip_id: Number(selectedTripId.value),
         profile_id: f.id,
         status: TripFriendStatus.PENDING,
-        invited_by_id: user.value?.id,
+        invited_by_id: user.value?.id as string,
       }));
       const { data: invitedFriends, error } = await supabase.from('trip_friends')
         .insert(existingFriendsPayload)

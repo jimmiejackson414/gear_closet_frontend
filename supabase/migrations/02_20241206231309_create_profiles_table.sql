@@ -22,10 +22,11 @@ CREATE TABLE IF NOT EXISTS "public"."profiles" (
     "city" "text",
     "state" "text",
     "country" "text",
-    "created_at" timestamp with time zone DEFAULT "now"(),
-    "updated_at" timestamp with time zone DEFAULT "now"(),
     "location" "jsonb",
-    "slug" "text" NOT NULL UNIQUE
+    "slug" "text" NOT NULL UNIQUE,
+    "deactivated_at" timestamp with time zone,
+    "created_at" timestamp with time zone DEFAULT "now"(),
+    "updated_at" timestamp with time zone DEFAULT "now"()
 );
 
 -- Alter table statements

@@ -1,6 +1,6 @@
+import type { ForumResponse } from '@/pages/index.vue';
 import type { Tables } from "@/types";
 import type { ExtendedFriend } from "@/types/helpers";
-import type { ForumResponse } from '@/pages/index.vue';
 
 export const upcomingTrips: Tables<'trips'>[] = [
   {
@@ -55,6 +55,7 @@ export const friends: ExtendedFriend[] = [
       "country": "",
       "created_at": "2024-04-23T18:59:06.088498+00:00",
       "updated_at": "2024-04-25T19:19:01.034102+00:00",
+      "deactivated_at":null,
       "location": null,
       "fts": "'borga':2 'junebug':4 'shelly':1 'shelly.borga@gmail.com':3",
       "slug": "5110d6dd-f2eb-4366-983d-ae2921901c21",
@@ -81,6 +82,7 @@ export const friends: ExtendedFriend[] = [
       "city": "",
       "state": "",
       "country": "",
+      "deactivated_at":null,
       "created_at": "2024-04-23T18:59:06.088498+00:00",
       "updated_at": "2024-04-25T19:19:01.034102+00:00",
       "location": null,
@@ -109,6 +111,7 @@ export const friends: ExtendedFriend[] = [
       "city": "",
       "state": "",
       "country": "",
+      "deactivated_at":null,
       "created_at": "2024-04-23T18:59:06.088498+00:00",
       "updated_at": "2024-04-25T19:19:01.034102+00:00",
       "location": null,
@@ -131,6 +134,7 @@ export const friends: ExtendedFriend[] = [
       "image": "ea10a57b-54ed-42ee-9462-542bd7f0e760/3057.jpg",
       "role": "USER",
       "measuring_system": "IMPERIAL",
+      "deactivated_at":null,
       "onboard_date": "2024-04-24T00:34:01.263+00:00",
       "address_1": null,
       "address_2": null,
@@ -165,6 +169,7 @@ export const friends: ExtendedFriend[] = [
       "city": "",
       "state": "",
       "country": "",
+      "deactivated_at":null,
       "created_at": "2024-04-23T18:59:06.088498+00:00",
       "updated_at": "2024-04-25T19:19:01.034102+00:00",
       "location": null,
@@ -194,6 +199,7 @@ export const friends: ExtendedFriend[] = [
       "state": "",
       "country": "",
       "created_at": "2024-04-23T18:59:06.088498+00:00",
+      "deactivated_at":null,
       "updated_at": "2024-04-25T19:19:01.034102+00:00",
       "location": null,
       "fts": "'borga':2 'junebug':4 'shelly':1 'shelly.borga@gmail.com':3",
