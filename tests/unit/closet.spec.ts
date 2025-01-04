@@ -15,10 +15,10 @@ import CreatePackDialog from '@/components/closet/dialogs/CreatePackDialog.vue';
 import CsvUploadDialog from '@/components/closet/dialogs/CsvUploadDialog.vue';
 import DeleteCategoryDialog from '@/components/closet/dialogs/DeleteCategoryDialog.vue';
 import DeletePackDialog from '@/components/closet/dialogs/DeletePackDialog.vue';
+import UpdateThemeDialog from '@/components/closet/dialogs/PackSettingsDialog.vue';
 import PackSummaryEmptyState from '@/components/closet/dialogs/PackSummaryEmptyState.vue';
 import RemoveItemDialog from '@/components/closet/dialogs/RemoveItemDialog.vue';
 import SharePackDialog from '@/components/closet/dialogs/SharePackDialog.vue';
-import UpdateThemeDialog from '@/components/closet/dialogs/UpdateThemeDialog.vue';
 import PackItemsTable from '@/components/closet/PackItemsTable.vue';
 import { useClosetStore } from '@/stores/closet';
 import type { Tables } from '@/types';
@@ -249,7 +249,7 @@ describe('Closet Page', async () => {
       // End theme update
 
       // Dialog state
-      expect(store.dialogStates.updateThemeDialog)
+      expect(store.dialogStates.packSettingsDialog)
         .toBe(false);
 
       const menuButton = wrapper.findComponent({ name: 'MenuButton' });
@@ -259,10 +259,10 @@ describe('Closet Page', async () => {
 
       const menuItem = wrapper.findAllComponents({ name: 'MenuItem' })[0];
       menuItem.trigger('click');
-      expect(store.dialogStates.updateThemeDialog)
+      expect(store.dialogStates.packSettingsDialog)
         .toBe(true);
       // End dialog state
-      store.dialogStates.updateThemeDialog = false;
+      store.dialogStates.packSettingsDialog = false;
 
       // Rendering
       const renderedDetails = wrapper.findAll('[data-testid="pack-summary-detail"]');
@@ -765,7 +765,7 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(false);
-      store.dialogStates.updateThemeDialog = true;
+      store.dialogStates.packSettingsDialog = true;
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(true);
@@ -773,7 +773,7 @@ describe('Closet Page', async () => {
 
     it('closes the dialog correctly', async () => {
       const store = useClosetStore();
-      store.dialogStates.updateThemeDialog = true;
+      store.dialogStates.packSettingsDialog = true;
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(true);

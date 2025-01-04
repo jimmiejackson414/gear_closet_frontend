@@ -37,6 +37,6 @@
 
     <add-url-dialog />
 
-    <update-theme-dialog />
+    <pack-settings-dialog />
   </div>
 </template>

@@ -30,9 +30,10 @@ type State = {
     createPackDialog: boolean;
     deleteCategoryDialog: boolean;
     deletePackDialog: boolean;
+    packSettingsDialog: boolean;
     removeItemDialog: boolean;
     sharePackDialog: boolean;
-    updateThemeDialog: boolean;
+    // updateThemeDialog: boolean;
     uploadCsvDialog: boolean;
   }
   pageLoading: boolean;
@@ -62,9 +63,10 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
         createPackDialog: false,
         deleteCategoryDialog: false,
         deletePackDialog: false,
+        packSettingsDialog: false,
         removeItemDialog: false,
         sharePackDialog: false,
-        updateThemeDialog: false,
+        // updateThemeDialog: false,
         uploadCsvDialog: false,
       },
       pageLoading: true,

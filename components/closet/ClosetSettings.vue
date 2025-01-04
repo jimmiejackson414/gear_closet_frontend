@@ -42,6 +42,12 @@
               Share pack list
             </dropdown-menu-item>
             <dropdown-menu-item
+              v-tippy="{ content: !data.selectedPack ? 'Please select a pack.' : '' }"
+              :disabled="!data.selectedPack"
+              @select="dialogStates.packSettingsDialog = true">
+              Settings
+            </dropdown-menu-item>
+            <dropdown-menu-item
               v-tippy="{ content: !data.selectedPack ? 'Please select a pack to delete.' : '' }"
               :disabled="!data.selectedPack"
               @select="dialogStates.deletePackDialog = true">

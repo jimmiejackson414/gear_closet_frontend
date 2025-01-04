@@ -4,7 +4,7 @@
   import { Theme } from '@/types';
 
   const $store = useClosetStore();
-  const { data, dialogStates } = storeToRefs($store);
+  const { data } = storeToRefs($store);
 
   const details = reactive([
     { title: 'Worn', weight: 0, color: '' },
@@ -36,22 +36,6 @@
         <typography class="!font-bold">
           Stats
         </typography>
-      </div>
-      <div class="flex">
-        <dropdown-menu>
-          <dropdown-menu-trigger>
-            <icon-ellipsis-vertical class="h-6 w-6" />
-          </dropdown-menu-trigger>
-          <dropdown-menu-content>
-            <dropdown-menu-label>
-              Actions
-            </dropdown-menu-label>
-            <dropdown-menu-separator />
-            <dropdown-menu-item @select="dialogStates.updateThemeDialog = true">
-              Change theme
-            </dropdown-menu-item>
-          </dropdown-menu-content>
-        </dropdown-menu>
       </div>
     </div>
     <div class="grid grid-cols-2 gap-6 h-full pb-4">

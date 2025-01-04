@@ -1,6 +1,5 @@
 <script lang='ts' setup>
-  const $store = useUserStore();
-  definePageMeta({ layout: 'public-layout', colorMode: $store.profile ? undefined : 'light' });
+  definePageMeta({ layout: 'public-layout', colorMode: 'light' });
 </script>
 
 <template>

@@ -5,8 +5,7 @@
   import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
   import tailwind from '@/utils/tailwind';
 
-  const $store = useUserStore();
-  definePageMeta({ layout: 'public-layout', colorMode: $store.profile ? undefined : 'light' });
+  definePageMeta({ layout: 'public-layout', colorMode: 'light' });
 
   /**
    * Fetches the pack data.
@@ -162,11 +161,13 @@
     const comment = pack.value?.comments?.find((c) => c.id === reply.comment_id);
     if (comment) comment.replies = [reply, ...comment.replies];
   };
+
+  const displayPrivatePackWarning = ref(pack.value?.private || true);
 </script>
 
 <template>
   <div class="py-8">
-    <div v-if="!pack?.private">
+    <div v-if="!displayPrivatePackWarning">
       <div class="card card-main">
         <div class="flex justify-start items-center gap-4 mb-4">
           <h1 class="text-2xl">
@@ -349,20 +350,24 @@
       </div>
     </div>
 
-    <div
-      v-else
-      class="relative">
-      <div class="absolute inset-0 bg-white flex flex-col h-96 m-auto p-8 place-content-center place-items-center rounded-lg shadow text-center w-96 z-10">
-        <gc-logo-icon
-          :fill="tailwind.theme.colors.primary.DEFAULT"
-          wrapper-class="h-8 w-8 mb-4" />
-        <p class="mb-4 text-base-lg">
-          This pack is private!
-        </p>
-        <p class="text-base">
-          Please contact the pack owner for access.
-        </p>
-      </div>
+    <div v-else>
+      <alert-dialog v-model:open="displayPrivatePackWarning">
+        <alert-dialog-content class="max-w-96">
+          <div class="flex flex-col place-content-center place-items-center">
+            <gc-logo-icon
+              :fill="tailwind.theme.colors.primary.DEFAULT"
+              wrapper-class="h-8 w-8 mb-4" />
+            <typography
+              class="mb-4"
+              variant="large">
+              This pack is private!
+            </typography>
+            <typography>
+              Please contact the pack owner for access.
+            </typography>
+          </div>
+        </alert-dialog-content>
+      </alert-dialog>
       <div class="blur-sm card card-main">
         <div
           class="max-w-xl mx-auto p-4 md:p-6 w-full"
