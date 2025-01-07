@@ -17,7 +17,7 @@
       <button-root
         size="sm"
         variant="outline"
-        @click="dialogStates.createPackDialog = true">
+        @click="dialogStates.managePackSettingsDialog = true">
         Create your first pack
       </button-root>
     </gc-empty-state>

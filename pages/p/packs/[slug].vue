@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   // import { Tabs, type InstanceOptions, type TabItem, type TabsOptions } from 'flowbite';
   // import type { Column } from '@/components/closet/PackItemsTable.vue';
-  import type { Database } from '@/types';
+  import type { Database, Tables } from '@/types';
   import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
   import tailwind from '@/utils/tailwind';
 
@@ -11,39 +11,43 @@
    * Fetches the pack data.
    */
   const $appStore = useAppStore();
+  const $store = useClosetStore();
   const $route = useRoute();
-  const pack = ref<PublicPack | undefined>(undefined);
   const fetchPack = async () => {
     try {
+      $store.pageLoading = true;
       const supabase = useSupabaseClient<Database>();
       const { data: fetchedPack, error } = await supabase
         .from('packs')
         .select(`
           *,
-          profile:profiles (first_name, last_name, trail_name, image),
+          profile:profiles (*),
           categories(*,
             category_items(*,
               item:item_id(*)
             )
           ),
           comments(*,
-            profile:profiles (first_name, last_name, trail_name, image),
+            profile:profiles (*),
             replies(*,
-              profile:profiles (first_name, last_name, trail_name, image)
+              profile:profiles (*)
             )
           )
         `)
+        // .returns<PublicPack | undefined>()
         .eq('slug', $route.params.slug)
         .order('created_at', { referencedTable: 'comments', ascending: false })
         .order('created_at', { referencedTable: 'comments.replies', ascending: false })
-        .returns<PublicPack | undefined>()
         .maybeSingle();
 
       if (error) throw error;
       if (!fetchedPack) throw new Error('No pack data found');
-      pack.value = fetchedPack;
+      $store.data.selectedPack = fetchedPack as PublicPack;
+      // pack.value = fetchedPack;
     } catch (error) {
       $appStore.notifyNegative('Failed to fetch pack data');
+    } finally {
+      $store.pageLoading = false;
     }
   };
   await fetchPack();
@@ -121,7 +125,7 @@
       const { data, error } = await supabase
         .from('comments')
         .insert({
-          pack_id: pack.value?.id as number,
+          pack_id: $store.data.selectedPack?.id as number,
           profile_id: user.value?.id as string,
           text,
         })
@@ -141,10 +145,11 @@
         `)
         .eq('id', data?.[0]?.id as number)
         .order('created_at', { referencedTable: 'replies', ascending: false })
+        .returns<ExtendedComment | undefined>()
         .maybeSingle();
 
       if (!comment || commentError) throw commentError;
-      pack.value?.comments?.unshift(comment as ExtendedComment);
+      ($store.data.selectedPack as PublicPack)?.comments?.unshift(comment);
       quillEditorRef.value?.setText('');
       $appStore.notifyPositive('Comment successfully added!');
     } catch (error) {
@@ -158,11 +163,24 @@
    * Adds a reply to a comment
    */
   const handleAddReply = (reply: ExtendedReply) => {
-    const comment = pack.value?.comments?.find((c) => c.id === reply.comment_id);
+    // @ts-ignore
+    const comment = pack.value?.comments.find(c => c.id === reply.comment_id);
     if (comment) comment.replies = [reply, ...comment.replies];
   };
 
-  const displayPrivatePackWarning = ref(pack.value?.private || true);
+  const displayPrivatePackWarning = ref($store.data.selectedPack?.private ?? true);
+
+  const selectedPackName = computed(() => {
+    const name = $store.data.selectedPack?.name || '';
+    return name.toLowerCase()
+      .includes('Pack') ? name : name + ' Pack';
+  });
+
+  enum TableTabs {
+    DETAILS,
+    COMMENTS,
+  }
+  const activeTab = ref(TableTabs.DETAILS);
 </script>
 
 <template>
@@ -171,15 +189,42 @@
       <div class="card card-main">
         <div class="flex justify-start items-center gap-4 mb-4">
           <h1 class="text-2xl">
-            {{ friendlyUsername(pack?.profile as any, { includeTrailName: true }) }}'s
+            {{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile, { includeTrailName: true }) }}'s
           </h1>
           <h1 class="font-bold text-2xl">
-            {{ pack?.name }}
+            {{ selectedPackName }}
           </h1>
         </div>
-        <public-pack-summary :pack="pack" />
+        <div class="grid lg:grid-cols-[1fr,auto,40%] grid-cols-1 gap-6 pt-4">
+          <closet-pack-chart />
+          <separator orientation="vertical" />
+          <closet-pack-details />
+        </div>
 
-        <div class="border-b border-gray-200 mt-14">
+        <tabs
+          v-model="activeTab"
+          activation-mode="manual"
+          class="mt-14 w-full"
+          :default-value="TableTabs.DETAILS">
+          <tabs-list class="grid grid-cols-2 w-full">
+            <tabs-trigger :value="TableTabs.DETAILS">
+              Details
+            </tabs-trigger>
+            <tabs-trigger
+              :disabled="!$store.data.selectedPack?.allow_comments"
+              :value="TableTabs.COMMENTS">
+              Comments
+            </tabs-trigger>
+          </tabs-list>
+          <tabs-content :value="TableTabs.DETAILS">
+            Details
+          </tabs-content>
+          <tabs-content :value="TableTabs.COMMENTS">
+            Comments
+          </tabs-content>
+        </tabs>
+
+        <!-- <div class="border-b border-gray-200 mt-14">
           <ul
             id="default-tab"
             class="-mb-px flex flex-wrap font-medium text-center text-gray-500 text-sm"
@@ -202,14 +247,14 @@
               role="presentation">
               <button
                 id="comments-tab"
-                v-tippy="{ content: !pack?.allow_comments ? 'Comments are disabled for this pack' : '' }"
+                v-tippy="{ content: !$store.data.selectedPack?.allow_comments ? 'Comments are disabled for this pack' : '' }"
                 aria-controls="comments"
                 aria-selected="true"
                 class="border-b-2 hover:border-gray-300 border-transparent inline-block p-4 rounded-t-lg hover:text-gray-600"
-                :class="{ 'cursor-not-allowed': !pack?.allow_comments }"
+                :class="{ 'cursor-not-allowed': !$store.data.selectedPack?.allow_comments }"
                 role="tab"
                 type="button">
-                Comments ({{ pack?.comments?.length || 0 }})
+                Comments ({{ ($store.data.selectedPack as PublicPack)?.comments?.length || 0 }})
               </button>
             </li>
           </ul>
@@ -221,7 +266,7 @@
             class="hidden"
             role="tabpanel">
             <div
-              v-for="category in pack?.categories"
+              v-for="category in $store.data.selectedPack?.categories"
               :key="category.id"
               class="bg-gray-50 mb-8 overflow-x-auto px-2 py-4 rounded-lg w-full">
               <p class="!font-bold mb-3 ml-4 text-base">
@@ -304,12 +349,12 @@
             </div>
           </div>
           <div
-            v-if="pack?.allow_comments"
+            v-if="$store.data.selectedPack?.allow_comments"
             id="comments"
             aria-labelledby="comments-tab"
             class="bg-gray-50 hidden p-4 rounded-lg"
             role="tabpanel">
-            <gc-empty-state v-if="!pack?.comments?.length">
+            <gc-empty-state v-if="!($store.data.selectedPack as PublicPack)?.comments?.length">
               <p class="text-base">
                 No comments have been made yet.
               </p>
@@ -319,7 +364,7 @@
                 v-if="!!user"
                 class="flex items-end flex-col px-6">
                 <p class="my-2 text-gray-500 text-sm">
-                  Commenting as <span class="font-bold">{{ friendlyUsername(pack.profile) }}</span>
+                  Commenting as <span class="font-bold">{{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile) }}</span>
                 </p>
                 <client-only>
                   <quill-editor
@@ -340,13 +385,13 @@
                 </button-root>
               </div>
               <public-pack-comment
-                v-for="comment in pack?.comments"
+                v-for="comment in ($store.data.selectedPack as PublicPack)?.comments"
                 :key="comment.id"
                 :comment="comment"
                 @handle-add-reply="handleAddReply" />
             </div>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
 

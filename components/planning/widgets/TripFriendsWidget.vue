@@ -31,7 +31,7 @@
   </card>
 
   <!-- Invite Friends Modal -->
-  <invite-friends-dialog
+  <lazy-invite-friends-dialog
     :is-open="isInviteModalOpen"
     @on-close="isInviteModalOpen = false" />
 </template>

@@ -3,7 +3,6 @@
   import type { ExtendedPack } from '@/types/helpers';
 
   const $store = useClosetStore();
-  const { activeCategoryId, data, dialogStates } = storeToRefs($store);
   const submitting = ref(false);
 
   /**
@@ -42,14 +41,14 @@
 
       if (!error && !closetError) {
         // Find the index of the category in the pack
-        const categoryIndex = (data.value.selectedPack as ExtendedPack).categories.findIndex(c => c.id === $store.activeCategoryId);
+        const categoryIndex = ($store.data.selectedPack as ExtendedPack).categories.findIndex(c => c.id === $store.activeCategoryId);
 
         // Remove the category from the pack
         if (categoryIndex !== -1) {
-          (data.value.selectedPack as ExtendedPack).categories.splice(categoryIndex, 1);
+          ($store.data.selectedPack as ExtendedPack).categories.splice(categoryIndex, 1);
         }
         $appStore.notifyPositive(`Category ${removeItemCheckbox.value ? 'and its items' : ''} removed successfully.`);
-        dialogStates.value.deleteCategoryDialog = false;
+        $store.dialogStates.deleteCategoryDialog = false;
       } else {
         $appStore.notifyNegative('There was an error removing the category or its items.');
       }
@@ -62,14 +61,14 @@
   };
 
   const handleClose = () => {
-    dialogStates.value.deleteCategoryDialog = false;
+    $store.dialogStates.deleteCategoryDialog = false;
     removeItemCheckbox.value = false;
-    activeCategoryId!.value = undefined;
+    $store.activeCategoryId = undefined;
   };
 </script>
 
 <template>
-  <dialog-root v-model:open="dialogStates.deleteCategoryDialog">
+  <dialog-root v-model:open="$store.dialogStates.deleteCategoryDialog">
     <dialog-content
       class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
       @escape-key-down="handleClose"

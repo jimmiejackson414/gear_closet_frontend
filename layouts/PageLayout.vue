@@ -19,13 +19,12 @@
   const $appStore = useAppStore();
 
   const { loading } = storeToRefs($appStore);
-  const { profile } = storeToRefs($store);
 
   const { data, error } = await useFetch<Tables<'profiles'> | null>('/api/profile', {
     headers: useRequestHeaders(['cookie']),
   });
 
-  profile.value = data.value as any;
+  $store.profile = data.value as any;
 
   if (!error.value && data.value && !data.value.onboard_date) {
     $router.push('/onboarding');

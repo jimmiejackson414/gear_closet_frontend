@@ -169,7 +169,7 @@
   </card>
 
   <!-- Modify Detail Dialog -->
-  <modify-detail-dialog
+  <lazy-modify-detail-dialog
     :active-detail="( activeDetail as Tables<'trip_details'> )"
     :is-open="isModifyDetailDialogOpen"
     @on-close="isModifyDetailDialogOpen = false" />

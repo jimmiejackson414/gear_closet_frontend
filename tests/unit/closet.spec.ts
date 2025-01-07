@@ -11,11 +11,10 @@ import ClosetPackCategories from '@/components/closet/ClosetPackCategories.vue';
 import ClosetPackDetails from '@/components/closet/ClosetPackDetails.vue';
 import ClosetSettings from '@/components/closet/ClosetSettings.vue';
 import AddUrlDialog from '@/components/closet/dialogs/AddUrlDialog.vue';
-import CreatePackDialog from '@/components/closet/dialogs/CreatePackDialog.vue';
 import CsvUploadDialog from '@/components/closet/dialogs/CsvUploadDialog.vue';
 import DeleteCategoryDialog from '@/components/closet/dialogs/DeleteCategoryDialog.vue';
 import DeletePackDialog from '@/components/closet/dialogs/DeletePackDialog.vue';
-import UpdateThemeDialog from '@/components/closet/dialogs/PackSettingsDialog.vue';
+import ManagePackSettingsDialog from '@/components/closet/dialogs/ManagePackSettingsDialog.vue';
 import PackSummaryEmptyState from '@/components/closet/dialogs/PackSummaryEmptyState.vue';
 import RemoveItemDialog from '@/components/closet/dialogs/RemoveItemDialog.vue';
 import SharePackDialog from '@/components/closet/dialogs/SharePackDialog.vue';
@@ -249,7 +248,7 @@ describe('Closet Page', async () => {
       // End theme update
 
       // Dialog state
-      expect(store.dialogStates.packSettingsDialog)
+      expect(store.dialogStates.managePackSettingsDialog)
         .toBe(false);
 
       const menuButton = wrapper.findComponent({ name: 'MenuButton' });
@@ -259,10 +258,10 @@ describe('Closet Page', async () => {
 
       const menuItem = wrapper.findAllComponents({ name: 'MenuItem' })[0];
       menuItem.trigger('click');
-      expect(store.dialogStates.packSettingsDialog)
+      expect(store.dialogStates.managePackSettingsDialog)
         .toBe(true);
       // End dialog state
-      store.dialogStates.packSettingsDialog = false;
+      store.dialogStates.managePackSettingsDialog = false;
 
       // Rendering
       const renderedDetails = wrapper.findAll('[data-testid="pack-summary-detail"]');
@@ -520,10 +519,10 @@ describe('Closet Page', async () => {
     });
   });
 
-  describe('CreatePackDialog.vue', async () => {
+  describe('ModifyPackSettingsDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
-      wrapper = await mountSuspended(CreatePackDialog, {
+      wrapper = await mountSuspended(ManagePackSettingsDialog, {
         global: {
           plugins: [VueTippy],
         },
@@ -534,7 +533,7 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(false);
-      store.dialogStates.createPackDialog = true;
+      store.dialogStates.managePackSettingsDialog = true;
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(true);
@@ -542,7 +541,7 @@ describe('Closet Page', async () => {
 
     it('closes the dialog correctly', async () => {
       const store = useClosetStore();
-      store.dialogStates.createPackDialog = true;
+      store.dialogStates.managePackSettingsDialog = true;
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(true);
@@ -754,7 +753,7 @@ describe('Closet Page', async () => {
   describe('UpdateThemeDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
-      wrapper = await mountSuspended(UpdateThemeDialog, {
+      wrapper = await mountSuspended(ManagePackSettingsDialog, {
         global: {
           plugins: [VueTippy],
         },
@@ -765,7 +764,7 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(false);
-      store.dialogStates.packSettingsDialog = true;
+      store.dialogStates.managePackSettingsDialog = true;
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(true);
@@ -773,7 +772,7 @@ describe('Closet Page', async () => {
 
     it('closes the dialog correctly', async () => {
       const store = useClosetStore();
-      store.dialogStates.packSettingsDialog = true;
+      store.dialogStates.managePackSettingsDialog = true;
       await wrapper.vm.$nextTick();
       expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
         .toBe(true);

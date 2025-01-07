@@ -5,9 +5,6 @@
   import type { FilePondFile } from 'filepond';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
-  import DeleteAccountDialog from '@/components/profile/dialogs/DeleteAccountDialog.vue';
-  import ManageSubscriptionDialog from '@/components/profile/dialogs/ManageSubscriptionDialog.vue';
-  import UpdatePaymentMethodDialog from '@/components/profile/dialogs/UpdatePaymentMethodDialog.vue';
   import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
   import type { SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
 
@@ -479,17 +476,17 @@
     </div>
 
     <!--    Dialogs-->
-    <manage-subscription-dialog
+    <lazy-manage-subscription-dialog
       :is-open="isManageSubscriptionOpen"
       :selected-plan="selectedPlan"
       :subscription-data="( subscriptionData as SubscriptionApiResponse )"
       @on-close="isManageSubscriptionOpen = false" />
 
-    <update-payment-method-dialog
+    <lazy-update-payment-method-dialog
       :is-open="isUpdatePaymentDialogOpen"
       @on-close="isUpdatePaymentDialogOpen = false" />
 
-    <delete-account-dialog
+    <lazy-delete-account-dialog
       :is-open="isDeleteAccountDialogOpen"
       @on-close="isDeleteAccountDialogOpen = false" />
   </div>

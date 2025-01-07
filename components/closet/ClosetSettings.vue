@@ -3,13 +3,14 @@
 
   const $store = useClosetStore();
   const $userStore = useUserStore();
-  const { data, dialogStates, pageLoading } = storeToRefs($store);
 
-  const packOptions = computed(() => data.value.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
+  const packOptions = computed(() => $store.data.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
 
+  const defaultMode = ref<'create' | 'update'>('create');
+  const mode = inject<Ref<'create' | 'update'>>('dialogMode', defaultMode);
   const handleSelectPack = async (val: string) => {
     const cookie = useCookie('selectedPackId');
-    const foundPack = data.value.allPacks.find(p => p.id === Number(val));
+    const foundPack = $store.data.allPacks.find(p => p.id === Number(val));
     cookie.value = encrypt(foundPack?.id);
   };
 </script>
@@ -30,39 +31,39 @@
             </dropdown-menu-label>
             <dropdown-menu-separator />
             <dropdown-menu-item
-              v-tippy="{ content: !data.selectedPack ? 'Please select a pack to import items.' : '' }"
-              :disabled="!data.selectedPack"
-              @select="dialogStates.uploadCsvDialog = true">
+              v-tippy="{ content: !$store.data.selectedPack ? 'Please select a pack to import items.' : '' }"
+              :disabled="!$store.data.selectedPack"
+              @select="$store.dialogStates.uploadCsvDialog = true">
               Import from CSV
             </dropdown-menu-item>
             <dropdown-menu-item
-              v-tippy="{ content: !data.selectedPack ? 'Please select a pack to share.' : '' }"
-              :disabled="!data.selectedPack"
-              @select="dialogStates.sharePackDialog = true">
+              v-tippy="{ content: !$store.data.selectedPack ? 'Please select a pack to share.' : '' }"
+              :disabled="!$store.data.selectedPack"
+              @select="$store.dialogStates.sharePackDialog = true">
               Share pack list
             </dropdown-menu-item>
             <dropdown-menu-item
-              v-tippy="{ content: !data.selectedPack ? 'Please select a pack.' : '' }"
-              :disabled="!data.selectedPack"
-              @select="dialogStates.packSettingsDialog = true">
+              v-tippy="{ content: !$store.data.selectedPack ? 'Please select a pack.' : '' }"
+              :disabled="!$store.data.selectedPack"
+              @select="[ $store.dialogStates.managePackSettingsDialog = true, mode = 'update' ]">
               Settings
             </dropdown-menu-item>
             <dropdown-menu-item
-              v-tippy="{ content: !data.selectedPack ? 'Please select a pack to delete.' : '' }"
-              :disabled="!data.selectedPack"
-              @select="dialogStates.deletePackDialog = true">
+              v-tippy="{ content: !$store.data.selectedPack ? 'Please select a pack to delete.' : '' }"
+              :disabled="!$store.data.selectedPack"
+              @select="$store.dialogStates.deletePackDialog = true">
               Delete pack
             </dropdown-menu-item>
           </dropdown-menu-content>
         </dropdown-menu>
       </div>
       <select-root
-        :default-value="String(data.selectedPack?.id)"
-        :disabled="pageLoading"
-        :model-value="String(data.selectedPack?.id)"
+        :default-value="String($store.data.selectedPack?.id)"
+        :disabled="$store.pageLoading"
+        :model-value="String($store.data.selectedPack?.id)"
         @update:model-value="handleSelectPack">
         <select-trigger class="min-w-[180px]">
-          <span v-if="!data.selectedPack?.id">Selected Pack</span>
+          <span v-if="!$store.data.selectedPack?.id">Selected Pack</span>
           <select-value placeholder="Selected Pack" />
         </select-trigger>
         <select-content>
@@ -89,12 +90,12 @@
 
     <div
       v-tippy="{
-        content: !$userStore.isPaidMember && data.allPacks.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : ''
+        content: !$userStore.isPaidMember && $store.data.allPacks.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : ''
       }">
       <button-root
         class="self-center"
-        :disabled="!$userStore.isPaidMember && data.allPacks.length >= 1"
-        @click="$store.dialogStates.createPackDialog = true">
+        :disabled="!$userStore.isPaidMember && $store.data.allPacks.length >= 1"
+        @click="[ $store.dialogStates.managePackSettingsDialog = true, mode = 'create' ]">
         <icon-plus class="h-4 text-primary-foreground w-4" />
         New Pack
       </button-root>

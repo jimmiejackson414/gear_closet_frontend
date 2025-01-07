@@ -85,14 +85,14 @@
   </card>
 
   <!-- Create & Edit Modal -->
-  <modify-poll-dialog
+  <lazy-modify-poll-dialog
     :form="data.poll ?? blankModalForm"
     :is-open="isPollDialogOpen"
     :state="modalState"
     @on-close="isPollDialogOpen = false" />
 
   <!-- Delete Confirm Modal -->
-  <delete-poll-dialog
+  <lazy-delete-poll-dialog
     :is-open="isDeleteConfirmOpen"
     @on-close="isDeleteConfirmOpen = false" />
 </template>

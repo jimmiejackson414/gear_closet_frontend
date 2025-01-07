@@ -30,7 +30,7 @@
 
     <planning-content v-else />
 
-    <create-trip-dialog
+    <lazy-create-trip-dialog
       :is-open="isCreateTripDialogOpen"
       @on-close="isCreateTripDialogOpen = false" />
   </div>

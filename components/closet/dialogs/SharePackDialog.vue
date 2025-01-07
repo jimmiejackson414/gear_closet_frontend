@@ -3,7 +3,6 @@
   import { IconLink } from '#components';
 
   const $store = useClosetStore();
-  const { data, dialogStates } = storeToRefs($store);
   const shareLink = ref('');
   const submitting = ref(false);
 
@@ -14,19 +13,19 @@
     $appStore.notifyInfo('Copied to clipboard!');
   };
 
-  watch(() => dialogStates.value.sharePackDialog, (newValue) => {
+  watch(() => $store.dialogStates.sharePackDialog, (newValue) => {
     if (newValue) {
-      shareLink.value = `${window.location.origin}/p/packs/${data.value.selectedPack?.slug}`;
+      shareLink.value = `${window.location.origin}/p/packs/${$store.data.selectedPack?.slug}`;
     }
   }, { immediate: true });
 </script>
 
 <template>
-  <dialog-root :open="dialogStates.sharePackDialog">
+  <dialog-root :open="$store.dialogStates.sharePackDialog">
     <dialog-content
       class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
-      @escape-key-down="dialogStates.sharePackDialog = false"
-      @interact-outside="dialogStates.sharePackDialog = false">
+      @escape-key-down="$store.dialogStates.sharePackDialog = false"
+      @interact-outside="$store.dialogStates.sharePackDialog = false">
       <dialog-header>
         <dialog-title>
           Share your pack
@@ -58,7 +57,7 @@
       <dialog-footer>
         <dialog-close
           :disabled="submitting"
-          @click="dialogStates.sharePackDialog = false">
+          @click="$store.dialogStates.sharePackDialog = false">
           Cancel
         </dialog-close>
       </dialog-footer>

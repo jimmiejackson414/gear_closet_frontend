@@ -227,13 +227,13 @@
   </card>
 
   <!-- Add or Update a Pack Modal -->
-  <change-pack-dialog
+  <lazy-change-pack-dialog
     :is-open="isAddPackModalOpen"
     :state="modalState"
     @on-close="isAddPackModalOpen = false" />
 
   <!-- Change Theme Modal -->
-  <change-pack-theme-dialog
+  <lazy-change-pack-theme-dialog
     :is-open="isChangeThemeModalOpen"
     @on-close="isChangeThemeModalOpen = false"
     @update-theme="updateTheme" />

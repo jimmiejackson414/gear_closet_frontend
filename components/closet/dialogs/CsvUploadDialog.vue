@@ -4,7 +4,6 @@
   import type { ExtendedCategory, ExtendedPack, ParsedResults } from '@/types/helpers';
 
   const $store = useClosetStore();
-  const { data, dialogStates } = storeToRefs($store);
   const submitting = ref(false);
   const file = ref<File | undefined>(undefined);
   const parsingResult = ref<{ status?: 'success' | 'failure', message?: string }>({
@@ -56,13 +55,13 @@
       if (parseResults.data?.length) {
         const { data: createdCategory, error } = await supabase
           .rpc('import_csv_data', {
-            p_pack_id: data.value.selectedPack?.id as number,
+            p_pack_id: $store.data.selectedPack?.id as number,
             csv_data: parseResults.data,
           })
           .returns<ExtendedCategory[]>();
 
         if (createdCategory && !error) {
-          (data.value.selectedPack as ExtendedPack).categories.push(...createdCategory);
+          ($store.data.selectedPack as ExtendedPack).categories.push(...createdCategory);
           $appStore.notifyPositive('Successfully imported your items!');
         } else {
           $appStore.notifyNegative('There was an error importing the CSV.');
@@ -72,14 +71,14 @@
       $appStore.notifyNegative('There was an error uploading the csv.');
     } finally {
       submitting.value = false;
-      dialogStates.value.uploadCsvDialog = false;
+      $store.dialogStates.uploadCsvDialog = false;
     }
   };
 
   /**
    * Reset file and parsing result on close
    */
-  watch(() => dialogStates.value.uploadCsvDialog, (newValue) => {
+  watch(() => $store.dialogStates.uploadCsvDialog, (newValue) => {
     if (!newValue) {
       file.value = undefined;
       parsingResult.value = {
@@ -90,12 +89,12 @@
   });
 
   const handleClose = () => {
-    dialogStates.value.uploadCsvDialog = false;
+    $store.dialogStates.uploadCsvDialog = false;
   };
 </script>
 
 <template>
-  <dialog-root :open="dialogStates.uploadCsvDialog">
+  <dialog-root :open="$store.dialogStates.uploadCsvDialog">
     <dialog-content
       class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
       @escape-key-down="handleClose"

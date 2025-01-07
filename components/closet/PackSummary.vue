@@ -1,12 +1,10 @@
 <script lang='ts' setup>
   const $store = useClosetStore();
-  const { data, pageLoading } = storeToRefs($store);
-
 </script>
 
 <template>
-  <div v-if="data.selectedPack && !pageLoading">
-    <pack-summary-empty-state v-if="!data.selectedPack.categories?.length" />
+  <div v-if="$store.data.selectedPack && !$store.pageLoading">
+    <pack-summary-empty-state v-if="!$store.data.selectedPack.categories?.length" />
     <div v-else>
       <card
         class="px-8 py-4 rounded-3xl"
