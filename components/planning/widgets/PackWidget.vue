@@ -23,7 +23,6 @@
 
   const $store = usePlanningStore();
   const $appStore = useAppStore();
-  const { data, pageLoading } = storeToRefs($store);
 
   const modalState = ref<'insert' | 'update' | undefined>(undefined);
   const isAddPackModalOpen = ref(false);
@@ -65,7 +64,7 @@
           textStyle: {
             color: legendTextColor.value,
           },
-          data: data.value.pack?.categories?.map(c => ({
+          data: $store.data.pack?.categories?.map(c => ({
             name: c.name as string,
             textStyle: {
               overflow: 'truncate',
@@ -76,7 +75,7 @@
         grid: {
           bottom: '30%',
         },
-        loading: pageLoading.value,
+        loading: $store.pageLoading,
         media: [
           {
             query: {
@@ -108,7 +107,7 @@
             center: ['80%', '50%'],
             left: 'center',
             height: '100%',
-            data: data.value.pack?.categories?.map(c => ({
+            data: $store.data.pack?.categories?.map(c => ({
               name: c.name,
               value: calculateCategoryWeight(c as ExtendedCategory),
             })) as { name: string, value: number }[],
@@ -118,7 +117,7 @@
               borderColor: 'white',
               borderWidth: 2,
               color: (params: any) => {
-                const theme = findTheme(data.value.pack?.theme as Theme);
+                const theme = findTheme($store.data.pack?.theme as Theme);
                 return theme[params.dataIndex % theme.length];
               },
             },
@@ -128,7 +127,7 @@
           show: true,
           trigger: 'item',
           formatter: (value: any) => {
-            const category = data.value.pack?.categories?.[value.dataIndex];
+            const category = $store.data.pack?.categories?.[value.dataIndex];
             const categoryWeight = calculateCategoryWeight(category as ExtendedCategory);
             const weight = round(convert(categoryWeight, 'mg')
               .to('lb'), 2);
@@ -177,7 +176,7 @@
         </p>
       </div>
       <div
-        v-if="data.pack"
+        v-if="$store.data.pack"
         class="flex">
         <dropdown-menu>
           <dropdown-menu-trigger>
@@ -198,8 +197,8 @@
         </dropdown-menu>
       </div>
     </div>
-    <gc-skeleton v-if="pageLoading" />
-    <gc-empty-state v-else-if="!data.pack && !pageLoading">
+    <gc-skeleton v-if="$store.pageLoading" />
+    <gc-empty-state v-else-if="!$store.data.pack && !$store.pageLoading">
       <p class="mb-4 text-base">
         You haven't added a pack to this trip yet!
       </p>
@@ -213,7 +212,7 @@
     <div v-else>
       <h5 class="text-base-lg">
         Selected Pack:
-        <span class="font-black">{{ data.pack?.name }}</span>
+        <span class="font-black">{{ $store.data.pack?.name }}</span>
       </h5>
       <div class="h-[400px] mb-4 mt-0 mx-auto w-full">
         <client-only>

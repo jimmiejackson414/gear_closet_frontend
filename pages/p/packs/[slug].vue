@@ -1,11 +1,12 @@
 <script lang='ts' setup>
   // import { Tabs, type InstanceOptions, type TabItem, type TabsOptions } from 'flowbite';
   // import type { Column } from '@/components/closet/PackItemsTable.vue';
+  import { cn } from '@/lib/utils';
   import type { Database, Tables } from '@/types';
   import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
   import tailwind from '@/utils/tailwind';
 
-  definePageMeta({ layout: 'public-layout', colorMode: 'light' });
+  definePageMeta({ layout: 'public-layout', colorMode: 'light', public: true });
 
   /**
    * Fetches the pack data.
@@ -195,29 +196,33 @@
             {{ selectedPackName }}
           </h1>
         </div>
-        <div class="grid lg:grid-cols-[1fr,auto,40%] grid-cols-1 gap-6 pt-4">
-          <closet-pack-chart />
-          <separator orientation="vertical" />
-          <closet-pack-details />
-        </div>
+        <card class="px-8 py-4 rounded-3xl">
+          <div class="grid lg:grid-cols-[1fr,auto,40%] grid-cols-1 gap-6">
+            <closet-pack-chart />
+            <separator orientation="vertical" />
+            <closet-pack-details />
+          </div>
+        </card>
 
         <tabs
           v-model="activeTab"
           activation-mode="manual"
-          class="mt-14 w-full"
+          class="mt-14"
           :default-value="TableTabs.DETAILS">
-          <tabs-list class="grid grid-cols-2 w-full">
-            <tabs-trigger :value="TableTabs.DETAILS">
+          <tabs-list class="bg-background border-b border-muted-foreground pb-0 rounded-none">
+            <tabs-trigger
+              class="!shadow-none border-b-2 data-[state=active]:border-primary data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-none rounded-none hover:text-primary"
+              :value="TableTabs.DETAILS">
               Details
             </tabs-trigger>
             <tabs-trigger
-              :disabled="!$store.data.selectedPack?.allow_comments"
+              class="!shadow-none border-b-2 data-[state=active]:border-primary data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-none rounded-none hover:text-primary"
               :value="TableTabs.COMMENTS">
               Comments
             </tabs-trigger>
           </tabs-list>
           <tabs-content :value="TableTabs.DETAILS">
-            Details
+            <closet-pack-categories />
           </tabs-content>
           <tabs-content :value="TableTabs.COMMENTS">
             Comments

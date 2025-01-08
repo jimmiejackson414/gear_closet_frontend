@@ -20,7 +20,7 @@
    * Add friend request
    */
   const $appStore = useAppStore();
-  const { profile: userProfile } = storeToRefs(useUserStore());
+  const $store = useUserStore();
   const submitting = ref(false);
   const submittedRequest = ref(props.requestPending);
   const handleAddFriend = async () => {
@@ -46,7 +46,7 @@
         .insert([
           {
             title: 'New Friend Request',
-            content: `You have a new friend request from ${userProfile.value?.first_name} ${userProfile.value?.last_name}.`,
+            content: `You have a new friend request from ${$store.profile?.first_name} ${$store.profile?.last_name}.`,
             profile_id: props.profile.id,
           },
         ]);

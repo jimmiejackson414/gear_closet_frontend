@@ -37,7 +37,9 @@ type State = {
   pageLoading: boolean;
 };
 
-type Getters = {};
+type Getters = {
+  isPublicRoute: () => boolean;
+};
 
 type Actions = {
   fetchClosetPage(packId: number): Promise<void>;
@@ -67,6 +69,13 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
       },
       pageLoading: true,
     }),
+
+    getters: {
+      isPublicRoute (): boolean {
+        const $route = useRoute();
+        return $route.meta.public as boolean || false;
+      },
+    },
 
     actions: {
       /**

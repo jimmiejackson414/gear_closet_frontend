@@ -3,15 +3,14 @@
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data, pageLoading, selectedTripId } = storeToRefs($store);
 
   const activeTab = ref<ResourceType>(ResourceType.USER);
   const userItems = computed(() => {
-    return data.value.shopping_items.filter(t => t.resource_type === ResourceType.USER);
+    return $store.data.shopping_items.filter(t => t.resource_type === ResourceType.USER);
   });
 
   const groupItems = computed(() => {
-    return data.value.shopping_items.filter(t => t.resource_type === ResourceType.GROUP);
+    return $store.data.shopping_items.filter(t => t.resource_type === ResourceType.GROUP);
   });
 
   /**
@@ -28,12 +27,12 @@
           quantity: 1,
           resource_type: activeTab.value,
           title: 'New shopping item',
-          trip_id: Number(selectedTripId?.value),
+          trip_id: Number($store.selectedTripId),
         })
         .select();
 
       if (newItem?.length && !error) {
-        data.value.shopping_items.push(newItem[0]);
+        $store.data.shopping_items.push(newItem[0]);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new shopping item.');
@@ -53,8 +52,8 @@
         .select();
 
       if (updatedShoppingItem?.length && !error) {
-        const index = data.value.shopping_items.findIndex((t) => t.id === shoppingItem.id);
-        data.value.shopping_items[index] = updatedShoppingItem[0];
+        const index = $store.data.shopping_items.findIndex((t) => t.id === shoppingItem.id);
+        $store.data.shopping_items[index] = updatedShoppingItem[0];
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error updating the shopping item.');
@@ -68,11 +67,11 @@
     try {
       const supabase = useSupabaseClient<Database>();
       const { data: updatedShoppingItems, error } = await supabase.from('shopping_list_items')
-        .upsert(data.value.shopping_items)
+        .upsert($store.data.shopping_items)
         .select();
 
       if (updatedShoppingItems?.length && !error) {
-        data.value.shopping_items = updatedShoppingItems;
+        $store.data.shopping_items = updatedShoppingItems;
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error updating the shopping items.');
@@ -88,15 +87,15 @@
         Shopping Items
       </p>
       <button-root
-        v-if="!pageLoading && data?.shopping_items.length"
+        v-if="!$store.pageLoading && $store.data?.shopping_items.length"
         class="justify-self-end rounded-full"
         size="icon"
         @click="createShoppingItem">
         <icon-plus />
       </button-root>
     </div>
-    <gc-skeleton v-if="pageLoading" />
-    <gc-empty-state v-else-if="!pageLoading && !data?.shopping_items.length">
+    <gc-skeleton v-if="$store.pageLoading" />
+    <gc-empty-state v-else-if="!$store.pageLoading && !$store.data?.shopping_items.length">
       <p class="mb-4 text-base">
         You haven't added any shopping items to this trip yet!
       </p>

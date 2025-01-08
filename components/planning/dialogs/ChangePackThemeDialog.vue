@@ -14,9 +14,8 @@
 
   const $store = usePlanningStore();
   const $appStore = useAppStore();
-  const { data } = storeToRefs($store);
 
-  const selectedTheme = ref<Theme | undefined>((data.value.pack?.theme as Theme) || undefined);
+  const selectedTheme = ref<Theme | undefined>(($store.data.pack?.theme as Theme) || undefined);
   const themeOptions = computed(() => generateThemeOptions());
   const submitting = ref(false);
   const updateTheme = async () => {
@@ -26,11 +25,11 @@
       const { data: pack, error } = await supabase
         .from('packs')
         .update({ theme: selectedTheme.value })
-        .eq('id', data.value.pack?.id as number)
+        .eq('id', $store.data.pack?.id as number)
         .select();
 
       if (error || !pack) throw error;
-      data.value.pack!.theme = pack[0].theme;
+      $store.data.pack!.theme = pack[0].theme;
       $appStore.notifyPositive('Successfully updated your pack theme.');
       emits('updateTheme', selectedTheme.value as Theme);
     } catch (error) {
@@ -43,7 +42,7 @@
   // when opened, set the selected theme to the pack's theme
   watchEffect(() => {
     if (props.isOpen) {
-      selectedTheme.value = data.value.pack?.theme as Theme;
+      selectedTheme.value = $store.data.pack?.theme as Theme;
     }
   });
 </script>

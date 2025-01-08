@@ -4,7 +4,6 @@
 
   const $store = useClosetStore();
   const $appStore = useAppStore();
-  const { data, dialogStates } = storeToRefs($store);
   const removeItemCheckbox = ref(false);
   const submitting = ref(false);
 
@@ -34,7 +33,7 @@
 
       if (!error && !closetError) {
         // Find the category
-        const category = (data.value.selectedPack as ExtendedPack).categories.find(c => c.id === Number($store.activeCategoryId));
+        const category = ($store.data.selectedPack as ExtendedPack).categories.find(c => c.id === Number($store.activeCategoryId));
 
         if (category) {
           // Find the index of the category_item in the category
@@ -61,12 +60,12 @@
     $store.activeItem = undefined;
     $store.activeCategoryId = undefined;
     removeItemCheckbox.value = false;
-    dialogStates.value.removeItemDialog = false;
+    $store.dialogStates.removeItemDialog = false;
   };
 </script>
 
 <template>
-  <alert-dialog v-model:open="dialogStates.removeItemDialog">
+  <alert-dialog v-model:open="$store.dialogStates.removeItemDialog">
     <alert-dialog-content
       class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
       @escape-key-down="handleClose"

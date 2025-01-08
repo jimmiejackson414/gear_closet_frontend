@@ -70,7 +70,6 @@
   }));
 
   const $store = useUserStore();
-  // const { profile } = storeToRefs($store);
   const { meta, values, errorBag } = useForm({
     initialValues: {
       first_name: $store.profile?.first_name ?? '',

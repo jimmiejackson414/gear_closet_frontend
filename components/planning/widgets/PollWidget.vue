@@ -4,9 +4,7 @@
   import type { ExtendedPoll } from '@/types/helpers';
 
   const $store = usePlanningStore();
-  const { data, pageLoading } = storeToRefs($store);
 
-  // const isSettingsOpen = ref(false);
   const isPollDialogOpen = ref(false);
   const isDeleteConfirmOpen = ref(false);
   const modalState = ref<'create' | 'edit'>('create');
@@ -31,7 +29,7 @@
 
   const canAccessSettings = computed(() => {
     const user = useSupabaseUser();
-    return data.value.poll?.profile_id === user.value?.id;
+    return $store.data.poll?.profile_id === user.value?.id;
   });
 </script>
 
@@ -64,8 +62,8 @@
         </dropdown-menu>
       </div>
     </div>
-    <gc-skeleton v-if="pageLoading" />
-    <gc-empty-state v-else-if="!pageLoading && !data.poll">
+    <gc-skeleton v-if="$store.pageLoading" />
+    <gc-empty-state v-else-if="!$store.pageLoading && !$store.data.poll">
       <typography class="mb-4">
         You haven't created a poll for this trip yet!
       </typography>
@@ -78,15 +76,15 @@
     </gc-empty-state>
     <div v-else>
       <poll-chart
-        :poll="(data.poll as ExtendedPoll)"
-        @create-answer="data.poll?.answers.push($event)"
-        @create-vote="data.poll?.votes.push($event)" />
+        :poll="($store.data.poll as ExtendedPoll)"
+        @create-answer="$store.data.poll?.answers.push($event)"
+        @create-vote="$store.data.poll?.votes.push($event)" />
     </div>
   </card>
 
   <!-- Create & Edit Modal -->
   <lazy-modify-poll-dialog
-    :form="data.poll ?? blankModalForm"
+    :form="$store.data.poll ?? blankModalForm"
     :is-open="isPollDialogOpen"
     :state="modalState"
     @on-close="isPollDialogOpen = false" />

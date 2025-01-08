@@ -3,7 +3,6 @@
 
   const $store = useClosetStore();
   const $appStore = useAppStore();
-  const { data, dialogStates } = storeToRefs($store);
   const removeItemCheckbox = ref(false);
   const submitting = ref(false);
 
@@ -14,19 +13,19 @@
       const { error } = await supabase
         .from('packs')
         .delete()
-        .eq('id', data.value.selectedPack?.id as number);
+        .eq('id', $store.data.selectedPack?.id as number);
 
       if (!error) {
         // Find the index of the pack in the allPacks array
-        const packIndex = data.value.allPacks.findIndex(p => p.id === data.value.selectedPack?.id);
+        const packIndex = $store.data.allPacks.findIndex(p => p.id === $store.data.selectedPack?.id);
 
         // Remove the pack from the allPacks array
         if (packIndex !== -1) {
-          data.value.allPacks.splice(packIndex, 1);
+          $store.data.allPacks.splice(packIndex, 1);
         }
 
         // Remove the pack from the selectedPack
-        data.value.selectedPack = undefined;
+        $store.data.selectedPack = undefined;
         $appStore.notifyPositive('Pack deleted successfully.');
       } else {
         $appStore.notifyNegative('There was an error deleting the pack.');
@@ -35,17 +34,17 @@
       $appStore.notifyNegative('There was an error deleting the pack.');
     } finally {
       submitting.value = false;
-      dialogStates.value.deletePackDialog = false;
+      $store.dialogStates.deletePackDialog = false;
     }
   };
 </script>
 
 <template>
-  <alert-dialog v-model:open="dialogStates.deletePackDialog">
+  <alert-dialog v-model:open="$store.dialogStates.deletePackDialog">
     <alert-dialog-content
       class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
-      @escape-key-down="dialogStates.deletePackDialog = false"
-      @interact-outside="dialogStates.deletePackDialog = false">
+      @escape-key-down="$store.dialogStates.deletePackDialog = false"
+      @interact-outside="$store.dialogStates.deletePackDialog = false">
       <alert-dialog-header>
         <alert-dialog-title>
           Delete Pack
@@ -75,7 +74,7 @@
       <alert-dialog-footer>
         <alert-dialog-cancel
           :disabled="submitting"
-          @click="dialogStates.deletePackDialog = false">
+          @click="$store.dialogStates.deletePackDialog = false">
           Cancel
         </alert-dialog-cancel>
         <button-root

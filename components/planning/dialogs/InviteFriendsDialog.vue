@@ -18,7 +18,6 @@
   const $store = usePlanningStore();
   const $appStore = useAppStore();
   const $userStore = useUserStore();
-  const { data, selectedTripId, selectedTrip } = storeToRefs($store);
 
   /**
    * Performs search for existing friends.
@@ -35,7 +34,7 @@
         .from('friends')
         .select('*, profile:profiles!profile_id(*)')
         .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`, { referencedTable: 'profiles' })
-        .neq('profile_id', selectedTrip.value?.profile_id)
+        .neq('profile_id', $store.selectedTrip?.profile_id)
         .returns<FriendSearchResult[]>()
         .limit(10);
 
@@ -67,7 +66,7 @@
 
       // invite friends
       const existingFriendsPayload = friendsToInvite.value.map((f: Tables<'profiles'>) => ({
-        trip_id: Number(selectedTripId.value),
+        trip_id: Number($store.selectedTripId),
         profile_id: f.id,
         status: TripFriendStatus.PENDING,
         invited_by_id: user.value?.id as string,
@@ -90,7 +89,7 @@
 
       if (invitedFriends?.length && !error) {
         $appStore.notifyPositive('Successfully invited friends to trip!');
-        data.value.friends.push(...invitedFriends);
+        $store.data.friends.push(...invitedFriends);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error inviting friends to the trip.');

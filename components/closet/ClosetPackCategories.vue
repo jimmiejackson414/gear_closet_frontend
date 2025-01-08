@@ -3,7 +3,6 @@
   import type { ExtendedCategory, ExtendedPack } from '@/types/helpers';
 
   const $store = useClosetStore();
-  const { activeCategoryId, activeItem, data, dialogStates } = storeToRefs($store);
 
   interface UpdateCategoryPayload {
     field: keyof ExtendedCategory;
@@ -20,7 +19,7 @@
       const optimisticCategory = {
         id: 0, // temporary id
         name: '',
-        pack_id: data.value.selectedPack?.id as number,
+        pack_id: $store.data.selectedPack?.id as number,
         slug: '',
         unit: 'g',
         position: 1,
@@ -31,7 +30,7 @@
         category_items: [],
       };
 
-      data.value.selectedPack?.categories.unshift(optimisticCategory);
+      $store.data.selectedPack?.categories.unshift(optimisticCategory);
 
       // This is the item data for the optimistic update
       const itemData = [{
@@ -48,16 +47,16 @@
       const supabase = useSupabaseClient<Database>();
       const { data: createdCategory, error: categoryError } = await supabase.rpc('create_category_and_item', {
         p_name: 'Category Name',
-        p_pack_id: data.value.selectedPack?.id as number,
+        p_pack_id: $store.data.selectedPack?.id as number,
         p_items: itemData,
       })
         .returns<ExtendedCategory>();
       if (categoryError) throw categoryError;
 
       // Update the category with the created category
-      data.value.selectedPack?.categories.splice(0, 1, { ...createdCategory });
+      $store.data.selectedPack?.categories.splice(0, 1, { ...createdCategory });
     } catch (err) {
-      data.value.selectedPack?.categories.shift();
+      $store.data.selectedPack?.categories.shift();
       $appStore.notifyNegative('Error creating category');
     }
   };
@@ -67,11 +66,11 @@
    */
   const newUrl = ref('');
   const handleInitialAddUrl = (row: Tables<'items'>, categoryId: number) => {
-    dialogStates.value.addUrlDialog = true;
+    $store.dialogStates.addUrlDialog = true;
     $store.activeItem = row;
     $store.activeCategoryId = categoryId;
   };
-  watch(() => dialogStates.value.addUrlDialog, (newVal) => {
+  watch(() => $store.dialogStates.addUrlDialog, (newVal) => {
     newVal ? nextTick(() => newUrl.value = $store.activeItem?.url || '') : newUrl.value = '';
   });
 
@@ -88,11 +87,11 @@
         .update({
           [field]: value,
         })
-        .eq('id', activeCategoryId?.value as number)
+        .eq('id', $store.activeCategoryId as number)
         .select();
 
       if (updatedCategory && !error) {
-        const category = (data.value.selectedPack as ExtendedPack).categories.find(c => c.id === Number(activeCategoryId?.value));
+        const category = ($store.data.selectedPack as ExtendedPack).categories.find(c => c.id === Number($store.activeCategoryId));
 
         if (category) {
           category[field] = value;
@@ -111,7 +110,9 @@
 
 <template>
   <div class="mt-10">
-    <div class="flex justify-between items-center mb-4">
+    <div
+      v-if="!$store.isPublicRoute"
+      class="flex justify-between items-center mb-4">
       <typography
         class="font-semibold"
         variant="h4">
@@ -128,16 +129,16 @@
     <pack-items-table
       @handle-add-url="handleInitialAddUrl"
       @handle-remove-category="[
-        activeCategoryId = $event,
-        dialogStates.deleteCategoryDialog = true
+        $store.activeCategoryId = $event,
+        $store.dialogStates.deleteCategoryDialog = true
       ]"
       @handle-remove-item="[
-        activeCategoryId = $event.category_id,
-        activeItem = $event.item,
-        dialogStates.removeItemDialog = true
+        $store.activeCategoryId = $event.category_id,
+        $store.activeItem = $event.item,
+        $store.dialogStates.removeItemDialog = true
       ]"
       @handle-update-category="[
-        activeCategoryId = $event,
+        $store.activeCategoryId = $event,
         updateCategory($event)
       ]" />
   </div>

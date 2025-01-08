@@ -3,15 +3,14 @@
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data, pageLoading, selectedTripId } = storeToRefs($store);
 
   const activeTab = ref<ResourceType>(ResourceType.USER);
   const userTodos = computed(() => {
-    return data.value.todos.filter(t => t.resource_type === ResourceType.USER);
+    return $store.data.todos.filter(t => t.resource_type === ResourceType.USER);
   });
 
   const groupTodos = computed(() => {
-    return data.value.todos.filter(t => t.resource_type === ResourceType.GROUP);
+    return $store.data.todos.filter(t => t.resource_type === ResourceType.GROUP);
   });
 
   /**
@@ -27,12 +26,12 @@
           profile_id: user.value?.id as string,
           resource_type: activeTab.value,
           title: 'New todo',
-          trip_id: Number(selectedTripId?.value),
+          trip_id: Number($store.selectedTripId),
         })
         .select();
 
       if (newTodo?.length && !error) {
-        data.value.todos.push(newTodo[0]);
+        $store.data.todos.push(newTodo[0]);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new todo.');
@@ -52,8 +51,8 @@
         .select();
 
       if (updatedTodo?.length && !error) {
-        const index = data.value.todos.findIndex((t) => t.id === todo.id);
-        data.value.todos[index] = updatedTodo[0];
+        const index = $store.data.todos.findIndex((t) => t.id === todo.id);
+        $store.data.todos[index] = updatedTodo[0];
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error updating the todo.');
@@ -67,11 +66,11 @@
     try {
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTodos, error } = await supabase.from('todos')
-        .upsert(data.value.todos)
+        .upsert($store.data.todos)
         .select();
 
       if (updatedTodos?.length && !error) {
-        data.value.todos = updatedTodos;
+        $store.data.todos = updatedTodos;
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error updating the todos.');
@@ -87,15 +86,15 @@
         Todos
       </p>
       <button-root
-        v-if="!pageLoading && data?.todos.length"
+        v-if="!$store.pageLoading && $store.data?.todos.length"
         class="justify-self-end rounded-full"
         size="icon"
         @click="createTodo">
         <icon-plus />
       </button-root>
     </div>
-    <gc-skeleton v-if="pageLoading" />
-    <gc-empty-state v-else-if="!pageLoading && !data?.todos.length">
+    <gc-skeleton v-if="$store.pageLoading" />
+    <gc-empty-state v-else-if="!$store.pageLoading && !$store.data?.todos.length">
       <p class="mb-4 text-base">
         You haven't added any todos to this trip yet!
       </p>

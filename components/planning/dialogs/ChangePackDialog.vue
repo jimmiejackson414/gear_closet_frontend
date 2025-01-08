@@ -15,11 +15,10 @@
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data, selectedTripId } = storeToRefs($store);
   const selectedPackId = ref<number | undefined>(undefined);
 
   // watch data.pack and set selectedPackId.value to the pack id
-  watch(() => data.value.pack, (newValue) => {
+  watch(() => $store.data.pack, (newValue) => {
     if (newValue) {
       selectedPackId.value = newValue.id;
     }
@@ -80,7 +79,7 @@
         .single();
 
       if (pack && !error) {
-        data.value.pack = pack;
+        $store.data.pack = pack;
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error fetching the trip pack.');
@@ -98,7 +97,7 @@
       const user = useSupabaseUser();
       const { data: createdTripPack, error } = await supabase.from('trip_packs')
         .insert([{
-          trip_id: Number(selectedTripId.value),
+          trip_id: Number($store.selectedTripId),
           pack_id: selectedPackId.value,
           profile_id: user.value?.id,
         }])
@@ -129,7 +128,7 @@
       const user = useSupabaseUser();
       const { data: updatedTripPack, error } = await supabase.from('trip_packs')
         .update({ pack_id: selectedPackId.value })
-        .eq('trip_id', Number(selectedTripId.value))
+        .eq('trip_id', Number($store.selectedTripId))
         .eq('profile_id', user.value?.id as string)
         .select();
 

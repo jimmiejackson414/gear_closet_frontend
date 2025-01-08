@@ -4,7 +4,6 @@
   import { Theme } from '@/types';
 
   const $store = useClosetStore();
-  const { data } = storeToRefs($store);
 
   const details = reactive([
     { title: 'Worn', weight: 0, color: '' },
@@ -13,9 +12,9 @@
     { title: 'Total', weight: 0, color: '' },
   ]);
   watchEffect(() => {
-    if (data.value.selectedPack) {
-      const weights = calculatePackWeights(data.value.selectedPack);
-      const theme = findTheme(data.value.selectedPack.theme as Theme);
+    if ($store.data.selectedPack) {
+      const weights = calculatePackWeights($store.data.selectedPack);
+      const theme = findTheme($store.data.selectedPack.theme as Theme);
 
       for (let i = 0; i < details.length; i += 1) {
         const detail = details[i];
