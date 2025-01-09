@@ -33,6 +33,24 @@
   const handleFileError = () => $appStore.notifyNegative('An error occurred while uploading your avatar.');
 
   /**
+   * Handles the avatar upload
+   */
+  const handleAvatarUpload = async (file: FilePondFile) => {
+    isSubmitting.value = true;
+    newAvatarFile.value = file;
+    if (newAvatarFile.value && typeof newAvatarFile.value !== 'string') {
+      const newAvatar = (newAvatarFile.value as FilePondFile).file as File;
+      const { success } = await $store.updateAvatar(newAvatar);
+      if (!success) {
+        handleFileError();
+        isSubmitting.value = false;
+        return;
+      }
+    }
+    isSubmitting.value = false;
+  };
+
+  /**
    * Form definitions
    */
   const formSchema = toTypedSchema(z.object({
@@ -170,6 +188,7 @@
     }
   };
 
+
   /**
    * Dialog states
    */
@@ -185,7 +204,7 @@
       <client-only>
         <gc-avatar-upload
           :file="profileAvatar"
-          @handle-add-file="newAvatarFile = $event"
+          @handle-add-file="handleAvatarUpload($event)"
           @handle-error="handleFileError"
           @handle-remove-file="newAvatarFile = undefined" />
       </client-only>

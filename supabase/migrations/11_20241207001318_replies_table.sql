@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS "public"."replies" (
     "comment_id" bigint NOT NULL,
     "profile_id" "uuid" NOT NULL,
     "text" "text",
-    "deleted_at" timestamp with time zone DEFAULT "now"(),
+    "deleted_at" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text"),
     "updated_at" timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text")
 );

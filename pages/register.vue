@@ -1,6 +1,7 @@
 <script lang='ts' setup>
   definePageMeta({
     layout: 'auth-layout',
+    colorMode: 'light',
   });
 
   useHead({

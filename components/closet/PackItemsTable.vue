@@ -289,10 +289,14 @@
                       class="h-5 w-5"
                       :class="catItem.item.consumable ? 'text-primary-foreground' : 'text-dark-grey'" />
                   </button>
-                  <icon-apple
+                  <span
                     v-else
-                    class="h-5 w-5"
-                    :class="catItem.item.consumable ? 'text-primary-foreground' : 'text-dark-grey'" />
+                    class="cursor-default duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
+                    :class="catItem.item.consumable ? 'bg-primary' : 'bg-transparent'">
+                    <icon-apple
+                      class="h-5 w-5"
+                      :class="catItem.item.consumable ? 'text-primary-foreground' : 'text-dark-grey'" />
+                  </span>
                 </div>
               </table-cell>
 
@@ -308,10 +312,14 @@
                       class="h-5 w-5"
                       :class="catItem.item.worn ? 'text-primary-foreground' : 'text-dark-grey'" />
                   </button>
-                  <icon-shirt
+                  <span
                     v-else
-                    class="h-5 w-5"
-                    :class="catItem.item.worn ? 'text-primary-foreground' : 'text-dark-grey'" />
+                    class="cursor-default duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
+                    :class="catItem.item.worn ? 'bg-accent-alt dark:bg-accent-light' : 'bg-transparent'">
+                    <icon-shirt
+                      class="h-5 w-5"
+                      :class="catItem.item.worn ? 'text-primary-foreground' : 'text-dark-grey'" />
+                  </span>
                 </div>
               </table-cell>
 
@@ -429,6 +437,7 @@
                     v-if="$store.isPublicRoute"
                     v-tippy="{ content: 'Visit URL', placement: 'top' }"
                     :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
+                    :disabled="!catItem.item.url"
                     size="icon"
                     variant="ghost"
                     @click="openUrl(catItem.item.url)">
@@ -470,6 +479,7 @@
                     {{ calculateCategoryWeight(category) }}
                   </span>
                   <select-root
+                    v-if="!$store.isPublicRoute"
                     class="max-w-4"
                     :model-value="(category.unit as Mass)"
                     @update:model-value="emit('handleUpdateCategory', {
@@ -492,6 +502,11 @@
                       </select-group>
                     </select-content>
                   </select-root>
+                  <typography
+                    v-else
+                    class="!font-bold">
+                    {{ category.unit }}
+                  </typography>
                 </div>
               </table-cell>
               <table-cell

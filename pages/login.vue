@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  definePageMeta({ layout: 'auth-layout' });
+  definePageMeta({ layout: 'auth-layout', colorMode: 'light' });
 
   useHead({
     title: 'Login | Gear Closet',

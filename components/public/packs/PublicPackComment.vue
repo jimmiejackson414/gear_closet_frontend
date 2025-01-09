@@ -103,7 +103,7 @@
 </script>
 
 <template>
-  <div class="max-w-3xl mt-4">
+  <div class="mt-4 w-full">
     <ul
       class="list"
       depth="0"
@@ -165,7 +165,7 @@
         </div>
         <div
           v-if="replyingTo"
-          class="flex items-end flex-col ps-14">
+          class="flex items-end flex-col pb-6 ps-14">
           <p class="my-2 text-gray-500 text-sm">
             Commenting as <span class="font-bold">{{ friendlyUsername(comment.profile) }}</span>
           </p>

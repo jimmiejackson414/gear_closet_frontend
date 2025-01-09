@@ -1,8 +1,6 @@
 <script lang='ts' setup>
-  // import { Tabs, type InstanceOptions, type TabItem, type TabsOptions } from 'flowbite';
-  // import type { Column } from '@/components/closet/PackItemsTable.vue';
-  import { cn } from '@/lib/utils';
-  import type { Database, Tables } from '@/types';
+  import '@vueup/vue-quill/dist/vue-quill.snow.css';
+  import type { Database } from '@/types';
   import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
   import tailwind from '@/utils/tailwind';
 
@@ -53,65 +51,11 @@
   };
   await fetchPack();
 
-  /**
-   * Instantiates the tabs component
-   */
-  // const activeTab = ref('tables');
-  // const instantiateTabs = () => {
-  //   const tabsElement = document?.getElementById('default-tab') as HTMLElement;
-  //   if (tabsElement) {
-  //     const tabElements: TabItem[] = [
-  //       {
-  //         id: 'tables',
-  //         triggerEl: document?.querySelector('#tables-tab') as HTMLElement,
-  //         targetEl: document?.querySelector('#tables') as HTMLElement,
-  //       },
-  //       ...(pack.value?.allow_comments ? [{
-  //         id: 'comments',
-  //         triggerEl: document?.querySelector('#comments-tab') as HTMLElement,
-  //         targetEl: document?.querySelector('#comments') as HTMLElement,
-  //       }] : []),
-  //     ];
-
-  //     const options: TabsOptions = {
-  //       defaultTabId: activeTab.value,
-  //       activeClasses: 'font-bold text-primary hover:text-primary !border-primary border-primary border-b-2',
-  //       inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
-  //     };
-
-  //     const instanceOptions: InstanceOptions = {
-  //       id: 'default-tab',
-  //       override: true,
-  //     };
-
-  //     new Tabs(tabsElement, tabElements, options, instanceOptions);
-  //   }
-  // };
-  // onMounted(() => instantiateTabs());
-
-  // define table columns
-  const columns = [
-    { name: 'name', label: 'Name', align: 'left' },
-    { name: 'generic_type', label: 'Description', align: 'left' },
-    { name: 'consumable', label: 'Consumable', align: 'center' },
-    { name: 'worn', label: 'Worn', align: 'center' },
-    { name: 'weight', label: 'Weight', align: 'center' },
-    { name: 'price', label: 'Price', align: 'center' },
-    { name: 'quantity', label: 'Quantity', align: 'center' },
-  ];
-  // define item header classes
-  const headerClasses = (header: any): string => {
-    if (header.name === 'drag') return 'px-2 py-3 w-8';
-    else if (header.name === 'actions') return 'text-right pl-6 pr-4 py-3';
-    else if (header.name === 'name' || header.name === 'generic_type') return 'pr-6 pl-4 py-3 text-left';
-    return 'px-6 py-3 text-center';
-  };
-
-  const user = useSupabaseUser();
 
   /**
    * Adds a comment to the pack
    */
+  const user = useSupabaseUser();
   const quillEditorRef = ref<any | null>(null);
   const submitting = ref(false);
   const addComment = async () => {
@@ -164,8 +108,10 @@
    * Adds a reply to a comment
    */
   const handleAddReply = (reply: ExtendedReply) => {
+    console.log({ reply });
     // @ts-ignore
     const comment = pack.value?.comments.find(c => c.id === reply.comment_id);
+    console.log({ comment });
     if (comment) comment.replies = [reply, ...comment.replies];
   };
 
@@ -177,6 +123,9 @@
       .includes('Pack') ? name : name + ' Pack';
   });
 
+  /**
+   * Tabs functionality
+   */
   enum TableTabs {
     DETAILS,
     COMMENTS,
@@ -217,157 +166,24 @@
             </tabs-trigger>
             <tabs-trigger
               class="!shadow-none border-b-2 data-[state=active]:border-primary data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-none rounded-none hover:text-primary"
+              :disabled="!$store.data.selectedPack?.allow_comments"
               :value="TableTabs.COMMENTS">
-              Comments
+              Comments ({{ ($store.data.selectedPack as PublicPack)?.comments?.length || 0 }})
             </tabs-trigger>
           </tabs-list>
           <tabs-content :value="TableTabs.DETAILS">
             <closet-pack-categories />
           </tabs-content>
           <tabs-content :value="TableTabs.COMMENTS">
-            Comments
-          </tabs-content>
-        </tabs>
-
-        <!-- <div class="border-b border-gray-200 mt-14">
-          <ul
-            id="default-tab"
-            class="-mb-px flex flex-wrap font-medium text-center text-gray-500 text-sm"
-            role="tablist">
-            <li
-              class="me-2"
-              role="presentation">
-              <button
-                id="tables-tab"
-                aria-controls="tables"
-                aria-selected="false"
-                class="border-b-2 hover:border-gray-300 border-transparent inline-block p-4 rounded-t-lg hover:text-gray-600"
-                role="tab"
-                type="button">
-                Details
-              </button>
-            </li>
-            <li
-              class="me-2"
-              role="presentation">
-              <button
-                id="comments-tab"
-                v-tippy="{ content: !$store.data.selectedPack?.allow_comments ? 'Comments are disabled for this pack' : '' }"
-                aria-controls="comments"
-                aria-selected="true"
-                class="border-b-2 hover:border-gray-300 border-transparent inline-block p-4 rounded-t-lg hover:text-gray-600"
-                :class="{ 'cursor-not-allowed': !$store.data.selectedPack?.allow_comments }"
-                role="tab"
-                type="button">
-                Comments ({{ ($store.data.selectedPack as PublicPack)?.comments?.length || 0 }})
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div id="default-tab-content">
-          <div
-            id="tables"
-            aria-labelledby="tables-tab"
-            class="hidden"
-            role="tabpanel">
-            <div
-              v-for="category in $store.data.selectedPack?.categories"
-              :key="category.id"
-              class="bg-gray-50 mb-8 overflow-x-auto px-2 py-4 rounded-lg w-full">
-              <p class="!font-bold mb-3 ml-4 text-base">
-                {{ category.name }}
-              </p>
-              <ul>
-                <li class="grid grid-cols-[1fr,1fr,130px,87px,96px,82px,108px] text-gray-700 text-xs uppercase">
-                  <div
-                    v-for="column in columns"
-                    :key="column.name"
-                    :class="[headerClasses(column), {
-                      'text-left': column.align === 'left',
-                      'text-center': column.align === 'center',
-                      'text-right': column.align === 'right',
-                    }]">
-                    {{ column.label }}
-                  </div>
-                </li>
-              </ul>
-              <ul>
-                <li
-                  v-for="row in category.category_items"
-                  :key="row.item.id"
-                  class="border-b last:border-0 duration-150 ease-expo grid grid-cols-[1fr,1fr,130px,87px,96px,82px,108px] group transition hover:bg-gray-50">
-                  <div class="font-medium px-4 py-2 text-gray-900 whitespace-nowrap">
-                    <p class="!font-medium text-gray-900">
-                      {{ row.item.name }}
-                    </p>
-                  </div>
-
-                  <div class="px-4 py-2">
-                    <p class="!font-medium text-gray-500">
-                      {{ row.item.generic_type }}
-                    </p>
-                  </div>
-
-                  <div class="px-4 py-2">
-                    <div class="flex justify-center items-center h-full">
-                      <div
-                        class="flex justify-center items-center h-8 rounded-full w-8"
-                        :class="row.item.consumable ? 'bg-info' : 'bg-transparent'">
-                        <icon-apple
-                          class="h-5 text-gray-500 w-5"
-                          :class="row.item.consumable ? 'text-white' : 'text-dark-grey'" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="px-4 py-2">
-                    <div class="flex justify-center items-center h-full">
-                      <div
-                        class="flex justify-center items-center h-8 rounded-full w-8"
-                        :class="row.item.worn ? 'bg-positive' : 'bg-transparent'">
-                        <icon-shirt
-                          class="h-5 text-gray-500 w-5"
-                          :class="row.item.worn ? 'text-white' : 'text-dark-grey'" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="px-4 py-2">
-                    <div class="flex justify-center items-center max-w-[4rem] mx-auto">
-                      {{ row.item.weight }}
-                    </div>
-                  </div>
-
-                  <div class="px-4 py-2">
-                    <div class="flex justify-center items-center">
-                      {{ convertCurrency(row.item.price || 0) }}
-                    </div>
-                  </div>
-
-                  <div class="px-4 py-2">
-                    <div class="flex justify-center items-center max-w-[4rem] mx-auto">
-                      {{ row.item.quantity }}
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </div>
-          </div>
-          <div
-            v-if="$store.data.selectedPack?.allow_comments"
-            id="comments"
-            aria-labelledby="comments-tab"
-            class="bg-gray-50 hidden p-4 rounded-lg"
-            role="tabpanel">
-            <gc-empty-state v-if="!($store.data.selectedPack as PublicPack)?.comments?.length">
-              <p class="text-base">
-                No comments have been made yet.
-              </p>
-            </gc-empty-state>
-            <div v-else>
+            <card
+              v-if="$store.data.selectedPack?.allow_comments"
+              id="comments"
+              aria-labelledby="comments-tab"
+              class=""
+              role="tabpanel">
               <div
-                v-if="!!user"
-                class="flex items-end flex-col px-6">
+                v-if="user"
+                class="flex items-end flex-col pb-6 px-6">
                 <p class="my-2 text-gray-500 text-sm">
                   Commenting as <span class="font-bold">{{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile) }}</span>
                 </p>
@@ -389,14 +205,24 @@
                   Submit
                 </button-root>
               </div>
-              <public-pack-comment
-                v-for="comment in ($store.data.selectedPack as PublicPack)?.comments"
-                :key="comment.id"
-                :comment="comment"
-                @handle-add-reply="handleAddReply" />
-            </div>
-          </div>
-        </div> -->
+
+              <gc-empty-state v-if="!($store.data.selectedPack as PublicPack)?.comments?.length">
+                <typography>
+                  No comments have been made yet.
+                </typography>
+              </gc-empty-state>
+              <div
+                v-else
+                class="flex items-end flex-col px-6">
+                <public-pack-comment
+                  v-for="comment in ($store.data.selectedPack as PublicPack)?.comments"
+                  :key="comment.id"
+                  :comment="comment"
+                  @handle-add-reply="handleAddReply" />
+              </div>
+            </card>
+          </tabs-content>
+        </tabs>
       </div>
     </div>
 

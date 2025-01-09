@@ -109,7 +109,7 @@
 </script>
 
 <template>
-  <div class="mt-10">
+  <div :class="$store.isPublicRoute ? 'mt-0' : 'mt-10'">
     <div
       v-if="!$store.isPublicRoute"
       class="flex justify-between items-center mb-4">
