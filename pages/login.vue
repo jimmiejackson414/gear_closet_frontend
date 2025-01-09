@@ -2,7 +2,7 @@
   definePageMeta({ layout: 'auth-layout', colorMode: 'light' });
 
   useHead({
-    title: 'Login | Gear Closet',
+    title: 'Login',
     meta: [
       {
         name: 'description',

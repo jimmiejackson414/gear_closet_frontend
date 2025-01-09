@@ -4,6 +4,8 @@
   import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
   import tailwind from '@/utils/tailwind';
 
+  const user = useSupabaseUser();
+  // TODO: Figure out way to access user to dynamically set colorMode. Currently causes 500 error.
   definePageMeta({ layout: 'public-layout', colorMode: 'light', public: true });
 
   /**
@@ -55,7 +57,6 @@
   /**
    * Adds a comment to the pack
    */
-  const user = useSupabaseUser();
   const quillEditorRef = ref<any | null>(null);
   const submitting = ref(false);
   const addComment = async () => {
@@ -131,6 +132,8 @@
     COMMENTS,
   }
   const activeTab = ref(TableTabs.DETAILS);
+
+  useHead({ title: selectedPackName.value || 'Public Pack' });
 </script>
 
 <template>

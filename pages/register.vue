@@ -5,7 +5,7 @@
   });
 
   useHead({
-    title: 'Register | Gear Closet',
+    title: 'Register',
     meta: [
       {
         name: 'description',

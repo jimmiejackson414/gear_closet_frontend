@@ -4,7 +4,7 @@
   definePageMeta({ layout: 'page-layout' });
 
   useHead({
-    title: 'Onboarding | Gear Closet',
+    title: 'Onboarding',
     meta: [
       {
         name: 'description',

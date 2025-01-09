@@ -11,6 +11,10 @@
 
   // fixes SSR hydration issue with radix-vue
   const ssrId = () => useId();
+
+  useHead({
+    titleTemplate: (titleChunk) => titleChunk ? `${titleChunk} | Gear Closet` : 'Gear Closet',
+  });
 </script>
 
 <template>
