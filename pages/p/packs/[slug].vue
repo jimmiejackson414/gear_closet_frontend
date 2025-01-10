@@ -1,12 +1,11 @@
 <script lang='ts' setup>
-  import '@vueup/vue-quill/dist/vue-quill.snow.css';
   import type { Database } from '@/types';
   import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
   import tailwind from '@/utils/tailwind';
 
   const user = useSupabaseUser();
   // TODO: Figure out way to access user to dynamically set colorMode. Currently causes 500 error.
-  definePageMeta({ layout: 'public-layout', colorMode: 'light', public: true });
+  definePageMeta({ layout: 'public-layout', public: true });
 
   /**
    * Fetches the pack data.
@@ -57,11 +56,10 @@
   /**
    * Adds a comment to the pack
    */
-  const quillEditorRef = ref<any | null>(null);
+  const newCommentValue = ref<string | undefined>(undefined);
   const submitting = ref(false);
   const addComment = async () => {
-    const text = quillEditorRef.value?.getText()
-      .trim();
+    const text = newCommentValue.value?.trim();
     if (!text) return;
 
     try {
@@ -96,7 +94,7 @@
 
       if (!comment || commentError) throw commentError;
       ($store.data.selectedPack as PublicPack)?.comments?.unshift(comment);
-      quillEditorRef.value?.setText('');
+      newCommentValue.value = undefined;
       $appStore.notifyPositive('Comment successfully added!');
     } catch (error) {
       $appStore.notifyNegative('Failed to add comment');
@@ -161,14 +159,14 @@
           activation-mode="manual"
           class="mt-14"
           :default-value="TableTabs.DETAILS">
-          <tabs-list class="bg-background border-b border-muted-foreground pb-0 rounded-none">
+          <tabs-list class="bg-background dark:bg-background border-b border-muted-foreground pb-0 rounded-none">
             <tabs-trigger
-              class="!shadow-none border-b-2 data-[state=active]:border-primary data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-none rounded-none hover:text-primary"
+              class="!shadow-none border-b-[3px] data-[state=active]:border-primary dark:data-[state=active]:border-primary-light dark:data-[state=inactive]:text-accent-light data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-none rounded-none hover:text-primary"
               :value="TableTabs.DETAILS">
               Details
             </tabs-trigger>
             <tabs-trigger
-              class="!shadow-none border-b-2 data-[state=active]:border-primary data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-none rounded-none hover:text-primary"
+              class="!shadow-none border-b-[3px] data-[state=active]:border-primary dark:data-[state=inactive]:text-accent-light data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-none rounded-none hover:text-primary"
               :disabled="!$store.data.selectedPack?.allow_comments"
               :value="TableTabs.COMMENTS">
               Comments ({{ ($store.data.selectedPack as PublicPack)?.comments?.length || 0 }})
@@ -182,46 +180,47 @@
               v-if="$store.data.selectedPack?.allow_comments"
               id="comments"
               aria-labelledby="comments-tab"
-              class=""
               role="tabpanel">
               <div
                 v-if="user"
-                class="flex items-end flex-col pb-6 px-6">
-                <p class="my-2 text-gray-500 text-sm">
-                  Commenting as <span class="font-bold">{{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile) }}</span>
-                </p>
-                <client-only>
-                  <quill-editor
-                    ref="quillEditorRef"
-                    class="custom-editor"
-                    :enable="!submitting"
-                    :options="{ modules: { toolbar: false } }"
-                    placeholder="Add a comment"
-                    theme="snow" />
-                </client-only>
-                <button-root
-                  class="mt-2"
-                  :disabled="submitting"
-                  :loading="submitting"
-                  size="sm"
-                  @click="addComment">
-                  Submit
-                </button-root>
-              </div>
+                class="flex items-start flex-col max-w-6xl mx-auto px-6 py-6">
+                <gc-empty-state
+                  v-if="!($store.data.selectedPack as PublicPack)?.comments?.length"
+                  class="mx-auto">
+                  <typography>
+                    Be the first to comment!
+                  </typography>
+                </gc-empty-state>
+                <div
+                  v-else
+                  class="flex items-end flex-col w-full">
+                  <public-pack-comment
+                    v-for="comment in ($store.data.selectedPack as PublicPack)?.comments"
+                    :key="comment.id"
+                    :comment="comment"
+                    @handle-add-reply="handleAddReply" />
+                </div>
+                <separator class="mb-4" />
 
-              <gc-empty-state v-if="!($store.data.selectedPack as PublicPack)?.comments?.length">
-                <typography>
-                  No comments have been made yet.
-                </typography>
-              </gc-empty-state>
-              <div
-                v-else
-                class="flex items-end flex-col px-6">
-                <public-pack-comment
-                  v-for="comment in ($store.data.selectedPack as PublicPack)?.comments"
-                  :key="comment.id"
-                  :comment="comment"
-                  @handle-add-reply="handleAddReply" />
+                <!-- TODO: Redesign comments section similar to Reddit -->
+                <textarea-root
+                  v-model="newCommentValue"
+                  class="rounded-xl shadow-sm w-full disabled:bg-gray-100 disabled:pointer-events-none"
+                  :disabled="submitting"
+                  placeholder="Add a comment" />
+                <div class="flex items-center gap-6 my-2">
+                  <typography class="text-muted-foreground dark:text-muted-foreground text-sm">
+                    Commenting as <span class="font-bold">{{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile) }}</span>
+                  </typography>
+                  <button-root
+                    class="mt-2"
+                    :disabled="submitting"
+                    :loading="submitting"
+                    size="sm"
+                    @click="addComment">
+                    Submit
+                  </button-root>
+                </div>
               </div>
             </card>
           </tabs-content>

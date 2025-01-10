@@ -22,14 +22,13 @@
   };
 
   const replyingTo = ref(false);
-  const quillEditorRef = ref<any | null>(null);
+  const newReplyValue = ref<string | undefined>(undefined);
   const submitting = ref(false);
   /**
    * Add a reply to a comment
    */
   const addReply = async () => {
-    const text = quillEditorRef.value?.getText()
-      .trim();
+    const text = newReplyValue.value?.trim();
     if (!text) return;
 
     try {
@@ -59,7 +58,7 @@
 
       if (replyError || !reply) throw replyError;
       emits('handle-add-reply', reply as ExtendedReply);
-      quillEditorRef.value?.setText('');
+      newReplyValue.value = undefined;
       replyingTo.value = false;
       $appStore.notifyPositive('Reply added successfully');
     } catch (error) {
@@ -72,10 +71,24 @@
   /**
    * Soft delete a comment
    */
-  // TODO: Implement deleteComment
   const isDeletingCommentId = ref<number | null>(null);
-  const deleteComment = async () => {
-    console.log(`deleteComment`);
+  const deleteComment = async (comment: ExtendedComment) => {
+    try {
+      isDeletingCommentId.value = comment.id;
+      const supabase = useSupabaseClient<Database>();
+      const { error } = await supabase
+        .from('comments')
+        .update({ deleted_at: new Date()
+          .toISOString()})
+        .eq('id', comment.id);
+
+      if (error) throw error;
+      $appStore.notifyPositive('Comment deleted successfully');
+    } catch (error) {
+      $appStore.notifyNegative('Failed to delete comment');
+    } finally {
+      isDeletingCommentId.value = null;
+    }
   };
 
   /**
@@ -113,7 +126,7 @@
           class="comment flex gap-2 relative"
           :class="{ 'pb-4': !replyingTo }">
           <gc-avatar
-            class="user"
+            class="mt-2 user"
             :initials="initials(comment.profile)"
             size="md"
             :url="buildImageSrc(comment.profile.image)" />
@@ -150,14 +163,14 @@
               v-if="!!user"
               class="comment__actions flex gap-2 pl-4 py-1">
               <button
-                class="duration-150 ease-snap font-bold text-dark-grey hover:text-dark-grey/75 text-sm transition-colors"
+                class="duration-150 ease-snap font-semibold text-dark-grey hover:text-dark-grey/75 text-sm transition-colors"
                 @click="[replyingTo = true]">
                 Reply
               </button>
               <button
                 v-if="user.id === comment.profile_id && !comment.deleted_at"
-                class="duration-150 ease-snap font-bold text-danger hover:text-danger/75 text-sm transition-colors"
-                @click="deleteComment">
+                class="duration-150 ease-snap font-semibold text-danger hover:text-danger/75 text-sm transition-colors"
+                @click="() => deleteComment(comment)">
                 Delete
               </button>
             </div>
@@ -165,19 +178,15 @@
         </div>
         <div
           v-if="replyingTo"
-          class="flex items-end flex-col pb-6 ps-14">
+          class="flex items-start flex-col pb-6 ps-14">
           <p class="my-2 text-gray-500 text-sm">
             Commenting as <span class="font-bold">{{ friendlyUsername(comment.profile) }}</span>
           </p>
-          <client-only>
-            <quill-editor
-              ref="quillEditorRef"
-              class="custom-editor"
-              :enable="!submitting"
-              :options="{ modules: { toolbar: false } }"
-              placeholder="Add a reply"
-              theme="snow" />
-          </client-only>
+          <textarea-root
+            v-model="newReplyValue"
+            class="max-w-xl rounded-xl shadow-sm w-full disabled:bg-gray-100 disabled:pointer-events-none"
+            :disabled="submitting"
+            placeholder="Add a reply" />
           <button-root
             class="mt-2"
             :disabled="submitting"
@@ -197,7 +206,7 @@
             :key="reply.id">
             <div class="comment flex gap-2 pb-4 relative">
               <gc-avatar
-                class="user"
+                class="mt-2 user"
                 :initials="initials(reply.profile)"
                 size="md"
                 :url="buildImageSrc(reply.profile.image)" />
@@ -250,7 +259,6 @@
 <style>
   .comment {
     --size: 3.5rem;
-    /* @apply pb-4; */
   }
 
   @container style(--depth: 0) {

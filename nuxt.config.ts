@@ -144,7 +144,7 @@ export default defineNuxtConfig({
 
   vite: {
     optimizeDeps: {
-      include: ['@vueup/vue-quill', 'tailwind.config.ts'],
+      include: ['tailwind.config.ts'],
     },
   },
 

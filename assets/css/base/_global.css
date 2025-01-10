@@ -27,19 +27,4 @@
       }
     }
   }
-
-  /* Quill Styles */
-  .custom-editor {
-    &.ql-container {
-      @apply rounded-t-xl rounded-b-xl shadow-sm w-full;
-
-      .ql-editor {
-        @apply min-h-[100px]
-      }
-
-      &.ql-disabled {
-        @apply !bg-gray-100 pointer-events-none;
-      }
-    }
-  }
 }
