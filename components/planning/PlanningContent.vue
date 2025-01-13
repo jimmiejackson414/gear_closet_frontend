@@ -7,11 +7,11 @@
       <!-- Pack Widget -->
       <pack-widget />
 
-      <!-- Hike Details -->
-      <hike-details-widget />
-
       <!-- Trip Details -->
       <trip-details-widget />
+
+      <!-- Hike Details -->
+      <hike-details-widget />
     </div>
 
     <div class="flex flex-col space-y-6">
