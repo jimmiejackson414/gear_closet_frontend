@@ -1,8 +1,8 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { computed, type HTMLAttributes } from 'vue';
   import { ComboboxEmpty } from 'radix-vue';
   import type { ComboboxEmptyProps } from 'radix-vue';
+  import { type HTMLAttributes, computed } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<ComboboxEmptyProps & { class?: HTMLAttributes['class'] }>();
@@ -17,7 +17,7 @@
 <template>
   <combobox-empty
     v-bind="delegatedProps"
-    :class="cn('py-6 text-center text-sm', props.class)">
+    :class="cn('py-3 text-center text-sm', props.class)">
     <slot />
   </combobox-empty>
 </template>
