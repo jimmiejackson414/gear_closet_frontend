@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import type { Database } from '@/types';
-  import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
+  import type { ExtendedComment, PublicPack } from '@/types/helpers';
   import tailwind from '@/utils/tailwind';
 
   const user = useSupabaseUser();
@@ -13,6 +13,8 @@
   const $appStore = useAppStore();
   const $store = useClosetStore();
   const $route = useRoute();
+  const displayPrivatePackWarning = ref($store.data.selectedPack?.private ?? true);
+
   const fetchPack = async () => {
     try {
       $store.pageLoading = true;
@@ -34,7 +36,6 @@
             )
           )
         `)
-        // .returns<PublicPack | undefined>()
         .eq('slug', $route.params.slug)
         .order('created_at', { referencedTable: 'comments', ascending: false })
         .order('created_at', { referencedTable: 'comments.replies', ascending: false })
@@ -43,7 +44,6 @@
       if (error) throw error;
       if (!fetchedPack) throw new Error('No pack data found');
       $store.data.selectedPack = fetchedPack as PublicPack;
-      // pack.value = fetchedPack;
     } catch (error) {
       $appStore.notifyNegative('Failed to fetch pack data');
     } finally {
@@ -102,19 +102,6 @@
       submitting.value = false;
     }
   };
-
-  /**
-   * Adds a reply to a comment
-   */
-  const handleAddReply = (reply: ExtendedReply) => {
-    console.log({ reply });
-    // @ts-ignore
-    const comment = pack.value?.comments.find(c => c.id === reply.comment_id);
-    console.log({ comment });
-    if (comment) comment.replies = [reply, ...comment.replies];
-  };
-
-  const displayPrivatePackWarning = ref($store.data.selectedPack?.private ?? true);
 
   const selectedPackName = computed(() => {
     const name = $store.data.selectedPack?.name || '';
@@ -184,6 +171,24 @@
               <div
                 v-if="user"
                 class="flex items-start flex-col max-w-6xl mx-auto px-6 py-6">
+                <textarea-root
+                  v-model="newCommentValue"
+                  class="rounded-xl shadow-sm w-full disabled:bg-gray-100 disabled:pointer-events-none"
+                  :disabled="submitting"
+                  placeholder="Add a comment" />
+                <div class="flex items-center gap-6 ml-auto my-2">
+                  <typography class="text-muted-foreground dark:text-muted-foreground text-sm">
+                    Commenting as <span class="font-bold">{{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile) }}</span>
+                  </typography>
+                  <button-root
+                    :disabled="submitting"
+                    :loading="submitting"
+                    size="sm"
+                    @click="addComment">
+                    Submit
+                  </button-root>
+                </div>
+                <separator class="mb-4" />
                 <gc-empty-state
                   v-if="!($store.data.selectedPack as PublicPack)?.comments?.length"
                   class="mx-auto">
@@ -197,29 +202,7 @@
                   <public-pack-comment
                     v-for="comment in ($store.data.selectedPack as PublicPack)?.comments"
                     :key="comment.id"
-                    :comment="comment"
-                    @handle-add-reply="handleAddReply" />
-                </div>
-                <separator class="mb-4" />
-
-                <!-- TODO: Redesign comments section similar to Reddit -->
-                <textarea-root
-                  v-model="newCommentValue"
-                  class="rounded-xl shadow-sm w-full disabled:bg-gray-100 disabled:pointer-events-none"
-                  :disabled="submitting"
-                  placeholder="Add a comment" />
-                <div class="flex items-center gap-6 my-2">
-                  <typography class="text-muted-foreground dark:text-muted-foreground text-sm">
-                    Commenting as <span class="font-bold">{{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile) }}</span>
-                  </typography>
-                  <button-root
-                    class="mt-2"
-                    :disabled="submitting"
-                    :loading="submitting"
-                    size="sm"
-                    @click="addComment">
-                    Submit
-                  </button-root>
+                    :comment="comment" />
                 </div>
               </div>
             </card>

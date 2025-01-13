@@ -2,7 +2,7 @@
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import type { Database } from '@/types';
-  import type { ExtendedComment, ExtendedReply } from '@/types/helpers';
+  import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
 
   dayjs.extend(relativeTime);
 
@@ -11,9 +11,10 @@
   }
 
   const props = defineProps<Props>();
-  const emits = defineEmits(['handle-add-reply']);
+  // const emits = defineEmits(['handle-add-reply']);
   const user = useSupabaseUser();
   const $appStore = useAppStore();
+  const $store = useClosetStore();
 
   const formattedTime = (time: string | null) => {
     if (!time) return '';
@@ -35,29 +36,33 @@
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
 
-      // insert reply
+      // insert and return reply
       const { data, error } = await supabase.from('replies')
         .insert({
           text,
           comment_id: props.comment.id,
           profile_id: user.value?.id as string,
         })
-        .select();
+        .select(`
+          *,
+          profile:profiles (first_name, last_name, trail_name, image) 
+        `);
 
       if (error || !data) throw error;
 
-      // retrieve extended reply data
-      const { data: reply, error: replyError } = await supabase
-        .from('replies')
-        .select(`
-          *,
-          profile:profiles (first_name, last_name, trail_name, image)
-        `)
-        .eq('id', data[0].id)
-        .maybeSingle();
 
-      if (replyError || !reply) throw replyError;
-      emits('handle-add-reply', reply as ExtendedReply);
+      const newReply = data[0]; // Get the newly created reply
+
+      // Find the comment and update its replies
+      const commentIndex = ($store.data.selectedPack as PublicPack)?.comments.findIndex((c) => c.id === props.comment.id);
+      if (commentIndex !== -1) {
+        const targetComment = ($store.data.selectedPack as PublicPack).comments[commentIndex];
+        if (!targetComment.replies) {
+          targetComment.replies = []; // Ensure replies array exists
+        }
+        targetComment.replies.push(newReply as ExtendedReply);
+      }
+
       newReplyValue.value = undefined;
       replyingTo.value = false;
       $appStore.notifyPositive('Reply added successfully');
@@ -76,13 +81,29 @@
     try {
       isDeletingCommentId.value = comment.id;
       const supabase = useSupabaseClient<Database>();
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('comments')
         .update({ deleted_at: new Date()
           .toISOString()})
-        .eq('id', comment.id);
+        .eq('id', comment.id)
+        .select(`
+          *,
+          profile:profiles (*),
+          replies(*,
+            profile:profiles (*)
+          )
+        `);
 
       if (error) throw error;
+
+      if (data?.length) {
+        const updatedComment = data[0] as ExtendedComment;
+        const commentIndex = ($store.data.selectedPack as PublicPack)?.comments.findIndex((c) => c.id === comment.id);
+        if (commentIndex !== -1) {
+          ($store.data.selectedPack as PublicPack).comments[commentIndex] = updatedComment;
+        }
+      }
+
       $appStore.notifyPositive('Comment deleted successfully');
     } catch (error) {
       $appStore.notifyNegative('Failed to delete comment');
@@ -99,13 +120,32 @@
     try {
       isDeletingReplyId.value = reply.id;
       const supabase = useSupabaseClient<Database>();
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('replies')
         .update({ deleted_at: new Date()
           .toISOString() })
-        .eq('id', reply.id);
+        .eq('id', reply.id)
+        .select(`
+          *,
+          profile:profiles (*)
+        `);
 
       if (error) throw error;
+
+      if (data?.length) {
+        const updatedReply = data[0] as ExtendedReply;
+        const selectedPack = $store.data.selectedPack as PublicPack;
+        if (selectedPack) {
+          for (const comment of selectedPack.comments) {
+            const replyIndex = comment.replies.findIndex((r) => r.id === reply.id);
+            if (replyIndex !== -1) {
+              comment.replies[replyIndex] = updatedReply;
+              break;
+            }
+          }
+        }
+      }
+
       $appStore.notifyPositive('Reply deleted successfully');
     } catch (error) {
       $appStore.notifyNegative('Failed to delete reply');
@@ -178,23 +218,32 @@
         </div>
         <div
           v-if="replyingTo"
-          class="flex items-start flex-col pb-6 ps-14">
-          <p class="my-2 text-gray-500 text-sm">
-            Commenting as <span class="font-bold">{{ friendlyUsername(comment.profile) }}</span>
-          </p>
+          class="flex items-start flex-col max-w-xl mt-4 pb-6 ps-[4.25rem]">
           <textarea-root
             v-model="newReplyValue"
-            class="max-w-xl rounded-xl shadow-sm w-full disabled:bg-gray-100 disabled:pointer-events-none"
+            class="rounded-xl shadow-sm w-full disabled:bg-gray-100 disabled:pointer-events-none"
             :disabled="submitting"
             placeholder="Add a reply" />
-          <button-root
-            class="mt-2"
-            :disabled="submitting"
-            :loading="submitting"
-            size="sm"
-            @click="addReply">
-            Submit
-          </button-root>
+          <div class="grid grid-cols-[1fr_auto_auto] gap-6 items-center my-2 w-full">
+            <button-root
+              class="justify-self-start text-muted-foreground"
+              :disabled="submitting"
+              size="sm"
+              variant="ghost"
+              @click="[replyingTo = false, newReplyValue = undefined]">
+              Cancel
+            </button-root>
+            <p class="text-muted-foreground text-sm">
+              Commenting as <span class="font-bold">{{ friendlyUsername(comment.profile) }}</span>
+            </p>
+            <button-root
+              :disabled="submitting"
+              :loading="submitting"
+              size="sm"
+              @click="addReply">
+              Submit
+            </button-root>
+          </div>
         </div>
         <ul
           v-if="comment.replies.length"
