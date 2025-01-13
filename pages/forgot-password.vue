@@ -1,8 +1,8 @@
 <script lang='ts' setup>
-  definePageMeta({ layout: 'auth-layout' });
+  definePageMeta({ layout: 'auth-layout', colorMode: 'light' });
 
   useHead({
-    title: 'Forgot Password | Gear Closet',
+    title: 'Forgot Password',
     meta: [
       {
         name: 'description',

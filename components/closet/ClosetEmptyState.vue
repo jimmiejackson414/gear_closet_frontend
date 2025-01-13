@@ -1,10 +1,9 @@
 <script lang='ts' setup>
   const $store = useClosetStore();
-  const { data, dialogStates, pageLoading } = storeToRefs($store);
 </script>
 
 <template>
-  <div v-if="!data.allPacks.length && !pageLoading">
+  <div v-if="!$store.data.allPacks.length && !$store.pageLoading">
     <gc-empty-state data-testid="closet-empty-state">
       <typography
         class="font-bold mb-3"
@@ -17,7 +16,7 @@
       <button-root
         size="sm"
         variant="outline"
-        @click="dialogStates.createPackDialog = true">
+        @click="$store.dialogStates.managePackSettingsDialog = true">
         Create your first pack
       </button-root>
     </gc-empty-state>

@@ -1,118 +1,65 @@
 <script lang='ts' setup>
-  // import { Tabs, type InstanceOptions, type TabItem, type TabsOptions } from 'flowbite';
-  // import type { Column } from '@/components/closet/PackItemsTable.vue';
   import type { Database } from '@/types';
-  import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
+  import type { ExtendedComment, PublicPack } from '@/types/helpers';
   import tailwind from '@/utils/tailwind';
 
-  const $store = useUserStore();
-  definePageMeta({ layout: 'public-layout', colorMode: $store.profile ? undefined : 'light' });
+  const user = useSupabaseUser();
+  // TODO: Figure out way to access user to dynamically set colorMode. Currently causes 500 error.
+  definePageMeta({ layout: 'public-layout', public: true });
 
   /**
    * Fetches the pack data.
    */
   const $appStore = useAppStore();
+  const $store = useClosetStore();
   const $route = useRoute();
-  const pack = ref<PublicPack | undefined>(undefined);
+  const displayPrivatePackWarning = ref($store.data.selectedPack?.private ?? true);
+
   const fetchPack = async () => {
     try {
+      $store.pageLoading = true;
       const supabase = useSupabaseClient<Database>();
       const { data: fetchedPack, error } = await supabase
         .from('packs')
         .select(`
           *,
-          profile:profiles (first_name, last_name, trail_name, image),
+          profile:profiles (*),
           categories(*,
             category_items(*,
               item:item_id(*)
             )
           ),
           comments(*,
-            profile:profiles (first_name, last_name, trail_name, image),
+            profile:profiles (*),
             replies(*,
-              profile:profiles (first_name, last_name, trail_name, image)
+              profile:profiles (*)
             )
           )
         `)
         .eq('slug', $route.params.slug)
         .order('created_at', { referencedTable: 'comments', ascending: false })
         .order('created_at', { referencedTable: 'comments.replies', ascending: false })
-        .returns<PublicPack | undefined>()
         .maybeSingle();
 
       if (error) throw error;
       if (!fetchedPack) throw new Error('No pack data found');
-      pack.value = fetchedPack;
+      $store.data.selectedPack = fetchedPack as PublicPack;
     } catch (error) {
       $appStore.notifyNegative('Failed to fetch pack data');
+    } finally {
+      $store.pageLoading = false;
     }
   };
   await fetchPack();
 
-  /**
-   * Instantiates the tabs component
-   */
-  // const activeTab = ref('tables');
-  // const instantiateTabs = () => {
-  //   const tabsElement = document?.getElementById('default-tab') as HTMLElement;
-  //   if (tabsElement) {
-  //     const tabElements: TabItem[] = [
-  //       {
-  //         id: 'tables',
-  //         triggerEl: document?.querySelector('#tables-tab') as HTMLElement,
-  //         targetEl: document?.querySelector('#tables') as HTMLElement,
-  //       },
-  //       ...(pack.value?.allow_comments ? [{
-  //         id: 'comments',
-  //         triggerEl: document?.querySelector('#comments-tab') as HTMLElement,
-  //         targetEl: document?.querySelector('#comments') as HTMLElement,
-  //       }] : []),
-  //     ];
-
-  //     const options: TabsOptions = {
-  //       defaultTabId: activeTab.value,
-  //       activeClasses: 'font-bold text-primary hover:text-primary !border-primary border-primary border-b-2',
-  //       inactiveClasses: 'text-gray-500 hover:text-gray-600 border-gray-100 hover:border-gray-300',
-  //     };
-
-  //     const instanceOptions: InstanceOptions = {
-  //       id: 'default-tab',
-  //       override: true,
-  //     };
-
-  //     new Tabs(tabsElement, tabElements, options, instanceOptions);
-  //   }
-  // };
-  // onMounted(() => instantiateTabs());
-
-  // define table columns
-  const columns = [
-    { name: 'name', label: 'Name', align: 'left' },
-    { name: 'generic_type', label: 'Description', align: 'left' },
-    { name: 'consumable', label: 'Consumable', align: 'center' },
-    { name: 'worn', label: 'Worn', align: 'center' },
-    { name: 'weight', label: 'Weight', align: 'center' },
-    { name: 'price', label: 'Price', align: 'center' },
-    { name: 'quantity', label: 'Quantity', align: 'center' },
-  ];
-  // define item header classes
-  const headerClasses = (header: any): string => {
-    if (header.name === 'drag') return 'px-2 py-3 w-8';
-    else if (header.name === 'actions') return 'text-right pl-6 pr-4 py-3';
-    else if (header.name === 'name' || header.name === 'generic_type') return 'pr-6 pl-4 py-3 text-left';
-    return 'px-6 py-3 text-center';
-  };
-
-  const user = useSupabaseUser();
 
   /**
    * Adds a comment to the pack
    */
-  const quillEditorRef = ref<any | null>(null);
+  const newCommentValue = ref<string | undefined>(undefined);
   const submitting = ref(false);
   const addComment = async () => {
-    const text = quillEditorRef.value?.getText()
-      .trim();
+    const text = newCommentValue.value?.trim();
     if (!text) return;
 
     try {
@@ -122,7 +69,7 @@
       const { data, error } = await supabase
         .from('comments')
         .insert({
-          pack_id: pack.value?.id as number,
+          pack_id: $store.data.selectedPack?.id as number,
           profile_id: user.value?.id as string,
           text,
         })
@@ -142,11 +89,12 @@
         `)
         .eq('id', data?.[0]?.id as number)
         .order('created_at', { referencedTable: 'replies', ascending: false })
+        .returns<ExtendedComment | undefined>()
         .maybeSingle();
 
       if (!comment || commentError) throw commentError;
-      pack.value?.comments?.unshift(comment as ExtendedComment);
-      quillEditorRef.value?.setText('');
+      ($store.data.selectedPack as PublicPack)?.comments?.unshift(comment);
+      newCommentValue.value = undefined;
       $appStore.notifyPositive('Comment successfully added!');
     } catch (error) {
       $appStore.notifyNegative('Failed to add comment');
@@ -155,214 +103,132 @@
     }
   };
 
+  const selectedPackName = computed(() => {
+    const name = $store.data.selectedPack?.name || '';
+    return name.toLowerCase()
+      .includes('Pack') ? name : name + ' Pack';
+  });
+
   /**
-   * Adds a reply to a comment
+   * Tabs functionality
    */
-  const handleAddReply = (reply: ExtendedReply) => {
-    const comment = pack.value?.comments?.find((c) => c.id === reply.comment_id);
-    if (comment) comment.replies = [reply, ...comment.replies];
-  };
+  enum TableTabs {
+    DETAILS,
+    COMMENTS,
+  }
+  const activeTab = ref(TableTabs.DETAILS);
+
+  useHead({ title: selectedPackName.value || 'Public Pack' });
 </script>
 
 <template>
   <div class="py-8">
-    <div v-if="!pack?.private">
+    <div v-if="!displayPrivatePackWarning">
       <div class="card card-main">
         <div class="flex justify-start items-center gap-4 mb-4">
           <h1 class="text-2xl">
-            {{ friendlyUsername(pack?.profile as any, { includeTrailName: true }) }}'s
+            {{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile, { includeTrailName: true }) }}'s
           </h1>
           <h1 class="font-bold text-2xl">
-            {{ pack?.name }}
+            {{ selectedPackName }}
           </h1>
         </div>
-        <public-pack-summary :pack="pack" />
-
-        <div class="border-b border-gray-200 mt-14">
-          <ul
-            id="default-tab"
-            class="-mb-px flex flex-wrap font-medium text-center text-gray-500 text-sm"
-            role="tablist">
-            <li
-              class="me-2"
-              role="presentation">
-              <button
-                id="tables-tab"
-                aria-controls="tables"
-                aria-selected="false"
-                class="border-b-2 hover:border-gray-300 border-transparent inline-block p-4 rounded-t-lg hover:text-gray-600"
-                role="tab"
-                type="button">
-                Details
-              </button>
-            </li>
-            <li
-              class="me-2"
-              role="presentation">
-              <button
-                id="comments-tab"
-                v-tippy="{ content: !pack?.allow_comments ? 'Comments are disabled for this pack' : '' }"
-                aria-controls="comments"
-                aria-selected="true"
-                class="border-b-2 hover:border-gray-300 border-transparent inline-block p-4 rounded-t-lg hover:text-gray-600"
-                :class="{ 'cursor-not-allowed': !pack?.allow_comments }"
-                role="tab"
-                type="button">
-                Comments ({{ pack?.comments?.length || 0 }})
-              </button>
-            </li>
-          </ul>
-        </div>
-        <div id="default-tab-content">
-          <div
-            id="tables"
-            aria-labelledby="tables-tab"
-            class="hidden"
-            role="tabpanel">
-            <div
-              v-for="category in pack?.categories"
-              :key="category.id"
-              class="bg-gray-50 mb-8 overflow-x-auto px-2 py-4 rounded-lg w-full">
-              <p class="!font-bold mb-3 ml-4 text-base">
-                {{ category.name }}
-              </p>
-              <ul>
-                <li class="grid grid-cols-[1fr,1fr,130px,87px,96px,82px,108px] text-gray-700 text-xs uppercase">
-                  <div
-                    v-for="column in columns"
-                    :key="column.name"
-                    :class="[headerClasses(column), {
-                      'text-left': column.align === 'left',
-                      'text-center': column.align === 'center',
-                      'text-right': column.align === 'right',
-                    }]">
-                    {{ column.label }}
-                  </div>
-                </li>
-              </ul>
-              <ul>
-                <li
-                  v-for="row in category.category_items"
-                  :key="row.item.id"
-                  class="border-b last:border-0 duration-150 ease-expo grid grid-cols-[1fr,1fr,130px,87px,96px,82px,108px] group transition hover:bg-gray-50">
-                  <div class="font-medium px-4 py-2 text-gray-900 whitespace-nowrap">
-                    <p class="!font-medium text-gray-900">
-                      {{ row.item.name }}
-                    </p>
-                  </div>
-
-                  <div class="px-4 py-2">
-                    <p class="!font-medium text-gray-500">
-                      {{ row.item.generic_type }}
-                    </p>
-                  </div>
-
-                  <div class="px-4 py-2">
-                    <div class="flex justify-center items-center h-full">
-                      <div
-                        class="flex justify-center items-center h-8 rounded-full w-8"
-                        :class="row.item.consumable ? 'bg-info' : 'bg-transparent'">
-                        <icon-apple
-                          class="h-5 text-gray-500 w-5"
-                          :class="row.item.consumable ? 'text-white' : 'text-dark-grey'" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="px-4 py-2">
-                    <div class="flex justify-center items-center h-full">
-                      <div
-                        class="flex justify-center items-center h-8 rounded-full w-8"
-                        :class="row.item.worn ? 'bg-positive' : 'bg-transparent'">
-                        <icon-shirt
-                          class="h-5 text-gray-500 w-5"
-                          :class="row.item.worn ? 'text-white' : 'text-dark-grey'" />
-                      </div>
-                    </div>
-                  </div>
-
-                  <div class="px-4 py-2">
-                    <div class="flex justify-center items-center max-w-[4rem] mx-auto">
-                      {{ row.item.weight }}
-                    </div>
-                  </div>
-
-                  <div class="px-4 py-2">
-                    <div class="flex justify-center items-center">
-                      {{ convertCurrency(row.item.price || 0) }}
-                    </div>
-                  </div>
-
-                  <div class="px-4 py-2">
-                    <div class="flex justify-center items-center max-w-[4rem] mx-auto">
-                      {{ row.item.quantity }}
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </div>
+        <card class="px-8 py-4 rounded-3xl">
+          <div class="grid lg:grid-cols-[1fr,auto,40%] grid-cols-1 gap-6">
+            <closet-pack-chart />
+            <separator orientation="vertical" />
+            <closet-pack-details />
           </div>
-          <div
-            v-if="pack?.allow_comments"
-            id="comments"
-            aria-labelledby="comments-tab"
-            class="bg-gray-50 hidden p-4 rounded-lg"
-            role="tabpanel">
-            <gc-empty-state v-if="!pack?.comments?.length">
-              <p class="text-base">
-                No comments have been made yet.
-              </p>
-            </gc-empty-state>
-            <div v-else>
+        </card>
+
+        <tabs
+          v-model="activeTab"
+          activation-mode="manual"
+          class="mt-14"
+          :default-value="TableTabs.DETAILS">
+          <tabs-list class="bg-background dark:bg-background border-b border-muted-foreground pb-0 rounded-none">
+            <tabs-trigger
+              class="!shadow-none border-b-[3px] data-[state=active]:border-primary dark:data-[state=active]:border-primary-light dark:data-[state=inactive]:text-accent-light data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-none rounded-none hover:text-primary"
+              :value="TableTabs.DETAILS">
+              Details
+            </tabs-trigger>
+            <tabs-trigger
+              class="!shadow-none border-b-[3px] data-[state=active]:border-primary dark:data-[state=inactive]:text-accent-light data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-none rounded-none hover:text-primary"
+              :disabled="!$store.data.selectedPack?.allow_comments"
+              :value="TableTabs.COMMENTS">
+              Comments ({{ ($store.data.selectedPack as PublicPack)?.comments?.length || 0 }})
+            </tabs-trigger>
+          </tabs-list>
+          <tabs-content :value="TableTabs.DETAILS">
+            <closet-pack-categories />
+          </tabs-content>
+          <tabs-content :value="TableTabs.COMMENTS">
+            <card
+              v-if="$store.data.selectedPack?.allow_comments"
+              id="comments"
+              aria-labelledby="comments-tab"
+              role="tabpanel">
               <div
-                v-if="!!user"
-                class="flex items-end flex-col px-6">
-                <p class="my-2 text-gray-500 text-sm">
-                  Commenting as <span class="font-bold">{{ friendlyUsername(pack.profile) }}</span>
-                </p>
-                <client-only>
-                  <quill-editor
-                    ref="quillEditorRef"
-                    class="custom-editor"
-                    :enable="!submitting"
-                    :options="{ modules: { toolbar: false } }"
-                    placeholder="Add a comment"
-                    theme="snow" />
-                </client-only>
-                <button-root
-                  class="mt-2"
+                v-if="user"
+                class="flex items-start flex-col max-w-6xl mx-auto px-6 py-6">
+                <textarea-root
+                  v-model="newCommentValue"
+                  class="rounded-xl shadow-sm w-full disabled:bg-gray-100 disabled:pointer-events-none"
                   :disabled="submitting"
-                  :loading="submitting"
-                  size="sm"
-                  @click="addComment">
-                  Submit
-                </button-root>
+                  placeholder="Add a comment" />
+                <div class="flex items-center gap-6 ml-auto my-2">
+                  <typography class="text-muted-foreground dark:text-muted-foreground text-sm">
+                    Commenting as <span class="font-bold">{{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile) }}</span>
+                  </typography>
+                  <button-root
+                    :disabled="submitting"
+                    :loading="submitting"
+                    size="sm"
+                    @click="addComment">
+                    Submit
+                  </button-root>
+                </div>
+                <separator class="mb-4" />
+                <gc-empty-state
+                  v-if="!($store.data.selectedPack as PublicPack)?.comments?.length"
+                  class="mx-auto">
+                  <typography>
+                    Be the first to comment!
+                  </typography>
+                </gc-empty-state>
+                <div
+                  v-else
+                  class="flex items-end flex-col w-full">
+                  <public-pack-comment
+                    v-for="comment in ($store.data.selectedPack as PublicPack)?.comments"
+                    :key="comment.id"
+                    :comment="comment" />
+                </div>
               </div>
-              <public-pack-comment
-                v-for="comment in pack?.comments"
-                :key="comment.id"
-                :comment="comment"
-                @handle-add-reply="handleAddReply" />
-            </div>
-          </div>
-        </div>
+            </card>
+          </tabs-content>
+        </tabs>
       </div>
     </div>
 
-    <div
-      v-else
-      class="relative">
-      <div class="absolute inset-0 bg-white flex flex-col h-96 m-auto p-8 place-content-center place-items-center rounded-lg shadow text-center w-96 z-10">
-        <gc-logo-icon
-          :fill="tailwind.theme.colors.primary.DEFAULT"
-          wrapper-class="h-8 w-8 mb-4" />
-        <p class="mb-4 text-base-lg">
-          This pack is private!
-        </p>
-        <p class="text-base">
-          Please contact the pack owner for access.
-        </p>
-      </div>
+    <div v-else>
+      <alert-dialog v-model:open="displayPrivatePackWarning">
+        <alert-dialog-content class="max-w-96">
+          <div class="flex flex-col place-content-center place-items-center">
+            <gc-logo-icon
+              :fill="tailwind.theme.colors.primary.DEFAULT"
+              wrapper-class="h-8 w-8 mb-4" />
+            <typography
+              class="mb-4"
+              variant="large">
+              This pack is private!
+            </typography>
+            <typography>
+              Please contact the pack owner for access.
+            </typography>
+          </div>
+        </alert-dialog-content>
+      </alert-dialog>
       <div class="blur-sm card card-main">
         <div
           class="max-w-xl mx-auto p-4 md:p-6 w-full"

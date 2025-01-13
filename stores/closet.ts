@@ -1,9 +1,9 @@
 import { defineStore } from "pinia";
 import type { Database, Tables, TablesUpdate } from "@/types";
-import type { ExtendedCategoryItem, ExtendedPack } from "@/types/helpers";
+import type { ExtendedCategoryItem, ExtendedPack, PublicPack } from "@/types/helpers";
 
 export interface ClosetPageData {
-  selectedPack?: ExtendedPack;
+  selectedPack?: ExtendedPack | PublicPack;
   allPacks: {
     id: number;
     name: string;
@@ -27,18 +27,19 @@ type State = {
   data: ClosetPageData;
   dialogStates: {
     addUrlDialog: boolean;
-    createPackDialog: boolean;
     deleteCategoryDialog: boolean;
     deletePackDialog: boolean;
+    managePackSettingsDialog: boolean;
     removeItemDialog: boolean;
     sharePackDialog: boolean;
-    updateThemeDialog: boolean;
     uploadCsvDialog: boolean;
   }
   pageLoading: boolean;
 };
 
-type Getters = {};
+type Getters = {
+  isPublicRoute: () => boolean;
+};
 
 type Actions = {
   fetchClosetPage(packId: number): Promise<void>;
@@ -59,16 +60,22 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
       },
       dialogStates: {
         addUrlDialog: false,
-        createPackDialog: false,
         deleteCategoryDialog: false,
         deletePackDialog: false,
+        managePackSettingsDialog: false,
         removeItemDialog: false,
         sharePackDialog: false,
-        updateThemeDialog: false,
         uploadCsvDialog: false,
       },
       pageLoading: true,
     }),
+
+    getters: {
+      isPublicRoute (): boolean {
+        const $route = useRoute();
+        return $route.meta.public as boolean || false;
+      },
+    },
 
     actions: {
       /**

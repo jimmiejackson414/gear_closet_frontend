@@ -3,10 +3,9 @@
   import type { Tables } from '@/types';
 
   const $store = useClosetStore();
-  const { activeCategoryId, activeItem, dialogStates } = storeToRefs($store);
   const newUrl = ref('');
 
-  watch(() => dialogStates.value.addUrlDialog, (newVal) => {
+  watch(() => $store.dialogStates.addUrlDialog, (newVal) => {
     newVal ? nextTick(() => newUrl.value = $store.activeItem?.url || '') : newUrl.value = '';
   });
 
@@ -21,19 +20,19 @@
   const handleSubmit = async () => {
     submitting.value = true;
     await $store.updateItem($store.activeItem as Tables<'items'>, 'url', newUrl.value, $store.activeCategoryId as number);
-    dialogStates.value.addUrlDialog = false;
+    $store.dialogStates.addUrlDialog = false;
     submitting.value = false;
   };
 
   const handleClose = () => {
-    dialogStates.value.addUrlDialog = false;
-    activeItem!.value = undefined;
-    activeCategoryId!.value = undefined;
+    $store.dialogStates.addUrlDialog = false;
+    $store.activeItem = undefined;
+    $store.activeCategoryId = undefined;
   };
 </script>
 
 <template>
-  <dialog-root :open="dialogStates.addUrlDialog">
+  <dialog-root :open="$store.dialogStates.addUrlDialog">
     <dialog-content
       class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
       @escape-key-down="handleClose"

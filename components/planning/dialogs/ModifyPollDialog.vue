@@ -14,7 +14,6 @@
   const isSubmitting = ref(false);
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data, selectedTripId } = storeToRefs($store);
 
   let localForm = reactive({ ...props.form });
 
@@ -26,7 +25,7 @@
       isSubmitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const { data: updatedPoll, error } = await supabase.rpc('update_poll', {
-        poll_id: data.value.poll?.id as number,
+        poll_id: $store.data.poll?.id as number,
         question: localForm.question?.title as string,
         answers: localForm.answers.map(a => a.content) as string[],
       })
@@ -34,7 +33,7 @@
         .select();
 
       if (error) { $appStore.notifyNegative('There was an error updating the poll.');}
-      if (updatedPoll) { data.value.poll = updatedPoll as unknown as ExtendedPoll; }
+      if (updatedPoll) { $store.data.poll = updatedPoll as unknown as ExtendedPoll; }
     } catch (err) {
       $appStore.notifyNegative('There was an error updating the poll.');
     } finally {
@@ -51,7 +50,7 @@
       isSubmitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const { data: newPoll, error } = await supabase.rpc('create_poll', {
-        trip_id: Number(selectedTripId?.value),
+        trip_id: Number($store.selectedTripId),
         question: localForm.question?.title as string,
         answers: localForm.answers.map(a => a.content) as string[],
       })
@@ -59,7 +58,7 @@
         .single();
 
       if (error) { $appStore.notifyNegative('There was an error creating a new poll.');}
-      if (newPoll) { data.value.poll = newPoll; }
+      if (newPoll) { $store.data.poll = newPoll; }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new poll.');
     } finally {

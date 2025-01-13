@@ -4,9 +4,8 @@
 
   const $store = usePlanningStore();
   const $userStore = useUserStore();
-  const { data, pageLoading, selectedTripId } = storeToRefs($store);
 
-  const tripOptions = computed(() => data.value.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
+  const tripOptions = computed(() => $store.data.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
 
   /**
    * Leaves the current trip.
@@ -23,7 +22,7 @@
   const handleSelectTrip = async (value: string) => {
     const cookie = useCookie('selectedTripId');
     cookie.value = encrypt(value);
-    selectedTripId.value = value;
+    $store.selectedTripId = value;
   };
 
   const emits = defineEmits<{
@@ -53,11 +52,11 @@
         </dropdown-menu>
       </div>
       <select-root
-        :default-value="String(selectedTripId)"
-        :model-value="selectedTripId"
+        :default-value="String($store.selectedTripId)"
+        :model-value="$store.selectedTripId"
         @update:model-value="handleSelectTrip">
         <select-trigger class="min-w-[180px]">
-          <span v-if="!selectedTripId">Selected Trip</span>
+          <span v-if="!$store.selectedTripId">Selected Trip</span>
           <select-value placeholder="Selected Trip" />
         </select-trigger>
         <select-content>
@@ -82,9 +81,9 @@
       </select-root>
     </div>
 
-    <div v-tippy="{ content: !$userStore.isPaidMember && data.trips.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }">
+    <div v-tippy="{ content: !$userStore.isPaidMember && $store.data.trips.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }">
       <button-root
-        :disabled="pageLoading || (!$userStore.isPaidMember && data.trips.length >= 1)"
+        :disabled="$store.pageLoading || (!$userStore.isPaidMember && $store.data.trips.length >= 1)"
         @click="emits('openDialog')">
         New Trip
       </button-root>
@@ -94,7 +93,7 @@
       <alert-dialog-content>
         <alert-dialog-header>
           <alert-dialog-title>
-            Leave the "{{ data.trips.find((t: Tables<'trips'>) => t.id === Number(selectedTripId))?.name }}" trip?
+            Leave the "{{ $store.data.trips.find((t: Tables<'trips'>) => t.id === Number($store.selectedTripId))?.name }}" trip?
           </alert-dialog-title>
         </alert-dialog-header>
         <div class="flex items-center mb-4 space-x-2">

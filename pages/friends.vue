@@ -115,7 +115,7 @@
   }, 500));
 
   useHead({
-    title: 'Friends | Gear Closet',
+    title: 'Friends',
     meta: [
       {
         name: 'description',

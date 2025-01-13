@@ -5,9 +5,6 @@
   import type { FilePondFile } from 'filepond';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
-  import DeleteAccountDialog from '@/components/profile/dialogs/DeleteAccountDialog.vue';
-  import ManageSubscriptionDialog from '@/components/profile/dialogs/ManageSubscriptionDialog.vue';
-  import UpdatePaymentMethodDialog from '@/components/profile/dialogs/UpdatePaymentMethodDialog.vue';
   import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
   import type { SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
 
@@ -34,6 +31,24 @@
    * Handles the file error
    */
   const handleFileError = () => $appStore.notifyNegative('An error occurred while uploading your avatar.');
+
+  /**
+   * Handles the avatar upload
+   */
+  const handleAvatarUpload = async (file: FilePondFile) => {
+    isSubmitting.value = true;
+    newAvatarFile.value = file;
+    if (newAvatarFile.value && typeof newAvatarFile.value !== 'string') {
+      const newAvatar = (newAvatarFile.value as FilePondFile).file as File;
+      const { success } = await $store.updateAvatar(newAvatar);
+      if (!success) {
+        handleFileError();
+        isSubmitting.value = false;
+        return;
+      }
+    }
+    isSubmitting.value = false;
+  };
 
   /**
    * Form definitions
@@ -173,6 +188,7 @@
     }
   };
 
+
   /**
    * Dialog states
    */
@@ -188,7 +204,7 @@
       <client-only>
         <gc-avatar-upload
           :file="profileAvatar"
-          @handle-add-file="newAvatarFile = $event"
+          @handle-add-file="handleAvatarUpload($event)"
           @handle-error="handleFileError"
           @handle-remove-file="newAvatarFile = undefined" />
       </client-only>
@@ -479,17 +495,17 @@
     </div>
 
     <!--    Dialogs-->
-    <manage-subscription-dialog
+    <lazy-manage-subscription-dialog
       :is-open="isManageSubscriptionOpen"
       :selected-plan="selectedPlan"
       :subscription-data="( subscriptionData as SubscriptionApiResponse )"
       @on-close="isManageSubscriptionOpen = false" />
 
-    <update-payment-method-dialog
+    <lazy-update-payment-method-dialog
       :is-open="isUpdatePaymentDialogOpen"
       @on-close="isUpdatePaymentDialogOpen = false" />
 
-    <delete-account-dialog
+    <lazy-delete-account-dialog
       :is-open="isDeleteAccountDialogOpen"
       @on-close="isDeleteAccountDialogOpen = false" />
   </div>

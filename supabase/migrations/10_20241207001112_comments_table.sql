@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS "public"."comments" (
     "text" "text",
     "profile_id" "uuid" NOT NULL,
     "pack_id" bigint NOT NULL,
-    "deleted_at" timestamp with time zone DEFAULT "now"(),
+    "deleted_at" timestamp with time zone,
     "created_at" timestamp with time zone DEFAULT "now"(),
     "updated_at" timestamp with time zone DEFAULT "now"()
 );

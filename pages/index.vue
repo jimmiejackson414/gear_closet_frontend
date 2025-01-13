@@ -78,7 +78,7 @@
   await fetchDashboard();
 
   useHead({
-    title: 'Dashboard | Gear Closet',
+    title: 'Dashboard',
     meta: [
       {
         name: 'description',

@@ -1,10 +1,11 @@
 <script lang='ts' setup>
   definePageMeta({
     layout: 'auth-layout',
+    colorMode: 'light',
   });
 
   useHead({
-    title: 'Register | Gear Closet',
+    title: 'Register',
     meta: [
       {
         name: 'description',

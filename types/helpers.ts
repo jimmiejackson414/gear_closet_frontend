@@ -67,6 +67,7 @@ export type ExtendedComment = Tables<'comments'> & {
 
 export interface PublicPack extends ExtendedPack {
   profile: Tables<'profiles'>;
+  categories: ExtendedCategory[];
   comments: ExtendedComment[];
 }
 

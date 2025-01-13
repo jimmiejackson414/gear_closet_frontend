@@ -2,7 +2,6 @@
   const $store = usePlanningStore();
   const $route = useRoute();
   const $cookie = useCookie('selectedTripId');
-  const { data, pageLoading } = storeToRefs($store);
 
   let identifier = 0;
   watch($cookie, (newValue) => {
@@ -25,12 +24,12 @@
     <planning-settings @open-dialog="isCreateTripDialogOpen = true" />
 
     <planning-empty-state
-      v-if="!data.trips.length && !pageLoading"
+      v-if="!$store.data.trips.length && !$store.pageLoading"
       @open-dialog="isCreateTripDialogOpen = true" />
 
     <planning-content v-else />
 
-    <create-trip-dialog
+    <lazy-create-trip-dialog
       :is-open="isCreateTripDialogOpen"
       @on-close="isCreateTripDialogOpen = false" />
   </div>

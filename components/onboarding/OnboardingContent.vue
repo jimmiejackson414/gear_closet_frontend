@@ -70,13 +70,12 @@
   }));
 
   const $store = useUserStore();
-  const { profile } = storeToRefs($store);
   const { meta, values, errorBag } = useForm({
     initialValues: {
-      first_name: profile.value?.first_name ?? '',
-      last_name: profile.value?.last_name ?? '',
-      trail_name: profile.value?.trail_name ?? '',
-      measuring_system: (profile.value?.measuring_system as MeasuringSystem) ?? MeasuringSystem.IMPERIAL,
+      first_name: $store.profile?.first_name ?? '',
+      last_name: $store.profile?.last_name ?? '',
+      trail_name: $store.profile?.trail_name ?? '',
+      measuring_system: ($store.profile?.measuring_system as MeasuringSystem) ?? MeasuringSystem.IMPERIAL,
     },
     keepValuesOnUnmount: true,
     validationSchema: formSchema,

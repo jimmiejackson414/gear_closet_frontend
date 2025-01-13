@@ -7,16 +7,9 @@
   import type { ExtendedPack } from '@/types/helpers';
   import generateThemeOptions from '@/utils/chartTheme';
 
-  export interface CreatePack {
-    allow_comments: boolean;
-    name: string;
-    theme: Theme;
-    private: boolean;
-  }
-
   const $store = useClosetStore();
-  const { data, dialogStates } = storeToRefs($store);
-  const submitting = ref(false);
+  const $appStore = useAppStore();
+
   const themeOptions = computed(() => generateThemeOptions());
 
   const formSchema = toTypedSchema(z.object({
@@ -28,70 +21,84 @@
     private: z.boolean(),
   }));
 
+  const defaultMode = ref<'create' | 'update'>('create');
+  const mode = inject<Ref<'create' | 'update'>>('dialogMode', defaultMode);
   const { isFieldDirty, handleSubmit, isSubmitting, setValues } = useForm({
     keepValuesOnUnmount: true,
     validationSchema: formSchema,
     initialValues: {
-      name: '',
-      allow_comments: false,
-      theme: Theme.BLUE6,
-      private: true,
+      name: mode.value === 'update' ? $store.data.selectedPack?.name as string : '',
+      allow_comments: mode.value === 'update' ? $store.data.selectedPack?.allow_comments as boolean : true,
+      theme: mode.value === 'update' ? $store.data.selectedPack?.theme as Theme : Theme.BLUE6,
+      private: mode.value === 'update' ? $store.data.selectedPack?.private as boolean : false,
     },
   });
 
-  /**
-   * Creates a new pack.
-   */
-  const $appStore = useAppStore();
+  watch(() => $store.dialogStates.managePackSettingsDialog, (newValue) => {
+    if (newValue) {
+      setValues({
+        name: mode.value === 'update' ? $store.data.selectedPack?.name as string : '',
+        allow_comments: mode.value === 'update' ? $store.data.selectedPack?.allow_comments as boolean : true,
+        theme: mode.value === 'update' ? $store.data.selectedPack?.theme as Theme : Theme.BLUE6,
+        private: mode.value === 'update' ? $store.data.selectedPack?.private as boolean : false,
+      });
+    }
+  });
+
+  const submitting = ref(false);
   const onSubmit = handleSubmit(async (values) => {
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
-      const { data: createdPack, error } = await supabase.from('packs')
-        .insert([{
-          ...values,
-          profile_id: user.value?.id as string,
-        }])
-        .select();
 
-      if (createdPack?.length && !error) {
-        data.value.allPacks.push({ id: createdPack[0].id, name: createdPack[0].name as string, slug: createdPack[0].slug as string });
-        data.value.selectedPack = createdPack[0] as ExtendedPack;
-        $appStore.notifyPositive('Pack created successfully.');
+      // create mode
+      if (mode.value === 'create') {
+        const { data: createdPack, error } = await supabase.from('packs')
+          .insert([{
+            ...values,
+            profile_id: user.value?.id as string,
+          }])
+          .select();
+
+        if (createdPack?.length && !error) {
+          $store.data.allPacks.push({ id: createdPack[0].id, name: createdPack[0].name as string, slug: createdPack[0].slug as string });
+          $store.data.selectedPack = createdPack[0] as ExtendedPack;
+          $appStore.notifyPositive('Pack created successfully.');
+        }
       } else {
-        $appStore.notifyNegative('There was an error creating the pack.');
+        // update mode
+        const { data: updatedPack, error } = await supabase
+          .from('packs')
+          .update({ ...values })
+          .eq('id', $store.data.selectedPack?.id as number)
+          .select();
+        if (error || !updatedPack) throw error;
+        $store.data.selectedPack = { ...$store.data.selectedPack, ...updatedPack[0] } as ExtendedPack;
+        $appStore.notifyPositive('Successfully updated your pack theme.');
       }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error creating the pack.');
+    } catch (error) {
+      $appStore.notifyNegative(`There was an error ${mode.value === 'create' ? 'creating' : 'updating'} your pack.`);
     } finally {
+      $store.dialogStates.managePackSettingsDialog = false;
       submitting.value = false;
-      dialogStates.value.createPackDialog = false;
     }
   });
-
-  const handleClose = () => {
-    dialogStates.value.createPackDialog = false;
-    setValues({
-      name: '',
-      allow_comments: false,
-      theme: Theme.BLUE6,
-      private: true,
-    });
-  };
 </script>
 
 <template>
-  <dialog-root :open="dialogStates.createPackDialog">
+  <dialog-root :open="$store.dialogStates.managePackSettingsDialog">
     <dialog-content
       class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
-      @escape-key-down="handleClose"
-      @interact-outside="handleClose">
+      @escape-key-down="$store.dialogStates.managePackSettingsDialog = false"
+      @interact-outside="$store.dialogStates.managePackSettingsDialog = false">
       <dialog-header>
         <dialog-title>
-          Create a new pack
+          {{ mode === 'create' ? 'Create a new pack' : 'Pack settings' }}
         </dialog-title>
-        <dialog-description />
+        <dialog-description>
+          {{ mode === 'create' ? '' : 'Update settings related to your pack.' }}
+        </dialog-description>
       </dialog-header>
       <div class="flex flex-col gap-6">
         <!-- New pack name -->
@@ -156,11 +163,11 @@
                 Private?
               </form-label>
               <form-description>
-                Private packs cannot be viewed by other users. This setting can be changed later.
+                Private packs cannot be viewed by other users. {{ mode === 'update' ? 'This setting can be changed later.' : '' }}
               </form-description>
             </div>
             <form-control>
-              <switch
+              <switch-root
                 :checked="value"
                 @update:checked="handleChange" />
             </form-control>
@@ -178,11 +185,11 @@
                 Allow comments?
               </form-label>
               <form-description>
-                Allow users you share this pack with list to make comments? This setting can be changed later.
+                Allow users you share this pack with list to make comments? {{ mode === 'update' ? 'This setting can be changed later.' : '' }}
               </form-description>
             </div>
             <form-control>
-              <switch
+              <switch-root
                 :checked="value"
                 @update:checked="handleChange" />
             </form-control>
@@ -192,17 +199,16 @@
       <dialog-footer>
         <dialog-close
           :disabled="submitting"
-          @click="handleClose">
+          @click="$store.dialogStates.managePackSettingsDialog = false">
           Cancel
         </dialog-close>
         <button-root
           :disabled="submitting"
           :loading="submitting"
           @click="onSubmit">
-          Create pack
+          {{ mode === 'create' ? 'Create pack' : 'Update pack' }}
         </button-root>
       </dialog-footer>
     </dialog-content>
   </dialog-root>
 </template>
-

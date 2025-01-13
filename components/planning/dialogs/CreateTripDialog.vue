@@ -18,8 +18,6 @@
   }>();
 
   const $store = usePlanningStore();
-  const { data, selectedTripId } = storeToRefs($store);
-
   const formSchema = toTypedSchema(z.object({
     name: z.string()
       .min(3)
@@ -81,9 +79,9 @@
       else {
         $appStore.notifyPositive('Successfully created a new trip!');
         emits('onClose');
-        if (selectedTripId?.value) {
-          selectedTripId.value = String(createdTrip[0].id);
-          data.value.trips.push(createdTrip[0]);
+        if ($store.selectedTripId) {
+          $store.selectedTripId = String(createdTrip[0].id);
+          $store.data.trips.push(createdTrip[0]);
         }
       }
     } catch (err) {

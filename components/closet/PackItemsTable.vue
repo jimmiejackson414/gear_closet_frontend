@@ -8,7 +8,6 @@
   import { weightOptions } from '@/utils/helpers';
 
   const $store = useClosetStore();
-  const { data } = storeToRefs($store);
   const emit = defineEmits([
     'handleUpdateCategory',
     'handleRemoveCategory',
@@ -60,7 +59,7 @@
 
     // Find the categories by ID
     const getCategoryItems = (categoryId: number) =>
-      data.value.selectedPack?.categories.find(c => c.id === categoryId)?.category_items || [];
+      $store.data.selectedPack?.categories.find(c => c.id === categoryId)?.category_items || [];
 
     const oldCategoryItems = getCategoryItems(oldCategoryId);
     const newCategoryItems = oldCategoryId === newCategoryId
@@ -119,6 +118,10 @@
   //   const { oldIndex, newIndex } = event;
   //   console.log({ oldIndex, newIndex });
   // };
+
+  const openUrl = (url: string | null) => {
+    if (url) window.open(url, '_blank');
+  };
 </script>
 
 <template>
@@ -126,7 +129,7 @@
     <div class="overflow-x-auto relative">
       <table-root>
         <template
-          v-for="category in data.selectedPack?.categories"
+          v-for="category in $store.data.selectedPack?.categories"
           :key="category.id">
           <!-- Category title header -->
           <table-header>
@@ -142,6 +145,7 @@
                 class="font-bold px-0 py-2"
                 :colspan="columns.length - 2">
                 <gc-inline-edit
+                  v-if="!$store.isPublicRoute"
                   data-testid="category-name"
                   hide-edit-btn
                   input-classes="w-full max-w-[25rem]"
@@ -160,9 +164,17 @@
                     {{ category.name || 'Category Name' }}
                   </typography>
                 </gc-inline-edit>
+                <typography
+                  v-else
+                  :class="!category.name ? 'text-gray-400' : 'text-text'"
+                  variant="h5">
+                  {{ category.name || 'Category Name' }}
+                </typography>
               </table-head>
               <table-head class="pr-2">
-                <div class="flex justify-end">
+                <div
+                  v-if="!$store.isPublicRoute"
+                  class="flex justify-end">
                   <button-root
                     class="bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8"
                     size="icon"
@@ -200,7 +212,6 @@
               group: {
                 name: 'category_items',
                 put: ['category_items'],
-                // put: true,
                 pull: true,
               },
               handle: '.row-handle',
@@ -216,12 +227,15 @@
               class="group">
               <!-- drag -->
               <table-cell class="p-0">
-                <icon-grip-vertical class="!size-6 cursor-move ease-snap group-hover:opacity-100 opacity-0 row-handle stroke-1 text-muted-foreground transition" />
+                <icon-grip-vertical
+                  v-if="!$store.isPublicRoute"
+                  class="!size-6 cursor-move ease-snap group-hover:opacity-100 opacity-0 row-handle stroke-1 text-muted-foreground transition" />
               </table-cell>
 
               <table-cell class="pl-0 pr-1 py-1">
                 <!-- name -->
                 <gc-inline-edit
+                  v-if="!$store.isPublicRoute"
                   hide-edit-btn
                   :model-value="catItem.item.name"
                   :name="`item_name_${catItem.id}`"
@@ -234,11 +248,18 @@
                     {{ catItem.item.name || 'Item Name' }}
                   </typography>
                 </gc-inline-edit>
+                <typography
+                  v-else
+                  :class="cn({ '!text-gray-400': !catItem.item.name })"
+                  variant="muted">
+                  {{ catItem.item.name || 'Item Name' }}
+                </typography>
               </table-cell>
 
               <!-- generic_type -->
               <table-cell class="p-1">
                 <gc-inline-edit
+                  v-if="!$store.isPublicRoute"
                   hide-edit-btn
                   :model-value="catItem.item.generic_type"
                   :name="`item_generic_type_${catItem.id}`"
@@ -249,12 +270,18 @@
                     {{ catItem.item.generic_type || 'Item Description' }}
                   </typography>
                 </gc-inline-edit>
+                <typography
+                  v-else
+                  :class="cn({ '!text-gray-400': !catItem.item.generic_type })">
+                  {{ catItem.item.generic_type || 'Item Description' }}
+                </typography>
               </table-cell>
 
               <!-- consumable -->
               <table-cell class="p-1">
                 <div class="flex place-content-center w-full">
                   <button
+                    v-if="!$store.isPublicRoute"
                     class="cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
                     :class="catItem.item.consumable ? 'bg-primary hover:bg-primary/70' : 'bg-transparent hover:bg-gray-200'"
                     @click="$store.updateItem(catItem.item, 'consumable', !catItem.item.consumable, category.id)">
@@ -262,6 +289,14 @@
                       class="h-5 w-5"
                       :class="catItem.item.consumable ? 'text-primary-foreground' : 'text-dark-grey'" />
                   </button>
+                  <span
+                    v-else
+                    class="cursor-default duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
+                    :class="catItem.item.consumable ? 'bg-primary' : 'bg-transparent'">
+                    <icon-apple
+                      class="h-5 w-5"
+                      :class="catItem.item.consumable ? 'text-primary-foreground' : 'text-dark-grey'" />
+                  </span>
                 </div>
               </table-cell>
 
@@ -269,6 +304,7 @@
               <table-cell class="p-1">
                 <div class="flex place-content-center w-full">
                   <button
+                    v-if="!$store.isPublicRoute"
                     class="cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
                     :class="catItem.item.worn ? 'bg-accent-alt dark:bg-accent-light hover:bg-accent-alt/70' : 'bg-transparent hover:bg-gray-200'"
                     @click="$store.updateItem(catItem.item, 'worn', !catItem.item.worn, category.id)">
@@ -276,12 +312,22 @@
                       class="h-5 w-5"
                       :class="catItem.item.worn ? 'text-primary-foreground' : 'text-dark-grey'" />
                   </button>
+                  <span
+                    v-else
+                    class="cursor-default duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
+                    :class="catItem.item.worn ? 'bg-accent-alt dark:bg-accent-light' : 'bg-transparent'">
+                    <icon-shirt
+                      class="h-5 w-5"
+                      :class="catItem.item.worn ? 'text-primary-foreground' : 'text-dark-grey'" />
+                  </span>
                 </div>
               </table-cell>
 
               <!-- weight -->
               <table-cell class="p-1">
-                <div class="flex mx-auto place-content-center w-fit">
+                <div
+                  v-if="!$store.isPublicRoute"
+                  class="flex mx-auto place-content-center w-fit">
                   <gc-inline-edit
                     hide-edit-btn
                     :model-value="catItem.item.weight"
@@ -316,12 +362,20 @@
                     </select-content>
                   </select-root>
                 </div>
+                <div
+                  v-else
+                  class="flex mx-auto place-content-center w-fit">
+                  <typography>
+                    {{ catItem.item.weight }} {{ catItem.item.unit }}
+                  </typography>
+                </div>
               </table-cell>
 
               <!-- price -->
               <table-cell class="p-1">
                 <div class="flex place-content-center w-full">
                   <gc-inline-edit
+                    v-if="!$store.isPublicRoute"
                     hide-edit-btn
                     :model-value="catItem.item.price"
                     :name="`item_price_${catItem.id}`"
@@ -332,6 +386,9 @@
                       ${{ catItem.item.price }}
                     </typography>
                   </gc-inline-edit>
+                  <typography v-else>
+                    ${{ catItem.item.price }}
+                  </typography>
                 </div>
               </table-cell>
 
@@ -339,6 +396,7 @@
               <table-cell class="p-1">
                 <div class="flex place-content-center w-full">
                   <gc-inline-edit
+                    v-if="!$store.isPublicRoute"
                     hide-edit-btn
                     :model-value="catItem.item.quantity"
                     :name="`item_quantity_${catItem.id}`"
@@ -349,6 +407,9 @@
                       {{ catItem.item.quantity || 0 }}
                     </typography>
                   </gc-inline-edit>
+                  <typography v-else>
+                    {{ catItem.item.quantity || 0 }}
+                  </typography>
                 </div>
               </table-cell>
 
@@ -356,6 +417,7 @@
               <table-cell class="p-1 pr-2">
                 <div class="grid grid-cols-[auto,auto] gap-1 justify-end items-center">
                   <button-root
+                    v-if="!$store.isPublicRoute"
                     v-tippy="{ content: 'Add/Modify URL', placement: 'top' }"
                     :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
                     size="icon"
@@ -364,11 +426,22 @@
                     <icon-link :class="cn('h-5 w-5', catItem.item.url ? 'text-primary-foreground' : 'text-dark-gray')" />
                   </button-root>
                   <button-root
+                    v-if="!$store.isPublicRoute"
                     class="bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8"
                     size="icon"
                     variant="ghost"
                     @click="emit('handleRemoveItem', catItem)">
                     <icon-trash class="h-5 w-5" />
+                  </button-root>
+                  <button-root
+                    v-if="$store.isPublicRoute"
+                    v-tippy="{ content: 'Visit URL', placement: 'top' }"
+                    :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
+                    :disabled="!catItem.item.url"
+                    size="icon"
+                    variant="ghost"
+                    @click="openUrl(catItem.item.url)">
+                    <icon-link :class="cn('h-5 w-5', catItem.item.url ? 'text-primary-foreground' : 'text-dark-gray')" />
                   </button-root>
                 </div>
               </table-cell>
@@ -406,6 +479,7 @@
                     {{ calculateCategoryWeight(category) }}
                   </span>
                   <select-root
+                    v-if="!$store.isPublicRoute"
                     class="max-w-4"
                     :model-value="(category.unit as Mass)"
                     @update:model-value="emit('handleUpdateCategory', {
@@ -428,6 +502,11 @@
                       </select-group>
                     </select-content>
                   </select-root>
+                  <typography
+                    v-else
+                    class="!font-bold">
+                    {{ category.unit }}
+                  </typography>
                 </div>
               </table-cell>
               <table-cell
@@ -444,6 +523,7 @@
                 class="px-0 py-2 text-right w-fit"
                 colspan="1">
                 <button-root
+                  v-if="!$store.isPublicRoute"
                   size="sm"
                   variant="outline"
                   @click="() => createDefaultItem(category.id)">

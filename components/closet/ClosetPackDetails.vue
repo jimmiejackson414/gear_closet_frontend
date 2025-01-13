@@ -4,7 +4,6 @@
   import { Theme } from '@/types';
 
   const $store = useClosetStore();
-  const { data, dialogStates } = storeToRefs($store);
 
   const details = reactive([
     { title: 'Worn', weight: 0, color: '' },
@@ -13,9 +12,9 @@
     { title: 'Total', weight: 0, color: '' },
   ]);
   watchEffect(() => {
-    if (data.value.selectedPack) {
-      const weights = calculatePackWeights(data.value.selectedPack);
-      const theme = findTheme(data.value.selectedPack.theme as Theme);
+    if ($store.data.selectedPack) {
+      const weights = calculatePackWeights($store.data.selectedPack);
+      const theme = findTheme($store.data.selectedPack.theme as Theme);
 
       for (let i = 0; i < details.length; i += 1) {
         const detail = details[i];
@@ -36,22 +35,6 @@
         <typography class="!font-bold">
           Stats
         </typography>
-      </div>
-      <div class="flex">
-        <dropdown-menu>
-          <dropdown-menu-trigger>
-            <icon-ellipsis-vertical class="h-6 w-6" />
-          </dropdown-menu-trigger>
-          <dropdown-menu-content>
-            <dropdown-menu-label>
-              Actions
-            </dropdown-menu-label>
-            <dropdown-menu-separator />
-            <dropdown-menu-item @select="dialogStates.updateThemeDialog = true">
-              Change theme
-            </dropdown-menu-item>
-          </dropdown-menu-content>
-        </dropdown-menu>
       </div>
     </div>
     <div class="grid grid-cols-2 gap-6 h-full pb-4">

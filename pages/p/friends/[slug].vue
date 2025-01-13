@@ -1,6 +1,10 @@
 <script lang='ts' setup>
-  const $store = useUserStore();
-  definePageMeta({ layout: 'public-layout', colorMode: $store.profile ? undefined : 'light' });
+  // const user = useSupabaseUser();
+  // definePageMeta({ layout: 'public-layout', colorMode: !user.value ? 'light' : undefined, public: true });
+  definePageMeta({ layout: 'public-layout', colorMode: 'light', public: true });
+
+  // update to be dynamic with friend's name
+  useHead({ title: 'Friend '});
 </script>
 
 <template>

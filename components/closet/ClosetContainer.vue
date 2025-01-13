@@ -13,6 +13,9 @@
       $store.fetchClosetPage(identifier);
     }
   }, { immediate: true });
+
+  const packSettingsMode = ref<'create' | 'update'>('create');
+  provide('dialogMode', packSettingsMode);
 </script>
 
 <template>
@@ -23,20 +26,18 @@
 
     <pack-summary />
 
-    <create-pack-dialog />
+    <lazy-manage-pack-settings-dialog />
 
-    <csv-upload-dialog />
+    <lazy-csv-upload-dialog />
 
-    <share-pack-dialog />
+    <lazy-share-pack-dialog />
 
-    <delete-category-dialog />
+    <lazy-delete-category-dialog />
 
-    <delete-pack-dialog />
+    <lazy-delete-pack-dialog />
 
-    <remove-item-dialog />
+    <lazy-remove-item-dialog />
 
-    <add-url-dialog />
-
-    <update-theme-dialog />
+    <lazy-add-url-dialog />
   </div>
 </template>

@@ -10,7 +10,6 @@
   const isSubmitting = ref(false);
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data } = storeToRefs($store);
 
   /**
    * Delete poll from the selected trip.
@@ -21,11 +20,11 @@
       const supabase = useSupabaseClient<Database>();
       const { error } = await supabase.from('polls')
         .delete()
-        .eq('id', data.value.poll?.id as number);
+        .eq('id', $store.data.poll?.id as number);
 
       if (error) { $appStore.notifyNegative('There was an error deleting the poll.'); }
       else {
-        data.value.poll = undefined;
+        $store.data.poll = undefined;
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error deleting the poll.');

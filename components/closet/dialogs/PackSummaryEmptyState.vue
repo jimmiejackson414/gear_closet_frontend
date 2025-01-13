@@ -3,7 +3,6 @@
   import type { ExtendedCategory, ExtendedPack } from '@/types/helpers';
 
   const $store = useClosetStore();
-  const { data, dialogStates } = storeToRefs($store);
 
   /**
    * Creates a new default category.
@@ -17,7 +16,7 @@
       const { data: createdCategory, error } = await supabase
         .rpc('create_category_and_item', {
           p_name: 'Miscellaneous',
-          p_pack_id: data.value.selectedPack?.id as number,
+          p_pack_id: $store.data.selectedPack?.id as number,
           p_items: [{
             name: 'Miscellaneous',
             generic_type: 'Miscellaneous',
@@ -31,7 +30,7 @@
         .returns<ExtendedCategory>();
 
       if (createdCategory && !error) {
-        (data.value.selectedPack as ExtendedPack).categories.push(createdCategory);
+        ($store.data.selectedPack as ExtendedPack).categories.push(createdCategory);
         $appStore.notifyPositive('Category created successfully.');
       } else {
         $appStore.notifyNegative('There was an error creating the category.');
@@ -50,7 +49,7 @@
       <typography
         class="font-bold mb-2"
         variant="h5">
-        Successfully created your new {{ data.selectedPack?.name }} pack!
+        Successfully created your new {{ $store.data.selectedPack?.name }} pack!
       </typography>
       <typography class="mb-0">
         The next step is to add some items to your pack.
@@ -67,7 +66,7 @@
         <button-root
           size="sm"
           variant="outline"
-          @click="dialogStates.uploadCsvDialog = true">
+          @click="$store.dialogStates.uploadCsvDialog = true">
           Upload CSV
         </button-root>
       </div>

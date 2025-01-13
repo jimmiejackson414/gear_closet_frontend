@@ -23,7 +23,6 @@
   ]);
 
   const $store = useClosetStore();
-  const { data } = storeToRefs($store);
 
   /* Bar Chart Options */
   const legendTextColor = ref('');
@@ -35,7 +34,7 @@
       axisLine: { lineStyle: { color: legendTextColor.value } },
       axisTick: { alignWithLabel: true },
       axisLabel: { rotate: 30, overflow: 'break', width: 100, margin: 24 },
-      data: data.value.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
+      data: $store.data.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
     },
     yAxis: {
       type: 'value',
@@ -45,13 +44,13 @@
     grid: { show: false },
     series: [
       {
-        data: data.value.selectedPack?.categories?.map(category => calculateCategoryWeight(category as ExtendedCategory)),
+        data: $store.data.selectedPack?.categories?.map(category => calculateCategoryWeight(category as ExtendedCategory)),
         type: 'bar',
         itemStyle: {
           borderRadius: 5,
           color: (params: any) => {
-            const theme = findTheme(data.value.selectedPack?.theme as Theme);
-            const extendedTheme = Array.from({ length: data.value.selectedPack?.categories?.length || 0 }, (_, i) => theme[i % theme.length]);
+            const theme = findTheme($store.data.selectedPack?.theme as Theme);
+            const extendedTheme = Array.from({ length: $store.data.selectedPack?.categories?.length || 0 }, (_, i) => theme[i % theme.length]);
             return extendedTheme[params.dataIndex];
           },
         },
@@ -61,7 +60,7 @@
       show: true,
       trigger: 'item',
       formatter: (value: any) => {
-        const category = data.value.selectedPack?.categories?.[value.dataIndex];
+        const category = $store.data.selectedPack?.categories?.[value.dataIndex];
         const weight = calculateCategoryWeight(category as ExtendedCategory);
         return (`
           <div class="flex flex-col gap-2 w-fit">
@@ -101,7 +100,7 @@
   const colorMode = useColorMode();
   watch(() => colorMode.value, () => updateLegendTextColor(), { immediate: true });
 
-  watch(() => data.value.selectedPack?.theme, (newTheme) => {
+  watch(() => $store.data.selectedPack?.theme, (newTheme) => {
     chartRef.value?.setOption({
       series: [{
         itemStyle: {
@@ -114,13 +113,13 @@
     });
   });
 
-  watch(() => data.value.selectedPack?.categories, () => {
+  watch(() => $store.data.selectedPack?.categories, () => {
     chartRef.value?.setOption({
       xAxis: {
-        data: data.value.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
+        data: $store.data.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
       },
       series: [{
-        data: data.value.selectedPack?.categories?.map(category => calculateCategoryWeight(category as ExtendedCategory)),
+        data: $store.data.selectedPack?.categories?.map(category => calculateCategoryWeight(category as ExtendedCategory)),
       }],
     });
   }, { deep: true, immediate: true });

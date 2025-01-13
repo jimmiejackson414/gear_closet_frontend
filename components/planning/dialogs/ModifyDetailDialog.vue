@@ -15,7 +15,6 @@
 
   const $store = usePlanningStore();
   const $appStore = useAppStore();
-  const { data } = storeToRefs($store);
   const submitting = ref(false);
 
   const formSchema = toTypedSchema(z.object({
@@ -78,8 +77,8 @@
         .select();
 
       if (updatedDetail?.length && !error) {
-        const index = data.value.trip_details.findIndex((t) => t.id === props.activeDetail?.id);
-        data.value.trip_details[index] = updatedDetail[0];
+        const index = $store.data.trip_details.findIndex((t) => t.id === props.activeDetail?.id);
+        $store.data.trip_details[index] = updatedDetail[0];
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error updating the detail.');
@@ -101,8 +100,8 @@
         .eq('id', props.activeDetail?.id as number);
 
       if (!error) {
-        const index = data.value.trip_details.findIndex((t) => t.id === props.activeDetail?.id);
-        data.value.trip_details.splice(index, 1);
+        const index = $store.data.trip_details.findIndex((t) => t.id === props.activeDetail?.id);
+        $store.data.trip_details.splice(index, 1);
         handleClose();
       }
     } catch (err) {

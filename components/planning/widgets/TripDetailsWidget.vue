@@ -8,12 +8,11 @@
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data, pageLoading, selectedTripId, selectedTrip } = storeToRefs($store);
   const activeDetail = ref<Tables<'trip_details'> | undefined>(undefined);
   const isModifyDetailDialogOpen = ref(false);
 
   const tripDetails = computed(() => {
-    return data.value?.trip_details.filter((detail) => detail.type === TripDetailsType.TRIP) || [];
+    return $store.data?.trip_details.filter((detail) => detail.type === TripDetailsType.TRIP) || [];
   });
 
   /**
@@ -24,7 +23,7 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
-          trip_id: Number(selectedTripId?.value),
+          trip_id: Number($store.selectedTripId),
           title: 'New detail',
           type: TripDetailsType.TRIP,
           value: 'New trip detail description',
@@ -32,7 +31,7 @@
         .select();
 
       if (newDetail?.length && !error) {
-        data.value.trip_details.push(newDetail[0]);
+        $store.data.trip_details.push(newDetail[0]);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new detail.');
@@ -48,16 +47,16 @@
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTrip, error } = await supabase.from('trips')
         .update(payload)
-        .eq('id', Number(selectedTripId?.value))
+        .eq('id', Number($store.selectedTripId))
         .select();
 
-      if (updatedTrip?.length && selectedTripId && !error) {
-        selectedTripId.value = String(updatedTrip[0].id);
+      if (updatedTrip?.length && $store.selectedTripId && !error) {
+        $store.selectedTripId = String(updatedTrip[0].id);
 
         // Find the index of the corresponding trip in data.value.trips and update it
-        const tripIndex = data.value.trips.findIndex(trip => trip.id === updatedTrip[0].id);
+        const tripIndex = $store.data.trips.findIndex(trip => trip.id === updatedTrip[0].id);
         if (tripIndex !== -1) {
-          data.value.trips.splice(tripIndex, 1, updatedTrip[0]);
+          $store.data.trips.splice(tripIndex, 1, updatedTrip[0]);
         }
       }
     } catch (err) {
@@ -67,7 +66,7 @@
 
   const datePicker = ref(null);
   const editingTripDates = ref(false);
-  const dateRange = computed(() => [selectedTrip?.value?.starting_date || '', selectedTrip?.value?.ending_date || '']);
+  const dateRange = computed(() => [$store.selectedTrip?.starting_date || '', $store.selectedTrip?.ending_date || '']);
   const format = (dates: Date[]) => {
     const date1 = dayjs(dates[0])
       .format('MMM D, YYYY');
@@ -93,15 +92,15 @@
         Trip Details
       </p>
       <button-root
-        v-if="!pageLoading && tripDetails.length"
+        v-if="!$store.pageLoading && tripDetails.length"
         class="justify-self-end rounded-full"
         size="icon"
         @click="createDetail">
         <icon-plus />
       </button-root>
     </div>
-    <gc-skeleton v-if="pageLoading" />
-    <gc-empty-state v-else-if="!pageLoading && !tripDetails?.length">
+    <gc-skeleton v-if="$store.pageLoading" />
+    <gc-empty-state v-else-if="!$store.pageLoading && !tripDetails?.length">
       <p class="mb-4 text-base">
         You haven't added any trip details yet!
       </p>
@@ -115,7 +114,7 @@
     <div v-else>
       <div class="flex flex-col mb-6">
         <gc-inline-edit
-          :model-value="selectedTrip?.name"
+          :model-value="$store.selectedTrip?.name"
           name="trip_name"
           placeholder="Trip Name"
           size="sm"
@@ -123,7 +122,7 @@
           <typography
             class="!font-black"
             variant="large">
-            {{ selectedTrip?.name }}
+            {{ $store.selectedTrip?.name }}
           </typography>
         </gc-inline-edit>
         <div>
@@ -132,11 +131,11 @@
             class="flex items-center gap-4 group"
             @click="editingTripDates = !editingTripDates">
             <typography class="cursor-pointer text-grey">
-              {{ selectedTrip?.starting_date ? formattedDate(selectedTrip?.starting_date) : 'Start Date' }}
+              {{ $store.selectedTrip?.starting_date ? formattedDate($store.selectedTrip?.starting_date) : 'Start Date' }}
             </typography>
             <icon-move-right class="h-6 text-grey w-6" />
             <typography class="cursor-pointer text-grey">
-              {{ selectedTrip?.ending_date ? formattedDate(selectedTrip?.ending_date) : 'End Date' }}
+              {{ $store.selectedTrip?.ending_date ? formattedDate($store.selectedTrip?.ending_date) : 'End Date' }}
             </typography>
             <button-root
               class="group-hover:opacity-100 opacity-0 rounded-full"
@@ -202,7 +201,7 @@
     </div>
 
     <!-- Modify Detail Dialog -->
-    <modify-detail-dialog
+    <lazy-modify-detail-dialog
       :active-detail="( activeDetail as Tables<'trip_details'> )"
       :is-open="isModifyDetailDialogOpen"
       @on-close="isModifyDetailDialogOpen = false" />

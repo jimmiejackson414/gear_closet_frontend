@@ -3,12 +3,11 @@
 
   const $appStore = useAppStore();
   const $store = usePlanningStore();
-  const { data, pageLoading, selectedTrip, selectedTripId } = storeToRefs($store);
   const activeDetail = ref<Tables<'trip_details'> | undefined>(undefined);
   const isModifyDetailDialogOpen = ref(false);
 
   const hikeDetails = computed(() => {
-    return data.value?.trip_details.filter((detail) => {
+    return $store.data?.trip_details.filter((detail) => {
       return detail.type === TripDetailsType.HIKE;
     }) || [];
   });
@@ -21,7 +20,7 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
-          trip_id: Number(selectedTripId?.value),
+          trip_id: Number($store.selectedTripId),
           title: 'New detail',
           type: TripDetailsType.HIKE,
           value: 'New hike detail description',
@@ -29,7 +28,7 @@
         .select();
 
       if (newDetail?.length && !error) {
-        data.value.trip_details.push(newDetail[0]);
+        $store.data.trip_details.push(newDetail[0]);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new detail.');
@@ -45,12 +44,12 @@
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTrip, error } = await supabase.from('trips')
         .update(payload)
-        .eq('id', Number(selectedTripId?.value))
+        .eq('id', Number($store.selectedTripId))
         .select();
 
       // Update the trip in the store.
-      if (updatedTrip?.length && selectedTripId && !error) {
-        const tripToUpdate = data.value.trips.find((t) => t.id === Number(selectedTripId.value));
+      if (updatedTrip?.length && $store.selectedTripId && !error) {
+        const tripToUpdate = $store.data.trips.find((t) => t.id === Number($store.selectedTripId));
         if (tripToUpdate) {
           Object.assign(tripToUpdate, updatedTrip[0]);
         }
@@ -69,7 +68,7 @@
         Hike Details
       </typography>
       <button-root
-        v-if="!pageLoading && hikeDetails.length"
+        v-if="!$store.pageLoading && hikeDetails.length"
         class="justify-self-end rounded-full"
         data-testid="create-new-detail-btn"
         size="icon"
@@ -77,9 +76,9 @@
         <icon-plus />
       </button-root>
     </div>
-    <gc-skeleton v-if="pageLoading" />
+    <gc-skeleton v-if="$store.pageLoading" />
     <gc-empty-state
-      v-else-if="!pageLoading && !hikeDetails.length"
+      v-else-if="!$store.pageLoading && !hikeDetails.length"
       data-testid="hike-details-empty-state">
       <typography class="mb-4">
         You haven't created any hike details yet!
@@ -94,7 +93,7 @@
     <div v-else>
       <div class="flex items-center gap-6">
         <gc-inline-edit
-          :model-value="selectedTrip?.starting_point"
+          :model-value="$store.selectedTrip?.starting_point"
           name="starting_point"
           placeholder="Ending point"
           size="sm"
@@ -102,12 +101,12 @@
           <typography
             class="!font-black"
             variant="large">
-            {{ selectedTrip?.starting_point }}
+            {{ $store.selectedTrip?.starting_point }}
           </typography>
         </gc-inline-edit>
         <icon-move-right class="h-6 text-grey w-6" />
         <gc-inline-edit
-          :model-value="selectedTrip?.ending_point"
+          :model-value="$store.selectedTrip?.ending_point"
           name="ending_point"
           placeholder="Ending point"
           size="sm"
@@ -115,19 +114,19 @@
           <typography
             class="!font-black"
             variant="large">
-            {{ selectedTrip?.ending_point }}
+            {{ $store.selectedTrip?.ending_point }}
           </typography>
         </gc-inline-edit>
       </div>
       <div class="flex items-center mb-6">
         <gc-inline-edit
-          :model-value="selectedTrip?.description"
+          :model-value="$store.selectedTrip?.description"
           name="description"
           placeholder="Trip description"
           size="sm"
           @handle-update="updateTrip({ description: $event })">
           <typography class="cursor-pointer text-grey">
-            {{ selectedTrip?.description }}
+            {{ $store.selectedTrip?.description }}
           </typography>
         </gc-inline-edit>
       </div>
@@ -169,7 +168,7 @@
   </card>
 
   <!-- Modify Detail Dialog -->
-  <modify-detail-dialog
+  <lazy-modify-detail-dialog
     :active-detail="( activeDetail as Tables<'trip_details'> )"
     :is-open="isModifyDetailDialogOpen"
     @on-close="isModifyDetailDialogOpen = false" />

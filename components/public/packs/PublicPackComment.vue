@@ -2,7 +2,7 @@
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import type { Database } from '@/types';
-  import type { ExtendedComment, ExtendedReply } from '@/types/helpers';
+  import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
 
   dayjs.extend(relativeTime);
 
@@ -11,9 +11,10 @@
   }
 
   const props = defineProps<Props>();
-  const emits = defineEmits(['handle-add-reply']);
+  // const emits = defineEmits(['handle-add-reply']);
   const user = useSupabaseUser();
   const $appStore = useAppStore();
+  const $store = useClosetStore();
 
   const formattedTime = (time: string | null) => {
     if (!time) return '';
@@ -22,44 +23,47 @@
   };
 
   const replyingTo = ref(false);
-  const quillEditorRef = ref<any | null>(null);
+  const newReplyValue = ref<string | undefined>(undefined);
   const submitting = ref(false);
   /**
    * Add a reply to a comment
    */
   const addReply = async () => {
-    const text = quillEditorRef.value?.getText()
-      .trim();
+    const text = newReplyValue.value?.trim();
     if (!text) return;
 
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
 
-      // insert reply
+      // insert and return reply
       const { data, error } = await supabase.from('replies')
         .insert({
           text,
           comment_id: props.comment.id,
           profile_id: user.value?.id as string,
         })
-        .select();
+        .select(`
+          *,
+          profile:profiles (first_name, last_name, trail_name, image) 
+        `);
 
       if (error || !data) throw error;
 
-      // retrieve extended reply data
-      const { data: reply, error: replyError } = await supabase
-        .from('replies')
-        .select(`
-          *,
-          profile:profiles (first_name, last_name, trail_name, image)
-        `)
-        .eq('id', data[0].id)
-        .maybeSingle();
 
-      if (replyError || !reply) throw replyError;
-      emits('handle-add-reply', reply as ExtendedReply);
-      quillEditorRef.value?.setText('');
+      const newReply = data[0]; // Get the newly created reply
+
+      // Find the comment and update its replies
+      const commentIndex = ($store.data.selectedPack as PublicPack)?.comments.findIndex((c) => c.id === props.comment.id);
+      if (commentIndex !== -1) {
+        const targetComment = ($store.data.selectedPack as PublicPack).comments[commentIndex];
+        if (!targetComment.replies) {
+          targetComment.replies = []; // Ensure replies array exists
+        }
+        targetComment.replies.push(newReply as ExtendedReply);
+      }
+
+      newReplyValue.value = undefined;
       replyingTo.value = false;
       $appStore.notifyPositive('Reply added successfully');
     } catch (error) {
@@ -72,10 +76,40 @@
   /**
    * Soft delete a comment
    */
-  // TODO: Implement deleteComment
   const isDeletingCommentId = ref<number | null>(null);
-  const deleteComment = async () => {
-    console.log(`deleteComment`);
+  const deleteComment = async (comment: ExtendedComment) => {
+    try {
+      isDeletingCommentId.value = comment.id;
+      const supabase = useSupabaseClient<Database>();
+      const { data, error } = await supabase
+        .from('comments')
+        .update({ deleted_at: new Date()
+          .toISOString()})
+        .eq('id', comment.id)
+        .select(`
+          *,
+          profile:profiles (*),
+          replies(*,
+            profile:profiles (*)
+          )
+        `);
+
+      if (error) throw error;
+
+      if (data?.length) {
+        const updatedComment = data[0] as ExtendedComment;
+        const commentIndex = ($store.data.selectedPack as PublicPack)?.comments.findIndex((c) => c.id === comment.id);
+        if (commentIndex !== -1) {
+          ($store.data.selectedPack as PublicPack).comments[commentIndex] = updatedComment;
+        }
+      }
+
+      $appStore.notifyPositive('Comment deleted successfully');
+    } catch (error) {
+      $appStore.notifyNegative('Failed to delete comment');
+    } finally {
+      isDeletingCommentId.value = null;
+    }
   };
 
   /**
@@ -86,13 +120,32 @@
     try {
       isDeletingReplyId.value = reply.id;
       const supabase = useSupabaseClient<Database>();
-      const { error } = await supabase
+      const { data, error } = await supabase
         .from('replies')
         .update({ deleted_at: new Date()
           .toISOString() })
-        .eq('id', reply.id);
+        .eq('id', reply.id)
+        .select(`
+          *,
+          profile:profiles (*)
+        `);
 
       if (error) throw error;
+
+      if (data?.length) {
+        const updatedReply = data[0] as ExtendedReply;
+        const selectedPack = $store.data.selectedPack as PublicPack;
+        if (selectedPack) {
+          for (const comment of selectedPack.comments) {
+            const replyIndex = comment.replies.findIndex((r) => r.id === reply.id);
+            if (replyIndex !== -1) {
+              comment.replies[replyIndex] = updatedReply;
+              break;
+            }
+          }
+        }
+      }
+
       $appStore.notifyPositive('Reply deleted successfully');
     } catch (error) {
       $appStore.notifyNegative('Failed to delete reply');
@@ -103,7 +156,7 @@
 </script>
 
 <template>
-  <div class="max-w-3xl mt-4">
+  <div class="mt-4 w-full">
     <ul
       class="list"
       depth="0"
@@ -113,7 +166,7 @@
           class="comment flex gap-2 relative"
           :class="{ 'pb-4': !replyingTo }">
           <gc-avatar
-            class="user"
+            class="mt-2 user"
             :initials="initials(comment.profile)"
             size="md"
             :url="buildImageSrc(comment.profile.image)" />
@@ -150,14 +203,14 @@
               v-if="!!user"
               class="comment__actions flex gap-2 pl-4 py-1">
               <button
-                class="duration-150 ease-snap font-bold text-dark-grey hover:text-dark-grey/75 text-sm transition-colors"
+                class="duration-150 ease-snap font-semibold text-dark-grey hover:text-dark-grey/75 text-sm transition-colors"
                 @click="[replyingTo = true]">
                 Reply
               </button>
               <button
                 v-if="user.id === comment.profile_id && !comment.deleted_at"
-                class="duration-150 ease-snap font-bold text-danger hover:text-danger/75 text-sm transition-colors"
-                @click="deleteComment">
+                class="duration-150 ease-snap font-semibold text-danger hover:text-danger/75 text-sm transition-colors"
+                @click="() => deleteComment(comment)">
                 Delete
               </button>
             </div>
@@ -165,27 +218,32 @@
         </div>
         <div
           v-if="replyingTo"
-          class="flex items-end flex-col ps-14">
-          <p class="my-2 text-gray-500 text-sm">
-            Commenting as <span class="font-bold">{{ friendlyUsername(comment.profile) }}</span>
-          </p>
-          <client-only>
-            <quill-editor
-              ref="quillEditorRef"
-              class="custom-editor"
-              :enable="!submitting"
-              :options="{ modules: { toolbar: false } }"
-              placeholder="Add a reply"
-              theme="snow" />
-          </client-only>
-          <button-root
-            class="mt-2"
+          class="flex items-start flex-col max-w-xl mt-4 pb-6 ps-[4.25rem]">
+          <textarea-root
+            v-model="newReplyValue"
+            class="rounded-xl shadow-sm w-full disabled:bg-gray-100 disabled:pointer-events-none"
             :disabled="submitting"
-            :loading="submitting"
-            size="sm"
-            @click="addReply">
-            Submit
-          </button-root>
+            placeholder="Add a reply" />
+          <div class="grid grid-cols-[1fr_auto_auto] gap-6 items-center my-2 w-full">
+            <button-root
+              class="justify-self-start text-muted-foreground"
+              :disabled="submitting"
+              size="sm"
+              variant="ghost"
+              @click="[replyingTo = false, newReplyValue = undefined]">
+              Cancel
+            </button-root>
+            <p class="text-muted-foreground text-sm">
+              Commenting as <span class="font-bold">{{ friendlyUsername(comment.profile) }}</span>
+            </p>
+            <button-root
+              :disabled="submitting"
+              :loading="submitting"
+              size="sm"
+              @click="addReply">
+              Submit
+            </button-root>
+          </div>
         </div>
         <ul
           v-if="comment.replies.length"
@@ -197,7 +255,7 @@
             :key="reply.id">
             <div class="comment flex gap-2 pb-4 relative">
               <gc-avatar
-                class="user"
+                class="mt-2 user"
                 :initials="initials(reply.profile)"
                 size="md"
                 :url="buildImageSrc(reply.profile.image)" />
@@ -250,7 +308,6 @@
 <style>
   .comment {
     --size: 3.5rem;
-    /* @apply pb-4; */
   }
 
   @container style(--depth: 0) {
