@@ -1,15 +1,12 @@
 <script lang='ts' setup>
-  import type { Tables } from '@/types';
-
+  import type { ProfileApiResponse } from '@/types/helpers';
 
   const $store = useUserStore();
-  const { profile } = storeToRefs($store);
-
-  const { data, error } = await useFetch<Tables<'profiles'> | null>('/api/profile', {
+  const { data, error } = await useFetch<ProfileApiResponse>('/api/profile', {
     headers: useRequestHeaders(['cookie']),
   });
 
-  profile.value = data.value as any;
+  $store.profile = data.value as any;
 
   const $router = useRouter();
   if (!error.value && data.value && !data.value.onboard_date) {
@@ -26,7 +23,7 @@
       <gc-drawer />
       <div class="min-h-screen">
         <div class="pl-[72px] pr-4 lg:pr-9 py-4">
-          <div class="container">
+          <div class="container px-0 md:px-8">
             <slot />
           </div>
         </div>
