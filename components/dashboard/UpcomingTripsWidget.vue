@@ -42,7 +42,7 @@
 
 <template>
   <card
-    class="px-8 py-4 rounded-3xl"
+    class="px-4 md:px-8 py-4 rounded-3xl"
     data-testid="upcoming-trips-widget">
     <gc-skeleton
       v-if="loading"
@@ -64,7 +64,7 @@
             :key="trip.id"
             class="cursor-pointer"
             @click="handleRouteClick(trip)">
-            <div class="duration-150 ease-in-out flex items-stretch p-3 rounded-md space-x-4 hover:bg-gray-100">
+            <div class="duration-150 ease-in-out flex md:flex-row items-stretch flex-col p-3 rounded-md space-y-2 md:space-x-4 md:space-y-0 hover:bg-gray-100">
               <div class="flex-1 min-w-0">
                 <p class="font-semibold text-base text-dark-grey truncate">
                   {{ trip.name }}
@@ -73,8 +73,8 @@
                   {{ trip.description }}
                 </p>
               </div>
-              <div class="flex justify-between flex-1 flex-col min-w-0">
-                <p class="font-medium inline-flex items-center text-base text-dark-gray">
+              <div class="flex justify-end flex-1 flex-col min-w-0">
+                <p class="font-medium inline-flex items-center text-dark-gray text-sm">
                   Begins {{ formattedRelativeDate(trip.starting_date) }}
                 </p>
                 <div class="bg-gray-200 h-2.5 rounded-full w-full">
