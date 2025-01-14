@@ -62,7 +62,7 @@
 
 <template>
   <card class="px-8 py-4 rounded-3xl">
-    <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
+    <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center">
       <icon-mountain class="h-6 mr-6 text-primary w-6" />
       <typography class="!font-bold">
         Hike Details
@@ -97,7 +97,7 @@
           name="starting_point"
           placeholder="Ending point"
           size="sm"
-          @handle-update="updateTrip({ starting_point: $event })">
+          @update:model-value="updateTrip({ starting_point: $event })">
           <typography
             class="!font-black"
             variant="large">
@@ -110,7 +110,7 @@
           name="ending_point"
           placeholder="Ending point"
           size="sm"
-          @handle-update="updateTrip({ ending_point: $event })">
+          @update:model-value="updateTrip({ ending_point: $event })">
           <typography
             class="!font-black"
             variant="large">
@@ -124,7 +124,7 @@
           name="description"
           placeholder="Trip description"
           size="sm"
-          @handle-update="updateTrip({ description: $event })">
+          @update:model-value="updateTrip({ description: $event })">
           <typography class="cursor-pointer text-grey">
             {{ $store.selectedTrip?.description }}
           </typography>

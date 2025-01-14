@@ -147,7 +147,7 @@
                     <gc-inline-edit
                       :model-value="todo.title ?? undefined"
                       name="title"
-                      @handle-update="updateTodo(todo, { title: $event })">
+                      @update:model-value="updateTodo(todo, { title: $event })">
                       {{ todo.title }}
                     </gc-inline-edit>
                   </table-cell>
@@ -187,7 +187,7 @@
                     <gc-inline-edit
                       :model-value="todo.title ?? undefined"
                       name="title"
-                      @handle-update="updateTodo(todo, { title: $event })">
+                      @update:model-value="updateTodo(todo, { title: $event })">
                       {{ todo.title }}
                     </gc-inline-edit>
                   </table-cell>

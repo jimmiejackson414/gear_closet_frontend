@@ -151,7 +151,7 @@
                     <gc-inline-edit
                       :model-value="item.title ?? undefined"
                       name="title"
-                      @handle-update="updateShoppingItem(item, { title: $event })">
+                      @update:model-value="updateShoppingItem(item, { title: $event })">
                       {{ item.title }}
                     </gc-inline-edit>
                   </table-cell>
@@ -159,7 +159,7 @@
                     <gc-inline-edit
                       :model-value="item.quantity ?? undefined"
                       name="quantity"
-                      @handle-update="updateShoppingItem(item, { quantity: $event })">
+                      @update:model-value="updateShoppingItem(item, { quantity: $event })">
                       {{ item.quantity }}
                     </gc-inline-edit>
                   </table-cell>
@@ -204,7 +204,7 @@
                     <gc-inline-edit
                       :model-value="item.title ?? undefined"
                       name="title"
-                      @handle-update="updateShoppingItem(item, { title: $event })">
+                      @update:model-value="updateShoppingItem(item, { title: $event })">
                       {{ item.title }}
                     </gc-inline-edit>
                   </table-cell>
@@ -212,7 +212,7 @@
                     <gc-inline-edit
                       :model-value="item.quantity ?? undefined"
                       name="quantity"
-                      @handle-update="updateShoppingItem(item, { quantity: $event })">
+                      @update:model-value="updateShoppingItem(item, { quantity: $event })">
                       {{ item.quantity }}
                     </gc-inline-edit>
                   </table-cell>

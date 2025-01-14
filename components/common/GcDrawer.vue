@@ -9,7 +9,10 @@
   const isLightMode = computed(() => colorMode.preference === 'light');
   const iconColor = (link: LinkItem) => {
     if (link.disabled) return tailwind.theme.colors.destructive.foreground;
-    return isActiveRoute(link) ? tailwind.theme.colors.primary.DEFAULT : ( isLightMode.value ? tailwind.theme.colors.muted.foreground : tailwind.theme.colors.accent.alt );
+    if (!isLightMode.value) return tailwind.theme.colors.primary.light;
+    return isActiveRoute(link)
+      ? tailwind.theme.colors.primary.DEFAULT
+      : tailwind.theme.colors.muted.foreground;
   };
 
   const $router = useRouter();

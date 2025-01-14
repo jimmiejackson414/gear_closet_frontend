@@ -43,12 +43,14 @@
    * @param payload
    */
   const updateTrip = async (payload: TablesUpdate<'trips'>) => {
+    console.log(`updateTrip`);
     try {
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTrip, error } = await supabase.from('trips')
         .update(payload)
         .eq('id', Number($store.selectedTripId))
         .select();
+      console.log({ updatedTrip, error });
 
       if (updatedTrip?.length && $store.selectedTripId && !error) {
         $store.selectedTripId = String(updatedTrip[0].id);
@@ -86,7 +88,7 @@
 
 <template>
   <card class="px-8 py-4 rounded-3xl">
-    <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
+    <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center">
       <icon-footprints class="h-6 mr-6 text-primary w-6" />
       <p class="!font-bold text-base">
         Trip Details
@@ -118,7 +120,7 @@
           name="trip_name"
           placeholder="Trip Name"
           size="sm"
-          @handle-update="updateTrip({ name: $event })">
+          @update:model-value="updateTrip({ name: $event })">
           <typography
             class="!font-black"
             variant="large">
