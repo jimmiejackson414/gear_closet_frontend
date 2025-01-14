@@ -1,0 +1,103 @@
+/**
+ * This injects Tailwind's base styles and any base styles registered by
+ * plugins.
+ */
+@import 'tailwindcss/base';
+@import './base/_index.css';
+
+/**
+  * This injects Tailwind's component classes and any component classes
+  * registered by plugins.
+  */
+@import 'tailwindcss/components';
+/* @import './components/_index.css'; */
+
+/**
+  * This injects Tailwind's utility classes and any utility classes registered
+  * by plugins.
+  */
+@import 'tailwindcss/utilities';
+/* @import './utilities/_index.css'; */
+
+/*
+* Tailwind default responsive breakpoints reference
+* 
+* Breakpoint prefix	  Minimum width	  CSS
+* sm	                640px	          @media (min-width: 640px) { ... }
+* md	                768px	          @media (min-width: 768px) { ... }
+* lg	                1024px	        @media (min-width: 1024px) { ... }
+* xl	                1280px	        @media (min-width: 1280px) { ... }
+* 2xl	                1536px	        @media (min-width: 1536px) { ... }
+*/
+
+@layer base {
+  :root {
+    --accent-foreground: 204 5% 5%;
+    --accent: 166 30% 88%;
+    --accent-light: 166 50% 95%;
+    --accent-alt: 166 50% 25%;
+    --background: 204 51% 98%;
+    --border: 204 30% 82%;
+    --card-foreground: 204 5% 15%;
+    --card: 204 50% 100%;
+    --destructive-foreground: 204 5% 90%;
+    --destructive-light: 0 51% 95%;
+    --destructive: 0 51% 50%;
+    --foreground: 204 5% 10%;
+    --input: 204 30% 50%;
+    --muted-foreground: 204 5% 40%;
+    --muted: 204 10% 90%;
+    --popover-foreground: 204 95% 10%;
+    --popover: 204 51% 100%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 204 100% 95%;
+    --primary: 204 100% 26.9%;
+    --radius: 0.5rem;
+    --ring: 204 100% 26.9%;
+    --secondary-foreground: 0 0% 0%;
+    --secondary-light: 204 30% 95%;
+    --secondary: 204 30% 88%;
+    --tertiary-foreground: 21 10% 90%;
+    --tertiary: 21 69% 73%;
+    --text: 204 5% 10%;
+  }
+
+  .dark:root {
+    --accent-foreground: 204 5% 90%;
+    --accent: 166 30% 25%;
+    --accent-light: 166 30% 55%;
+    --accent-alt: 166 30% 88%;
+    --background: 204 50% 10%;
+    --border: 204 30% 50%;
+    --card-foreground: 204 5% 90%;
+    --card: 204 50% 10%;
+    --destructive-foreground: 204 5% 90%;
+    --destructive: 0 51% 50%;
+    --foreground: 204 5% 90%;
+    --input: 204 30% 50%;
+    --muted-foreground: 204 5% 85%;
+    --muted: 204 5% 25%;
+    --popover-foreground: 204 5% 90%;
+    --popover: 204 50% 5%;
+    --primary-foreground: 0 0% 100%;
+    --primary-light: 204 100% 95%;
+    --primary: 204 100% 70%;
+    --radius: 0.5rem;
+    --ring: 204 100% 26.9%;
+    --secondary-foreground: 0 0% 100%;
+    --secondary: 204 30% 20%;
+    --tertiary: 21 10% 90%;
+    --tertiary-foreground: 21 69% 73%;
+    --text: 204 5% 90%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+  }
+}

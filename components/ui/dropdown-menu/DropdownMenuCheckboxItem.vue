@@ -1,0 +1,39 @@
+<!-- eslint-disable @typescript-eslint/no-unused-vars -->
+<script setup lang="ts">
+  import {
+    DropdownMenuCheckboxItem,
+    type DropdownMenuCheckboxItemEmits,
+    type DropdownMenuCheckboxItemProps,
+    DropdownMenuItemIndicator,
+    useForwardPropsEmits,
+  } from 'radix-vue';
+  import { type HTMLAttributes } from 'vue';
+  import { cn } from '@/lib/utils';
+
+  const props = defineProps<DropdownMenuCheckboxItemProps & { class?: HTMLAttributes['class'] }>();
+  const emits = defineEmits<DropdownMenuCheckboxItemEmits>();
+
+  const delegatedProps = computed(() => {
+    const { class: _, ...delegated } = props;
+
+    return delegated;
+  });
+
+  const forwarded = useForwardPropsEmits(delegatedProps, emits);
+</script>
+
+<template>
+  <dropdown-menu-checkbox-item
+    v-bind="forwarded"
+    :class=" cn(
+      'relative flex cursor-default select-none items-center rounded-sm py-1.5 pl-8 pr-2 text-sm outline-none transition-colors focus:bg-accent focus:text-accent-foreground data-[disabled]:pointer-events-none data-[disabled]:opacity-50',
+      props.class,
+    )">
+    <span class="absolute left-2 flex justify-center items-center h-3.5 w-3.5">
+      <dropdown-menu-item-indicator>
+        <icon-check class="h-4 w-4" />
+      </dropdown-menu-item-indicator>
+    </span>
+    <slot />
+  </dropdown-menu-checkbox-item>
+</template>

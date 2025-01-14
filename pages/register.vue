@@ -1,0 +1,24 @@
+<script lang='ts' setup>
+  definePageMeta({
+    layout: 'auth-layout',
+    colorMode: 'light',
+  });
+
+  useHead({
+    title: 'Register',
+    meta: [
+      {
+        name: 'description',
+        content: 'Register for an account',
+      },
+    ],
+  });
+</script>
+
+<template>
+  <auth-form-container
+    subtitle="Please sign up to continue"
+    title="Create an Account">
+    <register-form />
+  </auth-form-container>
+</template>
