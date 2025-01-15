@@ -30,7 +30,9 @@
   onClickOutside(notificationDropdown, () => isDropdownOpen.value = false);
 
   const colorMode = useColorMode();
-  const toggleColorMode = () => (colorMode.preference = (colorMode.value === 'light' ? 'dark' : 'light'));
+  const toggleColorMode = () => {
+    (colorMode.preference = (colorMode.value === 'light' ? 'dark' : 'light'));
+  };
 </script>
 
 <template>
@@ -52,23 +54,11 @@
     </div>
     <div class="grow" />
 
-    <div class="flex items-center gap-8">
+    <div class="flex items-center gap-4">
       <span
         v-tippy="{ content: 'Toggle color mode' }"
         class="flex">
-        <button-root
-          size="icon"
-          variant="ghost"
-          @click="toggleColorMode">
-          <icon-sun
-            v-if="colorMode.value === 'dark'"
-            class="!size-6 text-accent-alt dark:text-card-foreground"
-            :size="20" />
-          <icon-moon
-            v-else
-            class="!size-6 text-accent-alt dark:text-card-foreground"
-            :size="40" />
-        </button-root>
+        <gc-color-mode-toggle @click="toggleColorMode" />
       </span>
       <div class="relative">
         <button-root

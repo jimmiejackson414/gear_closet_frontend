@@ -4,8 +4,8 @@ import dotenv from 'dotenv';
 dotenv.config();
 
 const supabaseUrl = process.env.VITE_SUPABASE_URL as string;
-const supabaseKey = process.env.VITE_SUPABASE_KEY as string;
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabaseServiceKey = process.env.VITE_SUPABASE_SERVICE_KEY as string;
+const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
 /**
  *
@@ -15,15 +15,19 @@ const supabase = createClient(supabaseUrl, supabaseKey);
  * @example npx tsx scripts/insertUser.ts test@test.com password
  */
 async function insertUser (email: string, password: string) {
+  if (!email || !password) {
+    console.error('Please provide an email and password');
+    return;
+  }
+
   try {
-    const { data, error } = await supabase.auth.signUp({
+    const { data, error } = await supabase.auth.admin.createUser({
       email,
       password,
-      options: {
-        data: {
-          first_name: 'John',
-          last_name: 'Doe',
-        },
+      email_confirm: true,
+      user_metadata: {
+        first_name: 'John',
+        last_name: 'Doe',
       },
     });
     if (error || !data?.user) {
