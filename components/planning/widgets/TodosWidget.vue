@@ -138,13 +138,14 @@
                 <table-row
                   v-for="todo in userTodos"
                   :key="todo.id">
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <checkbox
                       :checked="todo.completed"
                       @update:checked="updateTodo(todo, { completed: $event })" />
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <gc-inline-edit
+                      :class="{ 'line-through': todo.completed }"
                       :model-value="todo.title ?? undefined"
                       name="title"
                       @update:model-value="updateTodo(todo, { title: $event })">
@@ -178,13 +179,14 @@
                 <table-row
                   v-for="todo in groupTodos"
                   :key="todo.id">
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <checkbox
                       :checked="todo.completed"
                       @update:checked="updateTodo(todo, { completed: $event })" />
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <gc-inline-edit
+                      :class="{ 'line-through': todo.completed }"
                       :model-value="todo.title ?? undefined"
                       name="title"
                       @update:model-value="updateTodo(todo, { title: $event })">

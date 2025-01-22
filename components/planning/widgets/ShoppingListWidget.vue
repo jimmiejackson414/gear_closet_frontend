@@ -141,13 +141,14 @@
               <table-body>
                 <table-row
                   v-for="item in userItems"
-                  :key="item.id">
-                  <table-cell>
+                  :key="item.id"
+                  :class="{ 'line-through': item.completed }">
+                  <table-cell class="px-4 py-1">
                     <checkbox
                       :checked="item.completed"
                       @update:checked="updateShoppingItem(item, { completed: $event })" />
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <gc-inline-edit
                       :model-value="item.title ?? undefined"
                       name="title"
@@ -155,7 +156,7 @@
                       {{ item.title }}
                     </gc-inline-edit>
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <gc-inline-edit
                       :model-value="item.quantity ?? undefined"
                       name="quantity"
@@ -194,13 +195,14 @@
               <table-body>
                 <table-row
                   v-for="item in groupItems"
-                  :key="item.id">
-                  <table-cell>
+                  :key="item.id"
+                  :class="{ 'line-through': item.completed }">
+                  <table-cell class="px-4 py-1">
                     <checkbox
                       :checked="item.completed"
                       @update:checked="updateShoppingItem(item, { completed: $event })" />
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <gc-inline-edit
                       :model-value="item.title ?? undefined"
                       name="title"
@@ -208,7 +210,7 @@
                       {{ item.title }}
                     </gc-inline-edit>
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <gc-inline-edit
                       :model-value="item.quantity ?? undefined"
                       name="quantity"
