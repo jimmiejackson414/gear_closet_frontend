@@ -61,7 +61,7 @@
 </script>
 
 <template>
-  <div class="bg-gray-50 duration-200 ease-snap my-4 px-8 py-4 rounded-2xl shadow-light hover:shadow-xl transition w-fit">
+  <card class="duration-200 my-4 px-8 py-4 rounded-2xl w-fit">
     <div class="flex items-center gap-4">
       <gc-avatar
         :initials="initials(profile)"
@@ -91,5 +91,5 @@
         </typography>
       </div>
     </div>
-  </div>
+  </card>
 </template>

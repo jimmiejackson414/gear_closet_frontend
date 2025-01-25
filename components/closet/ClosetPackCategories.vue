@@ -138,7 +138,7 @@
         $store.dialogStates.removeItemDialog = true
       ]"
       @handle-update-category="[
-        $store.activeCategoryId = $event,
+        $store.activeCategoryId = $event.id,
         updateCategory($event)
       ]" />
   </div>

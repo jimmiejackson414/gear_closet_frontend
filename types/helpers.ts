@@ -9,6 +9,7 @@ export type ProfileApiResponse = Tables<'profiles'> & {
   onboarding_steps: Tables<'onboarding_steps'>[];
   notifications: ExtendedNotification[];
   subscriptions: SubscriptionType[];
+  friend_invitations: number;
 };
 
 export type SubscriptionApiResponse = {

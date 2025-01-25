@@ -5,7 +5,7 @@
   import type { FunctionalComponent } from 'vue';
   import * as z from 'zod';
   import { IconAperture, IconCheck, IconCircleUser, IconHeart } from '#components';
-  import { useToast } from '@/components/ui/toast/use-toast';
+  import { useToast } from '@/components/ui';
   import { MeasuringSystem, SubscriptionLevel } from '@/types';
 
   type StepperState = 'completed' | 'active' | 'inactive';

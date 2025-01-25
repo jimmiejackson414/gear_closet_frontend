@@ -29,12 +29,20 @@
   const searchForFriends = async (searchTerm: string) => {
     try {
       searching.value = true;
+      // TODO: Fix query. Currently returns two results when searching for "Bill", but first record has null profile and shouldn't be returned anyways
       const supabase = useSupabaseClient<Database>();
+      // const orFilters = `first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`;
+      // console.log({ orFilters });
       const { data: friends, error } = await supabase
         .from('friends')
-        .select('*, profile:profiles!profile_id(*)')
-        .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`, { referencedTable: 'profiles' })
+        // .select('*, profile:profiles!profile_id(*)')
+        .select('*, profile:profiles!friends_profile_id_fkey(*)')
         .neq('profile_id', $store.selectedTrip?.profile_id)
+        // .or(`profiles.first_name.ilike.%${searchTerm}%,profiles.last_name.ilike.%${searchTerm}%,profiles.email.ilike.%${searchTerm}%`)
+        // .or(orFilters, { referencedTable: 'profiles' })
+        .or(
+          `profiles.first_name.ilike.%${searchTerm}%,profiles.last_name.ilike.%${searchTerm}%,profiles.email.ilike.%${searchTerm}%`,
+        )
         .returns<FriendSearchResult[]>()
         .limit(10);
 
@@ -48,6 +56,7 @@
         }));
       }
     } catch (err) {
+      console.log({ err });
       $appStore.notifyNegative('There was an error searching for friends.');
     } finally {
       searching.value = false;
@@ -127,26 +136,41 @@
           Invite existing friends to your trip and get started planning!
         </dialog-description>
       </dialog-header>
-      <div class="flex flex-col gap-2 mt-4 w-full lg:max-w-sm">
-        <label-root>
-          Search for friends
-        </label-root>
-        <multiselect
-          :loading="searching"
-          :options="searchResults"
-          placeholder="Abe Lincoln"
-          @search="searchForFriends"
-          @select="setFriendsPayload">
-          <template #option="{ option }">
-            <div class="flex items-center">
-              <gc-avatar
-                class="mr-2"
-                size="xs"
-                :src="buildImageSrc(option.image)" />
-              <span>{{ option.label }}</span>
-            </div>
-          </template>
-        </multiselect>
+      <div class="grid grid-cols-[auto_1fr_auto] gap-6 items-center w-full">
+        <div class="flex flex-col gap-2 w-fit">
+          <label-root>
+            Search for friends
+          </label-root>
+          <multiselect
+            :loading="searching"
+            :options="searchResults"
+            placeholder="Abe Lincoln"
+            @search="searchForFriends"
+            @select="setFriendsPayload">
+            <template #option="{ option }">
+              <div class="flex items-center">
+                <gc-avatar
+                  class="mr-2"
+                  size="xs"
+                  :src="buildImageSrc(option.image)" />
+                <span>{{ option.label }}</span>
+              </div>
+            </template>
+          </multiselect>
+        </div>
+        <separator
+          class="mt-[22px]"
+          label="or" />
+        <nuxt-link
+          class="mt-[22px]"
+          :to="{ name: 'friends' }">
+          <button-root
+            variant="outline"
+            @click="handleClose">
+            <!-- <icon-plus-circle class="!size-max text-accent-alt dark:text-card-foreground" /> -->
+            Find new friends
+          </button-root>
+        </nuxt-link>
       </div>
       <dialog-footer>
         <dialog-close

@@ -21,6 +21,7 @@ export const profile: ProfileApiResponse = {
   "location":null,
   "fts":"'eats':6 'jackson':2 'jimmie':1 'jimmiejackson414@gmail.com':3 'n':5 'walk':4",
   "slug":"b259bd9c-8846-477a-b4b5-daaa6a65d6d3",
+  "friend_invitations": 0,
   "onboarding_steps":[],
   "notifications":[
     {

@@ -308,8 +308,24 @@ BEGIN
     END IF;
 
     -- Insert item
-    INSERT INTO "public"."items" ("name", "generic_type", "price", "consumable", "worn", "quantity", "unit", "weight", "url", "slug", "created_at", "updated_at", "profile_id")
-    VALUES ("row_data"->>'item_name', "row_data"->>'desc', ("row_data"->>'price')::bigint, (trim("row_data"->>'consumable') != '')::boolean, (trim("row_data"->>'worn') != '')::boolean, ("row_data"->>'qty')::bigint, "row_data"->>'unit', ("row_data"->>'weight')::numeric, "row_data"->>'url', 'slug', NOW(), NOW(), auth.uid())
+    INSERT INTO "public"."items" (
+      "name", "generic_type", "price", "consumable", "worn", "quantity", "unit", "weight", "url", "slug", "created_at", "updated_at", "profile_id"
+    )
+    VALUES (
+      "row_data"->>'item_name',
+      "row_data"->>'desc',
+      ("row_data"->>'price')::bigint,
+      (trim("row_data"->>'consumable') != '')::boolean,
+      (trim("row_data"->>'worn') != '')::boolean,
+      ("row_data"->>'qty')::bigint,
+      ("row_data"->>'unit')::item_unit,
+      ("row_data"->>'weight')::numeric,
+      "row_data"->>'url',
+      'slug',
+      NOW(),
+      NOW(),
+      auth.uid()
+    )
     RETURNING "id" INTO "item_id";
 
     -- Link item to category

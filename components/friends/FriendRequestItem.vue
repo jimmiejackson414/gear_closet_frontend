@@ -13,6 +13,7 @@
   const props = defineProps<Props>();
   const emits = defineEmits(['accept', 'decline']);
   const $appStore = useAppStore();
+  const $store = useUserStore();
 
   /**
    * Accepts a friend request
@@ -48,12 +49,24 @@
       // fetch new friend (ExtendedFriend)
       const { data: newFriend, error: newFriendError } = await supabase.from('friends')
         .select('*, friend:profiles!friend_id(*)')
-        .eq('friend_id', props.friend.sender.id)
+        .match({ friend_id: props.friend.sender.id, profile_id: props.friend.recipient.id })
         .single();
 
       if (newFriendError || !newFriend) throw new Error();
 
+      // insert notification record
+      const content = newFriend.friend ? `${newFriend.friend.first_name} ${newFriend.friend.last_name} accepted your friend request.` : 'Your friend request has been accepted!';
+      await supabase.from('notifications')
+        .insert([
+          {
+            title: 'Friend Request Accepted',
+            content,
+            profile_id: newFriend.profile_id,
+          },
+        ]);
+
       $appStore.notifyPositive('Friend request accepted.');
+      $store.profile!.friend_invitations -= 1;
       emits('accept', newFriend);
       madeSelection.value = 'accepted';
       selectionTimestamp.value = dayjs();
@@ -94,16 +107,13 @@
     }
   };
 
-  const mutualFriends = computed(() => {
-    return '2 mutual friends'; // TODO: Implement mutual friends
-  });
-
   const madeSelection = ref<'accepted' | 'declined' | null>(null);
   const selectionTimestamp = ref<Dayjs | null>(null);
+  const mutualFriends = computed(() => '2 mutual friends'); // TODO: Implement mutual friends
 </script>
 
 <template>
-  <div class="bg-gray-50 duration-200 ease-snap my-4 px-8 py-4 rounded-2xl shadow-light hover:shadow-xl transition w-fit">
+  <card class="my-4 px-8 py-4 rounded-2xl w-fit">
     <div class="grid grid-cols-[auto,1fr] gap-4 items-center">
       <gc-avatar
         :initials="initials(friend.sender)"
@@ -113,11 +123,11 @@
         <typography class="font-bold">
           {{ friendlyUsername(friend.sender, { includeTrailName: true }) }}
         </typography>
-        <typography
+        <!-- <typography
           class="text-muted-foreground"
           size="sm">
           {{ mutualFriends }}
-        </typography>
+        </typography> -->
         <div
           v-if="!madeSelection"
           class="flex gap-4 mt-2">
@@ -147,5 +157,5 @@
         </div>
       </div>
     </div>
-  </div>
+  </card>
 </template>

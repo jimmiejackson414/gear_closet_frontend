@@ -23,6 +23,7 @@
   };
 
   const $store = useUserStore();
+  const shouldShowBadge = computed(() => ($store.profile?.friend_invitations ?? 0) > 0);
 </script>
 
 <template>
@@ -58,7 +59,7 @@
           </template>
           <template v-else>
             <nuxt-link
-              class="duration-200 ease-in-out inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg transition dark:hover:bg-accent hover:bg-gray-100"
+              class="duration-200 ease-in-out inline-flex justify-center items-center mb-4 px-4 py-2 relative rounded-lg transition dark:hover:bg-accent hover:bg-gray-100"
               :class="[isActiveRoute(link) ? 'bg-accent dark:bg-accent-light' : '']"
               :disabled="link.disabled"
               :to="{ name: link.to }">
@@ -74,6 +75,9 @@
                 v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
                 :color="iconColor(link)"
                 :size="24" />
+              <div
+                v-if="shouldShowBadge && link.to === 'friends'"
+                class="absolute top-1 bg-destructive block border-2 border-white end-1 h-3 rounded-full w-3" />
             </nuxt-link>
           </template>
         </li>
