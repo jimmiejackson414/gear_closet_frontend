@@ -154,18 +154,30 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
     WHERE si.trip_id = dynamic_trip_id;
 
     -- Fetch friends data with details from related tables
-    SELECT COALESCE(json_agg(json_build_object(
-      'friend_profile', row_to_json(p.*),
-      'friend_trip_packs', (
-        SELECT COALESCE(json_agg(row_to_json(tp.*)), '[]'::JSON)
-        FROM trip_packs tp
-        WHERE tp.profile_id = tf.profile_id
-          AND (p_trip_id = 0 OR tp.trip_id = dynamic_trip_id)
-      )
-    )), '[]'::JSON) INTO friends_data
+    SELECT COALESCE(
+      jsonb_agg(
+        jsonb_set(
+          row_to_json(tf)::jsonb,
+          '{profile}',
+          jsonb_set(
+            row_to_json(p)::jsonb,
+            '{trip_pack}',
+            COALESCE((
+              SELECT row_to_json(tp)::jsonb
+              FROM trip_packs tp
+              WHERE tp.profile_id = tf.profile_id
+                AND (dynamic_trip_id = 0 OR tp.trip_id = dynamic_trip_id)
+              LIMIT 1
+            ), 'null'::jsonb),
+            true
+          ),
+          true
+        )
+      ), '[]'::jsonb
+    ) INTO friends_data
     FROM trip_friends tf
-    JOIN profiles p ON tf.profile_id = p.id  -- Use profile_id for the friend
-    WHERE tf.invited_by_id = auth.uid();  -- Select only the records where the authenticated user is the inviter
+    JOIN profiles p ON tf.profile_id = p.id
+    WHERE tf.invited_by_id = auth.uid();
 
     -- Fetch poll data
     SELECT json_build_object(

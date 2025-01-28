@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { type Database, type Tables, type TablesInsert, TripFriendStatus } from '@/types';
-  import type { SelectOption } from '@/types/helpers';
+  import type { ExtendedTripFriend, SelectOption } from '@/types/helpers';
 
   type FriendSearchResult = Tables<'friends'> & {
     profile: Tables<'profiles'>;
@@ -10,7 +10,7 @@
     isOpen: boolean;
   }
 
-  defineProps<Props>();
+  const props = defineProps<Props>();
   const emits = defineEmits<{
     (event: 'onClose'): void;
   }>();
@@ -46,7 +46,6 @@
         }));
       }
     } catch (err) {
-      console.log({ err });
       $appStore.notifyNegative('There was an error searching for friends.');
     } finally {
       searching.value = false;
@@ -57,6 +56,7 @@
    * Invites friends to the trip
    */
   const submitting = ref(false);
+  const friendsToInvite = shallowRef<Tables<'profiles'>[]>([]);
   const inviteFriends = async () => {
     try {
       submitting.value = true;
@@ -70,9 +70,24 @@
         status: TripFriendStatus.PENDING,
         invited_by_id: user.value?.id as string,
       }));
+
       const { data: invitedFriends, error } = await supabase.from('trip_friends')
         .insert(existingFriendsPayload)
         .select();
+
+      if (error) throw error;
+
+      const invitedFriendIds = invitedFriends?.map(f => f.profile_id) || [];
+      const { data: newFriends, error: newFriendsError } = await supabase.from('trip_friends')
+        .select(`
+          *,
+          friend_profile:profiles!trip_friends_profile_id_fkey(*),
+          friend_trip_packs:trip_packs(*)
+        `)
+        .in('id', invitedFriendIds)
+        .returns<ExtendedTripFriend[]>();
+
+      if (newFriendsError) throw newFriendsError;
 
       // send each friend a notification
       const notificationsPayload = friendsToInvite.value.map(f => ({
@@ -88,7 +103,7 @@
 
       if (invitedFriends?.length && !error) {
         $appStore.notifyPositive('Successfully invited friends to trip!');
-        $store.data.friends.push(...invitedFriends);
+        $store.data.friends.push(...newFriends);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error inviting friends to the trip.');
@@ -98,18 +113,30 @@
     }
   };
 
-  const friendsToInvite = shallowRef<Tables<'profiles'>[]>([]);
   const setFriendsPayload = (event: SelectOption[]) => {
-    friendsToInvite.value = event.map((f) => {
+    // Map the incoming event to actual friend objects
+    const newFriends = event.map((f) => {
       return friendObjects.value.find((friend) => friend.id === f.profile_id) as Tables<'profiles'>;
     })
       .filter(Boolean) as Tables<'profiles'>[];
+
+    // Add new friends to friendsToInvite, avoiding duplicates
+    newFriends.forEach((newFriend) => {
+      const alreadyExists = friendsToInvite.value.some((friend) => friend.id === newFriend.id);
+      if (!alreadyExists) {
+        friendsToInvite.value.push(newFriend);
+      }
+    });
   };
 
   const handleClose = () => {
     friendsToInvite.value = [];
     emits('onClose');
   };
+
+  watch(() => props.isOpen, (isOpen) => {
+    if (!isOpen) friendsToInvite.value = [];
+  });
 </script>
 
 <template>

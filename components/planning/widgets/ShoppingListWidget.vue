@@ -90,6 +90,7 @@
         v-if="!$store.pageLoading && $store.data?.shopping_items.length"
         class="justify-self-end rounded-full"
         size="icon"
+        variant="outline"
         @click="createShoppingItem">
         <icon-plus />
       </button-root>
@@ -152,7 +153,7 @@
                     <gc-inline-edit
                       :model-value="item.title ?? undefined"
                       name="title"
-                      @update:model-value="updateShoppingItem(item, { title: $event })">
+                      @update:model-value="updateShoppingItem(item, { title: ( $event as string ) })">
                       {{ item.title }}
                     </gc-inline-edit>
                   </table-cell>
@@ -160,7 +161,7 @@
                     <gc-inline-edit
                       :model-value="item.quantity ?? undefined"
                       name="quantity"
-                      @update:model-value="updateShoppingItem(item, { quantity: $event })">
+                      @update:model-value="updateShoppingItem(item, { quantity: ( $event as number ) })">
                       {{ item.quantity }}
                     </gc-inline-edit>
                   </table-cell>
@@ -206,7 +207,7 @@
                     <gc-inline-edit
                       :model-value="item.title ?? undefined"
                       name="title"
-                      @update:model-value="updateShoppingItem(item, { title: $event })">
+                      @update:model-value="updateShoppingItem(item, { title: ( $event as string ) })">
                       {{ item.title }}
                     </gc-inline-edit>
                   </table-cell>
@@ -214,7 +215,7 @@
                     <gc-inline-edit
                       :model-value="item.quantity ?? undefined"
                       name="quantity"
-                      @update:model-value="updateShoppingItem(item, { quantity: $event })">
+                      @update:model-value="updateShoppingItem(item, { quantity: ( $event as number ) })">
                       {{ item.quantity }}
                     </gc-inline-edit>
                   </table-cell>

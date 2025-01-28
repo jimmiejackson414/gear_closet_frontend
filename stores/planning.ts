@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import type { Database, Tables } from "@/types";
-import type { ExtendedPack, ExtendedPoll } from "@/types/helpers";
+import type { ExtendedPack, ExtendedPoll, ExtendedTripFriend } from "@/types/helpers";
 
 export interface PlanningPageData {
   trips: Tables<'trips'>[];
@@ -8,7 +8,7 @@ export interface PlanningPageData {
   trip_details: Tables<'trip_details'>[];
   todos: Tables<'todos'>[];
   shopping_items: Tables<'shopping_list_items'>[];
-  friends: Tables<'trip_friends'>[];
+  friends: ExtendedTripFriend[];
   poll?: ExtendedPoll;
   errors?: string[];
 }

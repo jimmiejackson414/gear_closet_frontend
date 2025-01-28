@@ -43,14 +43,12 @@
    * @param payload
    */
   const updateTrip = async (payload: TablesUpdate<'trips'>) => {
-    console.log(`updateTrip`);
     try {
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTrip, error } = await supabase.from('trips')
         .update(payload)
         .eq('id', Number($store.selectedTripId))
         .select();
-      console.log({ updatedTrip, error });
 
       if (updatedTrip?.length && $store.selectedTripId && !error) {
         $store.selectedTripId = String(updatedTrip[0].id);
@@ -97,6 +95,7 @@
         v-if="!$store.pageLoading && tripDetails.length"
         class="justify-self-end rounded-full"
         size="icon"
+        variant="outline"
         @click="createDetail">
         <icon-plus />
       </button-root>
@@ -120,7 +119,7 @@
           name="trip_name"
           placeholder="Trip Name"
           size="sm"
-          @update:model-value="updateTrip({ name: $event })">
+          @update:model-value="updateTrip({ name: ( $event as string ) })">
           <typography
             class="!font-black"
             variant="large">

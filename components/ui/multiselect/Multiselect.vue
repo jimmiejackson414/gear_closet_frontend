@@ -36,17 +36,13 @@
     (e: 'select', options: SelectOption[]): void;
   }>();
 
-  // Search term and debounce logic
   const searchTerm = ref('');
   const debouncedSearch = debounce((term: string) => {
     searchTerm.value = term;
     emit('search', searchTerm.value);
   }, 500);
 
-  // Open state for popover
   const open = ref(false);
-
-  // Selected values
   const selectedValues = ref<SelectOption[]>([]);
 
   // Filtered options: Search + Selected always on top
@@ -59,7 +55,7 @@
         option.label.toLowerCase()
           .includes(lowercasedSearch),
     );
-    return [...selected, ...filtered]; // Always place selected options on top
+    return [...selected, ...filtered];
   });
 
   // Handle selection
@@ -72,7 +68,7 @@
       }
     } else {
       selectedValues.value = selectedValues.value.includes(option) ? [] : [option];
-      open.value = false; // Close popover for single selection
+      open.value = false;
     }
     emit('select', selectedValues.value);
   };
@@ -110,8 +106,9 @@
       <command>
         <command-input
           class="h-9"
-          clearable
+          :clearable="searchTerm.length > 0"
           placeholder="Search options..."
+          @clear="clearSearch"
           @input="debouncedSearch($event.target.value)">
           <template #prepend-icon>
             <spinner-icon
@@ -120,16 +117,6 @@
             <icon-search
               v-else
               class="h-4 mr-2 opacity-50 shrink-0 w-4" />
-          </template>
-          <template #clearable-icon>
-            <button-root
-              v-if="searchTerm"
-              class="flex items-center h-auto"
-              size="icon"
-              variant="ghost"
-              @click="clearSearch">
-              <icon-x class="h-4 mr-2 shrink-0 w-4" />
-            </button-root>
           </template>
         </command-input>
         <command-empty v-if="loading">
