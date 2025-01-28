@@ -10,6 +10,7 @@
 
   const props = defineProps<ComboboxInputProps & {
     class?: HTMLAttributes['class']
+    clearable?: boolean
   }>();
 
   const delegatedProps = computed(() => {
@@ -25,10 +26,13 @@
   <div
     class="border-b flex items-center px-3"
     cmdk-input-wrapper>
-    <icon-search class="h-4 mr-2 opacity-50 shrink-0 w-4" />
+    <slot name="prepend-icon">
+      <icon-search class="h-4 mr-2 opacity-50 shrink-0 w-4" />
+    </slot>
     <combobox-input
       v-bind="{ ...forwardedProps, ...$attrs }"
       auto-focus
       :class="cn('flex h-11 w-full rounded-md bg-transparent py-3 text-sm outline-none placeholder:text-muted-foreground disabled:cursor-not-allowed disabled:opacity-50', props.class)" />
+    <slot name="clearable-icon" />
   </div>
 </template>

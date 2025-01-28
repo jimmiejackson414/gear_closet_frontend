@@ -32,6 +32,32 @@ CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."friends
 ------------------------
 CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."friends" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
 
+-- Search friends
+------------------------
+CREATE OR REPLACE FUNCTION search_friends_with_profile(search_term TEXT)
+RETURNS TABLE (
+  id BIGINT,
+  created_at TIMESTAMPTZ,
+  updated_at TIMESTAMPTZ,
+  profile_id UUID,
+  friend_id UUID,
+  profile JSONB
+) AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    f.id,
+    f.created_at,
+    f.updated_at,
+    f.profile_id,
+    f.friend_id,
+    to_jsonb(p) AS profile
+  FROM friends f
+  JOIN profiles p ON p.id = f.profile_id
+  WHERE p.fts @@ plainto_tsquery('simple', search_term);
+END;
+$$ LANGUAGE plpgsql;
+
 -- Grant permissions
 ------------------------
 GRANT ALL ON TABLE "public"."friends" TO "anon";

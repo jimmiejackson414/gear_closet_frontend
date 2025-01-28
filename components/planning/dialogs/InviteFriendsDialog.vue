@@ -22,27 +22,16 @@
   /**
    * Performs search for existing friends.
    */
-  // const searchQuery = ref('');
   const searching = ref(false);
   const searchResults = ref<SelectOption[]>([]);
   const friendObjects = ref<Tables<'profiles'>[]>([]);
   const searchForFriends = async (searchTerm: string) => {
     try {
       searching.value = true;
-      // TODO: Fix query. Currently returns two results when searching for "Bill", but first record has null profile and shouldn't be returned anyways
+      searchResults.value = [];
       const supabase = useSupabaseClient<Database>();
-      // const orFilters = `first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`;
-      // console.log({ orFilters });
       const { data: friends, error } = await supabase
-        .from('friends')
-        // .select('*, profile:profiles!profile_id(*)')
-        .select('*, profile:profiles!friends_profile_id_fkey(*)')
-        .neq('profile_id', $store.selectedTrip?.profile_id)
-        // .or(`profiles.first_name.ilike.%${searchTerm}%,profiles.last_name.ilike.%${searchTerm}%,profiles.email.ilike.%${searchTerm}%`)
-        // .or(orFilters, { referencedTable: 'profiles' })
-        .or(
-          `profiles.first_name.ilike.%${searchTerm}%,profiles.last_name.ilike.%${searchTerm}%,profiles.email.ilike.%${searchTerm}%`,
-        )
+        .rpc('search_friends_with_profile', { search_term: searchTerm })
         .returns<FriendSearchResult[]>()
         .limit(10);
 
@@ -52,6 +41,7 @@
         searchResults.value = friends.map(f => ({
           label: friendlyUsername(f.profile as Tables<'profiles'>),
           value: f.id,
+          profile_id: f.profile_id,
           image: f.profile.image,
         }));
       }
@@ -110,8 +100,8 @@
 
   const friendsToInvite = shallowRef<Tables<'profiles'>[]>([]);
   const setFriendsPayload = (event: SelectOption[]) => {
-    friendsToInvite.value = event.map((f: SelectOption) => {
-      return friendObjects.value.find((friend) => friend.id === f.value) as Tables<'profiles'>;
+    friendsToInvite.value = event.map((f) => {
+      return friendObjects.value.find((friend) => friend.id === f.profile_id) as Tables<'profiles'>;
     })
       .filter(Boolean) as Tables<'profiles'>[];
   };
@@ -136,15 +126,17 @@
           Invite existing friends to your trip and get started planning!
         </dialog-description>
       </dialog-header>
-      <div class="grid grid-cols-[auto_1fr_auto] gap-6 items-center w-full">
-        <div class="flex flex-col gap-2 w-fit">
+      <div class="grid grid-cols-1 gap-6 justify-center items-center w-full">
+        <div class="flex flex-col gap-2 w-full lg:w-1/2 lg:mx-auto">
           <label-root>
             Search for friends
           </label-root>
           <multiselect
             :loading="searching"
+            multiple
             :options="searchResults"
-            placeholder="Abe Lincoln"
+            placeholder="Search"
+            @clear-search="searchResults = []"
             @search="searchForFriends"
             @select="setFriendsPayload">
             <template #option="{ option }">
@@ -152,22 +144,21 @@
                 <gc-avatar
                   class="mr-2"
                   size="xs"
-                  :src="buildImageSrc(option.image)" />
-                <span>{{ option.label }}</span>
+                  :url="buildImageSrc(option!.image)" />
+                <span>{{ option!.label }}</span>
               </div>
             </template>
           </multiselect>
         </div>
         <separator
-          class="mt-[22px]"
+          class="mx-auto w-full lg:w-14"
           label="or" />
         <nuxt-link
-          class="mt-[22px]"
+          class="mx-auto"
           :to="{ name: 'friends' }">
           <button-root
             variant="outline"
             @click="handleClose">
-            <!-- <icon-plus-circle class="!size-max text-accent-alt dark:text-card-foreground" /> -->
             Find new friends
           </button-root>
         </nuxt-link>

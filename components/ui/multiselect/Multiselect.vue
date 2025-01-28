@@ -1,12 +1,18 @@
 <script setup lang="ts">
   import {
-    ComboboxAnchor,
-    ComboboxContent,
-    ComboboxInput,
-    ComboboxPortal,
-    ComboboxRoot,
-  } from 'radix-vue';
-  import { computed, ref, watch } from 'vue';
+    Command,
+    CommandEmpty,
+    CommandGroup,
+    CommandInput,
+    CommandItem,
+    CommandList,
+  } from '@/components/ui/command';
+  import {
+    Popover,
+    PopoverContent,
+    PopoverTrigger,
+  } from '@/components/ui/popover';
+  import { cn } from '@/lib/utils';
   import type { SelectOption } from '@/types/helpers';
 
   interface Props {
@@ -14,127 +20,148 @@
     placeholder?: string;
     disabled?: boolean;
     loading?: boolean;
+    multiple?: boolean;
   }
 
   const props = withDefaults(defineProps<Props>(), {
     placeholder: 'Begin searching...',
     disabled: false,
     loading: false,
+    multiple: false,
   });
+
   const emit = defineEmits<{
+    (e: 'clear-search'): void;
     (e: 'search', query: string): void;
     (e: 'select', options: SelectOption[]): void;
   }>();
 
-  const modelValue = ref<SelectOption[]>([]);
-  const open = ref(false);
+  // Search term and debounce logic
   const searchTerm = ref('');
-  const isDisabled = computed(() => props.loading || props.disabled || false);
-
-  // Debounced search emit
-  const debouncedSearch = debounce(() => {
+  const debouncedSearch = debounce((term: string) => {
+    searchTerm.value = term;
     emit('search', searchTerm.value);
   }, 500);
 
-  watch(searchTerm, () => {
-    debouncedSearch();
+  // Open state for popover
+  const open = ref(false);
+
+  // Selected values
+  const selectedValues = ref<SelectOption[]>([]);
+
+  // Filtered options: Search + Selected always on top
+  const filteredOptions = computed(() => {
+    const lowercasedSearch = searchTerm.value.toLowerCase();
+    const selected = selectedValues.value;
+    const filtered = props.options.filter(
+      (option) =>
+        !selected.some((selectedOption) => selectedOption.value === option.value) &&
+        option.label.toLowerCase()
+          .includes(lowercasedSearch),
+    );
+    return [...selected, ...filtered]; // Always place selected options on top
   });
 
-  // Add selected option to `modelValue`
-  const inputRef = ref<HTMLElement | undefined>(undefined);
-  const handleSelect = (option: SelectOption) => {
-    if (!modelValue.value.some((item) => item.value === option.value)) {
-      modelValue.value.push(option);
-      emit('select', modelValue.value);
+  // Handle selection
+  const toggleSelection = (option: SelectOption) => {
+    if (props.multiple) {
+      if (selectedValues.value.includes(option)) {
+        selectedValues.value = selectedValues.value.filter((v) => v.value !== option.value);
+      } else {
+        selectedValues.value.push(option);
+      }
+    } else {
+      selectedValues.value = selectedValues.value.includes(option) ? [] : [option];
+      open.value = false; // Close popover for single selection
     }
-
-    // Close dropdown if no options are available
-    if (props.options.length === 0) {
-      open.value = false;
-    }
+    emit('select', selectedValues.value);
   };
 
-  // Remove selected option from `modelValue`
-  const removeOption = (option: SelectOption) => {
-    modelValue.value = modelValue.value.filter((item) => item.value !== option.value);
+  const clearSearch = () => {
+    searchTerm.value = '';
+    emit('clear-search');
   };
+
+  watch(searchTerm, (newSearch) => {
+    if (!newSearch) emit('clear-search');
+  });
 </script>
 
 <template>
-  <tags-input
-    class="cursor-pointer gap-0 px-0 relative w-80"
-    :model-value="modelValue">
-    <!-- Render selected tags -->
-    <div class="flex items-center flex-wrap gap-2 px-3">
-      <tags-input-item
-        v-for="item in modelValue"
-        :key="item.value"
-        :value="item.label">
-        <tags-input-item-text>
-          {{ item.label }}
-        </tags-input-item-text>
-        <tags-input-item-delete @click="removeOption(item)" />
-      </tags-input-item>
-    </div>
+  <popover v-model:open="open">
+    <!-- Trigger -->
+    <popover-trigger
+      as-child
+      class="flex items-center">
+      <button-root
+        :class="cn('flex items-center justify-between w-full px-3 py-2 rounded-md', {
+          'text-muted-foreground': placeholder && selectedValues.length === 0,
+        })"
+        :disabled="disabled"
+        role="combobox"
+        variant="outline">
+        {{ selectedValues.length > 0 ? `${selectedValues.length} selected` : placeholder }}
+        <icon-chevrons-up-down class="h-4 ml-2 opacity-50 shrink-0 w-4" />
+      </button-root>
+    </popover-trigger>
 
-    <combobox-root
-      v-model:open="open"
-      v-model:search-term="searchTerm"
-      class="w-full"
-      :model-value="modelValue">
-      <!-- Input Box -->
-      <combobox-anchor as-child>
-        <combobox-input as-child>
-          <div class="flex items-center pl-8 relative">
-            <!-- Icon Slot -->
-            <div
-              class="absolute left-0 inset-y-0 flex items-center pl-3"
-              :class="modelValue.length > 0 ? 'mt-2' : ''">
-              <slot name="icon">
-                <icon-search class="h-4 text-gray-400 w-4" />
-              </slot>
-            </div>
-            <tags-input-input
-              ref="inputRef"
-              autofocus
-              class="px-3 w-full"
-              :class="modelValue.length > 0 ? 'mt-2' : ''"
-              :disabled="isDisabled"
-              :placeholder="placeholder"
-              @keydown.enter.prevent />
-            <!-- Loading Spinner -->
+    <!-- Popover Content -->
+    <popover-content class="p-0">
+      <command>
+        <command-input
+          class="h-9"
+          clearable
+          placeholder="Search options..."
+          @input="debouncedSearch($event.target.value)">
+          <template #prepend-icon>
             <spinner-icon
               v-if="loading"
-              class="absolute right-0 inset-y-0 animate-spin flex items-center h-4 mr-2 pr-3 w-4" />
-          </div>
-        </combobox-input>
-      </combobox-anchor>
-
-      <!-- Dropdown -->
-      <combobox-portal>
-        <combobox-content>
-          <command-list
-            class="bg-popover border data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 mt-2 outline-none rounded-md shadow-md text-popover-foreground w-[--radix-popper-anchor-width] z-[100]"
-            position="popper">
-            <command-empty v-if="!options.length">
-              No options available
-            </command-empty>
-            <command-group v-else>
-              <command-item
-                v-for="option in options"
-                :key="option.value"
-                :value="option"
-                @select.prevent="handleSelect(option)">
-                <slot
-                  name="option"
-                  :option="option">
-                  {{ option.label }}
-                </slot>
-              </command-item>
-            </command-group>
-          </command-list>
-        </combobox-content>
-      </combobox-portal>
-    </combobox-root>
-  </tags-input>
+              class="animate-spin h-4 mr-2 shrink-0 w-4" />
+            <icon-search
+              v-else
+              class="h-4 mr-2 opacity-50 shrink-0 w-4" />
+          </template>
+          <template #clearable-icon>
+            <button-root
+              v-if="searchTerm"
+              class="flex items-center h-auto"
+              size="icon"
+              variant="ghost"
+              @click="clearSearch">
+              <icon-x class="h-4 mr-2 shrink-0 w-4" />
+            </button-root>
+          </template>
+        </command-input>
+        <command-empty v-if="loading">
+          Searching...
+        </command-empty>
+        <command-empty v-else-if="!searchTerm && !loading">
+          No options available.
+        </command-empty>
+        <command-empty v-else-if="!options.length && searchTerm && !loading">
+          Your search for {{ searchTerm }} returned no results.
+        </command-empty>
+        <command-list class="bg-popover border w-[--radix-popper-anchor-width]">
+          <command-group>
+            <command-item
+              v-for="option in filteredOptions"
+              :key="option!.value"
+              :value="option!.value"
+              @select="toggleSelection(option as SelectOption)">
+              <icon-check
+                :class="cn(
+                  'mr-2 h-4 w-4',
+                  selectedValues.includes(option as SelectOption) ? 'opacity-100' : 'opacity-0',
+                )" />
+              <slot
+                name="option"
+                :option="option">
+                {{ option!.label }}
+              </slot>
+            </command-item>
+          </command-group>
+        </command-list>
+      </command>
+    </popover-content>
+  </popover>
 </template>
