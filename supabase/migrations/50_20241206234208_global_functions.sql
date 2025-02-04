@@ -51,7 +51,8 @@ CREATE OR REPLACE FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) RETUR
     FROM trip_friends tf
     LEFT JOIN profiles p ON tf.invited_by_id = p.id
     LEFT JOIN trips t ON tf.trip_id = t.id
-    WHERE tf.profile_id = p_user_id;
+    WHERE tf.profile_id = p_user_id
+    AND tf.status = 'PENDING';
 
     -- Fetch trips
     SELECT COALESCE(json_agg(row_to_json(t.*)), '[]'::JSON) INTO trips
@@ -94,10 +95,15 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
     dynamic_trip_id BIGINT;
   BEGIN
     -- Fetch trips data
+    -- Fetch trips data (both created by the user and accepted invitations)
     SELECT json_agg(row_to_json(sub.*)) INTO trips_data
     FROM (
-      SELECT * FROM trips t
-      WHERE t.profile_id = auth.uid()
+      SELECT DISTINCT t.*
+      FROM trips t
+      LEFT JOIN trip_friends tf ON tf.trip_id = t.id
+        AND tf.profile_id = auth.uid()
+        AND tf.status = 'ACCEPTED'
+      WHERE t.profile_id = auth.uid() OR tf.profile_id IS NOT NULL
       ORDER BY t.created_at ASC
     ) sub;
 
@@ -268,7 +274,7 @@ CREATE OR REPLACE FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) R
             'category_items', sub.category_items
           )), '[]'::JSON)
           FROM (
-            SELECT 
+            SELECT
               c.id,
               c.created_at,
               c.name,
@@ -279,7 +285,7 @@ CREATE OR REPLACE FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) R
               (
                 SELECT COALESCE(json_agg(row_to_json(t) ORDER BY t.position), '[]'::JSON)
                 FROM (
-                  SELECT 
+                  SELECT
                     ci.id,
                     ci.category_id,
                     ci.item_id,
@@ -418,17 +424,17 @@ CREATE OR REPLACE FUNCTION "public"."create_category_and_item"(
     LOOP
       -- Insert the new item
       INSERT INTO "public"."items" (
-        "name", "generic_type", "weight", "quantity", "price", 
+        "name", "generic_type", "weight", "quantity", "price",
         "consumable", "worn", "profile_id", "unit"
       )
       VALUES (
-        item->>'name', 
-        item->>'generic_type', 
-        item->>'weight', 
-        (item->>'quantity')::bigint, 
-        (item->>'price')::bigint, 
-        (item->>'consumable')::boolean, 
-        (item->>'worn')::boolean, 
+        item->>'name',
+        item->>'generic_type',
+        item->>'weight',
+        (item->>'quantity')::bigint,
+        (item->>'price')::bigint,
+        (item->>'consumable')::boolean,
+        (item->>'worn')::boolean,
         auth.uid(),
         COALESCE((item->>'unit')::item_unit, 'oz'::item_unit) -- Use default "oz" if NULL
       )

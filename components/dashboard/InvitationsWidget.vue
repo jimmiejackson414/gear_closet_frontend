@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import dayjs from 'dayjs';
+  import dayjs, { type Dayjs } from 'dayjs';
   import GcSkeleton from '@/components/common/GcSkeleton.vue';
   import { type Database, TripFriendStatus } from '@/types';
   import type { ExtendedTripFriend } from '@/types/helpers';
@@ -16,6 +16,8 @@
 
   const $appStore = useAppStore();
   const submitting = ref(false);
+  const madeSelection = ref<'accepted' | 'declined' | null>(null);
+  const selectionTimestamp = ref<Dayjs | null>(null);
 
   const formattedTripDate = (invite: ExtendedTripFriend) => {
     const date1 = dayjs(invite.trip?.starting_date)
@@ -33,18 +35,29 @@
   const declineInvite = async (invite: ExtendedTripFriend) => {
     decliningId.value = invite.id;
     submitting.value = true;
+
     try {
       const supabase = useSupabaseClient<Database>();
-      const { data, error } = await supabase
+      const { error: updateError } = await supabase
         .from('trip_friends')
         .update({ status: TripFriendStatus.DECLINED })
         .eq('id', invite.id);
 
-      // TODO: fetch new data and set to store data, or remove from store data
-      // Temporarily show an "declined" message like we do on friends page
+      if (updateError) throw new Error();
+      const { data, error } = await supabase
+        .from('trip_friends')
+        .select(`
+          *,
+          profile:profiles!invited_by_id(*),
+          trip:trips(*)
+        `)
+        .eq('id', invite.id)
+        .single();
 
       if (data && !error) {
         $appStore.notifyPositive('You have successfully declined the invite.');
+        madeSelection.value = 'declined';
+        selectionTimestamp.value = dayjs();
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error declining the invite.');
@@ -64,17 +77,28 @@
     submitting.value = true;
     try {
       const supabase = useSupabaseClient<Database>();
-      const { data, error } = await supabase
+      const { error: updateError } = await supabase
         .from('trip_friends')
         .update({ status: TripFriendStatus.ACCEPTED, accepted_invite_on: new Date()
           .toISOString() })
         .eq('id', invite.id);
 
-      // TODO: fetch new trip_friend and set to store data.
-      // Temporarily show an "accepted" message like we do on friends page
+      if (updateError) throw new Error();
+
+      const { data, error } = await supabase
+        .from('trip_friends')
+        .select(`
+          *,
+          profile:profiles!invited_by_id(*),
+          trip:trips(*)
+        `)
+        .eq('id', invite.id)
+        .single();
 
       if (data && !error) {
         $appStore.notifyPositive('You have successfully accepted the invite!');
+        madeSelection.value = 'accepted';
+        selectionTimestamp.value = dayjs();
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error accepting the invite.');
@@ -120,7 +144,16 @@
               <typography variant="small">
                 {{ formattedTripDate(invite) }}
               </typography>
-              <div class="flex items-center mt-3">
+              <div
+                v-if="madeSelection"
+                class="mt-3">
+                <typography class="italic text-muted-foreground text-xs">
+                  {{ capitalize(madeSelection) }} {{ dayjs().to(selectionTimestamp) }}
+                </typography>
+              </div>
+              <div
+                v-else
+                class="flex items-center mt-3">
                 <button-root
                   class="mr-2"
                   :disabled="submitting"

@@ -67,9 +67,8 @@
         };
       });
       forumData.categories = fData.value?.categories || [];
-    } catch (err) {
-      console.log(`fetchDashboard err: `, err);
-      console.error({ err });
+    } catch (err: any) {
+      //
     } finally {
       loading.value = false;
     }
