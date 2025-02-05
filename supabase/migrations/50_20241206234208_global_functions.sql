@@ -198,9 +198,18 @@ AS $function$
             row_to_json(p)::jsonb,
             '{trip_pack}',
             COALESCE((
-              SELECT row_to_json(tp)::jsonb
+              SELECT jsonb_set(
+                row_to_json(tp)::jsonb,
+                '{pack}',
+                COALESCE((
+                  SELECT row_to_json(pk)::jsonb
+                  FROM packs pk
+                  WHERE pk.id = tp.pack_id
+                ), 'null'::jsonb),
+                true
+              )
               FROM trip_packs tp
-              WHERE tp.profile_id = tf.profile_id
+              WHERE tp.profile_id = p.id
                 AND (dynamic_trip_id = 0 OR tp.trip_id = dynamic_trip_id)
               LIMIT 1
             ), 'null'::jsonb),
@@ -212,7 +221,7 @@ AS $function$
     ) INTO friends_data
     FROM trip_friends tf
     JOIN profiles p ON tf.profile_id = p.id
-    WHERE tf.invited_by_id = auth.uid();
+    WHERE tf.trip_id = dynamic_trip_id;
 
     -- Fetch poll data
     SELECT json_build_object(
@@ -240,7 +249,6 @@ AS $function$
     );
     END;
 $function$
-
 
 ALTER FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) OWNER TO "postgres";
 

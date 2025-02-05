@@ -44,7 +44,9 @@ export type ExtendedFriend = Tables<'friends'> & {
 
 export type ExtendedTripFriend = Tables<'trip_friends'> & {
   profile: Tables<'profiles'> & {
-    trip_pack?: Tables<'packs'>;
+    trip_pack?: Tables<'packs'> & {
+      pack?: Tables<'packs'>;
+    };
   };
   trip?: Tables<'trips'>;
 };

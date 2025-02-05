@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import type { Tables } from '@/types';
+  import type { ExtendedTripFriend } from '@/types/helpers';
   const $store = usePlanningStore();
 
   const isInviteModalOpen = ref(false);
@@ -7,6 +7,13 @@
     const selectedTrip = $store.data.trips.find((trip) => trip.id === Number($store.selectedTripId));
     return `These are friends that have been specifically invited to your ${selectedTrip ? `${selectedTrip.name} trip` : 'trip'}.`;
   });
+
+  const getTooltip = (friend: ExtendedTripFriend) => {
+    if (!friend.profile.trip_pack?.pack) {
+      return `${friendlyUsername(friend.profile)} hasn't selected a pack yet`;
+    }
+    return `${friendlyUsername(friend.profile)} currently has this pack set to private`;
+  };
 </script>
 
 <template>
@@ -47,20 +54,22 @@
         <li
           v-for="friend in $store.data.friends"
           :key="friend.id">
-          <nuxt-link
-            v-if="friend.profile.trip_pack"
-            :to="{ name: 'public-pack', params: { slug: friend.profile.trip_pack.slug } }">
+          <template v-if="friend.profile.trip_pack?.pack && !friend.profile.trip_pack.pack.private">
+            <nuxt-link :to="{ name: 'p-packs-slug', params: { slug: friend.profile.trip_pack.pack.slug } }">
+              <gc-avatar
+                v-tippy="{ content: friendlyUsername(friend.profile) }"
+                border
+                :initials="initials(friend.profile)"
+                :url="buildImageSrc(friend.profile.image)" />
+            </nuxt-link>
+          </template>
+          <template v-else>
             <gc-avatar
-              v-tippy="{ content: friendlyUsername(friend.profile as Tables<'profiles'>) }"
+              v-tippy="{ content: getTooltip(friend) }"
               border
               :initials="initials(friend.profile)"
               :url="buildImageSrc(friend.profile.image)" />
-          </nuxt-link>
-          <gc-avatar
-            v-tippy="{ content: `${friendlyUsername(friend.profile as Tables<'profiles'>)} currently has this pack set to private` }"
-            border
-            :initials="initials(friend.profile)"
-            :url="buildImageSrc(friend.profile.image)" />
+          </template>
         </li>
       </ul>
     </div>
