@@ -81,9 +81,11 @@ ALTER FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) OWNER TO "postgre
 
 -- Get planning page data function
 ------------------------
-CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) RETURNS "json"
-  LANGUAGE "plpgsql" SECURITY DEFINER
-  AS $$
+CREATE OR REPLACE FUNCTION public.get_planning_page_data(p_trip_id bigint)
+ RETURNS json
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
   DECLARE
     trips_data JSON;
     trip_packs_data JSON;
@@ -94,7 +96,6 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
     poll_data JSON;
     dynamic_trip_id BIGINT;
   BEGIN
-    -- Fetch trips data
     -- Fetch trips data (both created by the user and accepted invitations)
     SELECT json_agg(row_to_json(sub.*)) INTO trips_data
     FROM (
@@ -109,7 +110,17 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
 
     -- Set dynamic_trip_id based on p_trip_id or to the ID of the first trip
     IF p_trip_id = 0 THEN
-      SELECT COALESCE((SELECT t.id FROM trips t WHERE t.profile_id = auth.uid() ORDER BY t.created_at ASC LIMIT 1), 0) INTO dynamic_trip_id;
+      SELECT COALESCE((
+        SELECT t.id 
+        FROM trips t
+        LEFT JOIN trip_friends tf 
+          ON tf.trip_id = t.id 
+          AND tf.profile_id = auth.uid() 
+          AND tf.status = 'ACCEPTED'
+        WHERE t.profile_id = auth.uid() OR tf.profile_id IS NOT NULL
+        ORDER BY t.created_at ASC
+        LIMIT 1
+      ), 0) INTO dynamic_trip_id;
     ELSE
       dynamic_trip_id := p_trip_id;
     END IF;
@@ -167,13 +178,15 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
 
     -- Fetch todos data
     SELECT COALESCE(json_agg(row_to_json(todo.*)), '[]'::JSON) INTO todos_data
-    FROM todos todo
-    WHERE todo.trip_id = dynamic_trip_id;
+      FROM todos todo
+      WHERE (todo.resource_type = 'USER' AND todo.profile_id = auth.uid()) 
+        OR (todo.resource_type = 'GROUP' AND todo.trip_id = dynamic_trip_id);
 
     -- Fetch shopping items data
     SELECT COALESCE(json_agg(row_to_json(si.*)), '[]'::JSON) INTO shopping_items_data
-    FROM shopping_list_items si
-    WHERE si.trip_id = dynamic_trip_id;
+      FROM shopping_list_items si
+      WHERE (si.resource_type = 'USER' AND si.profile_id = auth.uid()) 
+        OR (si.resource_type = 'GROUP' AND si.trip_id = dynamic_trip_id);
 
     -- Fetch friends data with details from related tables
     SELECT COALESCE(
@@ -226,7 +239,8 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
       'poll', poll_data
     );
     END;
-$$;
+$function$
+
 
 ALTER FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) OWNER TO "postgres";
 

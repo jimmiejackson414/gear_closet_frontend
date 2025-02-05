@@ -24,7 +24,7 @@ type Getters = {
 };
 
 type Actions = {
-  fetchPlanningPage(identifier: number): Promise<void>;
+  fetchPlanningPage(identifier: number): Promise<PlanningPageData | undefined>;
 };
 
 export const usePlanningStore = defineStore<"planning", State, Getters, Actions>(
@@ -64,15 +64,16 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           const supabase = useSupabaseClient<Database>();
 
           const { data: pageData, error } = await supabase
-            .rpc('get_planning_page_data', { p_trip_id: tripId || 0 })
+            .rpc('get_planning_page_data', { p_trip_id: tripId })
             .returns<PlanningPageData>();
 
           if (pageData && !error) {
-            this.data = pageData;
-
             // set selected trip if available
-            const findSelectedTrip = pageData.trips.find(trip => trip.id === (tripId ? tripId : pageData.trips[0].id)) as Tables<'trips'>;
-            this.selectedTripId = String(findSelectedTrip.id);
+            const selectedTripId = tripId || pageData.trips[0]?.id;
+            const selectedTrip = pageData.trips.find(trip => trip.id === selectedTripId);
+            if (selectedTrip) this.selectedTripId = String(selectedTrip.id);
+
+            return pageData;
           }
         } catch (err: any) {
           $store.notifyNegative(err);

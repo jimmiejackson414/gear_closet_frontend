@@ -13,7 +13,5 @@
 </script>
 
 <template>
-  <div class="pb-8">
-    <planning-container />
-  </div>
+  <planning-container />
 </template>

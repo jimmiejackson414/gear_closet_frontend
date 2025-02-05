@@ -33,7 +33,7 @@
     <gc-skeleton v-if="$store.pageLoading" />
     <gc-empty-state v-else-if="!$store.pageLoading && !$store.data.friends.length">
       <p class="mb-4 text-base">
-        You haven't added any friends to this trip yet!
+        You haven't invited any friends to this trip yet!
       </p>
       <button-root
         size="sm"

@@ -1,27 +1,30 @@
 <script lang='ts' setup>
   const $store = usePlanningStore();
-  const $route = useRoute();
   const $cookie = useCookie('selectedTripId');
 
-  let identifier = 0;
-  watch($cookie, (newValue) => {
-    if (newValue && !$route.query?.trip) {
-      identifier = Number(decrypt(newValue)) || 0;
-      $store.fetchPlanningPage(identifier);
-    }
-  }, { immediate: true });
+  const handleSelectTrip = (value: string) => {
+    $cookie.value = encrypt(value);
+    $store.selectedTripId = value;
+  };
 
-  onMounted(async () => {
-    identifier = $route.query?.trip ? Number(decrypt($route.query.trip)) || 0 : identifier;
-    await $store.fetchPlanningPage(identifier);
-  });
+  const { data } = await useAsyncData(
+    'planningData',
+    () => $store.fetchPlanningPage(Number($store.selectedTripId || 0)),
+    { watch: [() => $store.selectedTripId], immediate: true },
+  );
+
+  watch(data, (newData) => {
+    if (newData) Object.assign($store.data, newData);
+  }, { immediate: true });
 
   const isCreateTripDialogOpen = ref(false);
 </script>
 
 <template>
   <div class="pb-8">
-    <planning-settings @open-dialog="isCreateTripDialogOpen = true" />
+    <planning-settings
+      @open-dialog="isCreateTripDialogOpen = true"
+      @select-trip="handleSelectTrip" />
 
     <planning-empty-state
       v-if="!$store.data.trips.length && !$store.pageLoading"
