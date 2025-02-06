@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { type Database, type Tables, type TablesInsert, TripFriendStatus } from '@/types';
-  import type { SelectOption } from '@/types/helpers';
+  import type { ExtendedTripFriend, SelectOption } from '@/types/helpers';
 
   type FriendSearchResult = Tables<'friends'> & {
     profile: Tables<'profiles'>;
@@ -10,7 +10,7 @@
     isOpen: boolean;
   }
 
-  defineProps<Props>();
+  const props = defineProps<Props>();
   const emits = defineEmits<{
     (event: 'onClose'): void;
   }>();
@@ -22,19 +22,16 @@
   /**
    * Performs search for existing friends.
    */
-  // const searchQuery = ref('');
   const searching = ref(false);
   const searchResults = ref<SelectOption[]>([]);
   const friendObjects = ref<Tables<'profiles'>[]>([]);
   const searchForFriends = async (searchTerm: string) => {
     try {
       searching.value = true;
+      searchResults.value = [];
       const supabase = useSupabaseClient<Database>();
       const { data: friends, error } = await supabase
-        .from('friends')
-        .select('*, profile:profiles!profile_id(*)')
-        .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`, { referencedTable: 'profiles' })
-        .neq('profile_id', $store.selectedTrip?.profile_id)
+        .rpc('search_friends_with_profile', { search_term: searchTerm })
         .returns<FriendSearchResult[]>()
         .limit(10);
 
@@ -44,6 +41,7 @@
         searchResults.value = friends.map(f => ({
           label: friendlyUsername(f.profile as Tables<'profiles'>),
           value: f.id,
+          profile_id: f.profile_id,
           image: f.profile.image,
         }));
       }
@@ -58,6 +56,7 @@
    * Invites friends to the trip
    */
   const submitting = ref(false);
+  const friendsToInvite = shallowRef<Tables<'profiles'>[]>([]);
   const inviteFriends = async () => {
     try {
       submitting.value = true;
@@ -71,9 +70,24 @@
         status: TripFriendStatus.PENDING,
         invited_by_id: user.value?.id as string,
       }));
+
       const { data: invitedFriends, error } = await supabase.from('trip_friends')
         .insert(existingFriendsPayload)
         .select();
+
+      if (error) throw error;
+
+      const invitedFriendIds = invitedFriends?.map(f => f.profile_id) || [];
+      const { data: newFriends, error: newFriendsError } = await supabase.from('trip_friends')
+        .select(`
+          *,
+          friend_profile:profiles!trip_friends_profile_id_fkey(*),
+          friend_trip_packs:trip_packs(*)
+        `)
+        .in('id', invitedFriendIds)
+        .returns<ExtendedTripFriend[]>();
+
+      if (newFriendsError) throw newFriendsError;
 
       // send each friend a notification
       const notificationsPayload = friendsToInvite.value.map(f => ({
@@ -89,7 +103,7 @@
 
       if (invitedFriends?.length && !error) {
         $appStore.notifyPositive('Successfully invited friends to trip!');
-        $store.data.friends.push(...invitedFriends);
+        $store.data.friends.push(...newFriends);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error inviting friends to the trip.');
@@ -99,18 +113,30 @@
     }
   };
 
-  const friendsToInvite = shallowRef<Tables<'profiles'>[]>([]);
   const setFriendsPayload = (event: SelectOption[]) => {
-    friendsToInvite.value = event.map((f: SelectOption) => {
-      return friendObjects.value.find((friend) => friend.id === f.value) as Tables<'profiles'>;
+    // Map the incoming event to actual friend objects
+    const newFriends = event.map((f) => {
+      return friendObjects.value.find((friend) => friend.id === f.profile_id) as Tables<'profiles'>;
     })
       .filter(Boolean) as Tables<'profiles'>[];
+
+    // Add new friends to friendsToInvite, avoiding duplicates
+    newFriends.forEach((newFriend) => {
+      const alreadyExists = friendsToInvite.value.some((friend) => friend.id === newFriend.id);
+      if (!alreadyExists) {
+        friendsToInvite.value.push(newFriend);
+      }
+    });
   };
 
   const handleClose = () => {
     friendsToInvite.value = [];
     emits('onClose');
   };
+
+  watch(() => props.isOpen, (isOpen) => {
+    if (!isOpen) friendsToInvite.value = [];
+  });
 </script>
 
 <template>
@@ -127,26 +153,42 @@
           Invite existing friends to your trip and get started planning!
         </dialog-description>
       </dialog-header>
-      <div class="flex flex-col gap-2 mt-4 w-full lg:max-w-sm">
-        <label-root>
-          Search for friends
-        </label-root>
-        <multiselect
-          :loading="searching"
-          :options="searchResults"
-          placeholder="Abe Lincoln"
-          @search="searchForFriends"
-          @select="setFriendsPayload">
-          <template #option="{ option }">
-            <div class="flex items-center">
-              <gc-avatar
-                class="mr-2"
-                size="xs"
-                :src="buildImageSrc(option.image)" />
-              <span>{{ option.label }}</span>
-            </div>
-          </template>
-        </multiselect>
+      <div class="grid grid-cols-1 gap-6 justify-center items-center w-full">
+        <div class="flex flex-col gap-2 w-full lg:w-1/2 lg:mx-auto">
+          <label-root>
+            Search for friends
+          </label-root>
+          <multiselect
+            :loading="searching"
+            multiple
+            :options="searchResults"
+            placeholder="Search"
+            @clear-search="searchResults = []"
+            @search="searchForFriends"
+            @select="setFriendsPayload">
+            <template #option="{ option }">
+              <div class="flex items-center">
+                <gc-avatar
+                  class="mr-2"
+                  size="xs"
+                  :url="buildImageSrc(option!.image)" />
+                <span>{{ option!.label }}</span>
+              </div>
+            </template>
+          </multiselect>
+        </div>
+        <separator
+          class="mx-auto w-full lg:w-14"
+          label="or" />
+        <nuxt-link
+          class="mx-auto"
+          :to="{ name: 'friends' }">
+          <button-root
+            variant="outline"
+            @click="handleClose">
+            Find new friends
+          </button-root>
+        </nuxt-link>
       </div>
       <dialog-footer>
         <dialog-close

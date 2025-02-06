@@ -9,6 +9,7 @@ export type ProfileApiResponse = Tables<'profiles'> & {
   onboarding_steps: Tables<'onboarding_steps'>[];
   notifications: ExtendedNotification[];
   subscriptions: SubscriptionType[];
+  friend_invitations: number;
 };
 
 export type SubscriptionApiResponse = {
@@ -39,6 +40,15 @@ export type ExtendedUser = Tables<'profiles'> & {
 export type ExtendedFriend = Tables<'friends'> & {
   profile?: Tables<'profiles'>;
   friend: Tables<'profiles'>;
+};
+
+export type ExtendedTripFriend = Tables<'trip_friends'> & {
+  profile: Tables<'profiles'> & {
+    trip_pack?: Tables<'packs'> & {
+      pack?: Tables<'packs'>;
+    };
+  };
+  trip?: Tables<'trips'>;
 };
 
 export type ExtendedFriendInvite = Tables<'friend_invitations'> & {

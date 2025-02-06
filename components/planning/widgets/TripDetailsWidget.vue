@@ -43,14 +43,12 @@
    * @param payload
    */
   const updateTrip = async (payload: TablesUpdate<'trips'>) => {
-    console.log(`updateTrip`);
     try {
       const supabase = useSupabaseClient<Database>();
       const { data: updatedTrip, error } = await supabase.from('trips')
         .update(payload)
         .eq('id', Number($store.selectedTripId))
         .select();
-      console.log({ updatedTrip, error });
 
       if (updatedTrip?.length && $store.selectedTripId && !error) {
         $store.selectedTripId = String(updatedTrip[0].id);
@@ -90,13 +88,20 @@
   <card class="px-8 py-4 rounded-3xl">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center">
       <icon-footprints class="h-6 mr-6 text-primary w-6" />
-      <p class="!font-bold text-base">
-        Trip Details
-      </p>
+      <div class="flex items-center gap-3">
+        <p class="!font-bold text-base">
+          Trip Details
+        </p>
+
+        <icon-info
+          v-tippy="{ content: 'Track details such as flights, car rentals, and hike dates.' }"
+          class="cursor-pointer h-4 text-muted-foreground w-4" />
+      </div>
       <button-root
         v-if="!$store.pageLoading && tripDetails.length"
         class="justify-self-end rounded-full"
         size="icon"
+        variant="outline"
         @click="createDetail">
         <icon-plus />
       </button-root>
@@ -120,7 +125,7 @@
           name="trip_name"
           placeholder="Trip Name"
           size="sm"
-          @update:model-value="updateTrip({ name: $event })">
+          @update:model-value="updateTrip({ name: ( $event as string ) })">
           <typography
             class="!font-black"
             variant="large">

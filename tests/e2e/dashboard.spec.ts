@@ -1,8 +1,8 @@
+import { promises as fs } from 'fs';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import { expect } from '@nuxt/test-utils/playwright';
 import { withSupawright } from 'supawright';
-import { promises as fs } from 'fs';
-import { fileURLToPath } from 'url';
-import path from 'path';
 import type { Database } from '@/types';
 
 const dirname = path.dirname(fileURLToPath(import.meta.url));

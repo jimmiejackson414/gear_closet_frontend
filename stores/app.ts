@@ -1,5 +1,5 @@
 import { IconCircleAlert, IconCircleCheck, IconInfo } from '#components';
-import { useToast } from '@/components/ui/toast';
+import { useToast } from '@/components/ui';
 
 type State = {
   drawer: boolean;

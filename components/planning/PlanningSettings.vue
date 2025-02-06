@@ -16,17 +16,9 @@
     // TODO: implement
   };
 
-  /**
-   * Handles selecting a trip and setting the cookie.
-   */
-  const handleSelectTrip = async (value: string) => {
-    const cookie = useCookie('selectedTripId');
-    cookie.value = encrypt(value);
-    $store.selectedTripId = value;
-  };
-
   const emits = defineEmits<{
     (event: 'openDialog'): void;
+    (event: 'selectTrip', id: string): void;
   }>();
 </script>
 
@@ -54,7 +46,7 @@
       <select-root
         :default-value="String($store.selectedTripId)"
         :model-value="$store.selectedTripId"
-        @update:model-value="handleSelectTrip">
+        @update:model-value="emits('selectTrip', $event)">
         <select-trigger class="min-w-[180px]">
           <span v-if="!$store.selectedTripId">Selected Trip</span>
           <select-value placeholder="Selected Trip" />

@@ -89,6 +89,7 @@
         v-if="!$store.pageLoading && $store.data?.todos.length"
         class="justify-self-end rounded-full"
         size="icon"
+        variant="outline"
         @click="createTodo">
         <icon-plus />
       </button-root>
@@ -138,16 +139,17 @@
                 <table-row
                   v-for="todo in userTodos"
                   :key="todo.id">
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <checkbox
                       :checked="todo.completed"
                       @update:checked="updateTodo(todo, { completed: $event })" />
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <gc-inline-edit
+                      :class="{ 'line-through': todo.completed }"
                       :model-value="todo.title ?? undefined"
                       name="title"
-                      @update:model-value="updateTodo(todo, { title: $event })">
+                      @update:model-value="updateTodo(todo, { title: ($event as string) })">
                       {{ todo.title }}
                     </gc-inline-edit>
                   </table-cell>
@@ -178,16 +180,17 @@
                 <table-row
                   v-for="todo in groupTodos"
                   :key="todo.id">
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <checkbox
                       :checked="todo.completed"
                       @update:checked="updateTodo(todo, { completed: $event })" />
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <gc-inline-edit
+                      :class="{ 'line-through': todo.completed }"
                       :model-value="todo.title ?? undefined"
                       name="title"
-                      @update:model-value="updateTodo(todo, { title: $event })">
+                      @update:model-value="updateTodo(todo, { title: ($event as string) })">
                       {{ todo.title }}
                     </gc-inline-edit>
                   </table-cell>

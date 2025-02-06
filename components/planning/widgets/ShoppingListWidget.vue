@@ -90,6 +90,7 @@
         v-if="!$store.pageLoading && $store.data?.shopping_items.length"
         class="justify-self-end rounded-full"
         size="icon"
+        variant="outline"
         @click="createShoppingItem">
         <icon-plus />
       </button-root>
@@ -141,25 +142,26 @@
               <table-body>
                 <table-row
                   v-for="item in userItems"
-                  :key="item.id">
-                  <table-cell>
+                  :key="item.id"
+                  :class="{ 'line-through': item.completed }">
+                  <table-cell class="px-4 py-1">
                     <checkbox
                       :checked="item.completed"
                       @update:checked="updateShoppingItem(item, { completed: $event })" />
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <gc-inline-edit
                       :model-value="item.title ?? undefined"
                       name="title"
-                      @update:model-value="updateShoppingItem(item, { title: $event })">
+                      @update:model-value="updateShoppingItem(item, { title: ( $event as string ) })">
                       {{ item.title }}
                     </gc-inline-edit>
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <gc-inline-edit
                       :model-value="item.quantity ?? undefined"
                       name="quantity"
-                      @update:model-value="updateShoppingItem(item, { quantity: $event })">
+                      @update:model-value="updateShoppingItem(item, { quantity: ( $event as number ) })">
                       {{ item.quantity }}
                     </gc-inline-edit>
                   </table-cell>
@@ -194,25 +196,26 @@
               <table-body>
                 <table-row
                   v-for="item in groupItems"
-                  :key="item.id">
-                  <table-cell>
+                  :key="item.id"
+                  :class="{ 'line-through': item.completed }">
+                  <table-cell class="px-4 py-1">
                     <checkbox
                       :checked="item.completed"
                       @update:checked="updateShoppingItem(item, { completed: $event })" />
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <gc-inline-edit
                       :model-value="item.title ?? undefined"
                       name="title"
-                      @update:model-value="updateShoppingItem(item, { title: $event })">
+                      @update:model-value="updateShoppingItem(item, { title: ( $event as string ) })">
                       {{ item.title }}
                     </gc-inline-edit>
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="px-4 py-1">
                     <gc-inline-edit
                       :model-value="item.quantity ?? undefined"
                       name="quantity"
-                      @update:model-value="updateShoppingItem(item, { quantity: $event })">
+                      @update:model-value="updateShoppingItem(item, { quantity: ( $event as number ) })">
                       {{ item.quantity }}
                     </gc-inline-edit>
                   </table-cell>

@@ -118,7 +118,8 @@
               borderWidth: 2,
               color: (params: any) => {
                 const theme = findTheme($store.data.pack?.theme as Theme);
-                return theme[params.dataIndex % theme.length];
+                const extendedTheme = Array.from({ length: $store.data.pack?.categories?.length || 0 }, (_, i) => theme[i % theme.length]);
+                return extendedTheme[params.dataIndex];
               },
             },
           },

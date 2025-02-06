@@ -64,14 +64,20 @@
   <card class="px-8 py-4 rounded-3xl">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center">
       <icon-mountain class="h-6 mr-6 text-primary w-6" />
-      <typography class="!font-bold">
-        Hike Details
-      </typography>
+      <div class="flex items-center gap-3">
+        <typography class="!font-bold">
+          Hike Details
+        </typography>
+        <icon-info
+          v-tippy="{ content: 'Track details such as number of miles, elevation gains, and start and end points.' }"
+          class="cursor-pointer h-4 text-muted-foreground w-4" />
+      </div>
       <button-root
         v-if="!$store.pageLoading && hikeDetails.length"
         class="justify-self-end rounded-full"
         data-testid="create-new-detail-btn"
         size="icon"
+        variant="outline"
         @click="createNewDetail">
         <icon-plus />
       </button-root>
@@ -91,13 +97,13 @@
       </button-root>
     </gc-empty-state>
     <div v-else>
-      <div class="flex items-center gap-6">
+      <div class="flex items-center gap-6 w-fit">
         <gc-inline-edit
           :model-value="$store.selectedTrip?.starting_point"
           name="starting_point"
           placeholder="Ending point"
           size="sm"
-          @update:model-value="updateTrip({ starting_point: $event })">
+          @update:model-value="updateTrip({ starting_point: ( $event as string ) })">
           <typography
             class="!font-black"
             variant="large">
@@ -110,7 +116,7 @@
           name="ending_point"
           placeholder="Ending point"
           size="sm"
-          @update:model-value="updateTrip({ ending_point: $event })">
+          @update:model-value="updateTrip({ ending_point: ( $event as string ) })">
           <typography
             class="!font-black"
             variant="large">
@@ -124,7 +130,7 @@
           name="description"
           placeholder="Trip description"
           size="sm"
-          @update:model-value="updateTrip({ description: $event })">
+          @update:model-value="updateTrip({ description: ( $event as string ) })">
           <typography class="cursor-pointer text-grey">
             {{ $store.selectedTrip?.description }}
           </typography>

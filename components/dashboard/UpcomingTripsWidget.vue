@@ -52,7 +52,7 @@
       <div class="flex justify-start items-center py-4">
         <icon-footprints class="h-6 mr-6 text-primary dark:text-primary-foreground w-6" />
         <typography
-          class="font-bold"
+          class="!font-bold"
           variant="p">
           Upcoming Trips <span class="font-normal text-grey">({{ data.length || 0 }})</span>
         </typography>

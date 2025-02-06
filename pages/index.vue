@@ -1,13 +1,13 @@
 <script lang='ts' setup>
   import type { Database, Tables } from '@/types';
-  import type { ExtendedFriend, ForumCategory, ForumPost } from '@/types/helpers';
+  import type { ExtendedFriend, ExtendedTripFriend, ForumCategory, ForumPost } from '@/types/helpers';
 
   definePageMeta({ layout: 'dashboard-layout' });
 
   interface DashboardData {
     friends: ExtendedFriend[];
     trips: Tables<'trips'>[];
-    trip_friends: Tables<'trip_friends'>[];
+    trip_friends: ExtendedTripFriend[];
   }
 
   export interface ForumResponse {
@@ -67,9 +67,8 @@
         };
       });
       forumData.categories = fData.value?.categories || [];
-    } catch (err) {
-      console.log(`fetchDashboard err: `, err);
-      console.error({ err });
+    } catch (err: any) {
+      //
     } finally {
       loading.value = false;
     }

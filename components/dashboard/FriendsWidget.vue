@@ -31,7 +31,7 @@
         <nuxt-link
           class="!font-bold duration-150 ease-in-out text-base hover:text-primary"
           :to="{ name: 'friends' }">
-          Friends ({{ data.length }})
+          Friends <span class="font-normal text-grey">({{ data.length }})</span>
         </nuxt-link>
       </div>
       <ul class="-space-x-3 flex">

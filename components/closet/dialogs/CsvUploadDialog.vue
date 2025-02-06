@@ -17,6 +17,13 @@
   const parseFile = async (file: File | undefined) => {
     if (!file) return;
     return new Promise((resolve, reject) => {
+      const unitMap: Record<string, string> = {
+        ounce: 'oz',
+        gram: 'g',
+        kilogram: 'kg',
+        pound: 'lb',
+      };
+
       Papa.parse(file, {
         header: true,
         dynamicTyping: true,
@@ -24,6 +31,13 @@
         transformHeader: (header: string) => header.toLowerCase()
           .trim()
           .replace(/\s/g, '_'),
+        transform: (value: string | number, header: string) => {
+          if (header === 'unit' && typeof value === 'string') {
+            const normalizedUnit = unitMap[value.toLowerCase()];
+            return normalizedUnit || value;
+          }
+          return value;
+        },
         complete: (results: ParseResult<Record<string, unknown>>) => {
           parsingResult.value = {
             status: 'success',

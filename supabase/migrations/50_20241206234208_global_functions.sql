@@ -33,9 +33,26 @@ CREATE OR REPLACE FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) RETUR
     friends JSON;
   BEGIN
     -- Fetch trip_friends
-    SELECT COALESCE(json_agg(row_to_json(tf.*)), '[]'::JSON) INTO trip_friends
+    SELECT COALESCE(json_agg(
+      json_build_object(
+        'id', tf.id,
+        'trip_id', tf.trip_id,
+        'accepted_invite_on', tf.accepted_invite_on,
+        'created_at', tf.created_at,
+        'status', tf.status,
+        'profile_id', tf.profile_id,
+        'invited_by_id', tf.invited_by_id,
+        'invite_token', tf.invite_token,
+        'updated_at', tf.updated_at,
+        'profile', row_to_json(p.*),
+        'trip', row_to_json(t.*)
+      )
+    ), '[]'::JSON) INTO trip_friends
     FROM trip_friends tf
-    WHERE tf.profile_id = p_user_id;
+    LEFT JOIN profiles p ON tf.invited_by_id = p.id
+    LEFT JOIN trips t ON tf.trip_id = t.id
+    WHERE tf.profile_id = p_user_id
+    AND tf.status = 'PENDING';
 
     -- Fetch trips
     SELECT COALESCE(json_agg(row_to_json(t.*)), '[]'::JSON) INTO trips
@@ -64,9 +81,11 @@ ALTER FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) OWNER TO "postgre
 
 -- Get planning page data function
 ------------------------
-CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) RETURNS "json"
-  LANGUAGE "plpgsql" SECURITY DEFINER
-  AS $$
+CREATE OR REPLACE FUNCTION public.get_planning_page_data(p_trip_id bigint)
+ RETURNS json
+ LANGUAGE plpgsql
+ SECURITY DEFINER
+AS $function$
   DECLARE
     trips_data JSON;
     trip_packs_data JSON;
@@ -77,17 +96,31 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
     poll_data JSON;
     dynamic_trip_id BIGINT;
   BEGIN
-    -- Fetch trips data
+    -- Fetch trips data (both created by the user and accepted invitations)
     SELECT json_agg(row_to_json(sub.*)) INTO trips_data
     FROM (
-      SELECT * FROM trips t
-      WHERE t.profile_id = auth.uid()
+      SELECT DISTINCT t.*
+      FROM trips t
+      LEFT JOIN trip_friends tf ON tf.trip_id = t.id
+        AND tf.profile_id = auth.uid()
+        AND tf.status = 'ACCEPTED'
+      WHERE t.profile_id = auth.uid() OR tf.profile_id IS NOT NULL
       ORDER BY t.created_at ASC
     ) sub;
 
     -- Set dynamic_trip_id based on p_trip_id or to the ID of the first trip
     IF p_trip_id = 0 THEN
-      SELECT COALESCE((SELECT t.id FROM trips t WHERE t.profile_id = auth.uid() ORDER BY t.created_at ASC LIMIT 1), 0) INTO dynamic_trip_id;
+      SELECT COALESCE((
+        SELECT t.id 
+        FROM trips t
+        LEFT JOIN trip_friends tf 
+          ON tf.trip_id = t.id 
+          AND tf.profile_id = auth.uid() 
+          AND tf.status = 'ACCEPTED'
+        WHERE t.profile_id = auth.uid() OR tf.profile_id IS NOT NULL
+        ORDER BY t.created_at ASC
+        LIMIT 1
+      ), 0) INTO dynamic_trip_id;
     ELSE
       dynamic_trip_id := p_trip_id;
     END IF;
@@ -145,27 +178,50 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
 
     -- Fetch todos data
     SELECT COALESCE(json_agg(row_to_json(todo.*)), '[]'::JSON) INTO todos_data
-    FROM todos todo
-    WHERE todo.trip_id = dynamic_trip_id;
+      FROM todos todo
+      WHERE (todo.resource_type = 'USER' AND todo.profile_id = auth.uid()) 
+        OR (todo.resource_type = 'GROUP' AND todo.trip_id = dynamic_trip_id);
 
     -- Fetch shopping items data
     SELECT COALESCE(json_agg(row_to_json(si.*)), '[]'::JSON) INTO shopping_items_data
-    FROM shopping_list_items si
-    WHERE si.trip_id = dynamic_trip_id;
+      FROM shopping_list_items si
+      WHERE (si.resource_type = 'USER' AND si.profile_id = auth.uid()) 
+        OR (si.resource_type = 'GROUP' AND si.trip_id = dynamic_trip_id);
 
     -- Fetch friends data with details from related tables
-    SELECT COALESCE(json_agg(json_build_object(
-      'friend_profile', row_to_json(p.*),
-      'friend_trip_packs', (
-        SELECT COALESCE(json_agg(row_to_json(tp.*)), '[]'::JSON)
-        FROM trip_packs tp
-        WHERE tp.profile_id = tf.profile_id
-          AND (p_trip_id = 0 OR tp.trip_id = dynamic_trip_id)
-      )
-    )), '[]'::JSON) INTO friends_data
+    SELECT COALESCE(
+      jsonb_agg(
+        jsonb_set(
+          row_to_json(tf)::jsonb,
+          '{profile}',
+          jsonb_set(
+            row_to_json(p)::jsonb,
+            '{trip_pack}',
+            COALESCE((
+              SELECT jsonb_set(
+                row_to_json(tp)::jsonb,
+                '{pack}',
+                COALESCE((
+                  SELECT row_to_json(pk)::jsonb
+                  FROM packs pk
+                  WHERE pk.id = tp.pack_id
+                ), 'null'::jsonb),
+                true
+              )
+              FROM trip_packs tp
+              WHERE tp.profile_id = p.id
+                AND (dynamic_trip_id = 0 OR tp.trip_id = dynamic_trip_id)
+              LIMIT 1
+            ), 'null'::jsonb),
+            true
+          ),
+          true
+        )
+      ), '[]'::jsonb
+    ) INTO friends_data
     FROM trip_friends tf
-    JOIN profiles p ON tf.profile_id = p.id  -- Use profile_id for the friend
-    WHERE tf.invited_by_id = auth.uid();  -- Select only the records where the authenticated user is the inviter
+    JOIN profiles p ON tf.profile_id = p.id
+    WHERE tf.trip_id = dynamic_trip_id;
 
     -- Fetch poll data
     SELECT json_build_object(
@@ -192,7 +248,7 @@ CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint)
       'poll', poll_data
     );
     END;
-$$;
+$function$
 
 ALTER FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) OWNER TO "postgres";
 
@@ -240,7 +296,7 @@ CREATE OR REPLACE FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) R
             'category_items', sub.category_items
           )), '[]'::JSON)
           FROM (
-            SELECT 
+            SELECT
               c.id,
               c.created_at,
               c.name,
@@ -251,7 +307,7 @@ CREATE OR REPLACE FUNCTION "public"."get_closet_page_data"("p_pack_id" bigint) R
               (
                 SELECT COALESCE(json_agg(row_to_json(t) ORDER BY t.position), '[]'::JSON)
                 FROM (
-                  SELECT 
+                  SELECT
                     ci.id,
                     ci.category_id,
                     ci.item_id,
@@ -308,8 +364,24 @@ BEGIN
     END IF;
 
     -- Insert item
-    INSERT INTO "public"."items" ("name", "generic_type", "price", "consumable", "worn", "quantity", "unit", "weight", "url", "slug", "created_at", "updated_at", "profile_id")
-    VALUES ("row_data"->>'item_name', "row_data"->>'desc', ("row_data"->>'price')::bigint, (trim("row_data"->>'consumable') != '')::boolean, (trim("row_data"->>'worn') != '')::boolean, ("row_data"->>'qty')::bigint, "row_data"->>'unit', ("row_data"->>'weight')::numeric, "row_data"->>'url', 'slug', NOW(), NOW(), auth.uid())
+    INSERT INTO "public"."items" (
+      "name", "generic_type", "price", "consumable", "worn", "quantity", "unit", "weight", "url", "slug", "created_at", "updated_at", "profile_id"
+    )
+    VALUES (
+      "row_data"->>'item_name',
+      "row_data"->>'desc',
+      ("row_data"->>'price')::bigint,
+      (trim("row_data"->>'consumable') != '')::boolean,
+      (trim("row_data"->>'worn') != '')::boolean,
+      ("row_data"->>'qty')::bigint,
+      ("row_data"->>'unit')::item_unit,
+      ("row_data"->>'weight')::numeric,
+      "row_data"->>'url',
+      'slug',
+      NOW(),
+      NOW(),
+      auth.uid()
+    )
     RETURNING "id" INTO "item_id";
 
     -- Link item to category
@@ -374,17 +446,17 @@ CREATE OR REPLACE FUNCTION "public"."create_category_and_item"(
     LOOP
       -- Insert the new item
       INSERT INTO "public"."items" (
-        "name", "generic_type", "weight", "quantity", "price", 
+        "name", "generic_type", "weight", "quantity", "price",
         "consumable", "worn", "profile_id", "unit"
       )
       VALUES (
-        item->>'name', 
-        item->>'generic_type', 
-        item->>'weight', 
-        (item->>'quantity')::bigint, 
-        (item->>'price')::bigint, 
-        (item->>'consumable')::boolean, 
-        (item->>'worn')::boolean, 
+        item->>'name',
+        item->>'generic_type',
+        item->>'weight',
+        (item->>'quantity')::bigint,
+        (item->>'price')::bigint,
+        (item->>'consumable')::boolean,
+        (item->>'worn')::boolean,
         auth.uid(),
         COALESCE((item->>'unit')::item_unit, 'oz'::item_unit) -- Use default "oz" if NULL
       )

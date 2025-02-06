@@ -1254,6 +1254,19 @@ export type Database = {
         }
         Returns: Json
       }
+      search_friends_with_profile: {
+        Args: {
+          search_term: string
+        }
+        Returns: {
+          id: string
+          created_at: string
+          updated_at: string
+          profile_id: string
+          friend_id: string
+          profile: Json
+        }[]
+      }
       search_profiles: {
         Args: {
           search_query: string
