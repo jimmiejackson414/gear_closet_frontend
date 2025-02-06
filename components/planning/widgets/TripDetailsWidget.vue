@@ -88,9 +88,15 @@
   <card class="px-8 py-4 rounded-3xl">
     <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center">
       <icon-footprints class="h-6 mr-6 text-primary w-6" />
-      <p class="!font-bold text-base">
-        Trip Details
-      </p>
+      <div class="flex items-center gap-3">
+        <p class="!font-bold text-base">
+          Trip Details
+        </p>
+
+        <icon-info
+          v-tippy="{ content: 'Track details such as flights, car rentals, and hike dates.' }"
+          class="cursor-pointer h-4 text-muted-foreground w-4" />
+      </div>
       <button-root
         v-if="!$store.pageLoading && tripDetails.length"
         class="justify-self-end rounded-full"

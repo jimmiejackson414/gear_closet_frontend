@@ -5,7 +5,7 @@
   const isInviteModalOpen = ref(false);
   const infoContent = computed(() => {
     const selectedTrip = $store.data.trips.find((trip) => trip.id === Number($store.selectedTripId));
-    return `These are friends that have been specifically invited to your ${selectedTrip ? `${selectedTrip.name} trip` : 'trip'}.`;
+    return `These are friends that have been specifically invited to the ${selectedTrip ? `${selectedTrip.name} trip` : 'trip'}.`;
   });
 
   const getTooltip = (friend: ExtendedTripFriend) => {
