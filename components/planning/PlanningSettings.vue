@@ -7,19 +7,19 @@
 
   const tripOptions = computed(() => $store.data.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
 
-  /**
-   * Leaves the current trip.
-   */
   const isLeaveTripDialogOpen = ref(false);
-  const isSubmitting = ref(false);
-  const leaveTrip = async () => {
-    // TODO: implement
-  };
+  const isDeleteTripDialogOpen = ref(false);
+  const isTransferTripDialogOpen = ref(false);
 
   const emits = defineEmits<{
     (event: 'openDialog'): void;
     (event: 'selectTrip', id: string): void;
   }>();
+
+  const isTripOwner = computed(() => {
+    const trip = $store.data.trips.find((t: Tables<'trips'>) => t.id === Number($store.selectedTripId));
+    return trip?.profile_id === $userStore.profile?.id;
+  });
 </script>
 
 <template>
@@ -37,8 +37,20 @@
               Actions
             </dropdown-menu-label>
             <dropdown-menu-separator />
-            <dropdown-menu-item @select="isLeaveTripDialogOpen = true">
+            <dropdown-menu-item
+              v-if="!isTripOwner"
+              @select="isLeaveTripDialogOpen = true">
               Leave Trip
+            </dropdown-menu-item>
+            <dropdown-menu-item
+              v-else
+              @select="isLeaveTripDialogOpen = true">
+              Delete Trip
+            </dropdown-menu-item>
+            <dropdown-menu-item
+              v-if="isTripOwner"
+              @select="isLeaveTripDialogOpen = true">
+              Transfer Trip Ownership
             </dropdown-menu-item>
           </dropdown-menu-content>
         </dropdown-menu>
@@ -73,7 +85,10 @@
       </select-root>
     </div>
 
-    <div v-tippy="{ content: !$userStore.isPaidMember && $store.data.trips.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }">
+    <div
+      v-tippy="{
+        content: !$userStore.isPaidMember && $store.data.trips.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : ''
+      }">
       <button-root
         :disabled="$store.pageLoading || (!$userStore.isPaidMember && $store.data.trips.length >= 1)"
         @click="emits('openDialog')">
@@ -81,41 +96,10 @@
       </button-root>
     </div>
 
-    <alert-dialog :open="isLeaveTripDialogOpen">
-      <alert-dialog-content>
-        <alert-dialog-header>
-          <alert-dialog-title>
-            Leave the "{{ $store.data.trips.find((t: Tables<'trips'>) => t.id === Number($store.selectedTripId))?.name }}" trip?
-          </alert-dialog-title>
-        </alert-dialog-header>
-        <div class="flex items-center mb-4 space-x-2">
-          <div class="flex flex-col">
-            <typography class="mb-2">
-              Are you sure you want to leave this trip?
-            </typography>
-            <typography variant="small">
-              You will lose access to all the data associated with this trip.
-            </typography>
-          </div>
-        </div>
-        <alert-dialog-footer class="items-center w-full sm:justify-between">
-          <button-root
-            :disabled="isSubmitting"
-            :loading="isSubmitting"
-            variant="secondary"
-            @click="isLeaveTripDialogOpen = false"
-            @update:open="isLeaveTripDialogOpen = false">
-            Cancel
-          </button-root>
-          <button-root
-            :disabled="isSubmitting"
-            :loading="isSubmitting"
-            variant="destructive"
-            @click="leaveTrip">
-            Leave Trip
-          </button-root>
-        </alert-dialog-footer>
-      </alert-dialog-content>
-    </alert-dialog>
+    <lazy-leave-trip-dialog v-model:is-open="isLeaveTripDialogOpen" />
+
+    <lazy-delete-trip-dialog v-model:is-open="isDeleteTripDialogOpen" />
+
+    <lazy-transfer-trip-ownership-dialog v-model:is-open="isTransferTripDialogOpen" />
   </div>
 </template>
