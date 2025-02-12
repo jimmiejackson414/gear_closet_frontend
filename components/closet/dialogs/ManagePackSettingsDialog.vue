@@ -13,34 +13,34 @@
   const themeOptions = computed(() => generateThemeOptions());
 
   const formSchema = toTypedSchema(z.object({
+    allow_comments: z.boolean(),
     name: z.string()
       .min(3)
       .max(50),
-    allow_comments: z.boolean(),
-    theme: z.nativeEnum(Theme),
     private: z.boolean(),
+    theme: z.nativeEnum(Theme),
   }));
 
   const defaultMode = ref<'create' | 'update'>('create');
   const mode = inject<Ref<'create' | 'update'>>('dialogMode', defaultMode);
-  const { isFieldDirty, handleSubmit, isSubmitting, setValues } = useForm({
+  const { handleSubmit, isFieldDirty, isSubmitting, setValues } = useForm({
+    initialValues: {
+      allow_comments: mode.value === 'update' ? $store.data.selectedPack?.allow_comments as boolean : true,
+      name: mode.value === 'update' ? $store.data.selectedPack?.name as string : '',
+      private: mode.value === 'update' ? $store.data.selectedPack?.private as boolean : false,
+      theme: mode.value === 'update' ? $store.data.selectedPack?.theme as Theme : Theme.BLUE6,
+    },
     keepValuesOnUnmount: true,
     validationSchema: formSchema,
-    initialValues: {
-      name: mode.value === 'update' ? $store.data.selectedPack?.name as string : '',
-      allow_comments: mode.value === 'update' ? $store.data.selectedPack?.allow_comments as boolean : true,
-      theme: mode.value === 'update' ? $store.data.selectedPack?.theme as Theme : Theme.BLUE6,
-      private: mode.value === 'update' ? $store.data.selectedPack?.private as boolean : false,
-    },
   });
 
   watch(() => $store.dialogStates.managePackSettingsDialog, (newValue) => {
     if (newValue) {
       setValues({
-        name: mode.value === 'update' ? $store.data.selectedPack?.name as string : '',
         allow_comments: mode.value === 'update' ? $store.data.selectedPack?.allow_comments as boolean : true,
-        theme: mode.value === 'update' ? $store.data.selectedPack?.theme as Theme : Theme.BLUE6,
+        name: mode.value === 'update' ? $store.data.selectedPack?.name as string : '',
         private: mode.value === 'update' ? $store.data.selectedPack?.private as boolean : false,
+        theme: mode.value === 'update' ? $store.data.selectedPack?.theme as Theme : Theme.BLUE6,
       });
     }
   });

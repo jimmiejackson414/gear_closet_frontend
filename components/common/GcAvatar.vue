@@ -4,17 +4,17 @@
   interface Props {
     border?: boolean;
     class?: string;
+    initials?: string;
     size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
     url?: string;
-    initials?: string;
   }
 
   const props = withDefaults(defineProps<Props>(), {
     border: false,
     class: '',
-    url: undefined,
     initials: undefined,
     size: 'md',
+    url: undefined,
   });
 
   const sizeClass = computed(() => {

@@ -35,10 +35,10 @@
   const chartRef = ref<InstanceType<typeof VChart> | null>(null);
   const details = computed(() => {
     const initialDetails = [
-      { title: 'Worn', weight: 0, color: '' },
-      { title: 'Consumable', weight: 0, color: '' },
-      { title: 'Base', weight: 0, color: '' },
-      { title: 'Total', weight: 0, color: '' },
+      { color: '', title: 'Worn', weight: 0 },
+      { color: '', title: 'Consumable', weight: 0 },
+      { color: '', title: 'Base', weight: 0 },
+      { color: '', title: 'Total', weight: 0 },
     ];
     if (!props.pack) return initialDetails;
     const weights = calculatePackWeights(props.pack);
@@ -54,23 +54,6 @@
   });
   const chartOptions = ref<EChartsOption>({
     animationDuration: 300,
-    xAxis: {
-      type: 'category',
-      axisTick: { alignWithLabel: true },
-      axisLabel: { rotate: 30, overflow: 'break', width: 100, margin: 24 },
-      data: props.pack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
-    },
-    yAxis: {
-      type: 'value',
-      splitLine: { show: false },
-      axisLabel: {
-        formatter: (value: any) => {
-          const weight = round(convert(value as number, 'g')
-            .to('lb'));
-          return `${weight} lbs`;
-        },
-      },
-    },
     grid: { show: false },
     series: [
       {
@@ -79,7 +62,6 @@
           return round(convert(categoryWeight, 'mg')
             .to((category as ExtendedCategory).unit as Mass), 2);
         }),
-        type: 'bar',
         itemStyle: {
           borderRadius: 5,
           color: (params: any) => {
@@ -87,11 +69,10 @@
             return theme[params.dataIndex];
           },
         },
+        type: 'bar',
       },
     ],
     tooltip: {
-      show: true,
-      trigger: 'item',
       formatter: (value: any) => {
         const category = props.pack?.categories?.[value.dataIndex];
         const categoryWeight = calculateCategoryWeight(category as ExtendedCategory);
@@ -109,6 +90,25 @@
           </div>
         `);
       },
+      show: true,
+      trigger: 'item',
+    },
+    xAxis: {
+      axisLabel: { margin: 24, overflow: 'break', rotate: 30, width: 100 },
+      axisTick: { alignWithLabel: true },
+      data: props.pack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
+      type: 'category',
+    },
+    yAxis: {
+      axisLabel: {
+        formatter: (value: any) => {
+          const weight = round(convert(value as number, 'g')
+            .to('lb'));
+          return `${weight} lbs`;
+        },
+      },
+      splitLine: { show: false },
+      type: 'value',
     },
   });
 </script>

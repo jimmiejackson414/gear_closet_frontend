@@ -29,23 +29,10 @@
   const chartRef = ref<InstanceType<typeof VChart> | undefined>(undefined);
   const chartOptions = ref<EChartsOption>({
     animationDuration: 300,
-    xAxis: {
-      type: 'category',
-      axisLine: { lineStyle: { color: legendTextColor.value } },
-      axisTick: { alignWithLabel: true },
-      axisLabel: { rotate: 30, overflow: 'break', width: 100, margin: 24 },
-      data: $store.data.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
-    },
-    yAxis: {
-      type: 'value',
-      splitLine: { show: false },
-      axisLabel: { formatter: (value: any) => `${value} lbs` },
-    },
     grid: { show: false },
     series: [
       {
         data: $store.data.selectedPack?.categories?.map(category => calculateCategoryWeight(category as ExtendedCategory)),
-        type: 'bar',
         itemStyle: {
           borderRadius: 5,
           color: (params: any) => {
@@ -54,11 +41,10 @@
             return extendedTheme[params.dataIndex];
           },
         },
+        type: 'bar',
       },
     ],
     tooltip: {
-      show: true,
-      trigger: 'item',
       formatter: (value: any) => {
         const category = $store.data.selectedPack?.categories?.[value.dataIndex];
         const weight = calculateCategoryWeight(category as ExtendedCategory);
@@ -74,6 +60,20 @@
           </div>
         `);
       },
+      show: true,
+      trigger: 'item',
+    },
+    xAxis: {
+      axisLabel: { margin: 24, overflow: 'break', rotate: 30, width: 100 },
+      axisLine: { lineStyle: { color: legendTextColor.value } },
+      axisTick: { alignWithLabel: true },
+      data: $store.data.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
+      type: 'category',
+    },
+    yAxis: {
+      axisLabel: { formatter: (value: any) => `${value} lbs` },
+      splitLine: { show: false },
+      type: 'value',
     },
   });
 
@@ -115,12 +115,12 @@
 
   watch(() => $store.data.selectedPack?.categories, () => {
     chartRef.value?.setOption({
-      xAxis: {
-        data: $store.data.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
-      },
       series: [{
         data: $store.data.selectedPack?.categories?.map(category => calculateCategoryWeight(category as ExtendedCategory)),
       }],
+      xAxis: {
+        data: $store.data.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
+      },
     });
   }, { deep: true, immediate: true });
 </script>

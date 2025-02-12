@@ -15,22 +15,22 @@ export default defineEventHandler(async () => {
     }, 15000); // Set timeout to 15 seconds
 
     const latestPostData = await $fetch<ForumLatestPosts>(`${config.public.forumsUrl}/posts`, {
-      method: 'GET',
       headers: {
         'Accept': 'application/json',
         'Api-Key': config.forumsApiKey,
         'Api-Username': 'system',
       },
+      method: 'GET',
       signal: controller.signal,
     });
 
     const categoriesData = await $fetch<ForumCategories>(`${config.public.forumsUrl}/categories`, {
-      method: 'GET',
       headers: {
         'Accept': 'application/json',
         'Api-Key': config.forumsApiKey,
         'Api-Username': 'system',
       },
+      method: 'GET',
       signal: controller.signal,
     });
 
@@ -40,8 +40,8 @@ export default defineEventHandler(async () => {
       latestPostData.latest_posts = latestPostData.latest_posts.filter(p => p.username !== 'system')
         .slice(0, 10);
       return {
-        latest_posts: latestPostData.latest_posts || [],
         categories: categoriesData.category_list.categories || [],
+        latest_posts: latestPostData.latest_posts || [],
       };
     }
 

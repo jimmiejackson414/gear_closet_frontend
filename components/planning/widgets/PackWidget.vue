@@ -57,13 +57,10 @@
     get () {
       return {
         animationDuration: 300,
+        grid: {
+          bottom: '30%',
+        },
         legend: {
-          orient: 'vertical',
-          left: 'left',
-          top: 'center',
-          textStyle: {
-            color: legendTextColor.value,
-          },
           data: $store.data.pack?.categories?.map(c => ({
             name: c.name as string,
             textStyle: {
@@ -71,24 +68,24 @@
               width: 180,
             },
           })),
-        },
-        grid: {
-          bottom: '30%',
+          left: 'left',
+          orient: 'vertical',
+          textStyle: {
+            color: legendTextColor.value,
+          },
+          top: 'center',
         },
         loading: $store.pageLoading,
         media: [
           {
-            query: {
-              maxWidth: 600,
-            },
             option: {
-              legend: {
-                orient: 'horizontal',
-                left: 'center',
-                top: 'bottom',
-              },
               grid: {
                 bottom: '20%',
+              },
+              legend: {
+                left: 'center',
+                orient: 'horizontal',
+                top: 'bottom',
               },
               series: [
                 {
@@ -97,24 +94,22 @@
                 },
               ],
             },
+            query: {
+              maxWidth: 600,
+            },
           },
         ],
         series: [
           {
-            name: 'Pack Categories',
-            type: 'pie',
-            radius: ['40%', '90%'],
             center: ['80%', '50%'],
-            left: 'center',
-            height: '100%',
             data: $store.data.pack?.categories?.map(c => ({
               name: c.name,
               value: calculateCategoryWeight(c as ExtendedCategory),
             })) as { name: string, value: number }[],
-            label: { show: false },
+            height: '100%',
             itemStyle: {
-              borderRadius: 8,
               borderColor: 'white',
+              borderRadius: 8,
               borderWidth: 2,
               color: (params: any) => {
                 const theme = findTheme($store.data.pack?.theme as Theme);
@@ -122,11 +117,14 @@
                 return extendedTheme[params.dataIndex];
               },
             },
+            label: { show: false },
+            left: 'center',
+            name: 'Pack Categories',
+            radius: ['40%', '90%'],
+            type: 'pie',
           },
         ],
         tooltip: {
-          show: true,
-          trigger: 'item',
           formatter: (value: any) => {
             const category = $store.data.pack?.categories?.[value.dataIndex];
             const categoryWeight = calculateCategoryWeight(category as ExtendedCategory);
@@ -144,6 +142,8 @@
               </div>
             `);
           },
+          show: true,
+          trigger: 'item',
         },
       };
     },

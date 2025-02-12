@@ -37,8 +37,8 @@
           )
         `)
         .eq('slug', $route.params.slug)
-        .order('created_at', { referencedTable: 'comments', ascending: false })
-        .order('created_at', { referencedTable: 'comments.replies', ascending: false })
+        .order('created_at', { ascending: false, referencedTable: 'comments' })
+        .order('created_at', { ascending: false, referencedTable: 'comments.replies' })
         .maybeSingle();
 
       if (error) throw error;
@@ -88,7 +88,7 @@
           )
         `)
         .eq('id', data?.[0]?.id as number)
-        .order('created_at', { referencedTable: 'replies', ascending: false })
+        .order('created_at', { ascending: false, referencedTable: 'replies' })
         .returns<ExtendedComment | undefined>()
         .maybeSingle();
 

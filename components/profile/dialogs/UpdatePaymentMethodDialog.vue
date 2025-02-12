@@ -32,13 +32,13 @@
           },
           style: {
             base: {
-              color: tailwind.theme.colors.primary.DEFAULT,
-              fontFamily: '"Lato", Helvetica, sans-serif',
-              fontSmoothing: 'antialiased',
-              fontSize: '16px',
               '::placeholder': {
                 color: '#aab7c4',
               },
+              color: tailwind.theme.colors.primary.DEFAULT,
+              fontFamily: '"Lato", Helvetica, sans-serif',
+              fontSize: '16px',
+              fontSmoothing: 'antialiased',
             },
             invalid: {
               color: tailwind.theme.colors.destructive.DEFAULT,

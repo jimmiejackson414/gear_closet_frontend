@@ -18,17 +18,17 @@
   const submitting = ref(false);
 
   const formSchema = toTypedSchema(z.object({
+    has_url: z.boolean(),
     title: z.string()
       .min(3)
       .max(50),
-    value: z.string()
-      .min(3)
-      .max(500)
-      .optional(),
-    has_url: z.boolean(),
     url: z.string()
       .url()
       .nullable()
+      .optional(),
+    value: z.string()
+      .min(3)
+      .max(500)
       .optional(),
   })
     .refine(data => !data.has_url || (data.has_url && data.url), {
@@ -36,24 +36,24 @@
       path: ["url"],
     }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting, values, setValues } = useForm({
-    validationSchema: formSchema,
+  const { handleSubmit, isFieldDirty, isSubmitting, setValues, values } = useForm({
     initialValues: {
-      title: props.activeDetail?.title as string,
-      value: props.activeDetail?.value as string,
       has_url: Boolean(props.activeDetail?.url),
+      title: props.activeDetail?.title as string,
       url: props.activeDetail?.url as string,
+      value: props.activeDetail?.value as string,
     },
+    validationSchema: formSchema,
   });
 
   // on open, set the initial values manually
   watch(() => props.isOpen, (newValue) => {
     if (newValue) {
       setValues({
-        title: props.activeDetail?.title as string,
-        value: props.activeDetail?.value as string,
         has_url: Boolean(props.activeDetail?.url),
+        title: props.activeDetail?.title as string,
         url: props.activeDetail?.url as string,
+        value: props.activeDetail?.value as string,
       });
     }
   });
@@ -67,8 +67,8 @@
       const supabase = useSupabaseClient<Database>();
       const payload: TablesUpdate<'trip_details'> = {
         title: v.title,
-        value: v.value,
         url: v.url ? prependProtocol(v?.url as string) : null,
+        value: v.value,
       };
 
       const { data: updatedDetail, error } = await supabase.from('trip_details')

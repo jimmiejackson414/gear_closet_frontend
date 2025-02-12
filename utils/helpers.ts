@@ -87,7 +87,7 @@ export const calculateCategoryQuantity = (category: ExtendedCategory) => {
  */
 export const calculatePackPrices = (pack: ExtendedPack) => {
   const data = {
-    total: 0, base: 0, worn: 0, consumable: 0,
+    base: 0, consumable: 0, total: 0, worn: 0,
   };
 
   if (!pack || !pack?.categories?.length) return data;
@@ -122,7 +122,7 @@ export const calculatePackPrices = (pack: ExtendedPack) => {
  */
 export const calculatePackWeights = (pack: ExtendedPack) => {
   const data = {
-    total: 0, base: 0, worn: 0, consumable: 0,
+    base: 0, consumable: 0, total: 0, worn: 0,
   };
 
   pack?.categories?.forEach(cat => {
@@ -230,7 +230,7 @@ export const formattedMeasuringSystem = [
  * @param options
  * @returns string
  */
-export const friendlyUsername = (user: Tables<'profiles'> | null | undefined, options?: FriendlyUsernameOptions) => {
+export const friendlyUsername = (user: Pick<Tables<'profiles'>, 'first_name' | 'last_name' | 'email' | 'trail_name'> | null | undefined, options?: FriendlyUsernameOptions) => {
   if (!user) return initials(user);
   if (options?.includeTrailName && user.trail_name) {
     return `${user.first_name} "${user.trail_name}" ${user.last_name}`;
@@ -398,13 +398,13 @@ export const truncate = (str: string | null | undefined, num = 100) => {
 export const weightOptions = ({ shortLabel = false } = {}) =>
   Object.values(ItemUnit)
     .map(value => ({
-      value,
       label: shortLabel
         ? value // If shortLabel is true, return the enum value itself (e.g., 'g')
         : value === ItemUnit.g ? 'Grams (g)' :
           value === ItemUnit.kg ? 'Kilograms (kg)' :
             value === ItemUnit.oz ? 'Ounces (oz)' :
               value === ItemUnit.lb ? 'Pounds (lb)' : value,
+      value,
     }));
 
 /**

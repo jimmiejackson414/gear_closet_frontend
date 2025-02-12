@@ -19,54 +19,54 @@ type Actions = {
 };
 
 export const useAppStore = defineStore<'app', State, Getters, Actions>('app', {
-  state () {
-    return {
-      drawer: false,
-      loading: false,
-    };
-  },
-
-  getters: {},
-
   actions: {
     notifyDefault (description, title) {
       const { toast } = useToast();
       toast({
-        title,
         description,
-        variant: 'default',
         icon: IconInfo,
-      });
-    },
-    notifyPositive (description, title) {
-      const { toast } = useToast();
-      toast({
         title,
-        description,
-        variant: 'positive',
-        icon: IconCircleCheck,
-      });
-    },
-    notifyNegative (description, title) {
-      const { toast } = useToast();
-      toast({
-        title,
-        description,
-        variant: 'destructive',
-        icon: IconCircleAlert,
+        variant: 'default',
       });
     },
     notifyInfo (description, title) {
       const { toast } = useToast();
       toast({
-        title,
         description,
-        variant: 'info',
         icon: IconInfo,
+        title,
+        variant: 'info',
+      });
+    },
+    notifyNegative (description, title) {
+      const { toast } = useToast();
+      toast({
+        description,
+        icon: IconCircleAlert,
+        title,
+        variant: 'destructive',
+      });
+    },
+    notifyPositive (description, title) {
+      const { toast } = useToast();
+      toast({
+        description,
+        icon: IconCircleCheck,
+        title,
+        variant: 'positive',
       });
     },
     toggleDrawer () {
       this.drawer = !this.drawer;
     },
+  },
+
+  getters: {},
+
+  state () {
+    return {
+      drawer: false,
+      loading: false,
+    };
   },
 });

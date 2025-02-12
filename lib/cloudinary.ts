@@ -68,8 +68,8 @@ export const fetchAuthImages = async () => {
 };
 
 interface UploadInterface {
-  id: string;
   file: string | File;
+  id: string;
 }
 export const upload = async (input: UploadInterface) => {
   // return await cloudinary.v2.uploader.upload(

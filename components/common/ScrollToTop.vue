@@ -1,8 +1,8 @@
 <script lang='ts' setup>
   // define props
   const props = defineProps({
-    color: { type: String, required: false, default: 'blue-6' },
-    showBelow: { type: Number, required: false, default: 250 },
+    color: { default: 'blue-6', required: false, type: String },
+    showBelow: { default: 250, required: false, type: Number },
   });
 
   // determines whether to show button
@@ -10,7 +10,7 @@
 
   // scrolls to top
   const scrollTop = (): void => {
-    window.scrollTo({ top: 0, left: 0, behavior: 'smooth' });
+    window.scrollTo({ behavior: 'smooth', left: 0, top: 0 });
   };
 
   // scroll listener

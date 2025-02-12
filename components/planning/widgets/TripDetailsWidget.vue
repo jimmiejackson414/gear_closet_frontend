@@ -23,8 +23,8 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
-          trip_id: Number($store.selectedTripId),
           title: 'New detail',
+          trip_id: Number($store.selectedTripId),
           type: TripDetailsType.TRIP,
           value: 'New trip detail description',
         })

@@ -18,7 +18,7 @@
       path: ['passwordConfirm'],
     }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting, resetForm } = useForm({
+  const { handleSubmit, isFieldDirty, isSubmitting, resetForm } = useForm({
     validationSchema: formSchema,
   });
 

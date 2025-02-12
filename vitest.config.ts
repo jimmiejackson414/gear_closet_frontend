@@ -4,8 +4,8 @@ import tsconfigPaths from 'vite-tsconfig-paths';
 export default defineVitestConfig({
   plugins: [tsconfigPaths()],
   test: {
-    globals: true,
     environment: 'nuxt',
+    globals: true,
     include: ['tests/unit/*.spec.ts'],
   },
 });

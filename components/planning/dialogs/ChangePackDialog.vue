@@ -97,9 +97,9 @@
       const user = useSupabaseUser();
       const { data: createdTripPack, error } = await supabase.from('trip_packs')
         .insert([{
-          trip_id: Number($store.selectedTripId),
           pack_id: selectedPackId.value,
           profile_id: user.value?.id,
+          trip_id: Number($store.selectedTripId),
         }])
         .select();
 

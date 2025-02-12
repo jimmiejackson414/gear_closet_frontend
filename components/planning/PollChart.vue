@@ -46,9 +46,9 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newVote, error } = await supabase.from('profile_answers')
         .insert({
-          profile_id: user.value?.id,
           answer_id: answer.id,
           poll_id: props.poll.id,
+          profile_id: user.value?.id,
         })
         .select();
 
@@ -73,8 +73,8 @@
       const { data, error } = await supabase.from('answers')
         .insert({
           content: newAnswer.value,
-          question_id: props.poll.question.id,
           profile_id: user.value?.id,
+          question_id: props.poll.question.id,
         })
         .select();
 
@@ -128,7 +128,7 @@
       </div>
 
       <!-- Show the add answer button if user has not voted yet -->
-      <SlideUpTransition v-if="!hasVoted && poll.answers.length < 6">
+      <slide-up-transition v-if="!hasVoted && poll.answers.length < 6">
         <button-root
           v-if="!isAdding"
           class="justify-self-center"
@@ -152,7 +152,7 @@
             @keyup.enter="createAnswer"
             @keyup.escape="resetNewAnswer" />
         </div>
-      </SlideUpTransition>
+      </slide-up-transition>
     </div>
     <typography class="font-bold text-grey text-right text-sm">
       {{ poll.votes.length }} {{ poll.votes.length === 1 ? 'vote' : 'votes' }}

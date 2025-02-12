@@ -59,14 +59,14 @@ export default defineEventHandler(async (event) => {
     // Update the subscription in Supabase
     const { data: updatedSubscription, error: updatedSubscriptionError } = await supabase.from('subscriptions')
       .update({
-        price_id: price.id,
-        current_period_start: new Date(updatedStripeSubscription.current_period_start)
-          .toISOString(),
+        cancel_at_period_end: updatedStripeSubscription.cancel_at_period_end,
         current_period_end: new Date(updatedStripeSubscription.current_period_end)
+          .toISOString(),
+        current_period_start: new Date(updatedStripeSubscription.current_period_start)
           .toISOString(),
         ended_at: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at)
           .toISOString() : null,
-        cancel_at_period_end: updatedStripeSubscription.cancel_at_period_end,
+        price_id: price.id,
         stripe_subscription_id: updatedStripeSubscription.id,
       })
       .eq('profile_id', user!.id)

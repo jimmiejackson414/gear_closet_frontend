@@ -15,17 +15,17 @@
       const supabase = useSupabaseClient<Database>();
       const { data: createdCategory, error } = await supabase
         .rpc('create_category_and_item', {
-          p_name: 'Miscellaneous',
-          p_pack_id: $store.data.selectedPack?.id as number,
           p_items: [{
-            name: 'Miscellaneous',
-            generic_type: 'Miscellaneous',
-            weight: 0,
-            quantity: 0,
-            price: 0,
             consumable: false,
+            generic_type: 'Miscellaneous',
+            name: 'Miscellaneous',
+            price: 0,
+            quantity: 0,
+            weight: 0,
             worn: false,
           }],
+          p_name: 'Miscellaneous',
+          p_pack_id: $store.data.selectedPack?.id as number,
         })
         .returns<ExtendedCategory>();
 

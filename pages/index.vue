@@ -6,21 +6,21 @@
 
   interface DashboardData {
     friends: ExtendedFriend[];
-    trips: Tables<'trips'>[];
     trip_friends: ExtendedTripFriend[];
+    trips: Tables<'trips'>[];
   }
 
   export interface ForumResponse {
-    latest_posts: ForumPost[];
     categories: ForumCategory[];
+    latest_posts: ForumPost[];
   }
 
   const $store = useAppStore();
   const loading = ref(true);
   const data: DashboardData = reactive({
     friends: [],
-    trips: [],
     trip_friends: [],
+    trips: [],
   });
 
   const forumData = reactive<ForumResponse>({
@@ -77,13 +77,13 @@
   await fetchDashboard();
 
   useHead({
-    title: 'Dashboard',
     meta: [
       {
-        name: 'description',
         content: 'Welcome to your Gear Closet dashboard!',
+        name: 'description',
       },
     ],
+    title: 'Dashboard',
   });
 </script>
 

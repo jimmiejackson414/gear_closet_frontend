@@ -1,4 +1,4 @@
-import { chromium, type FullConfig } from '@playwright/test';
+import { type FullConfig, chromium } from '@playwright/test';
 import dotenv from 'dotenv';
 
 dotenv.config();

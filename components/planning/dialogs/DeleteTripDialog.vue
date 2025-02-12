@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import type { Tables } from '@/types';
 
-  const isOpen = defineModel('isOpen', { default: false, type: Boolean, required: true });
+  const isOpen = defineModel('isOpen', { default: false, required: true, type: Boolean });
 
   const $store = usePlanningStore();
   const isSubmitting = ref(false);
@@ -28,7 +28,9 @@
           <typography class="mb-2">
             Are you sure you want to delete this trip?
           </typography>
-          <typography variant="small">
+          <typography
+            class="font-normal"
+            variant="small">
             Both you and the friends invited to this trip will lose access to all the data associated with this trip.
           </typography>
         </div>

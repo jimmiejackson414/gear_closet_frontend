@@ -1,25 +1,25 @@
 <script lang='ts' setup>
-  definePageMeta({ layout: 'public-layout', colorMode: 'light' });
+  definePageMeta({ colorMode: 'light', layout: 'public-layout' });
 
   useHead({
-    title: 'Terms and Conditions',
     meta: [
       {
-        name: 'description',
-        content: 'Terms and Conditions of Use for Gear Closet'},
+        content: 'Terms and Conditions of Use for Gear Closet',
+        name: 'description'},
     ],
+    title: 'Terms and Conditions',
   });
 
   const tableOfContents = [
-    { id: 'changes', copy: 'Changes to these Terms and Conditions' },
-    { id: 'disclaimer', copy: 'Disclaimer' },
-    { id: 'membership-privileges', copy: 'Membership Privileges' },
-    { id: 'subscription-refund-policy', copy: 'Subscription Refund Policy' },
-    { id: 'fraud-management', copy: 'Fraud Management Policies' },
-    { id: 'security-statement', copy: 'Security Statement' },
-    { id: 'chat-message-board-policy', copy: 'Chat and Message Board Policy' },
-    { id: 'privacy-policy', copy: 'Privacy Policy' },
-    { id: 'disclosure', copy: 'Disclosure' },
+    { copy: 'Changes to these Terms and Conditions', id: 'changes' },
+    { copy: 'Disclaimer', id: 'disclaimer' },
+    { copy: 'Membership Privileges', id: 'membership-privileges' },
+    { copy: 'Subscription Refund Policy', id: 'subscription-refund-policy' },
+    { copy: 'Fraud Management Policies', id: 'fraud-management' },
+    { copy: 'Security Statement', id: 'security-statement' },
+    { copy: 'Chat and Message Board Policy', id: 'chat-message-board-policy' },
+    { copy: 'Privacy Policy', id: 'privacy-policy' },
+    { copy: 'Disclosure', id: 'disclosure' },
   ];
 
   const scrollToSection = (anchor: string): void => {

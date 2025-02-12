@@ -7,8 +7,8 @@
   const submitting = ref(false);
   const file = ref<File | undefined>(undefined);
   const parsingResult = ref<{ status?: 'success' | 'failure', message?: string }>({
-    status: undefined,
     message: undefined,
+    status: undefined,
   });
 
   /**
@@ -18,19 +18,30 @@
     if (!file) return;
     return new Promise((resolve, reject) => {
       const unitMap: Record<string, string> = {
-        ounce: 'oz',
         gram: 'g',
         kilogram: 'kg',
+        ounce: 'oz',
         pound: 'lb',
       };
 
       Papa.parse(file, {
-        header: true,
+        complete: (results: ParseResult<Record<string, unknown>>) => {
+          parsingResult.value = {
+            message: 'Successfully parsed CSV file!',
+            status: 'success',
+          };
+          resolve(results);
+        },
         dynamicTyping: true,
+        error: (err) => {
+          parsingResult.value = {
+            message: 'There was an error parsing the CSV file.',
+            status: 'failure',
+          };
+          reject(err);
+        },
+        header: true,
         skipEmptyLines: true,
-        transformHeader: (header: string) => header.toLowerCase()
-          .trim()
-          .replace(/\s/g, '_'),
         transform: (value: string | number, header: string) => {
           if (header === 'unit' && typeof value === 'string') {
             const normalizedUnit = unitMap[value.toLowerCase()];
@@ -38,20 +49,9 @@
           }
           return value;
         },
-        complete: (results: ParseResult<Record<string, unknown>>) => {
-          parsingResult.value = {
-            status: 'success',
-            message: 'Successfully parsed CSV file!',
-          };
-          resolve(results);
-        },
-        error: (err) => {
-          parsingResult.value = {
-            status: 'failure',
-            message: 'There was an error parsing the CSV file.',
-          };
-          reject(err);
-        },
+        transformHeader: (header: string) => header.toLowerCase()
+          .trim()
+          .replace(/\s/g, '_'),
       });
     });
   };
@@ -69,8 +69,8 @@
       if (parseResults.data?.length) {
         const { data: createdCategory, error } = await supabase
           .rpc('import_csv_data', {
-            p_pack_id: $store.data.selectedPack?.id as number,
             csv_data: parseResults.data,
+            p_pack_id: $store.data.selectedPack?.id as number,
           })
           .returns<ExtendedCategory[]>();
 
@@ -96,8 +96,8 @@
     if (!newValue) {
       file.value = undefined;
       parsingResult.value = {
-        status: undefined,
         message: undefined,
+        status: undefined,
       };
     }
   });

@@ -2,13 +2,13 @@
   import GcLogoIcon from '@/components/icons/GcLogoIcon.vue';
 
   interface Props {
-    title: string;
     subtitle: string;
+    title: string;
   }
 
   withDefaults(defineProps<Props>(), {
-    title: '',
     subtitle: '',
+    title: '',
   });
 </script>
 

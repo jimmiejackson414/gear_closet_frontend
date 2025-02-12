@@ -19,27 +19,27 @@
 
   const $store = usePlanningStore();
   const formSchema = toTypedSchema(z.object({
-    name: z.string()
-      .min(3)
-      .max(50),
+    dateRange: z.array(z.date())
+      .length(2)
+      .optional(),
     description: z.string()
       .min(3)
       .max(500)
-      .optional(),
-    starting_point: z.string()
-      .min(3)
-      .max(50)
       .optional(),
     ending_point: z.string()
       .min(3)
       .max(50)
       .optional(),
-    dateRange: z.array(z.date())
-      .length(2)
+    name: z.string()
+      .min(3)
+      .max(50),
+    starting_point: z.string()
+      .min(3)
+      .max(50)
       .optional(),
   }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
+  const { handleSubmit, isFieldDirty, isSubmitting } = useForm({
     validationSchema: formSchema,
   });
 
@@ -63,13 +63,13 @@
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
       const payload: TablesInsert<'trips'> = {
-        name: values.name,
         description: values.description,
-        starting_point: values.starting_point,
-        ending_point: values.ending_point,
-        starting_date: values.dateRange?.[0].toISOString(),
         ending_date: values.dateRange?.[1].toISOString(),
+        ending_point: values.ending_point,
+        name: values.name,
         profile_id: user.value?.id as string,
+        starting_date: values.dateRange?.[0].toISOString(),
+        starting_point: values.starting_point,
       };
       const { data: createdTrip, error } = await supabase.from('trips')
         .insert([payload])

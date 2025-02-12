@@ -5,20 +5,20 @@ export default defineNuxtConfig({
       meta: [
         // Primary tags
         { "charset": "utf-8" },
-        { "name": "viewport", "content": "width=device-width, initial-scale=1" },
-        { "hid": "description", "name": "description", "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!" },
+        { "content": "width=device-width, initial-scale=1", "name": "viewport" },
+        { "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!", "hid": "description", "name": "description" },
         // Open Graph/ Facebook
-        { "property": "og:type", "content": "website" },
-        { "property": "og:url", "content": "https://app.gearcloset.io/" },
-        { "property": "og:title", "content": "Gear Closet" },
-        { "property": "og:description", "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!" },
-        { "property": "og:image", "content": "/logo-og.jpeg" },
+        { "content": "website", "property": "og:type" },
+        { "content": "https://app.gearcloset.io/", "property": "og:url" },
+        { "content": "Gear Closet", "property": "og:title" },
+        { "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!", "property": "og:description" },
+        { "content": "/logo-og.jpeg", "property": "og:image" },
         // Twitter
-        { "property": "twitter:card", "content": "summary_large_image" },
-        { "property": "twitter:url", "content": "https://app.gearcloset.io/" },
-        { "property": "twitter:title", "content": "Gear Closet" },
-        { "property": "twitter:description", "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!" },
-        { "property": "twitter:image", "content": "/logo-og.jpeg" },
+        { "content": "summary_large_image", "property": "twitter:card" },
+        { "content": "https://app.gearcloset.io/", "property": "twitter:url" },
+        { "content": "Gear Closet", "property": "twitter:title" },
+        { "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!", "property": "twitter:description" },
+        { "content": "/logo-og.jpeg", "property": "twitter:image" },
       ],
     },
   },
@@ -33,11 +33,13 @@ export default defineNuxtConfig({
   },
 
   colorMode: {
-    preference: 'system',
-    fallback: 'light',
     classPrefix: '',
     classSuffix: '',
+    fallback: 'light',
+    preference: 'system',
   },
+
+  compatibilityDate: "2024-12-30",
 
   components: [
     {
@@ -78,38 +80,38 @@ export default defineNuxtConfig({
 
   postcss: {
     plugins: {
-      'tailwindcss/nesting': {},
-      tailwindcss: {},
       autoprefixer: {},
+      tailwindcss: {},
+      'tailwindcss/nesting': {},
     },
   },
 
   runtimeConfig: {
     cloudinaryApiKey: process.env.NUXT_CLOUDINARY_API_KEY,
     cloudinaryApiSecret: process.env.NUXT_CLOUDINARY_API_SECRET,
-    playwrightUsername: process.env.NUXT_PLAYWRIGHT_USERNAME,
-    playwrightPassword: process.env.NUXT_PLAYWRIGHT_PASSWORD,
-    sendgridApiKey: process.env.NUXT_SENDGRID_API_KEY,
     forumsApiKey: process.env.NUXT_PUBLIC_FORUMS_API_KEY,
     forumsApiUsername: process.env.NUXT_PUBLIC_FORUMS_API_USERNAME,
-    stripeWebhookSecret: process.env.NUXT_STRIPE_WEBHOOK_SECRET,
-    stripeSecret: process.env.NUXT_STRIPE_SECRET,
-
+    playwrightPassword: process.env.NUXT_PLAYWRIGHT_PASSWORD,
+    playwrightUsername: process.env.NUXT_PLAYWRIGHT_USERNAME,
     public: {
-      cloudinaryCloudName: process.env.NUXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
       cloudinaryAuthPagesPath: process.env.NUXT_PUBLIC_CLOUDINARY_AUTH_PAGES_PATH,
       cloudinaryAvatarsPath: process.env.NUXT_PUBLIC_CLOUDINARY_AVATARS_PATH,
-      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
-      supabaseKey: process.env.NUXT_PUBLIC_SUPABASE_KEY,
-      forumsUrl: process.env.NUXT_PUBLIC_FORUMS_URL,
+      cloudinaryCloudName: process.env.NUXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
       cookieKey: process.env.NUXT_COOKIE_KEY,
+      forumsUrl: process.env.NUXT_PUBLIC_FORUMS_URL,
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+      supabaseKey: process.env.NUXT_PUBLIC_SUPABASE_KEY,
+      supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
     },
+    sendgridApiKey: process.env.NUXT_SENDGRID_API_KEY,
+    stripeSecret: process.env.NUXT_STRIPE_SECRET,
+
+    stripeWebhookSecret: process.env.NUXT_STRIPE_WEBHOOK_SECRET,
   },
 
   shadcn: {
-    prefix: '',
     componentDir: './components/ui',
+    prefix: '',
   },
 
   stripe: {
@@ -121,17 +123,15 @@ export default defineNuxtConfig({
       secure: process.env.NODE_ENV === 'production',
     },
     redirectOptions: {
-      login: '/login',
       callback: '/callback',
-      exclude: ['/register', '/terms-and-conditions', '/forgot-password', '/p/packs/*'],
       cookieRedirect: true,
+      exclude: ['/register', '/terms-and-conditions', '/forgot-password', '/p/packs/*'],
+      login: '/login',
     },
   },
 
   typescript: {
-    typeCheck: true,
     tsConfig: {
-      include: ['vendor.d.ts'],
       compilerOptions: {
         baseUrl: '.',
         paths: {
@@ -139,7 +139,9 @@ export default defineNuxtConfig({
           '@/*': ['./*'],
         },
       },
+      include: ['vendor.d.ts'],
     },
+    typeCheck: true,
   },
 
   vite: {
@@ -147,6 +149,4 @@ export default defineNuxtConfig({
       include: ['tailwind.config.ts'],
     },
   },
-
-  compatibilityDate: "2024-12-30",
 });

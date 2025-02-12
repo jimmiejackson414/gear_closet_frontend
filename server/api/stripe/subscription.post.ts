@@ -41,8 +41,8 @@ export default defineEventHandler(async (event) => {
     // Create the customer in Stripe
     const stripeCustomer = await stripe.customers.create({
       email: user!.email,
-      name: `${profile.first_name} ${profile!.last_name}`,
       metadata: { profile_id: user!.id },
+      name: `${profile.first_name} ${profile!.last_name}`,
     });
 
     // Create the subscription in Stripe
@@ -54,8 +54,8 @@ export default defineEventHandler(async (event) => {
     // Save the customer in Supabase
     const { data: customer, error: customerError } = await supabase.from('customers')
       .insert({
-        stripe_customer_id: stripeCustomer.id,
         profile_id: user!.id,
+        stripe_customer_id: stripeCustomer.id,
       })
       .select();
 
@@ -69,18 +69,18 @@ export default defineEventHandler(async (event) => {
     // Save the subscription ID to your database
     const { data: sub, error: subscriptionError } = await supabase.from('subscriptions')
       .insert({
-        profile_id: user!.id,
-        status: SubscriptionStatus.active,
-        metadata: { profile_id: user!.id },
-        price_id: price.id,
-        quantity: 1,
         cancel_at_period_end: false,
-        current_period_start: new Date(stripeSubscription.current_period_start * 1000)
-          .toISOString(),
         current_period_end: new Date(stripeSubscription.current_period_end * 1000)
+          .toISOString(),
+        current_period_start: new Date(stripeSubscription.current_period_start * 1000)
           .toISOString(),
         ended_at: stripeSubscription.ended_at ? new Date(stripeSubscription.ended_at * 1000)
           .toISOString() : null,
+        metadata: { profile_id: user!.id },
+        price_id: price.id,
+        profile_id: user!.id,
+        quantity: 1,
+        status: SubscriptionStatus.active,
         stripe_subscription_id: stripeSubscription.id,
       })
       .select();

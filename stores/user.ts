@@ -25,22 +25,45 @@ type Actions = {
 export const useUserStore = defineStore<'user', State, Getters, Actions>(
   'user',
   {
-    state () {
-      return {
-        profile: null,
-      };
-    },
-
-    getters: {
-      isPaidMember () {
-        return this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.ANNUAL || this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.MONTHLY || this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.LIFE;
-      },
-      unreadNotifications () {
-        return this.profile?.notifications.filter((n: Tables<'notifications'>) => !n.read_on_date);
-      },
-    },
-
     actions: {
+      async deleteAvatar () {
+        try {
+          const supabase = useSupabaseClient<Database>();
+          const user = useSupabaseUser();
+
+          // get the list of files in the user's avatar directory
+          const { data: files, error: listError } = await supabase.storage.from('avatars')
+            .list(`${user.value!.id}/`);
+
+          if (listError) return { success: false };
+
+          // if there are any files in the directory, delete them
+          if (files?.length > 0) {
+            const { error: deleteError } = await supabase.storage.from('avatars')
+              .remove([`${user.value!.id}/${files[0].name}`]);
+            if (deleteError) return { success: false };
+          }
+
+          return { success: true };
+        } catch (err) {
+          return { success: false };
+        }
+      },
+
+      async fetchNotification (id) {
+        const supabase = useSupabaseClient<Database>();
+
+        const { data } = await supabase.from('notifications')
+          .select('*, sender:sender_id(*)')
+          .eq('id', id)
+          .single();
+
+        if (data) {
+          const i = this.profile!.notifications.findIndex((n: Tables<'notifications'>) => n.id === id);
+          this.profile!.notifications[i] = data as any;
+        }
+      },
+
       async fetchProfile () {
         const $store = useAppStore();
 
@@ -77,36 +100,6 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         }
       },
 
-      async fetchNotification (id) {
-        const supabase = useSupabaseClient<Database>();
-
-        const { data } = await supabase.from('notifications')
-          .select('*, sender:sender_id(*)')
-          .eq('id', id)
-          .single();
-
-        if (data) {
-          const i = this.profile!.notifications.findIndex((n: Tables<'notifications'>) => n.id === id);
-          this.profile!.notifications[i] = data as any;
-        }
-      },
-
-      async subscribeToNotifications () {
-        const supabase = useSupabaseClient<Database>();
-
-        supabase.channel('notifications')
-          .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'notifications' },
-            ({ eventType, new: newNotification }) => {
-              if (eventType === 'INSERT' || eventType === 'UPDATE') {
-                this.fetchNotification(newNotification.id);
-              }
-            },
-          )
-          .subscribe();
-      },
-
       async markAllAsRead () {
         const supabase = useSupabaseClient<Database>();
         const user = useSupabaseUser();
@@ -128,28 +121,20 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         }
       },
 
-      async deleteAvatar () {
-        try {
-          const supabase = useSupabaseClient<Database>();
-          const user = useSupabaseUser();
+      async subscribeToNotifications () {
+        const supabase = useSupabaseClient<Database>();
 
-          // get the list of files in the user's avatar directory
-          const { data: files, error: listError } = await supabase.storage.from('avatars')
-            .list(`${user.value!.id}/`);
-
-          if (listError) return { success: false };
-
-          // if there are any files in the directory, delete them
-          if (files?.length > 0) {
-            const { error: deleteError } = await supabase.storage.from('avatars')
-              .remove([`${user.value!.id}/${files[0].name}`]);
-            if (deleteError) return { success: false };
-          }
-
-          return { success: true };
-        } catch (err) {
-          return { success: false };
-        }
+        supabase.channel('notifications')
+          .on(
+            'postgres_changes',
+            { event: '*', schema: 'public', table: 'notifications' },
+            ({ eventType, new: newNotification }) => {
+              if (eventType === 'INSERT' || eventType === 'UPDATE') {
+                this.fetchNotification(newNotification.id);
+              }
+            },
+          )
+          .subscribe();
       },
 
       async updateAvatar (file) {
@@ -204,6 +189,21 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           return { success: false };
         }
       },
+    },
+
+    getters: {
+      isPaidMember () {
+        return this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.ANNUAL || this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.MONTHLY || this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.LIFE;
+      },
+      unreadNotifications () {
+        return this.profile?.notifications.filter((n: Tables<'notifications'>) => !n.read_on_date);
+      },
+    },
+
+    state () {
+      return {
+        profile: null,
+      };
     },
   },
 );

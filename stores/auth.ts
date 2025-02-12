@@ -1,6 +1,6 @@
+import type { User } from '@supabase/supabase-js';
 import { defineStore } from 'pinia';
 import type { RouteLocation } from 'vue-router';
-import type { User } from '@supabase/supabase-js';
 
 type State = {
   redirectRoute: Partial<RouteLocation> | null;
@@ -20,12 +20,33 @@ type Actions = {
 export const useAuthStore = defineStore<'auth', State, Getters, Actions>(
   'auth',
   {
-    state () {
-      return {
-        session: null,
-        redirectRoute: null,
-        loading: false,
-      };
+    actions: {
+      clearRedirectRoute () {
+        localStorage.removeItem('redirectRoute');
+        this.redirectRoute = null;
+      },
+
+      loadRedirectRoute () {
+        const route = JSON.parse(
+          localStorage.getItem('redirectRoute') || 'null',
+        ) as Partial<RouteLocation> | null;
+
+        this.redirectRoute = route;
+      },
+
+      saveRedirectRoute (route: Partial<RouteLocation>) {
+        const { hash, name, params, query } = route;
+
+        localStorage.setItem(
+          'redirectRoute',
+          JSON.stringify({
+            hash,
+            name,
+            params,
+            query,
+          }),
+        );
+      },
     },
 
     getters: {
@@ -37,33 +58,12 @@ export const useAuthStore = defineStore<'auth', State, Getters, Actions>(
       },
     },
 
-    actions: {
-      saveRedirectRoute (route: Partial<RouteLocation>) {
-        const { name, params, query, hash } = route;
-
-        localStorage.setItem(
-          'redirectRoute',
-          JSON.stringify({
-            name,
-            params,
-            query,
-            hash,
-          }),
-        );
-      },
-
-      loadRedirectRoute () {
-        const route = JSON.parse(
-          localStorage.getItem('redirectRoute') || 'null',
-        ) as Partial<RouteLocation> | null;
-
-        this.redirectRoute = route;
-      },
-
-      clearRedirectRoute () {
-        localStorage.removeItem('redirectRoute');
-        this.redirectRoute = null;
-      },
+    state () {
+      return {
+        loading: false,
+        redirectRoute: null,
+        session: null,
+      };
     },
   },
 );

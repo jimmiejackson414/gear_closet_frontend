@@ -16,7 +16,7 @@
       .min(8),
   }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
+  const { handleSubmit, isFieldDirty, isSubmitting } = useForm({
     validationSchema: formSchema,
   });
 

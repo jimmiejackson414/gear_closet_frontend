@@ -1,12 +1,12 @@
 <script lang='ts' setup>
   interface Props {
-    variant?: 'primary' | 'default';
     size?: 'sm' | 'md' | 'lg';
+    variant?: 'primary' | 'default';
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    variant: 'default',
     size: 'md',
+    variant: 'default',
   });
 
   const fillClass = computed(() => {

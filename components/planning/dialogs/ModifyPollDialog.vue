@@ -4,9 +4,9 @@
   import type { ExtendedPoll } from '@/types/helpers';
 
   interface Props {
+    form: { question: Tables<'questions'>, answers: Tables<'answers'>[]}
     isOpen: boolean;
     state: 'create' | 'edit';
-    form: { question: Tables<'questions'>, answers: Tables<'answers'>[]}
   }
 
   const props = defineProps<Props>();
@@ -25,9 +25,9 @@
       isSubmitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const { data: updatedPoll, error } = await supabase.rpc('update_poll', {
+        answers: localForm.answers.map(a => a.content) as string[],
         poll_id: $store.data.poll?.id as number,
         question: localForm.question?.title as string,
-        answers: localForm.answers.map(a => a.content) as string[],
       })
         .returns<ExtendedPoll>()
         .select();
@@ -50,9 +50,9 @@
       isSubmitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const { data: newPoll, error } = await supabase.rpc('create_poll', {
-        trip_id: Number($store.selectedTripId),
-        question: localForm.question?.title as string,
         answers: localForm.answers.map(a => a.content) as string[],
+        question: localForm.question?.title as string,
+        trip_id: Number($store.selectedTripId),
       })
         .returns<ExtendedPoll>()
         .single();
@@ -72,12 +72,12 @@
    */
   const addAnswer = () => {
     localForm.answers.push({
-      id: 0,
-      question_id: 0,
-      created_at: '',
-      updated_at: '',
-      profile_id: '',
       content: '',
+      created_at: '',
+      id: 0,
+      profile_id: '',
+      question_id: 0,
+      updated_at: '',
     });
   };
 

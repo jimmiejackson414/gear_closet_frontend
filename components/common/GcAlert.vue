@@ -1,14 +1,14 @@
 <script lang='ts' setup>
   interface Props {
-    severity?: Severity;
     message: string;
+    severity?: Severity;
   }
 
   export type Severity = 'error' | 'warning' | 'positive' | 'info';
 
   const props = withDefaults(defineProps<Props>(), {
-    severity: 'error',
     message: '',
+    severity: 'error',
   });
 
   const classList = computed(() => {

@@ -39,9 +39,9 @@
       // insert and return reply
       const { data, error } = await supabase.from('replies')
         .insert({
-          text,
           comment_id: props.comment.id,
           profile_id: user.value?.id as string,
+          text,
         })
         .select(`
           *,

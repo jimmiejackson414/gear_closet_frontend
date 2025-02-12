@@ -79,8 +79,8 @@
       const supabase = useSupabaseClient<Database>();
       const { error: updateError } = await supabase
         .from('trip_friends')
-        .update({ status: TripFriendStatus.ACCEPTED, accepted_invite_on: new Date()
-          .toISOString() })
+        .update({ accepted_invite_on: new Date()
+          .toISOString(), status: TripFriendStatus.ACCEPTED })
         .eq('id', invite.id);
 
       if (updateError) throw new Error();

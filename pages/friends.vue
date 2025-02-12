@@ -115,13 +115,13 @@
   }, 500));
 
   useHead({
-    title: 'Friends',
     meta: [
       {
-        name: 'description',
         content: 'Find new friends and manage your current friends.',
+        name: 'description',
       },
     ],
+    title: 'Friends',
   });
 </script>
 

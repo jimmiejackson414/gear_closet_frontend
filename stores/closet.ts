@@ -3,12 +3,12 @@ import type { Database, Tables, TablesUpdate } from "@/types";
 import type { ExtendedCategoryItem, ExtendedPack, PublicPack } from "@/types/helpers";
 
 export interface ClosetPageData {
-  selectedPack?: ExtendedPack | PublicPack;
   allPacks: {
     id: number;
     name: string;
     slug: string;
   }[];
+  selectedPack?: ExtendedPack | PublicPack;
 
 }
 
@@ -51,61 +51,7 @@ type Actions = {
 export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
   'closet',
   {
-    state: () => ({
-      activeCategoryId: undefined,
-      activeItem: undefined,
-      data: {
-        selectedPack: undefined,
-        allPacks: [],
-      },
-      dialogStates: {
-        addUrlDialog: false,
-        deleteCategoryDialog: false,
-        deletePackDialog: false,
-        managePackSettingsDialog: false,
-        removeItemDialog: false,
-        sharePackDialog: false,
-        uploadCsvDialog: false,
-      },
-      pageLoading: true,
-    }),
-
-    getters: {
-      isPublicRoute (): boolean {
-        const $route = useRoute();
-        return $route.meta.public as boolean || false;
-      },
-    },
-
     actions: {
-      /**
-       * Fetches the planning page data.
-       * @param packId The pack id.
-       * @returns The planning page data.
-       */
-      async fetchClosetPage (packId) {
-        const $store = useAppStore();
-        this.pageLoading = true;
-
-        try {
-          const supabase = useSupabaseClient<Database>();
-
-          const { data: pageData, error } = await supabase
-            .rpc('get_closet_page_data', { p_pack_id: packId || 0 })
-            .returns<ClosetPageResponse>();
-
-          if (error) throw new Error(error.message);
-          if (!error && pageData) {
-            this.data.selectedPack = pageData.pack;
-            this.data.allPacks = pageData.packs || [];
-          }
-        } catch (err: any) {
-          $store.notifyNegative('An error occurred fetching the closet page.');
-        } finally {
-          this.pageLoading = false;
-        }
-      },
-
       /**
        * Optimistically creates a new item.
        * @param categoryId The category id.
@@ -127,15 +73,15 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
 
           // Optimistic update for category item
           const optimisticCategoryItem = {
-            id: 0,
             category_id: categoryId,
-            item_id: optimisticItem.id,
-            position: (category?.category_items?.length ?? 0) + 1,
             created_at: new Date()
               .toISOString(),
+            id: 0,
+            item: optimisticItem,
+            item_id: optimisticItem.id,
+            position: (category?.category_items?.length ?? 0) + 1,
             updated_at: new Date()
               .toISOString(),
-            item: optimisticItem,
           };
 
           // Optimistically update category's category_items
@@ -170,8 +116,8 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
           const finalCategoryItem = {
             ...optimisticCategoryItem,
             id: createdCategoryItem[0].id,
-            item_id: createdItem[0].id,
             item: createdItem[0],
+            item_id: createdItem[0].id,
           };
 
           // Final optimistic update of category items
@@ -189,6 +135,34 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
             category.category_items = category.category_items.filter(item => item.id !== 0);
           }
           $store.notifyNegative('Error creating item');
+        }
+      },
+
+      /**
+       * Fetches the planning page data.
+       * @param packId The pack id.
+       * @returns The planning page data.
+       */
+      async fetchClosetPage (packId) {
+        const $store = useAppStore();
+        this.pageLoading = true;
+
+        try {
+          const supabase = useSupabaseClient<Database>();
+
+          const { data: pageData, error } = await supabase
+            .rpc('get_closet_page_data', { p_pack_id: packId || 0 })
+            .returns<ClosetPageResponse>();
+
+          if (error) throw new Error(error.message);
+          if (!error && pageData) {
+            this.data.selectedPack = pageData.pack;
+            this.data.allPacks = pageData.packs || [];
+          }
+        } catch (err: any) {
+          $store.notifyNegative('An error occurred fetching the closet page.');
+        } finally {
+          this.pageLoading = false;
         }
       },
 
@@ -310,5 +284,31 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
         }
       },
     },
+
+    getters: {
+      isPublicRoute (): boolean {
+        const $route = useRoute();
+        return $route.meta.public as boolean || false;
+      },
+    },
+
+    state: () => ({
+      activeCategoryId: undefined,
+      activeItem: undefined,
+      data: {
+        allPacks: [],
+        selectedPack: undefined,
+      },
+      dialogStates: {
+        addUrlDialog: false,
+        deleteCategoryDialog: false,
+        deletePackDialog: false,
+        managePackSettingsDialog: false,
+        removeItemDialog: false,
+        sharePackDialog: false,
+        uploadCsvDialog: false,
+      },
+      pageLoading: true,
+    }),
   },
 );

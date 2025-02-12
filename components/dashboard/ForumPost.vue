@@ -3,8 +3,8 @@
   import type { ForumPost } from '@/types/helpers';
 
   interface Props {
-    post: ForumPost;
     hasForumAccess: boolean;
+    post: ForumPost;
   }
 
   const props = defineProps<Props>();

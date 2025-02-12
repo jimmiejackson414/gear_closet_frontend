@@ -8,8 +8,8 @@
   interface Props {
     disabled?: boolean;
     loading?: boolean;
-    options: SelectOption[];
     modelValue: string;
+    options: SelectOption[];
     placeholder?: string;
   }
 
@@ -54,9 +54,7 @@
       </button-root>
     </popover-trigger>
     <popover-content class="p-0 w-[--radix-popover-trigger-width]">
-      <command
-        :should-filter="false"
-        @update:search-term="emit('update:searchTerm', $event)">
+      <command @update:search-term="emit('update:searchTerm', $event)">
         <command-input
           class="h-9"
           placeholder="Search..." />
@@ -66,14 +64,16 @@
             <command-item
               v-for="option in options"
               :key="option.value"
-              :value="option.value"
+              :value="option.label"
               @select="() => selectOption(option.value as string)">
+              <icon-check
+                v-if="value === option.value"
+                class="h-4 mr-2 w-4" />
               <slot
                 name="option"
                 :option="option">
                 {{ option.label }}
               </slot>
-              <icon-check :class="cn('ml-auto h-4 w-4', value === option.value ? 'opacity-100' : 'opacity-0')" />
             </command-item>
           </command-group>
         </command-list>

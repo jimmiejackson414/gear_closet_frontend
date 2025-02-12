@@ -1,18 +1,53 @@
 <script lang='ts' setup>
-  import type { Tables } from '@/types';
+  import type { Database, Tables } from '@/types';
+  import type { SelectOption } from '@/types/helpers';
 
-  const isOpen = defineModel('isOpen', { default: false, type: Boolean, required: true });
+  const isOpen = defineModel('isOpen', { default: false, required: true, type: Boolean });
 
+  const $appStore = useAppStore();
   const $store = usePlanningStore();
   const isSubmitting = ref(false);
 
   /**
    * Transfers ownership of the current trip.
    */
+  const selectedTransferUserId = ref<string | undefined>(undefined);
+  const searchQuery = ref('');
+  const supabase = useSupabaseClient<Database>();
   const transferTripOwnership = async () => {
-    // TODO: implement
-    // NOTE: This is only allowed for trip owners transferring ownership to other trip members
+    try {
+      isSubmitting.value = true;
+
+      const { data, error } = await supabase
+        .from('trips')
+        .update({ profile_id: selectedTransferUserId.value })
+        .eq('id', Number($store.selectedTripId))
+        .select();
+
+      if (!data || error) throw error;
+      $appStore.notifyPositive('Trip ownership transferred successfully.');
+    } catch (err) {
+      $appStore.notifyNegative('There was an error transferring the trip.');
+    } finally {
+      isSubmitting.value = false;
+    }
   };
+
+  const selectOptions = ref<SelectOption[]>([]);
+  watch(isOpen, (newIsOpen) => {
+    if (newIsOpen) {
+      searchQuery.value = '';
+      selectedTransferUserId.value = undefined;
+      // @ts-ignore
+      selectOptions.value = $store.data.friends.map(f => ({ label: friendlyUsername(f.profile), value: f.profile_id }));
+    }
+  });
+
+  const selectedFriend = computed(() => {
+    if (!selectedTransferUserId.value) return undefined;
+    // @ts-ignore
+    return $store.data.friends.find(f => f.profile_id === selectedTransferUserId.value);
+  });
 </script>
 
 <template>
@@ -23,13 +58,20 @@
           Transfer ownership of the "{{ $store.data.trips.find((t: Tables<'trips'>) => t.id === Number($store.selectedTripId))?.name }}" trip?
         </alert-dialog-title>
       </alert-dialog-header>
-      <div class="flex items-center mb-4 space-x-2">
-        <div class="flex flex-col">
-          <typography class="mb-2">
-            Are you sure you want to transfer this trip to {{ `TEST` }}?
+      <div class="flex items-start flex-col mb-4 space-x-2">
+        <combobox
+          :model-value="(selectedTransferUserId as string)"
+          :options="selectOptions"
+          placeholder="Select a member of this trip"
+          @update:model-value="selectedTransferUserId = $event" />
+        <div
+          v-if="selectedFriend"
+          class="flex flex-col mt-4">
+          <typography>
+            Are you sure you want to transfer this trip to {{ friendlyUsername(selectedFriend.profile) }}?
           </typography>
-          <typography variant="small">
-            This will allow {{ `TEST` }} to manage the trip and its data.
+          <typography>
+            This will allow {{ selectedFriend.profile.first_name }} to manage the trip and its data.
           </typography>
         </div>
       </div>
@@ -43,7 +85,7 @@
           Cancel
         </button-root>
         <button-root
-          :disabled="isSubmitting"
+          :disabled="isSubmitting || !selectedTransferUserId"
           :loading="isSubmitting"
           variant="destructive"
           @click="transferTripOwnership">

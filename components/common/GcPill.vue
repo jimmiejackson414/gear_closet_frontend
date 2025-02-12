@@ -1,13 +1,13 @@
 <script lang='ts' setup>
   interface Props {
     copy: string;
-    variant?: 'primary' | 'positive' | 'secondary' | 'warning' | 'danger';
     size?: 'sm' | 'md' | 'lg';
+    variant?: 'primary' | 'positive' | 'secondary' | 'warning' | 'danger';
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    variant: 'primary',
     size: 'md',
+    variant: 'primary',
   });
 
   const computedClasses = computed(() => {

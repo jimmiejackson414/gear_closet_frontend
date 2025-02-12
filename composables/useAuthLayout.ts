@@ -13,9 +13,9 @@ const useAuthLayout = async  () => {
     const rand = Math.round(Math.random() * (14 - 1) + 1);
     const newImage = cld.image(`${runtimeConfig.public.cloudinaryAuthPagesPath}/background${rand}`);
     return {
+      fill: logoColor(newImage),
       image: newImage.format('auto')
         .toURL(),
-      fill: logoColor(newImage),
     };
   };
 

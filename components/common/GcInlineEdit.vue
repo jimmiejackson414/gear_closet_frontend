@@ -4,27 +4,27 @@
   import { cn } from '@/lib/utils';
 
   interface Props {
+    hideEditBtn?: boolean;
+    inputClasses?: string;
     name: string;
     placeholder?: string;
-    hideEditBtn?: boolean;
-    type?: string;
     size?: 'sm' | 'md' | 'lg';
-    inputClasses?: string;
     spanClasses?: string;
+    type?: string;
   }
 
   withDefaults(defineProps<Props>(), {
-    placeholder: '',
     hideEditBtn: false,
-    type: 'text',
-    size: 'md',
     inputClasses: 'w-full',
+    placeholder: '',
+    size: 'md',
     spanClasses: undefined,
+    type: 'text',
   });
 
   const modelValue = defineModel<string | number | null>({
-    required: false,
     default: null,
+    required: false,
   });
 
   const isEditing = ref(false);

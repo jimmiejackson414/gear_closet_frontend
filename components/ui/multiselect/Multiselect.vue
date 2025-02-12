@@ -128,7 +128,7 @@
         <command-empty v-else-if="!options.length && searchTerm && !loading">
           Your search for {{ searchTerm }} returned no results.
         </command-empty>
-        <command-list class="bg-popover border w-[--radix-popper-anchor-width]">
+        <command-list class="bg-popover border relative w-[--radix-popper-anchor-width]">
           <command-group>
             <command-item
               v-for="option in filteredOptions"

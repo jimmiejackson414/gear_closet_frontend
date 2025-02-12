@@ -43,14 +43,15 @@
               Leave Trip
             </dropdown-menu-item>
             <dropdown-menu-item
-              v-else
-              @select="isLeaveTripDialogOpen = true">
-              Delete Trip
+              v-if="isTripOwner"
+              @select="isTransferTripDialogOpen = true">
+              Transfer Trip Ownership
             </dropdown-menu-item>
             <dropdown-menu-item
               v-if="isTripOwner"
-              @select="isLeaveTripDialogOpen = true">
-              Transfer Trip Ownership
+              class="text-destructive"
+              @select="isDeleteTripDialogOpen = true">
+              Delete Trip
             </dropdown-menu-item>
           </dropdown-menu-content>
         </dropdown-menu>

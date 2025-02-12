@@ -19,13 +19,13 @@
 
   const activeStep = ref(1);
   const steps = [
-    { step: 1, title: 'Subscription', icon: IconCheckCircle },
-    { step: 2, title: 'Confirm', icon: IconHeart },
+    { icon: IconCheckCircle, step: 1, title: 'Subscription' },
+    { icon: IconHeart, step: 2, title: 'Confirm' },
   ];
 
   const stepTwoCopy = computed(() => {
     const currentPlan = props.subscriptionData.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() as SubscriptionLevel;
-    const planLevels = { [SubscriptionLevel.FREE]: 1, [SubscriptionLevel.MONTHLY]: 2, [SubscriptionLevel.ANNUAL]: 3, [SubscriptionLevel.LIFE]: 4 };
+    const planLevels = { [SubscriptionLevel.ANNUAL]: 3, [SubscriptionLevel.FREE]: 1, [SubscriptionLevel.LIFE]: 4, [SubscriptionLevel.MONTHLY]: 2 };
     const currentLevel = planLevels[currentPlan];
     const newLevel = planLevels[activePlan.value as SubscriptionLevel];
 

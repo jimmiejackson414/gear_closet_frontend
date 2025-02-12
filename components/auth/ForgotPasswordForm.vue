@@ -12,7 +12,7 @@
       .email(),
   }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
+  const { handleSubmit, isFieldDirty, isSubmitting } = useForm({
     validationSchema: formSchema,
   });
 
