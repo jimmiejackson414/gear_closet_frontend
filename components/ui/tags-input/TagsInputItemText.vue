@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { computed, type HTMLAttributes } from 'vue';
   import { TagsInputItemText, type TagsInputItemTextProps, useForwardProps } from 'radix-vue';
-  import { type HTMLAttributes, computed } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<TagsInputItemTextProps & { class?: HTMLAttributes['class'] }>();

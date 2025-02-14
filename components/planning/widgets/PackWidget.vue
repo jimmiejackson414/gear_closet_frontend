@@ -1,15 +1,15 @@
 <script lang='ts' setup>
+  import VChart from 'vue-echarts';
   import convert from 'convert';
-  import type { EChartsOption } from 'echarts';
   import { PieChart } from 'echarts/charts';
   import { GridComponent, LegendComponent, PolarComponent, TitleComponent, TooltipComponent } from 'echarts/components';
   import { use } from 'echarts/core';
   import { CanvasRenderer } from 'echarts/renderers';
   import round from 'lodash.round';
-  import VChart from 'vue-echarts';
+  import { findTheme } from '@/utils/chartTheme';
   import type { Theme } from '@/types';
   import type { ExtendedCategory } from '@/types/helpers';
-  import { findTheme } from '@/utils/chartTheme';
+  import type { EChartsOption } from 'echarts';
 
   use([
     CanvasRenderer,

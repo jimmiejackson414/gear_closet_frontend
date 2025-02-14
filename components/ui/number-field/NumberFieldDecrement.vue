@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { NumberFieldDecrement, useForwardProps } from 'radix-vue';
-  import type { NumberFieldDecrementProps } from 'radix-vue';
   import { type HTMLAttributes } from 'vue';
+  import { NumberFieldDecrement, useForwardProps } from 'radix-vue';
   import { cn } from '@/lib/utils';
+  import type { NumberFieldDecrementProps } from 'radix-vue';
 
   const props = defineProps<NumberFieldDecrementProps & { class?: HTMLAttributes['class'] }>();
 

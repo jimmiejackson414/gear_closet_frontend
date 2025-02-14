@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { SelectScrollUpButton, type SelectScrollUpButtonProps, useForwardProps } from 'radix-vue';
   import { type HTMLAttributes } from 'vue';
+  import { SelectScrollUpButton, type SelectScrollUpButtonProps, useForwardProps } from 'radix-vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<SelectScrollUpButtonProps & { class?: HTMLAttributes['class'] }>();

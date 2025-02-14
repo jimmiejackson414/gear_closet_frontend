@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { ComboboxInput, type ComboboxInputProps, useForwardProps } from 'radix-vue';
   import { type HTMLAttributes } from 'vue';
-  import { CommandCancel } from '.';
+  import { ComboboxInput, type ComboboxInputProps, useForwardProps } from 'radix-vue';
   import { cn } from '@/lib/utils';
+  import { CommandCancel } from '.';
 
   defineOptions({
     inheritAttrs: false,

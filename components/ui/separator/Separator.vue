@@ -1,11 +1,11 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { computed, type HTMLAttributes } from 'vue';
   import { Separator, type SeparatorProps } from 'radix-vue';
-  import { type HTMLAttributes, computed } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<
-    SeparatorProps & { class?: HTMLAttributes['class'], label?: string, forceColorMode?: 'light' | 'dark' }
+    SeparatorProps & { class?: HTMLAttributes['class'], forceColorMode?: 'dark' | 'light'; label?: string, }
   >();
 
   const delegatedProps = computed(() => {

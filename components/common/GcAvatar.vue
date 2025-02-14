@@ -5,7 +5,7 @@
     border?: boolean;
     class?: string;
     initials?: string;
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
+    size?: 'lg' | 'md' | 'sm' | 'xl' | 'xs';
     url?: string;
   }
 

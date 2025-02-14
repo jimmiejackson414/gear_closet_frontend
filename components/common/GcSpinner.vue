@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   interface Props {
-    size?: 'sm' | 'md' | 'lg';
-    variant?: 'primary' | 'default';
+    size?: 'lg' | 'md' | 'sm';
+    variant?: 'default' | 'primary';
   }
 
   const props = withDefaults(defineProps<Props>(), {

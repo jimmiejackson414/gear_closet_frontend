@@ -28,8 +28,8 @@
       // update friend request status
       const { data, error } = await supabase.from('friend_invitations')
         .update({
-          status: FriendRequestStatus.ACCEPTED,
           request_responded_at: acceptedAt,
+          status: FriendRequestStatus.ACCEPTED,
         })
         .eq('id', props.friend.id)
         .select();
@@ -40,8 +40,8 @@
       const { error: insertError } = await supabase
         .from('friends')
         .insert([
-          { profile_id: data[0].recipient_id, friend_id: data[0].sender_id },
-          { profile_id: data[0].sender_id, friend_id: data[0].recipient_id },
+          { friend_id: data[0].sender_id, profile_id: data[0].recipient_id },
+          { friend_id: data[0].recipient_id, profile_id: data[0].sender_id },
         ]);
 
       if (insertError) throw new Error();
@@ -59,9 +59,9 @@
       await supabase.from('notifications')
         .insert([
           {
-            title: 'Friend Request Accepted',
             content,
             profile_id: newFriend.profile_id,
+            title: 'Friend Request Accepted',
           },
         ]);
 
@@ -87,9 +87,9 @@
       submittingDecline.value = true;
       const { error } = await supabase.from('friend_invitations')
         .update({
-          status: FriendRequestStatus.DECLINED,
           request_responded_at: new Date()
             .toISOString(),
+          status: FriendRequestStatus.DECLINED,
         })
         .eq('id', props.friend.id)
         .select();

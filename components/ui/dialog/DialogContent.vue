@@ -1,5 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { type HTMLAttributes } from 'vue';
   import {
     DialogClose,
     DialogContent,
@@ -9,7 +10,6 @@
     DialogPortal,
     useForwardPropsEmits,
   } from 'radix-vue';
-  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'] }>();

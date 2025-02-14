@@ -1,10 +1,10 @@
 import convert from 'convert';
-import type { Mass } from 'convert';
 import Dinero from 'dinero.js';
-import type { Currency } from 'dinero.js';
 import { v4 as uuidv4 } from 'uuid';
 import { type Database, ItemUnit, MeasuringSystem, type Tables, type TablesInsert } from '@/types';
 import type { ExtendedCategory, ExtendedPack, ExtendedUser } from '@/types/helpers';
+import type { Mass } from 'convert';
+import type { Currency } from 'dinero.js';
 
 interface FriendlyUsernameOptions {
   includeTrailName?: boolean;
@@ -15,7 +15,7 @@ interface FriendlyUsernameOptions {
  * @param url
  * @returns string | undefined
  */
-export const buildImageSrc = (url: string | undefined | null) => {
+export const buildImageSrc = (url: string | null | undefined) => {
   if (!url) return undefined;
   const supabase = useSupabaseClient<Database>();
   const { data } = supabase.storage.from('avatars')
@@ -166,7 +166,7 @@ export const calculatePackWeights = (pack: ExtendedPack) => {
  * @param text
  * @returns string
  */
-export const capitalize = (text: string | undefined | null) => {
+export const capitalize = (text: string | null | undefined) => {
   if (!text) return '';
   return text
     .toLowerCase()
@@ -230,7 +230,7 @@ export const formattedMeasuringSystem = [
  * @param options
  * @returns string
  */
-export const friendlyUsername = (user: Pick<Tables<'profiles'>, 'first_name' | 'last_name' | 'email' | 'trail_name'> | null | undefined, options?: FriendlyUsernameOptions) => {
+export const friendlyUsername = (user: Pick<Tables<'profiles'>, 'email' | 'first_name' | 'last_name' | 'trail_name'> | null | undefined, options?: FriendlyUsernameOptions) => {
   if (!user) return initials(user);
   if (options?.includeTrailName && user.trail_name) {
     return `${user.first_name} "${user.trail_name}" ${user.last_name}`;

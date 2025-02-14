@@ -13,11 +13,11 @@ type Getters = {
 };
 
 type Actions = {
-  fetchProfile(): void;
-  fetchNotification (id: number | string): void;
-  subscribeToNotifications(): void;
-  markAllAsRead(): void;
   deleteAvatar(): Promise<{ success: boolean }>
+  fetchNotification (id: number | string): void;
+  fetchProfile(): void;
+  markAllAsRead(): void;
+  subscribeToNotifications(): void;
   updateAvatar(file: File): Promise<{ success: boolean }>;
   updateProfile(profile: TablesUpdate<'profiles'>): Promise<{ success: boolean }>;
 };

@@ -18,4 +18,5 @@
     "titleBar.inactiveBackground": "#469954"
   },
   "typescript.tsdk": "node_modules/typescript/lib",
+  "postman.settings.dotenv-detection-notification-visibility": false,
 }

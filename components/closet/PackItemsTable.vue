@@ -1,11 +1,12 @@
 <script lang='ts' setup>
-  import { type Mass } from 'convert';
-  import { type DraggableEvent, vDraggable } from 'vue-draggable-plus';
+  import { vDraggable } from 'vue-draggable-plus';
   import { SelectContent , SelectGroup, SelectItem, SelectRoot, SelectTrigger, Typography } from '#components';
   import GcInlineEdit from '@/components/common/GcInlineEdit.vue';
   import { cn } from '@/lib/utils';
-  import type { TablesUpdate } from '@/types';
   import { weightOptions } from '@/utils/helpers';
+  import type { TablesUpdate } from '@/types';
+  import type { Mass } from 'convert';
+  import type { DraggableEvent } from 'vue-draggable-plus';
 
   const $store = useClosetStore();
   const emit = defineEmits([

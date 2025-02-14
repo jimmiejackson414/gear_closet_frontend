@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { NumberFieldIncrement, useForwardProps } from 'radix-vue';
-  import type { NumberFieldIncrementProps } from 'radix-vue';
   import { type HTMLAttributes } from 'vue';
+  import { NumberFieldIncrement, useForwardProps } from 'radix-vue';
   import { cn } from '@/lib/utils';
+  import type { NumberFieldIncrementProps } from 'radix-vue';
 
   const props = defineProps<NumberFieldIncrementProps & { class?: HTMLAttributes['class'] }>();
 

@@ -1774,16 +1774,16 @@ export type CompositeTypes<
 
 
 export enum FriendRequestStatus {
-  PENDING = "PENDING",
   ACCEPTED = "ACCEPTED",
-  DECLINED = "DECLINED"
+  DECLINED = "DECLINED",
+  PENDING = "PENDING"
 }
 
 export enum ItemUnit {
   g = "g",
   kg = "kg",
-  oz = "oz",
-  lb = "lb"
+  lb = "lb",
+  oz = "oz"
 }
 
 export enum MeasuringSystem {
@@ -1793,8 +1793,8 @@ export enum MeasuringSystem {
 
 export enum PricingPlanInterval {
   day = "day",
-  week = "week",
   month = "month",
+  week = "week",
   year = "year"
 }
 
@@ -1804,24 +1804,24 @@ export enum PricingType {
 }
 
 export enum ResourceType {
-  USER = "USER",
-  GROUP = "GROUP"
+  GROUP = "GROUP",
+  USER = "USER"
 }
 
 export enum SubscriptionLevel {
-  FREE = "FREE",
-  MONTHLY = "MONTHLY",
   ANNUAL = "ANNUAL",
-  LIFE = "LIFE"
+  FREE = "FREE",
+  LIFE = "LIFE",
+  MONTHLY = "MONTHLY"
 }
 
 export enum SubscriptionStatus {
-  trialing = "trialing",
   active = "active",
   canceled = "canceled",
   incomplete = "incomplete",
   incomplete_expired = "incomplete_expired",
   past_due = "past_due",
+  trialing = "trialing",
   unpaid = "unpaid"
 }
 
@@ -1831,18 +1831,18 @@ export enum Theme {
   BREEZE6 = "BREEZE6",
   CELESTIAL6 = "CELESTIAL6",
   CIRCUIT6 = "CIRCUIT6",
+  COLORBLIND10 = "COLORBLIND10",
   DAMASK6 = "DAMASK6",
   DEPTH6 = "DEPTH6",
   FLOW6 = "FLOW6",
   FORTE6 = "FORTE6",
   GENESIS6 = "GENESIS6",
   GRAYSCALE6 = "GRAYSCALE6",
+  HUECIRCLE19 = "HUECIRCLE19",
   IONBOARDROOM6 = "IONBOARDROOM6",
-  KILTER6 = "KILTER6",
-  TABLEAU10 = "TABLEAU10",
-  COLORBLIND10 = "COLORBLIND10",
   JEWELBRIGHT9 = "JEWELBRIGHT9",
-  HUECIRCLE19 = "HUECIRCLE19"
+  KILTER6 = "KILTER6",
+  TABLEAU10 = "TABLEAU10"
 }
 
 export enum TripDetailsType {

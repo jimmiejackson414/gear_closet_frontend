@@ -2,7 +2,7 @@
   import { Slot } from 'radix-vue';
   import { useFormField } from './useFormField';
 
-  const { error, formItemId, formDescriptionId, formMessageId } = useFormField();
+  const { error, formDescriptionId, formItemId, formMessageId } = useFormField();
 </script>
 
 <template>

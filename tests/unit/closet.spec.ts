@@ -1,11 +1,10 @@
+import VueTippy from 'vue-tippy';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
 import convert, { type Mass } from 'convert';
 import round from 'lodash.round';
 import { createPinia, setActivePinia } from 'pinia';
-import { type MockInstance, beforeEach, describe, expect, it, vi } from 'vitest';
-import VueTippy from 'vue-tippy';
-import { selectedPack } from './mocks/closet.mock';
+import { beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
 import ClosetEmptyState from '@/components/closet/ClosetEmptyState.vue';
 import ClosetPackCategories from '@/components/closet/ClosetPackCategories.vue';
 import ClosetPackDetails from '@/components/closet/ClosetPackDetails.vue';
@@ -20,6 +19,7 @@ import RemoveItemDialog from '@/components/closet/dialogs/RemoveItemDialog.vue';
 import SharePackDialog from '@/components/closet/dialogs/SharePackDialog.vue';
 import PackItemsTable from '@/components/closet/PackItemsTable.vue';
 import { useClosetStore } from '@/stores/closet';
+import { selectedPack } from './mocks/closet.mock';
 import type { Tables } from '@/types';
 
 const allPacks = [
@@ -316,17 +316,17 @@ describe('Closet Page', async () => {
 
       spy.mockImplementation(() => {
         store.data.selectedPack!.categories.unshift({
-          name: '',
-          pack_id: 0,
-          slug: '',
-          unit: 'g',
-          position: 1,
-          id: 0,
+          category_items: [],
           created_at: new Date()
             .toISOString(),
+          id: 0,
+          name: '',
+          pack_id: 0,
+          position: 1,
+          slug: '',
+          unit: 'g',
           updated_at: new Date()
             .toISOString(),
-          category_items: [],
         });
       });
 
@@ -382,18 +382,18 @@ describe('Closet Page', async () => {
 
       spy.mockImplementation(() => {
         store.data.selectedPack!.categories[0].category_items.push({
-          id: 0,
           category_id: 1,
-          item_id: 0,
-          position: 8,
           created_at: new Date()
             .toISOString(),
-          updated_at: new Date()
-            .toISOString(),
+          id: 0,
           item: {
             ...generateItem(),
             id: 0,
           } as Tables<'items'>,
+          item_id: 0,
+          position: 8,
+          updated_at: new Date()
+            .toISOString(),
         });
       });
 
@@ -498,7 +498,7 @@ describe('Closet Page', async () => {
     it('displays the correct totals for weight, price, and quantity', async () => {
       const priceTotalCopy = wrapper.find('[data-testid="price-total"]');
       const priceTotal = (calculateCategoryPrice(selectedPack.categories[0]) / 100);
-      const localizedTotal = priceTotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
+      const localizedTotal = priceTotal.toLocaleString('en-US', { currency: 'USD', style: 'currency' });
       expect(priceTotalCopy.text())
         .toBe(localizedTotal);
 

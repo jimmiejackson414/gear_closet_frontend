@@ -2,8 +2,8 @@
 <script setup lang="ts">
   import { computed, type HTMLAttributes } from 'vue';
   import { ComboboxContent, useForwardPropsEmits } from 'radix-vue';
-  import type { ComboboxContentEmits, ComboboxContentProps } from 'radix-vue';
   import { cn } from '@/lib/utils';
+  import type { ComboboxContentEmits, ComboboxContentProps } from 'radix-vue';
 
   const props = withDefaults(defineProps<ComboboxContentProps & { class?: HTMLAttributes['class'] }>(), {
     class: '',

@@ -2,7 +2,7 @@
   import type { Tables } from '@/types';
 
   interface Props {
-    alignLogo?: 'start' | 'center' | 'end';
+    alignLogo?: 'center' | 'end' | 'start';
     minimal?: boolean;
     pageTitle?: string;
   }

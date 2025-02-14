@@ -57,9 +57,9 @@ test.describe('Dashboard', async () => {
     // mock the API response
     await page.route('**/api/forumPosts', (route) => {
       route.fulfill({
-        status: 200,
-        contentType: 'application/json',
         body: JSON.stringify(forumPosts),
+        contentType: 'application/json',
+        status: 200,
       });
     });
 

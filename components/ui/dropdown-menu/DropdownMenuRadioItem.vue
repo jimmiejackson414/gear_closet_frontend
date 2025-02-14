@@ -1,5 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { type HTMLAttributes } from 'vue';
   import {
     DropdownMenuItemIndicator,
     DropdownMenuRadioItem,
@@ -7,7 +8,6 @@
     type DropdownMenuRadioItemProps,
     useForwardPropsEmits,
   } from 'radix-vue';
-  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DropdownMenuRadioItemProps & { class?: HTMLAttributes['class'] }>();

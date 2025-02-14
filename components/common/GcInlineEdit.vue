@@ -1,14 +1,14 @@
 <script lang="ts" setup>
   import { nextTick, ref, watch } from 'vue';
-  import type { InputRoot } from '@/components/ui';
   import { cn } from '@/lib/utils';
+  import type { InputRoot } from '@/components/ui';
 
   interface Props {
     hideEditBtn?: boolean;
     inputClasses?: string;
     name: string;
     placeholder?: string;
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'lg' | 'md' | 'sm';
     spanClasses?: string;
     type?: string;
   }
@@ -22,13 +22,13 @@
     type: 'text',
   });
 
-  const modelValue = defineModel<string | number | null>({
+  const modelValue = defineModel<number | string | null>({
     default: null,
     required: false,
   });
 
   const isEditing = ref(false);
-  const localModel = ref<string | number | null>(modelValue.value);
+  const localModel = ref<number | string | null>(modelValue.value);
 
   watch(
     () => modelValue,

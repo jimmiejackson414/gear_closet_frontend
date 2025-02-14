@@ -5,7 +5,7 @@
   import { type Severity } from '@/components/common/GcAlert.vue';
 
   const supabase = useSupabaseClient();
-  const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
+  const submitAction = ref<undefined | {message: string, severity: Severity}>(undefined);
 
   const formSchema = toTypedSchema(z.object({
     email: z.string()

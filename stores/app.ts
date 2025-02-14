@@ -12,9 +12,9 @@ type Getters = {
 
 type Actions = {
   notifyDefault: (description: string, title?: string) => void;
-  notifyPositive: (description: string, title?: string) => void;
-  notifyNegative: (description: string, title?: string) => void;
   notifyInfo: (description: string, title?: string) => void;
+  notifyNegative: (description: string, title?: string) => void;
+  notifyPositive: (description: string, title?: string) => void;
   toggleDrawer(): void;
 };
 

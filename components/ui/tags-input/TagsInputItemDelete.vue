@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { TagsInputItemDelete, type TagsInputItemDeleteProps, useForwardProps } from 'radix-vue';
   import { type HTMLAttributes } from 'vue';
+  import { TagsInputItemDelete, type TagsInputItemDeleteProps, useForwardProps } from 'radix-vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<TagsInputItemDeleteProps & { class?: HTMLAttributes['class'] }>();

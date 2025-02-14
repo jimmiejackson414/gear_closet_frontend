@@ -1,9 +1,9 @@
 <script lang='ts' setup>
-  import type { Provider } from '@supabase/supabase-js';
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import type { Tables } from '@/types';
+  import type { Provider } from '@supabase/supabase-js';
 
   const supabase = useSupabaseClient();
   const $router = useRouter();

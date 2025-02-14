@@ -1,23 +1,23 @@
 <script setup lang="ts">
   import { Primitive, type PrimitiveProps } from 'radix-vue';
-  import type { HTMLAttributes } from 'vue';
-  import { type ButtonVariants, buttonVariants } from '.';
   import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
   import { cn } from '@/lib/utils';
+  import { type ButtonVariants, buttonVariants } from '.';
+  import type { HTMLAttributes } from 'vue';
 
   interface Props extends PrimitiveProps {
-    variant?: ButtonVariants['variant'];
-    size?: ButtonVariants['size'];
     class?: HTMLAttributes['class'];
     loading?: boolean;
+    size?: ButtonVariants['size'];
+    variant?: ButtonVariants['variant'];
   }
 
   const props = withDefaults(defineProps<Props>(), {
     as: 'button',
-    variant: 'default',
-    size: 'default',
     class: '',
     loading: false,
+    size: 'default',
+    variant: 'default',
   });
 </script>
 

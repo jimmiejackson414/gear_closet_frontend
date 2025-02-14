@@ -1,13 +1,13 @@
+import VueTippy from 'vue-tippy';
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
-import { type MockInstance, beforeEach, describe, expect, it, vi } from 'vitest';
-import VueTippy from 'vue-tippy';
-import { tripDetails, trips } from './mocks/planning.mock';
+import { beforeEach, describe, expect, it, type MockInstance, vi } from 'vitest';
 import ModifyDetailDialog from '@/components/planning/dialogs/ModifyDetailDialog.vue';
 import PlanningEmptyState from '@/components/planning/PlanningEmptyState.vue';
 import PlanningSettings from '@/components/planning/PlanningSettings.vue';
 import HikeDetailsWidget from '@/components/planning/widgets/HikeDetailsWidget.vue';
+import { tripDetails, trips } from './mocks/planning.mock';
 
 describe('Planning Page', async () => {
   beforeEach(() => {

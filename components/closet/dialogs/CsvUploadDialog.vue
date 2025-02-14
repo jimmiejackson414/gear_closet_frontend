@@ -6,7 +6,7 @@
   const $store = useClosetStore();
   const submitting = ref(false);
   const file = ref<File | undefined>(undefined);
-  const parsingResult = ref<{ status?: 'success' | 'failure', message?: string }>({
+  const parsingResult = ref<{ message?: string; status?: 'failure' | 'success', }>({
     message: undefined,
     status: undefined,
   });
@@ -42,7 +42,7 @@
         },
         header: true,
         skipEmptyLines: true,
-        transform: (value: string | number, header: string) => {
+        transform: (value: number | string, header: string) => {
           if (header === 'unit' && typeof value === 'string') {
             const normalizedUnit = unitMap[value.toLowerCase()];
             return normalizedUnit || value;

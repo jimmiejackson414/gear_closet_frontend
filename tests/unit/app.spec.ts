@@ -1,10 +1,10 @@
+import VueTippy from 'vue-tippy';
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import VueTippy from 'vue-tippy';
 import app from '@/app.vue';
+import GcDrawer from '@/components/common/GcDrawer.vue';
 import GcNavbar from '@/components/common/GcNavbar.vue';
 import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
-import GcDrawer from '@/components/common/GcDrawer.vue';
 import type { VueWrapper } from '@vue/test-utils';
 
 const { useSupabaseClient } = vi.hoisted(() => {

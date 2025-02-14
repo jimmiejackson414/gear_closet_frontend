@@ -7,8 +7,8 @@ declare module 'vue-virtual-scroller' {
   import Vue, { PluginObject } from 'vue';
 
   interface PluginOptions {
-    installComponents?: boolean;
     componentsPrefix?: string;
+    installComponents?: boolean;
   }
 
   declare const plugin: PluginObject<PluginOptions> & { version: string };
@@ -28,7 +28,6 @@ declare module 'vue-virtual-scroller' {
     direction: 'horizontal' | 'vertical';
     pool: Array<{
       item: unknown;
-      position: number;
       nr: {
         id: number;
         index: number;
@@ -36,9 +35,10 @@ declare module 'vue-virtual-scroller' {
         type: unknown;
         used: boolean;
       };
+      position: number;
     }>;
 
-    getScroll(): { start: number; end: number };
+    getScroll(): { end: number; start: number; };
 
     scrollToItem(index: number): void;
 
@@ -49,10 +49,10 @@ declare module 'vue-virtual-scroller' {
     minItemSize: number | string;
     vscrollData: {
       active: boolean;
-      sizes: Record<string, number>;
-      validSizes: object;
       keyField: string;
       simpleArray: boolean;
+      sizes: Record<string, number>;
+      validSizes: object;
     };
 
     $refs: {
@@ -82,7 +82,7 @@ declare module 'vue-virtual-scroller' {
 
 declare module "@tanstack/vue-table" {
   interface ColumnMeta {
-    headerClassName?: string;
     cellClassName?: string;
+    headerClassName?: string;
   }
 }

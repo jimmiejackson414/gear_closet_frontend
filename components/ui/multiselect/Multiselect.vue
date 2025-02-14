@@ -16,18 +16,18 @@
   import type { SelectOption } from '@/types/helpers';
 
   interface Props {
-    options: SelectOption[];
-    placeholder?: string;
     disabled?: boolean;
     loading?: boolean;
     multiple?: boolean;
+    options: SelectOption[];
+    placeholder?: string;
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    placeholder: 'Begin searching...',
     disabled: false,
     loading: false,
     multiple: false,
+    placeholder: 'Begin searching...',
   });
 
   const emit = defineEmits<{

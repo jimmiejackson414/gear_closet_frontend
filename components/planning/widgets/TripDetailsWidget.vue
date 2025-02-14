@@ -75,7 +75,7 @@
     return `${date1} to ${date2}`;
   };
 
-  const formattedDate = (date: string | undefined | null) => {
+  const formattedDate = (date: string | null | undefined) => {
     if (!date) return '';
     return dayjs(date)
       .format('MMM D, YYYY');

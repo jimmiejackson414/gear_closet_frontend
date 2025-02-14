@@ -4,7 +4,7 @@
   import type { ExtendedPoll } from '@/types/helpers';
 
   interface Props {
-    form: { question: Tables<'questions'>, answers: Tables<'answers'>[]}
+    form: { answers: Tables<'answers'>[]; question: Tables<'questions'>,}
     isOpen: boolean;
     state: 'create' | 'edit';
   }

@@ -1,13 +1,13 @@
 import { IconDoorOpen,  IconHome, IconListTodo, IconMessagesSquare, IconUserCircle2, IconUsers } from '#components';
 
 export type LinkItem = {
-  to: string;
-  title: string;
-  icon: typeof IconDoorOpen;
   disabled: boolean;
+  external: boolean;
+  icon: typeof IconDoorOpen;
   requiresSubscription: boolean;
   requiresSubscriptionCopy?: string;
-  external: boolean;
+  title: string;
+  to: string;
 }
 
 export const drawerLinks = () => {

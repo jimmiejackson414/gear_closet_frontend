@@ -3,8 +3,8 @@
 
   interface Props {
     data: {
-      latest_posts: ForumPost[];
       categories: ForumCategory[];
+      latest_posts: ForumPost[];
     };
     loading: boolean;
   }

@@ -5,8 +5,8 @@
   import { cn } from '@/lib/utils';
 
   const props = withDefaults(defineProps<PinInputRootProps & { class?: HTMLAttributes['class'] }>(), {
-    modelValue: () => [],
     class: '',
+    modelValue: () => [],
   });
   const emits = defineEmits<PinInputRootEmits>();
 

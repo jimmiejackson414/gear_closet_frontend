@@ -1,14 +1,14 @@
 <script lang='ts' setup>
   import { toTypedSchema } from '@vee-validate/zod';
-  import type { FilePondFile } from 'filepond';
   import { useForm } from 'vee-validate';
-  import type { FunctionalComponent } from 'vue';
   import * as z from 'zod';
   import { IconAperture, IconCheck, IconCircleUser, IconHeart } from '#components';
   import { useToast } from '@/components/ui';
   import { MeasuringSystem, SubscriptionLevel } from '@/types';
+  import type { FilePondFile } from 'filepond';
+  import type { FunctionalComponent } from 'vue';
 
-  type StepperState = 'completed' | 'active' | 'inactive';
+  type StepperState = 'active' | 'completed' | 'inactive';
 
   /**
    * Global definitions
@@ -21,36 +21,36 @@
   const stepIndex = ref(1);
   const steps = [
     {
+      description: 'Upload a photo of yourself (optional)',
       step: 1,
       title: 'Upload Avatar',
-      description: 'Upload a photo of yourself (optional)',
     },
     {
+      description: 'Tell us a little about yourself',
       step: 2,
       title: 'Account Info',
-      description: 'Tell us a little about yourself',
     },
     {
+      description: 'Choose your plan',
       step: 3,
       title: 'Plan Options',
-      description: 'Choose your plan',
     },
   ];
 
   const icons: Record<number, Record<StepperState, FunctionalComponent>> = {
     1: {
-      completed: IconCheck,
       active: IconAperture,
+      completed: IconCheck,
       inactive: IconAperture,
     },
     2: {
-      completed: IconCheck,
       active: IconCircleUser,
+      completed: IconCheck,
       inactive: IconCircleUser,
     },
     3: {
-      completed: IconCheck,
       active: IconHeart,
+      completed: IconCheck,
       inactive: IconHeart,
     },
   };
@@ -64,18 +64,18 @@
       .min(1),
     last_name: z.string()
       .min(1),
+    measuring_system: z.union([z.literal(MeasuringSystem.IMPERIAL), z.literal(MeasuringSystem.METRIC)]),
     trail_name: z.string()
       .optional(),
-    measuring_system: z.union([z.literal(MeasuringSystem.IMPERIAL), z.literal(MeasuringSystem.METRIC)]),
   }));
 
   const $store = useUserStore();
-  const { meta, values, errorBag } = useForm({
+  const { errorBag, meta, values } = useForm({
     initialValues: {
       first_name: $store.profile?.first_name ?? '',
       last_name: $store.profile?.last_name ?? '',
-      trail_name: $store.profile?.trail_name ?? '',
       measuring_system: ($store.profile?.measuring_system as MeasuringSystem) ?? MeasuringSystem.IMPERIAL,
+      trail_name: $store.profile?.trail_name ?? '',
     },
     keepValuesOnUnmount: true,
     validationSchema: formSchema,
@@ -88,8 +88,8 @@
   const avatarFile = ref<FilePondFile | string | null>(null);
   const handleAvatarError = () => {
     return toast({
-      title: 'Error',
       description: 'There was an error uploading your avatar. Please try again.',
+      title: 'Error',
       variant: 'destructive',
     });
   };
@@ -132,8 +132,8 @@
       if (!success) throw new Error();
 
       const response = await $fetch('/api/stripe/subscription', {
-        method: 'POST',
         body: JSON.stringify({ subscription: SubscriptionLevel.LIFE }),
+        method: 'POST',
       });
 
       if (!response.ok) throw new Error();
@@ -141,8 +141,8 @@
       await $router.push({ name: 'index' });
     } catch (error) {
       toast({
-        title: 'Error',
         description: 'There was an error completing the onboarding process. Please try again.',
+        title: 'Error',
         variant: 'destructive',
       });
     } finally {

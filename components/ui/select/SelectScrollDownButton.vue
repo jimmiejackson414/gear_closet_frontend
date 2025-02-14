@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { SelectScrollDownButton, type SelectScrollDownButtonProps, useForwardProps } from 'radix-vue';
   import { type HTMLAttributes } from 'vue';
+  import { SelectScrollDownButton, type SelectScrollDownButtonProps, useForwardProps } from 'radix-vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<SelectScrollDownButtonProps & { class?: HTMLAttributes['class'] }>();

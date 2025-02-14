@@ -4,7 +4,7 @@
     severity?: Severity;
   }
 
-  export type Severity = 'error' | 'warning' | 'positive' | 'info';
+  export type Severity = 'error' | 'info' | 'positive' | 'warning';
 
   const props = withDefaults(defineProps<Props>(), {
     message: '',

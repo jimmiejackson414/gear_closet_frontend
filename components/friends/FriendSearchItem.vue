@@ -45,9 +45,9 @@
       await supabase.from('notifications')
         .insert([
           {
-            title: 'New Friend Request',
             content: `You have a new friend request from ${$store.profile?.first_name} ${$store.profile?.last_name}.`,
             profile_id: props.profile.id,
+            title: 'New Friend Request',
           },
         ]);
 

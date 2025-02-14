@@ -68,7 +68,7 @@ export const fetchAuthImages = async () => {
 };
 
 interface UploadInterface {
-  file: string | File;
+  file: File | string;
   id: string;
 }
 export const upload = async (input: UploadInterface) => {

@@ -3,14 +3,14 @@
 
   interface Props {
     isSelected: boolean;
-    tier: Tier;
     submitting: boolean;
+    tier: Tier;
   }
 
   const props = withDefaults(defineProps<Props>(), {
     isSelected: false,
-    tier: undefined,
     submitting: false,
+    tier: undefined,
   });
 
   const emit = defineEmits(['handleAction']);

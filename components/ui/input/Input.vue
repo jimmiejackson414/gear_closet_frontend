@@ -1,28 +1,28 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
-  import type { HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
+  import type { HTMLAttributes } from 'vue';
 
   const props = defineProps<{
-    defaultValue?: string | number;
-    modelValue?: string | number | null;
     class?: HTMLAttributes['class'];
+    defaultValue?: number | string;
+    dense?: boolean;
+    forceColorMode?: 'dark' | 'light';
+    modelValue?: number | string | null;
     passwordToggle?: boolean;
     prependIcon?: any;
     type?: string;
-    dense?: boolean;
-    forceColorMode?: 'light' | 'dark';
   }>();
 
   const showPassword = ref(false);
 
   const emits = defineEmits<{
-    (e: 'update:modelValue', payload: string | number): void
+    (e: 'update:modelValue', payload: number | string): void
   }>();
 
   const modelValue = useVModel(props, 'modelValue', emits, {
-    passive: true,
     defaultValue: props.defaultValue,
+    passive: true,
   });
 
   const attrs = useAttrs();

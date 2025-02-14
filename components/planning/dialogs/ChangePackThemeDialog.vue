@@ -1,6 +1,6 @@
 <script lang='ts' setup>
-  import type { Database, Theme } from '@/types';
   import generateThemeOptions from '@/utils/chartTheme';
+  import type { Database, Theme } from '@/types';
 
   interface Props {
     isOpen: boolean;

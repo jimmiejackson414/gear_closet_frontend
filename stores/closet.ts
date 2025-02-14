@@ -42,10 +42,10 @@ type Getters = {
 };
 
 type Actions = {
-  fetchClosetPage(packId: number): Promise<void>;
   createItem(categoryId: number): Promise<void>;
+  fetchClosetPage(packId: number): Promise<void>;
   updateCategoryItems(payload: TablesUpdate<'category_items'>[]): Promise<void>;
-  updateItem(item: Tables<'items'>, key: string, value: string | number | boolean | undefined, categoryId: number): Promise<void>;
+  updateItem(item: Tables<'items'>, key: string, value: boolean | number | string | undefined, categoryId: number): Promise<void>;
 };
 
 export const useClosetStore = defineStore<"closet", State, Getters, Actions>(

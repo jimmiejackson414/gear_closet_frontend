@@ -1,5 +1,5 @@
-import type { User } from '@supabase/supabase-js';
 import { defineStore } from 'pinia';
+import type { User } from '@supabase/supabase-js';
 import type { RouteLocation } from 'vue-router';
 
 type State = {
@@ -7,14 +7,14 @@ type State = {
 }
 
 type Getters = {
-  isAuthenticated(): boolean;
   currentUser(): User | null;
+  isAuthenticated(): boolean;
 }
 
 type Actions = {
-  saveRedirectRoute(route: Partial<RouteLocation>): void;
-  loadRedirectRoute(): void;
   clearRedirectRoute(): void;
+  loadRedirectRoute(): void;
+  saveRedirectRoute(route: Partial<RouteLocation>): void;
 }
 
 export const useAuthStore = defineStore<'auth', State, Getters, Actions>(

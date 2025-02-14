@@ -4,8 +4,8 @@
   import * as z from 'zod';
   import { IconBackpack } from '#components';
   import { type Database, Theme } from '@/types';
-  import type { ExtendedPack } from '@/types/helpers';
   import generateThemeOptions from '@/utils/chartTheme';
+  import type { ExtendedPack } from '@/types/helpers';
 
   const $store = useClosetStore();
   const $appStore = useAppStore();

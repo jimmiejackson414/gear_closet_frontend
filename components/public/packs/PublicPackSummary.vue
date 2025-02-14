@@ -1,6 +1,6 @@
 <script lang='ts' setup>
+  import VChart from 'vue-echarts';
   import convert, { type Mass } from 'convert';
-  import type { EChartsOption } from 'echarts';
   import { BarChart } from 'echarts/charts';
   import {
     GridComponent,
@@ -11,10 +11,10 @@
   import { use } from 'echarts/core';
   import { CanvasRenderer } from 'echarts/renderers';
   import round from 'lodash.round';
-  import VChart from 'vue-echarts';
   import { Theme } from '@/types';
-  import type { ExtendedCategory, PublicPack } from '@/types/helpers';
   import { findTheme } from '@/utils/chartTheme';
+  import type { ExtendedCategory, PublicPack } from '@/types/helpers';
+  import type { EChartsOption } from 'echarts';
 
   use([
     CanvasRenderer,

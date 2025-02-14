@@ -2,7 +2,7 @@
   import GcLogo from '@/components/icons/GcLogo.vue';
 
   interface Props {
-    alignLogo?: 'start' | 'center' | 'end';
+    alignLogo?: 'center' | 'end' | 'start';
   }
 
   const props = withDefaults(defineProps<Props>(), {

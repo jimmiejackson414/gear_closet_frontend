@@ -8,7 +8,7 @@
   const isPollDialogOpen = ref(false);
   const isDeleteConfirmOpen = ref(false);
   const modalState = ref<'create' | 'edit'>('create');
-  const blankModalForm: { question: Tables<'questions'>, answers: Tables<'answers'>[]} = {
+  const blankModalForm: { answers: Tables<'answers'>[]; question: Tables<'questions'>,} = {
     answers: [{
       content: '',
       created_at: '',

@@ -1,7 +1,7 @@
 <script lang='ts' setup>
+  import tailwind from '@/utils/tailwind';
   import type { Database } from '@/types';
   import type { ExtendedComment, PublicPack } from '@/types/helpers';
-  import tailwind from '@/utils/tailwind';
 
   const user = useSupabaseUser();
   // TODO: Figure out way to access user to dynamically set colorMode. Currently causes 500 error.
@@ -113,8 +113,8 @@
    * Tabs functionality
    */
   enum TableTabs {
-    DETAILS,
-    COMMENTS,
+    COMMENTS = 'COMMENTS',
+    DETAILS = 'DETAILS',
   }
   const activeTab = ref(TableTabs.DETAILS);
 

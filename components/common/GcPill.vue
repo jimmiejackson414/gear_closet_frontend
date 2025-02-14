@@ -1,8 +1,8 @@
 <script lang='ts' setup>
   interface Props {
     copy: string;
-    size?: 'sm' | 'md' | 'lg';
-    variant?: 'primary' | 'positive' | 'secondary' | 'warning' | 'danger';
+    size?: 'lg' | 'md' | 'sm';
+    variant?: 'danger' | 'positive' | 'primary' | 'secondary' | 'warning';
   }
 
   const props = withDefaults(defineProps<Props>(), {

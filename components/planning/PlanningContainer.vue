@@ -10,7 +10,7 @@
   const { data } = await useAsyncData(
     'planningData',
     () => $store.fetchPlanningPage(Number($store.selectedTripId || 0)),
-    { watch: [() => $store.selectedTripId], immediate: true },
+    { immediate: true, watch: [() => $store.selectedTripId] },
   );
 
   watch(data, (newData) => {

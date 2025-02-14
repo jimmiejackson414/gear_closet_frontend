@@ -1,13 +1,13 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { CheckboxIndicator, CheckboxRoot, useForwardPropsEmits } from 'radix-vue';
-  import type { CheckboxRootEmits, CheckboxRootProps } from 'radix-vue';
   import { type HTMLAttributes } from 'vue';
+  import { CheckboxIndicator, CheckboxRoot, useForwardPropsEmits } from 'radix-vue';
   import { cn } from '@/lib/utils';
+  import type { CheckboxRootEmits, CheckboxRootProps } from 'radix-vue';
 
   const props = defineProps<CheckboxRootProps & {
     class?: HTMLAttributes['class'],
-    variant?: 'primary' | 'destructive' | 'accent',
+    variant?: 'accent' | 'destructive' | 'primary',
   }>();
   const emits = defineEmits<CheckboxRootEmits>();
 
