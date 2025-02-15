@@ -68,7 +68,7 @@
           v-if="selectedFriend"
           class="flex flex-col mt-4">
           <typography>
-            Are you sure you want to transfer this trip to {{ friendlyUsername(selectedFriend.profile) }}?
+            Are you sure you want to transfer this trip to <span class="font-bold">{{ friendlyUsername(selectedFriend.profile) }}</span>?
           </typography>
           <typography>
             This will allow {{ selectedFriend.profile.first_name }} to manage the trip and its data.
