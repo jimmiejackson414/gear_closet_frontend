@@ -167,7 +167,7 @@ module.exports = {
   settings: {
     tailwindcss: {
       config: './tailwind.config.ts',
-      whitelist: ['destructive', 'toaster', 'lucide', 'lucide-loader-circle', 'ray', 'darkmode_icon', 'row-handle'],
+      whitelist: ['destructive', 'toaster', 'lucide', 'lucide-loader-circle', 'ray', 'darkmode_icon', 'row-handle', 'comment', 'comment__body', 'comment__actions'],
     },
   },
 };

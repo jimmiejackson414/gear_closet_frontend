@@ -158,7 +158,6 @@
 <template>
   <div class="mt-4 w-full">
     <ul
-      class="list"
       depth="0"
       style="--depth: 0;">
       <li style="--nested: true">
@@ -166,7 +165,7 @@
           class="comment relative flex gap-2"
           :class="{ 'pb-4': !replyingTo }">
           <gc-avatar
-            class="user mt-2"
+            class="mt-2"
             :initials="initials(comment.profile)"
             size="md"
             :url="buildImageSrc(comment.profile.image)" />
@@ -176,43 +175,45 @@
               class="comment__body w-fit rounded-xl p-4"
               :class="comment.profile_id === user?.id ? 'bg-primary-light/40' : 'bg-gray-200'">
               <div class="flex items-center justify-start gap-4">
-                <p
-                  class="text-sm font-bold"
-                  :class="comment.deleted_at ? 'text-gray-400' : 'text-gray-900'">
+                <typography
+                  class="!font-bold"
+                  :class="comment.deleted_at ? 'text-gray-400' : 'text-gray-900'"
+                  variant="small">
                   {{ friendlyUsername(comment.profile) }}
-                </p>
-                <p
-                  class="text-sm"
-                  :class="comment.deleted_at ? 'text-gray-400' : 'text-gray-500'">
+                </typography>
+                <typography
+                  :class="comment.deleted_at ? 'text-gray-400' : 'text-gray-500'"
+                  variant="muted">
                   {{ formattedTime(comment.created_at) }}
-                </p>
+                </typography>
               </div>
-              <p
+              <typography
                 v-if="comment.deleted_at"
                 class="italic text-gray-400">
                 This comment has been deleted
-              </p>
-              <p
-                v-else
-                class="mt-2">
+              </typography>
+              <typography v-else>
                 {{ comment.text }}
-              </p>
+              </typography>
             </div>
             <!-- actions -->
             <div
               v-if="!!user"
-              class="comment__actions flex gap-2 py-1 pl-4">
-              <button
-                class="text-dark-grey hover:text-dark-grey/75 text-sm font-semibold transition-colors duration-150 ease-in-out"
+              class="comment__actions flex gap-2 py-1">
+              <button-root
+                size="sm"
+                variant="ghost"
                 @click="[replyingTo = true]">
                 Reply
-              </button>
-              <button
+              </button-root>
+              <button-root
                 v-if="user.id === comment.profile_id && !comment.deleted_at"
-                class="text-danger hover:text-danger/75 text-sm font-semibold transition-colors duration-150 ease-in-out"
+                class="text-destructive hover:text-destructive/75"
+                size="sm"
+                variant="ghost"
                 @click="() => deleteComment(comment)">
                 Delete
-              </button>
+              </button-root>
             </div>
           </div>
         </div>
@@ -233,9 +234,9 @@
               @click="[replyingTo = false, newReplyValue = undefined]">
               Cancel
             </button-root>
-            <p class="text-sm text-muted-foreground">
+            <typography variant="muted">
               Commenting as <span class="font-bold">{{ friendlyUsername(comment.profile) }}</span>
-            </p>
+            </typography>
             <button-root
               :disabled="submitting"
               :loading="submitting"
@@ -247,7 +248,6 @@
         </div>
         <ul
           v-if="comment.replies.length"
-          class="list"
           depth="1"
           style="--depth: 1;">
           <li
@@ -255,7 +255,7 @@
             :key="reply.id">
             <div class="comment relative flex gap-2 pb-4">
               <gc-avatar
-                class="user mt-2"
+                class="mt-2"
                 :initials="initials(reply.profile)"
                 size="md"
                 :url="buildImageSrc(reply.profile.image)" />
@@ -265,36 +265,39 @@
                   class="comment__body w-fit rounded-xl p-4"
                   :class="reply.profile_id === user?.id ? 'bg-primary-light/40' : 'bg-gray-200'">
                   <div class="flex items-center justify-start gap-4">
-                    <p
-                      class="text-sm font-bold"
-                      :class="reply.deleted_at ? 'text-gray-400' : 'text-gray-900'">
+                    <typography
+                      class="!font-bold"
+                      :class="reply.deleted_at ? 'text-gray-400' : 'text-gray-900'"
+                      variant="small">
                       {{ friendlyUsername(reply.profile) }}
-                    </p>
-                    <p
-                      class="text-sm"
-                      :class="reply.deleted_at ? 'text-gray-400' : 'text-gray-500'">
+                    </typography>
+                    <typography
+                      :class="reply.deleted_at ? 'text-gray-400' : 'text-gray-500'"
+                      variant="muted">
                       {{ formattedTime(reply.created_at) }}
-                    </p>
+                    </typography>
                   </div>
-                  <p
+                  <typography
                     v-if="reply.deleted_at"
                     class="italic text-gray-400">
                     This reply has been deleted
-                  </p>
-                  <p v-else>
+                  </typography>
+                  <typography v-else>
                     {{ reply.text }}
-                  </p>
+                  </typography>
                 </div>
                 <!-- actions -->
                 <div
                   v-if="!!user && !reply.deleted_at"
-                  class="comment__actions flex gap-2 py-1 pl-4">
-                  <button
+                  class="comment__actions flex gap-2 py-1">
+                  <button-root
                     v-if="user.id === reply.profile_id"
-                    class="text-danger hover:text-danger/75 text-sm font-bold transition-colors duration-150 ease-in-out"
+                    class="text-destructive hover:text-destructive/75"
+                    size="sm"
+                    variant="ghost"
                     @click="() => deleteReply(reply)">
                     Delete
-                  </button>
+                  </button-root>
                 </div>
               </div>
             </div>
