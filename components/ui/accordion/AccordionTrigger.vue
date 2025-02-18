@@ -29,7 +29,7 @@
       ">
       <slot />
       <slot name="icon">
-        <icon-chevron-down class="duration-200 h-4 shrink-0 transition-transform w-4" />
+        <icon-chevron-down class="size-4 shrink-0 transition-transform duration-200" />
       </slot>
     </accordion-trigger>
   </accordion-header>

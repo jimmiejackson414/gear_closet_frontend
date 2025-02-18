@@ -112,7 +112,7 @@
   <div :class="$store.isPublicRoute ? 'mt-0' : 'mt-10'">
     <div
       v-if="!$store.isPublicRoute"
-      class="flex justify-between items-center mb-4">
+      class="mb-4 flex items-center justify-between">
       <typography
         class="font-semibold"
         variant="h4">
@@ -122,7 +122,7 @@
         size="sm"
         variant="outline"
         @click="createDefaultCategory">
-        <icon-plus class="h-4 text-primary dark:text-primary-light w-4" />
+        <icon-plus class="size-4 text-primary dark:text-primary-light" />
         New Category
       </button-root>
     </div>

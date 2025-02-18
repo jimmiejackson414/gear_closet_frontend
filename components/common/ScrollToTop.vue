@@ -39,9 +39,9 @@
     leave-active-class="transition ease-in-out duration-200 scale-50"
     leave-to-class="opacity-0 scale-50"
     mode="out-in">
-    <div class="cursor-pointer fixed right-[3%] bottom-[5%] z-50">
+    <div class="fixed bottom-[5%] right-[3%] z-50 cursor-pointer">
       <button
-        class="bg-primary border border-transparent flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-[3rem] rounded-full text-primary-foreground text-sm transition-all w-[3rem]"
+        class="flex size-12 shrink-0 items-center justify-center gap-2 rounded-full border border-transparent bg-primary text-sm font-semibold text-primary-foreground transition-all"
         type="button"
         @click="scrollTop"
         @keydown="scrollTop">

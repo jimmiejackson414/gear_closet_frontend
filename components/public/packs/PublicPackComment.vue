@@ -163,21 +163,21 @@
       style="--depth: 0;">
       <li style="--nested: true">
         <div
-          class="comment flex gap-2 relative"
+          class="comment relative flex gap-2"
           :class="{ 'pb-4': !replyingTo }">
           <gc-avatar
-            class="mt-2 user"
+            class="user mt-2"
             :initials="initials(comment.profile)"
             size="md"
             :url="buildImageSrc(comment.profile.image)" />
           <div>
             <!-- body -->
             <div
-              class="comment__body p-4 rounded-xl w-fit"
+              class="comment__body w-fit rounded-xl p-4"
               :class="comment.profile_id === user?.id ? 'bg-primary-light/40' : 'bg-gray-200'">
-              <div class="flex justify-start items-center gap-4">
+              <div class="flex items-center justify-start gap-4">
                 <p
-                  class="font-bold text-sm"
+                  class="text-sm font-bold"
                   :class="comment.deleted_at ? 'text-gray-400' : 'text-gray-900'">
                   {{ friendlyUsername(comment.profile) }}
                 </p>
@@ -201,15 +201,15 @@
             <!-- actions -->
             <div
               v-if="!!user"
-              class="comment__actions flex gap-2 pl-4 py-1">
+              class="comment__actions flex gap-2 py-1 pl-4">
               <button
-                class="duration-150 ease-snap font-semibold text-dark-grey hover:text-dark-grey/75 text-sm transition-colors"
+                class="text-dark-grey hover:text-dark-grey/75 text-sm font-semibold transition-colors duration-150 ease-in-out"
                 @click="[replyingTo = true]">
                 Reply
               </button>
               <button
                 v-if="user.id === comment.profile_id && !comment.deleted_at"
-                class="duration-150 ease-snap font-semibold text-danger hover:text-danger/75 text-sm transition-colors"
+                class="text-danger hover:text-danger/75 text-sm font-semibold transition-colors duration-150 ease-in-out"
                 @click="() => deleteComment(comment)">
                 Delete
               </button>
@@ -218,13 +218,13 @@
         </div>
         <div
           v-if="replyingTo"
-          class="flex items-start flex-col max-w-xl mt-4 pb-6 ps-[4.25rem]">
+          class="mt-4 flex max-w-xl flex-col items-start pb-6 ps-[4.25rem]">
           <textarea-root
             v-model="newReplyValue"
-            class="rounded-xl shadow-sm w-full disabled:bg-gray-100 disabled:pointer-events-none"
+            class="w-full rounded-xl shadow-sm disabled:pointer-events-none disabled:bg-gray-100"
             :disabled="submitting"
             placeholder="Add a reply" />
-          <div class="grid grid-cols-[1fr_auto_auto] gap-6 items-center my-2 w-full">
+          <div class="my-2 grid w-full grid-cols-[1fr_auto_auto] items-center gap-6">
             <button-root
               class="justify-self-start text-muted-foreground"
               :disabled="submitting"
@@ -233,7 +233,7 @@
               @click="[replyingTo = false, newReplyValue = undefined]">
               Cancel
             </button-root>
-            <p class="text-muted-foreground text-sm">
+            <p class="text-sm text-muted-foreground">
               Commenting as <span class="font-bold">{{ friendlyUsername(comment.profile) }}</span>
             </p>
             <button-root
@@ -253,20 +253,20 @@
           <li
             v-for="reply in comment.replies"
             :key="reply.id">
-            <div class="comment flex gap-2 pb-4 relative">
+            <div class="comment relative flex gap-2 pb-4">
               <gc-avatar
-                class="mt-2 user"
+                class="user mt-2"
                 :initials="initials(reply.profile)"
                 size="md"
                 :url="buildImageSrc(reply.profile.image)" />
               <div>
                 <!-- body -->
                 <div
-                  class="comment__body p-4 rounded-xl w-fit"
+                  class="comment__body w-fit rounded-xl p-4"
                   :class="reply.profile_id === user?.id ? 'bg-primary-light/40' : 'bg-gray-200'">
-                  <div class="flex justify-start items-center gap-4">
+                  <div class="flex items-center justify-start gap-4">
                     <p
-                      class="font-bold text-sm"
+                      class="text-sm font-bold"
                       :class="reply.deleted_at ? 'text-gray-400' : 'text-gray-900'">
                       {{ friendlyUsername(reply.profile) }}
                     </p>
@@ -288,10 +288,10 @@
                 <!-- actions -->
                 <div
                   v-if="!!user && !reply.deleted_at"
-                  class="comment__actions flex gap-2 pl-4 py-1">
+                  class="comment__actions flex gap-2 py-1 pl-4">
                   <button
                     v-if="user.id === reply.profile_id"
-                    class="duration-150 ease-snap font-bold text-danger hover:text-danger/75 text-sm transition-colors"
+                    class="text-danger hover:text-danger/75 text-sm font-bold transition-colors duration-150 ease-in-out"
                     @click="() => deleteReply(reply)">
                     Delete
                   </button>

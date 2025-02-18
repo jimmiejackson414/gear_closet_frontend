@@ -12,7 +12,7 @@
 </script>
 
 <template>
-  <div class="flex items-center flex-col">
+  <div class="flex flex-col items-center">
     <gc-logo-icon :wrapper-class="iconClass" />
     <gc-spinner variant="primary" />
   </div>

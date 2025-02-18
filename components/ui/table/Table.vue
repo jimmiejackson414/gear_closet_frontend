@@ -8,7 +8,7 @@
 </script>
 
 <template>
-  <div class="overflow-auto relative w-full">
+  <div class="relative w-full overflow-auto">
     <table :class="cn('w-full caption-bottom text-sm', props.class)">
       <slot />
     </table>

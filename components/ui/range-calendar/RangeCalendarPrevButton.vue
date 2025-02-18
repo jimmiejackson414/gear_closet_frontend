@@ -25,7 +25,7 @@
     )"
     v-bind="forwardedProps">
     <slot>
-      <icon-chevron-left class="h-4 w-4" />
+      <icon-chevron-left class="size-4" />
     </slot>
   </range-calendar-prev>
 </template>

@@ -103,7 +103,7 @@
         <dialog-description />
       </dialog-header>
       <div class="w-full">
-        <form class="flex flex-col gap-6 w-full">
+        <form class="flex w-full flex-col gap-6">
           <!-- Name -->
           <form-field
             v-slot="{ componentField }"
@@ -181,7 +181,7 @@
                 :action-row="{ showNow: false, showPreview: false, showCancel: false, showSelect: true }"
                 :auto-apply="true"
                 calendar-cell-class-name="gc-dp-cell"
-                class="!w-full gc-dp"
+                class="gc-dp !w-full"
                 :format="format"
                 :hide-navigation="['time']"
                 input-class-name="gc-dp-input"
@@ -192,7 +192,7 @@
                 range
                 @update:model-value="dateRange = $event">
                 <template #input-icon>
-                  <icon-calendar class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-foreground w-5" />
+                  <icon-calendar class="pointer-events-none absolute left-2.5 top-1/2 inline-block size-5 -translate-y-1/2 text-base text-foreground" />
                 </template>
               </vue-date-picker>
             </form-item>

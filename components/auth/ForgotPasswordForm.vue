@@ -41,10 +41,10 @@
 
 <template>
   <form
-    class="max-w-md w-full"
+    class="w-full max-w-md"
     @keydown.enter="onSubmit"
     @submit.prevent="onSubmit">
-    <div class="auto-rows-auto grid grid-cols-1 gap-4">
+    <div class="grid auto-rows-auto grid-cols-1 gap-4">
       <form-field
         v-slot="{ componentField }"
         name="email"
@@ -75,11 +75,11 @@
         Send Reset Link
       </button-root>
     </div>
-    <div class="flex items-center flex-col mt-4">
+    <div class="mt-4 flex flex-col items-center">
       <typography class="text-gray-800">
         Remembered your password?
         <nuxt-link
-          class="no-underline text-primary"
+          class="text-primary no-underline"
           :to="{ name: 'login' }">
           <button-root variant="link">
             Login

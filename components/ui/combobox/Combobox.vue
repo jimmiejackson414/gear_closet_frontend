@@ -40,20 +40,20 @@
     <popover-trigger as-child>
       <button-root
         :aria-expanded="open"
-        class="justify-between w-full"
+        class="w-full justify-between"
         :disabled="disabled"
         role="combobox"
         variant="outline">
         {{ selectedLabel }}
         <spinner-icon
           v-if="loading"
-          class="animate-spin h-4 mr-2 w-4" />
+          class="mr-2 size-4 animate-spin" />
         <icon-chevrons-up-down
           v-else
           :class="cn('h-4 ml-2 opacity-50 transform', open ? 'rotate-180' : 'rotate-0')" />
       </button-root>
     </popover-trigger>
-    <popover-content class="p-0 w-[--radix-popover-trigger-width]">
+    <popover-content class="w-[--radix-popover-trigger-width] p-0">
       <command @update:search-term="emit('update:searchTerm', $event)">
         <command-input
           class="h-9"
@@ -68,7 +68,7 @@
               @select="() => selectOption(option.value as string)">
               <icon-check
                 v-if="value === option.value"
-                class="h-4 mr-2 w-4" />
+                class="mr-2 size-4" />
               <slot
                 name="option"
                 :option="option">

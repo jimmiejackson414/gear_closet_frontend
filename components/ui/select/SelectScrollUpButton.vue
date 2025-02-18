@@ -20,7 +20,7 @@
     v-bind="forwardedProps"
     :class="cn('flex cursor-default items-center justify-center py-1', props.class)">
     <slot>
-      <icon-chevron-up class="h-4 w-4" />
+      <icon-chevron-up class="size-4" />
     </slot>
   </select-scroll-up-button>
 </template>

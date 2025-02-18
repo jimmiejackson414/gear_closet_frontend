@@ -11,7 +11,7 @@
   <div>
     <gc-empty-state>
       <typography
-        class="font-bold mb-3"
+        class="mb-3 font-bold"
         variant="h5">
         You haven't created any trips yet!
       </typography>

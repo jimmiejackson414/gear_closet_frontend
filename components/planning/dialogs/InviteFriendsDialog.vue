@@ -153,8 +153,8 @@
           Invite existing friends to your trip and get started planning!
         </dialog-description>
       </dialog-header>
-      <div class="grid grid-cols-1 gap-6 justify-center items-center w-full">
-        <div class="flex flex-col gap-2 w-full lg:w-1/2 lg:mx-auto">
+      <div class="grid w-full grid-cols-1 items-center justify-center gap-6">
+        <div class="flex w-full flex-col gap-2 lg:mx-auto lg:w-1/2">
           <label-root>
             Search for friends
           </label-root>

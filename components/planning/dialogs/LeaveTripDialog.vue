@@ -50,7 +50,7 @@
           Leave trip
         </alert-dialog-title>
       </alert-dialog-header>
-      <div class="flex items-center mb-4 space-x-2">
+      <div class="mb-4 flex items-center space-x-2">
         <div class="flex flex-col">
           <typography class="mb-2">
             Are you sure you want to leave the "{{ $store.data.trips.find((t: Tables<'trips'>) => t.id === Number($store.selectedTripId))?.name }}" trip?
@@ -62,7 +62,7 @@
           </typography>
         </div>
       </div>
-      <alert-dialog-footer class="items-center w-full sm:justify-between">
+      <alert-dialog-footer class="w-full items-center sm:justify-between">
         <button-root
           :disabled="isSubmitting"
           :loading="isSubmitting"

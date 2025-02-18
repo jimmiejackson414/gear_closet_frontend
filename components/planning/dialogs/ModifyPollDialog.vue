@@ -119,7 +119,7 @@
         </dialog-description>
       </dialog-header>
       <div class="w-full">
-        <div class="grid gap-1.5 items-center mb-4 w-full">
+        <div class="mb-4 grid w-full items-center gap-1.5">
           <label-root for="question">
             Question
           </label-root>
@@ -136,14 +136,14 @@
           <div
             v-for="(_answer, index) in localForm.answers"
             :key="index"
-            class="flex items-center w-full">
+            class="flex w-full items-center">
             <input-root
               :id="`Answer-${index}`"
               v-model="localForm.answers[index].content"
               :placeholder="`Answer ${index + 1}`"
               :prepend-icon="IconCheck" />
             <button-root
-              class="justify-self-end ml-2"
+              class="ml-2 justify-self-end"
               size="sm"
               variant="ghost"
               @click="removeAnswer(index)">

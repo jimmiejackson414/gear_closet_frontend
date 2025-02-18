@@ -47,10 +47,10 @@
 
 <template>
   <form
-    class="max-w-md w-full"
+    class="w-full max-w-md"
     @keydown.enter="onSubmit"
     @submit.prevent="onSubmit">
-    <div class="auto-rows-auto grid grid-cols-1 gap-4">
+    <div class="grid auto-rows-auto grid-cols-1 gap-4">
       <form-field
         v-slot="{ componentField }"
         name="password"

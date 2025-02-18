@@ -128,12 +128,12 @@
 <template>
   <div class="flex flex-col">
     <div class="flex items-center">
-      <icon-backpack class="h-6 mr-6 text-primary dark:text-primary-light w-6" />
+      <icon-backpack class="mr-6 size-6 text-primary dark:text-primary-light" />
       <typography class="!font-bold">
         Pack Summary
       </typography>
     </div>
-    <div class="h-[200px] lg:h-[375px] mb-4 mt-0 w-auto">
+    <div class="mb-4 mt-0 h-[200px] w-auto lg:h-[375px]">
       <client-only>
         <v-chart
           ref="chartRef"

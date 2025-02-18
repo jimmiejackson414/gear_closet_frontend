@@ -33,7 +33,7 @@
       )
     ">
     <progress-indicator
-      class="bg-primary flex-1 h-full transition-all w-full"
+      class="size-full flex-1 bg-primary transition-all"
       :style="`transform: translateX(-${100 - (props.modelValue ?? 0)}%);`" />
   </progress-root>
 </template>

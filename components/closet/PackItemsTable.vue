@@ -126,8 +126,8 @@
 </script>
 
 <template>
-  <card class="mb-6 overflow-y-visible px-4 lg:px-8 py-4">
-    <div class="overflow-x-auto relative">
+  <card class="mb-6 overflow-y-visible p-4 lg:px-8">
+    <div class="relative overflow-x-auto">
       <table-root>
         <template
           v-for="category in $store.data.selectedPack?.categories"
@@ -135,15 +135,15 @@
           <!-- Category title header -->
           <table-header>
             <table-row
-              class="bg-gray-100 dark:bg-accent group"
+              class="group bg-gray-100 dark:bg-accent"
               no-hover-effect>
               <table-head
-                class="p-0 w-8"
+                class="w-8 p-0"
                 colspan="1">
-                <!-- <icon-grip-vertical class="!size-6 category-handle cursor-move ease-snap group-hover:opacity-100 opacity-0 stroke-1 text-muted-foreground transition" /> -->
+                <!-- <icon-grip-vertical class="!size-6 category-handle cursor-move ease-in-out group-hover:opacity-100 opacity-0 stroke-1 text-muted-foreground transition" /> -->
               </table-head>
               <table-head
-                class="font-bold px-0 py-2"
+                class="px-0 py-2 font-bold"
                 :colspan="columns.length - 2">
                 <gc-inline-edit
                   v-if="!$store.isPublicRoute"
@@ -177,7 +177,7 @@
                   v-if="!$store.isPublicRoute"
                   class="flex justify-end">
                   <button-root
-                    class="bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8"
+                    class="size-8 cursor-pointer items-center justify-center rounded-full bg-transparent transition duration-150 ease-in-out hover:bg-destructive/10 dark:hover:bg-destructive-light dark:hover:text-destructive"
                     size="icon"
                     variant="ghost"
                     @click="emit('handleRemoveCategory', category.id)">
@@ -194,7 +194,7 @@
               <table-head
                 v-for="column in columns"
                 :key="column.value"
-                class="font-bold px-0 py-2"
+                class="px-0 py-2 font-bold"
                 :class="cn(
                   column.visible ? 'opacity-1' : 'opacity-0',
                   column.cellClass,
@@ -230,10 +230,10 @@
               <table-cell class="p-0">
                 <icon-grip-vertical
                   v-if="!$store.isPublicRoute"
-                  class="!size-6 cursor-move ease-snap group-hover:opacity-100 opacity-0 row-handle stroke-1 text-muted-foreground transition" />
+                  class="row-handle !size-6 cursor-move stroke-1 text-muted-foreground opacity-0 transition ease-in-out group-hover:opacity-100" />
               </table-cell>
 
-              <table-cell class="pl-0 pr-1 py-1">
+              <table-cell class="py-1 pl-0 pr-1">
                 <!-- name -->
                 <gc-inline-edit
                   v-if="!$store.isPublicRoute"
@@ -280,22 +280,22 @@
 
               <!-- consumable -->
               <table-cell class="p-1">
-                <div class="flex place-content-center w-full">
+                <div class="flex w-full place-content-center">
                   <button
                     v-if="!$store.isPublicRoute"
-                    class="cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
+                    class="flex size-8 cursor-pointer items-center justify-center rounded-full transition duration-150 ease-in-out"
                     :class="catItem.item.consumable ? 'bg-primary hover:bg-primary/70' : 'bg-transparent hover:bg-gray-200'"
                     @click="$store.updateItem(catItem.item, 'consumable', !catItem.item.consumable, category.id)">
                     <icon-apple
-                      class="h-5 w-5"
+                      class="size-5"
                       :class="catItem.item.consumable ? 'text-primary-foreground' : 'text-dark-grey'" />
                   </button>
                   <span
                     v-else
-                    class="cursor-default duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
+                    class="flex size-8 cursor-default items-center justify-center rounded-full transition duration-150 ease-in-out"
                     :class="catItem.item.consumable ? 'bg-primary' : 'bg-transparent'">
                     <icon-apple
-                      class="h-5 w-5"
+                      class="size-5"
                       :class="catItem.item.consumable ? 'text-primary-foreground' : 'text-dark-grey'" />
                   </span>
                 </div>
@@ -303,22 +303,22 @@
 
               <!-- worn -->
               <table-cell class="p-1">
-                <div class="flex place-content-center w-full">
+                <div class="flex w-full place-content-center">
                   <button
                     v-if="!$store.isPublicRoute"
-                    class="cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
+                    class="flex size-8 cursor-pointer items-center justify-center rounded-full transition duration-150 ease-in-out"
                     :class="catItem.item.worn ? 'bg-accent-alt dark:bg-accent-light hover:bg-accent-alt/70' : 'bg-transparent hover:bg-gray-200'"
                     @click="$store.updateItem(catItem.item, 'worn', !catItem.item.worn, category.id)">
                     <icon-shirt
-                      class="h-5 w-5"
+                      class="size-5"
                       :class="catItem.item.worn ? 'text-primary-foreground' : 'text-dark-grey'" />
                   </button>
                   <span
                     v-else
-                    class="cursor-default duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
+                    class="flex size-8 cursor-default items-center justify-center rounded-full transition duration-150 ease-in-out"
                     :class="catItem.item.worn ? 'bg-accent-alt dark:bg-accent-light' : 'bg-transparent'">
                     <icon-shirt
-                      class="h-5 w-5"
+                      class="size-5"
                       :class="catItem.item.worn ? 'text-primary-foreground' : 'text-dark-grey'" />
                   </span>
                 </div>
@@ -328,7 +328,7 @@
               <table-cell class="p-1">
                 <div
                   v-if="!$store.isPublicRoute"
-                  class="flex mx-auto place-content-center w-fit">
+                  class="mx-auto flex w-fit place-content-center">
                   <gc-inline-edit
                     hide-edit-btn
                     :model-value="catItem.item.weight"
@@ -345,7 +345,7 @@
                     :model-value="(catItem.item.unit as Mass)"
                     :name="`item_unit_${catItem.id}`"
                     @update:model-value="$store.updateItem(catItem.item, 'unit', $event, category.id)">
-                    <select-trigger class="border-0 justify-start w-fit">
+                    <select-trigger class="w-fit justify-start border-0">
                       <span>
                         {{ weightOptions({ shortLabel: true }).find(w => w.value === catItem.item.unit)?.label || 'Select Unit' }}
                       </span>
@@ -365,7 +365,7 @@
                 </div>
                 <div
                   v-else
-                  class="flex mx-auto place-content-center w-fit">
+                  class="mx-auto flex w-fit place-content-center">
                   <typography>
                     {{ catItem.item.weight }} {{ catItem.item.unit }}
                   </typography>
@@ -374,7 +374,7 @@
 
               <!-- price -->
               <table-cell class="p-1">
-                <div class="flex place-content-center w-full">
+                <div class="flex w-full place-content-center">
                   <gc-inline-edit
                     v-if="!$store.isPublicRoute"
                     hide-edit-btn
@@ -395,7 +395,7 @@
 
               <!-- quantity -->
               <table-cell class="p-1">
-                <div class="flex place-content-center w-full">
+                <div class="flex w-full place-content-center">
                   <gc-inline-edit
                     v-if="!$store.isPublicRoute"
                     hide-edit-btn
@@ -416,11 +416,11 @@
 
               <!-- actions -->
               <table-cell class="p-1 pr-2">
-                <div class="grid grid-cols-[auto,auto] gap-1 justify-end items-center">
+                <div class="grid grid-cols-[auto,auto] items-center justify-end gap-1">
                   <button-root
                     v-if="!$store.isPublicRoute"
                     v-tippy="{ content: 'Add/Modify URL', placement: 'top' }"
-                    :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
+                    :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-in-out h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
                     size="icon"
                     variant="ghost"
                     @click="emit('handleAddUrl', catItem.item, catItem.category_id)">
@@ -428,16 +428,16 @@
                   </button-root>
                   <button-root
                     v-if="!$store.isPublicRoute"
-                    class="bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8"
+                    class="size-8 cursor-pointer items-center justify-center rounded-full bg-transparent transition duration-150 ease-in-out hover:bg-destructive/10 dark:hover:bg-destructive-light dark:hover:text-destructive"
                     size="icon"
                     variant="ghost"
                     @click="emit('handleRemoveItem', catItem)">
-                    <icon-trash class="h-5 w-5" />
+                    <icon-trash class="size-5" />
                   </button-root>
                   <button-root
                     v-if="$store.isPublicRoute"
                     v-tippy="{ content: 'Visit URL', placement: 'top' }"
-                    :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
+                    :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-in-out h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
                     :disabled="!catItem.item.url"
                     size="icon"
                     variant="ghost"
@@ -459,24 +459,24 @@
           </table-body>
 
           <!-- Totals Row -->
-          <table-body class="[&>tr]:last:border-b-0 bg-card border-t font-medium w-full">
+          <table-body class="w-full border-t bg-card font-medium [&>tr]:last:border-b-0">
             <table-row
               class="font-bold"
               no-hover-effect>
-              <table-cell class="px-0 py-2 w-fit" />
+              <table-cell class="w-fit px-0 py-2" />
               <table-cell
-                class="px-0 py-2 text-left w-fit"
+                class="w-fit px-0 py-2 text-left"
                 colspan="1">
                 Total
               </table-cell>
-              <table-cell class="px-0 py-2 w-fit" />
-              <table-cell class="px-0 py-2 w-fit" />
-              <table-cell class="px-0 py-2 w-fit" />
+              <table-cell class="w-fit px-0 py-2" />
+              <table-cell class="w-fit px-0 py-2" />
+              <table-cell class="w-fit px-0 py-2" />
               <table-cell
-                class="px-0 py-2 text-center w-fit"
+                class="w-fit px-0 py-2 text-center"
                 colspan="1">
-                <div class="flex justify-center items-center mx-auto p-0 text-center w-fit">
-                  <span class="min-w-[3rem]">
+                <div class="mx-auto flex w-fit items-center justify-center p-0 text-center">
+                  <span class="min-w-12">
                     {{ calculateCategoryWeight(category) }}
                   </span>
                   <select-root
@@ -488,7 +488,7 @@
                       field: 'unit',
                       value: $event
                     })">
-                    <select-trigger class="border-0 justify-start">
+                    <select-trigger class="justify-start border-0">
                       <select-value placeholder="Select a theme" />
                     </select-trigger>
                     <select-content>
@@ -511,24 +511,24 @@
                 </div>
               </table-cell>
               <table-cell
-                class="px-0 py-2 text-center w-fit"
+                class="w-fit px-0 py-2 text-center"
                 colspan="1">
                 ${{ calculateCategoryPrice(category) }}
               </table-cell>
               <table-cell
-                class="px-0 py-2 text-center w-fit"
+                class="w-fit px-0 py-2 text-center"
                 colspan="1">
                 {{ calculateCategoryQuantity(category) }}
               </table-cell>
               <table-cell
-                class="px-0 py-2 text-right w-fit"
+                class="w-fit px-0 py-2 text-right"
                 colspan="1">
                 <button-root
                   v-if="!$store.isPublicRoute"
                   size="sm"
                   variant="outline"
                   @click="() => createDefaultItem(category.id)">
-                  <icon-plus class="h-4 text-primary dark:text-primary-light w-4" />
+                  <icon-plus class="size-4 text-primary dark:text-primary-light" />
                   New Item
                 </button-root>
               </table-cell>

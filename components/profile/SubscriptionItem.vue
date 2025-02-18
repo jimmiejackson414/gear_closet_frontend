@@ -14,7 +14,7 @@
   const { profile } = storeToRefs($store);
 
   const computedBorder = computed(() => {
-    const classes = ['border-2', 'transition', 'duration-200', 'ease-snap border-t-8'];
+    const classes = ['border-2', 'transition', 'duration-200', 'ease-in-out border-t-8'];
 
     // define the border top color based on the plan
     if (props.plan.value === SubscriptionLevel.FREE) { classes.push('border-t-tertiary'); }
@@ -38,9 +38,9 @@
 
 <template>
   <div
-    class="flex flex-col h-full rounded-2xl shadow"
+    class="flex h-full flex-col rounded-2xl shadow"
     :class="computedBorder">
-    <div class="flex justify-center items-center flex-col pb-2 pt-4">
+    <div class="flex flex-col items-center justify-center pb-2 pt-4">
       <gc-pill
         :copy="plan.value"
         size="sm"
@@ -50,19 +50,19 @@
           [SubscriptionLevel.FREE]: 'warning' as const,
           [SubscriptionLevel.LIFE]: 'primary' as const,
         }[plan.value as keyof typeof SubscriptionLevel] || 'primary'" />
-      <p class="!font-bold mt-4 text-base-lg">
+      <p class="text-base-lg mt-4 !font-bold">
         {{ plan.value === SubscriptionLevel.FREE ? 'Free' : plan.price }}
       </p>
       <p class="text-sm">
         {{ plan.priceSubtitle }}
       </p>
     </div>
-    <hr class="bg-gray-200 border-0 h-px my-2">
-    <div class="flex flex-col flex-grow px-4 py-2">
+    <hr class="my-2 h-px border-0 bg-gray-200">
+    <div class="flex grow flex-col px-4 py-2">
       <div
         v-for="(item, index) in plan.description"
         :key="`${plan.value}-${item}-${index}`"
-        class="flex items-center gap-4 mb-2 last:mb-0">
+        class="mb-2 flex items-center gap-4 last:mb-0">
         <icon-check-circle-2
           :color="tailwindConfig.theme.colors.primary.DEFAULT"
           :size="20" />

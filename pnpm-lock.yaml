@@ -141,9 +141,6 @@ importers:
       '@fixers/nuxt-stripe':
         specifier: ^4.0.0
         version: 4.0.0(magicast@0.3.5)(rollup@4.29.1)(vite@6.0.6(@types/node@20.17.10)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))
-      '@kalimahapps/eslint-plugin-tailwind':
-        specifier: ^1.0.10
-        version: 1.1.0
       '@nuxt/devtools':
         specifier: latest
         version: 1.7.0(rollup@4.29.1)(vite@6.0.6(@types/node@20.17.10)(jiti@2.4.2)(terser@5.37.0)(tsx@4.19.2)(yaml@2.6.1))(vue@3.5.13(typescript@5.7.2))
@@ -234,6 +231,9 @@ importers:
       eslint-plugin-perfectionist:
         specifier: ^4.8.0
         version: 4.8.0(eslint@8.57.1)(typescript@5.7.2)
+      eslint-plugin-tailwindcss:
+        specifier: ^3.18.0
+        version: 3.18.0(tailwindcss@3.4.17)
       eslint-plugin-vue:
         specifier: ^9.19.2
         version: 9.32.0(eslint@8.57.1)
@@ -840,10 +840,6 @@ packages:
 
   '@jridgewell/trace-mapping@0.3.25':
     resolution: {integrity: sha512-vNk6aEwybGtawWmy/PzwnGDOjCkLWSD2wqvjGGAgOAwCGWySYXfYoxt00IJkTF+8Lb57DwOb3Aa0o9CApepiYQ==}
-
-  '@kalimahapps/eslint-plugin-tailwind@1.1.0':
-    resolution: {integrity: sha512-dA52xYEOQJ1Hxrl5Hqn50N9A8VRoO2jw3nvzVwq48+BdGWeYeOl6FaZPJEVEdn6ZEaytvm13yczMWhKAVfI1kw==}
-    engines: {node: '>=14.16'}
 
   '@koa/router@12.0.2':
     resolution: {integrity: sha512-sYcHglGKTxGF+hQ6x67xDfkE9o+NhVlRHBqq6gLywaMc6CojK/5vFZByphdonKinYlMLkEkacm+HEse9HzwgTA==}
@@ -2449,6 +2445,12 @@ packages:
     peerDependencies:
       eslint: '>=8.0.0'
 
+  eslint-plugin-tailwindcss@3.18.0:
+    resolution: {integrity: sha512-PQDU4ZMzFH0eb2DrfHPpbgo87Zgg2EXSMOj1NSfzdZm+aJzpuwGerfowMIaVehSREEa0idbf/eoNYAOHSJoDAQ==}
+    engines: {node: '>=18.12.0'}
+    peerDependencies:
+      tailwindcss: ^3.4.0
+
   eslint-plugin-vue@9.32.0:
     resolution: {integrity: sha512-b/Y05HYmnB/32wqVcjxjHZzNpwxj1onBOvqW89W+V+XNG1dRuaFbNd3vT9CLbr2LXjEoq+3vn8DanWf7XU22Ug==}
     engines: {node: ^14.17.0 || >=16.0.0}
@@ -3128,9 +3130,6 @@ packages:
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
-
-  lodash.orderby@4.6.0:
-    resolution: {integrity: sha512-T0rZxKmghOOf5YPnn8EY5iLYeWCpZq8G41FfqoVHH5QDTAFaghJRmAdLiadEDq+ztgM2q5PjA+Z1fOwGrLgmtg==}
 
   lodash.round@4.0.4:
     resolution: {integrity: sha512-dzDLNwFMXbjN1pEC0LgLPKVOI5o2DOpBx+oGxWthVE+a9mlV3rEdvoz2i3se/ico4Y3G62Yg3/e1fcp/GMu2lQ==}
@@ -5456,10 +5455,6 @@ snapshots:
       '@jridgewell/resolve-uri': 3.1.2
       '@jridgewell/sourcemap-codec': 1.5.0
 
-  '@kalimahapps/eslint-plugin-tailwind@1.1.0':
-    dependencies:
-      lodash.orderby: 4.6.0
-
   '@koa/router@12.0.2':
     dependencies:
       debug: 4.4.0(supports-color@9.4.0)
@@ -7372,6 +7367,12 @@ snapshots:
       - supports-color
       - typescript
 
+  eslint-plugin-tailwindcss@3.18.0(tailwindcss@3.4.17):
+    dependencies:
+      fast-glob: 3.3.2
+      postcss: 8.4.49
+      tailwindcss: 3.4.17
+
   eslint-plugin-vue@9.32.0(eslint@8.57.1):
     dependencies:
       '@eslint-community/eslint-utils': 4.4.1(eslint@8.57.1)
@@ -8131,8 +8132,6 @@ snapshots:
   lodash.memoize@4.1.2: {}
 
   lodash.merge@4.6.2: {}
-
-  lodash.orderby@4.6.0: {}
 
   lodash.round@4.0.4: {}
 

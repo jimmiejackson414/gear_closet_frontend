@@ -168,11 +168,11 @@
 </script>
 
 <template>
-  <card class="px-8 py-4 rounded-3xl">
-    <div class="flex justify-between items-center py-4">
+  <card class="rounded-3xl px-8 py-4">
+    <div class="flex items-center justify-between py-4">
       <div class="flex items-center">
-        <icon-backpack class="h-6 mr-6 text-primary w-6" />
-        <p class="!font-bold text-base">
+        <icon-backpack class="mr-6 size-6 text-primary" />
+        <p class="text-base !font-bold">
           Pack
         </p>
       </div>
@@ -181,7 +181,7 @@
         class="flex">
         <dropdown-menu>
           <dropdown-menu-trigger>
-            <icon-ellipsis-vertical class="h-6 w-6" />
+            <icon-ellipsis-vertical class="size-6" />
           </dropdown-menu-trigger>
           <dropdown-menu-content>
             <dropdown-menu-label>
@@ -215,7 +215,7 @@
         Selected Pack:
         <span class="font-black">{{ $store.data.pack?.name }}</span>
       </h5>
-      <div class="h-[400px] mb-4 mt-0 mx-auto w-full">
+      <div class="mx-auto mb-4 mt-0 h-[400px] w-full">
         <client-only>
           <v-chart
             ref="chartRef"

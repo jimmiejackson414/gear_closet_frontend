@@ -47,18 +47,18 @@
         </dialog-description>
       </dialog-header>
       <div class="w-full">
-        <div class="flex items-top gap-x-2">
+        <div class="flex items-start gap-x-2">
           <checkbox
             id="accept-checkbox"
             v-model:checked="confirmDeleteAccount"
             variant="destructive" />
           <div class="grid gap-1.5 leading-none">
             <label
-              class="font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-destructive text-sm"
+              class="text-sm font-bold leading-none text-destructive peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               for="accept-checkbox">
               I accept
             </label>
-            <p class="text-destructive text-sm">
+            <p class="text-sm text-destructive">
               I understand that this action is irreversible.
             </p>
           </div>

@@ -26,7 +26,7 @@
 <template>
   <div :class="classList">
     <p
-      class="q-mb-none text-body2"
+      class="mb-0"
       v-html="message" />
   </div>
 </template>

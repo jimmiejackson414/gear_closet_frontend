@@ -10,13 +10,13 @@
 
 <template>
   <nuxt-link :to="{ name: 'p-friends-slug', params: { slug: friend.friend?.id } }">
-    <card class="flex justify-center items-center flex-col max-w-[200px] my-4 px-8 py-4 rounded-3xl w-full">
+    <card class="my-4 flex w-full max-w-[200px] flex-col items-center justify-center rounded-3xl px-8 py-4">
       <gc-avatar
         :initials="initials(friend.friend)"
         size="xl"
         :url="buildImageSrc(friend.friend.image)" />
-      <div class="flex items-center flex-col mt-4">
-        <typography class="font-bold text-center">
+      <div class="mt-4 flex flex-col items-center">
+        <typography class="text-center font-bold">
           {{ friendlyUsername(friend.friend, { includeTrailName: true }) }}
         </typography>
       </div>

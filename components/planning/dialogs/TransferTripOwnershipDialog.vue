@@ -58,7 +58,7 @@
           Transfer ownership of the "{{ $store.data.trips.find((t: Tables<'trips'>) => t.id === Number($store.selectedTripId))?.name }}" trip?
         </alert-dialog-title>
       </alert-dialog-header>
-      <div class="flex items-start flex-col mb-4 space-x-2">
+      <div class="mb-4 flex flex-col items-start space-x-2">
         <combobox
           :model-value="(selectedTransferUserId as string)"
           :options="selectOptions"
@@ -66,7 +66,7 @@
           @update:model-value="selectedTransferUserId = $event" />
         <div
           v-if="selectedFriend"
-          class="flex flex-col mt-4">
+          class="mt-4 flex flex-col">
           <typography>
             Are you sure you want to transfer this trip to <span class="font-bold">{{ friendlyUsername(selectedFriend.profile) }}</span>?
           </typography>
@@ -75,7 +75,7 @@
           </typography>
         </div>
       </div>
-      <alert-dialog-footer class="items-center w-full sm:justify-between">
+      <alert-dialog-footer class="w-full items-center sm:justify-between">
         <button-root
           :disabled="isSubmitting"
           :loading="isSubmitting"

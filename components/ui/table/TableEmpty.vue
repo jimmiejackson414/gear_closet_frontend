@@ -30,7 +30,7 @@
         )
       "
       v-bind="delegatedProps">
-      <div class="flex justify-center items-center py-10">
+      <div class="flex items-center justify-center py-10">
         <slot />
       </div>
     </table-cell>

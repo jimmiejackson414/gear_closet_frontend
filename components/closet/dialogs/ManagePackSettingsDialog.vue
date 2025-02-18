@@ -140,7 +140,7 @@
                         <span
                           v-for="color in theme.colors"
                           :key="color"
-                          class="border-1 border-white h-4 rounded-[3px] w-4"
+                          class="size-4 rounded-[3px] border border-white"
                           :style="{ backgroundColor: color }" />
                       </div>
                       {{ theme.label }}
@@ -157,7 +157,7 @@
           v-slot="{ value, handleChange }"
           name="private"
           :validate-on-blur="!isFieldDirty">
-          <form-item class="border flex justify-between items-center flex-row p-4 rounded-lg">
+          <form-item class="flex flex-row items-center justify-between rounded-lg border p-4">
             <div class="space-y-0.5">
               <form-label class="text-base">
                 Private?
@@ -179,7 +179,7 @@
           v-slot="{ value, handleChange }"
           name="allow_comments"
           :validate-on-blur="!isFieldDirty">
-          <form-item class="border flex justify-between items-center flex-row p-4 rounded-lg">
+          <form-item class="flex flex-row items-center justify-between rounded-lg border p-4">
             <div class="space-y-0.5">
               <form-label class="text-base">
                 Allow comments?

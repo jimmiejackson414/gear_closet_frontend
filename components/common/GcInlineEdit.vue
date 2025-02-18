@@ -65,18 +65,18 @@
 
 <template>
   <div
-    class="grid grid-cols-[auto] h-full relative"
+    class="relative grid h-full grid-cols-[auto]"
     :class="inputClasses">
     <!-- Display Mode -->
     <span
       v-if="!isEditing"
-      class="cursor-pointer duration-100 ease-snap flex items-center group py-1.5 transition-all"
+      class="group flex cursor-pointer items-center py-1.5 transition-all duration-100 ease-in-out"
       :class="cn(spanClasses, [ 'border border-transparent hover:border-gray-300 min-h-[34px] rounded-lg px-1 -ml-1' ])"
       @click="toggleEditing">
       <slot />
       <icon-pencil
         v-if="!hideEditBtn"
-        class="cursor-pointer group-hover:opacity-100 h-4 ml-4 opacity-0 text-grey hover:text-primary transition w-4" />
+        class="ml-4 size-4 cursor-pointer text-muted-foreground opacity-0 transition hover:text-primary group-hover:opacity-100" />
     </span>
 
     <!-- Edit Mode -->

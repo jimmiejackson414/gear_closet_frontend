@@ -17,36 +17,38 @@
 
 <template>
   <a
-    class="bg-white flex items-center gap-4 p-2 rounded-2xl"
-    :class="{ ' hover:bg-gray-100 duration-150 ease-snap transition cursor-pointer': hasForumAccess }"
+    class="flex items-center gap-4 rounded-2xl bg-white p-2"
+    :class="{ ' cursor-pointer transition duration-150 ease-in-out hover:bg-gray-100': hasForumAccess }"
     :href="hasForumAccess ? `${$config.public.forumsUrl}/t/${post.topic_slug}` : undefined"
     target="_blank">
     <span
-      class="h-3 rounded-full w-3"
+      class="size-3 rounded-full"
       :style="{ backgroundColor: `#${post.categoryColor}` }" />
     <img
-      class="h-12 rounded-full w-12"
+      class="size-12 rounded-full"
       :src="avatarSrc">
     <div class="flex grow flex-col">
       <div class="flex items-center gap-4">
-        <p class="!font-bold text-dark-grey">
+        <typography class="!font-bold">
           {{ truncate(post.topic_title, 25) }}
-        </p>
-        <p class="text-gray-400 text-right text-sm">
+        </typography>
+        <typography
+          class="text-right text-gray-400"
+          variant="small">
           {{ dayjs(post.created_at).format('MMM DD, YYYY') }}
-        </p>
+        </typography>
       </div>
       <p class="text-base">
         {{ truncate(post.raw, 50) }}
       </p>
     </div>
-    <div class="flex justify-end flex-col">
-      <p class="text-grey text-right text-sm">
+    <div class="flex flex-col justify-end">
+      <typography class="text-right text-sm text-muted-foreground">
         {{ post.reply_count }} read{{ post.reply_count !== 1 ? 's' : '' }}
-      </p>
-      <p class="text-grey text-right text-sm">
+      </typography>
+      <typography class="text-right text-sm text-muted-foreground">
         {{ post.username }}
-      </p>
+      </typography>
     </div>
   </a>
 </template>

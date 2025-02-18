@@ -76,19 +76,19 @@
 
 <template>
   <form
-    class="max-w-md w-full"
+    class="w-full max-w-md"
     data-testid="register-form"
     @keydown.enter="onSubmit"
     @submit.prevent.stop="onSubmit">
-    <div class="grid grid-cols-[50px,50px] gap-4 justify-center text-center">
+    <div class="grid grid-cols-[50px,50px] justify-center gap-4 text-center">
       <button
-        class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
+        class="flex size-fit shrink-0 items-center justify-center gap-2 rounded-full border border-transparent bg-white p-2 text-sm font-semibold text-white shadow-md transition-all duration-100 ease-in-out hover:shadow-lg disabled:pointer-events-none disabled:opacity-50"
         type="button"
         @click="handleOAuthSignUp('facebook')">
         <img src="/images/facebook.png">
       </button>
       <button
-        class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center flex-shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
+        class="flex size-fit shrink-0 items-center justify-center gap-2 rounded-full border border-transparent bg-white p-2 text-sm font-semibold text-white shadow-md transition-all duration-100 ease-in-out hover:shadow-lg disabled:pointer-events-none disabled:opacity-50"
         type="button"
         @click="handleOAuthSignUp('google')">
         <img src="/images/google.png">
@@ -96,11 +96,11 @@
     </div>
     <div clas="flex justify-center">
       <separator
-        class="max-w-60 mb-6 mt-8 mx-auto"
+        class="mx-auto mb-6 mt-8 max-w-60"
         force-color-mode="light"
         label="OR" />
     </div>
-    <div class="auto-rows-auto grid grid-cols-1 gap-2">
+    <div class="grid auto-rows-auto grid-cols-1 gap-2">
       <form-field
         v-slot="{ componentField }"
         name="email"
@@ -166,7 +166,7 @@
         Create Account
       </button-root>
     </div>
-    <div class="flex items-center flex-col mt-4">
+    <div class="mt-4 flex flex-col items-center">
       <typography class="text-gray-800">
         Already have an account?
         <nuxt-link
@@ -182,7 +182,7 @@
         variant="muted">
         By continuing to use GearCloset, you agree to our{{ ' ' }}
         <nuxt-link
-          class="no-underline text-primary"
+          class="text-primary no-underline"
           :to="{ name: 'terms-and-conditions' }">
           Terms and Conditions.
         </nuxt-link>

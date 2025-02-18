@@ -126,7 +126,7 @@
         <dialog-title>Edit Hike Detail</dialog-title>
       </dialog-header>
       <div class="w-full">
-        <form class="flex flex-col gap-6 w-full">
+        <form class="flex w-full flex-col gap-6">
           <!-- Title -->
           <form-field
             v-slot="{ componentField }"
@@ -168,7 +168,7 @@
               name="has_url"
               type="checkbox"
               :validate-on-blur="!isFieldDirty">
-              <form-item class="flex items-start flex-row gap-x-3 space-y-0">
+              <form-item class="flex flex-row items-start gap-x-3 space-y-0">
                 <form-control>
                   <checkbox
                     :checked="value"

@@ -77,7 +77,7 @@
                     <span
                       v-for="color in theme.colors"
                       :key="color"
-                      class="border-1 border-white h-4 rounded-[3px] w-4"
+                      class="size-4 rounded-[3px] border border-white"
                       :style="{ backgroundColor: color }" />
                   </div>
                   {{ theme.label }}

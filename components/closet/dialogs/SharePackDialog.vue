@@ -35,8 +35,8 @@
         </dialog-description>
       </dialog-header>
       <div class="flex flex-col gap-6">
-        <div class="flex items-end gap-4 w-full">
-          <div class="grid gap-1.5 items-center max-w-sm w-full">
+        <div class="flex w-full items-end gap-4">
+          <div class="grid w-full max-w-sm items-center gap-1.5">
             <label-root for="url">
               Shareabe Link
             </label-root>
@@ -48,9 +48,9 @@
           </div>
           <button-root
             v-tippy="{ content: 'Copy link to clipboard' }"
-            class="cursor-pointer duration-150 ease-snap flex justify-center justify-self-end items-center h-8 mb-2 rounded-full transition w-8"
+            class="mb-2 flex size-8 cursor-pointer items-center justify-center justify-self-end rounded-full transition duration-150 ease-in-out"
             @click="copyToClipboard">
-            <icon-copy class="cursor-pointer duration-150 ease-expo h-6 transition w-6" />
+            <icon-copy class="size-6 cursor-pointer transition duration-150 ease-in-out" />
           </button-root>
         </div>
       </div>

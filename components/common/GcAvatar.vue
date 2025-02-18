@@ -39,7 +39,7 @@
   <img
     v-if="url"
     alt="User Avatar"
-    class="object-cover rounded-full"
+    class="rounded-full object-cover"
     :class="cn(sizeClass, { 'border-2 border-white': props.border }, props.class)"
     :src="url">
   <div

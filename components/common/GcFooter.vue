@@ -4,7 +4,7 @@
 </script>
 
 <template>
-  <footer class="bg-background px-8 py-4 relative bottom-0 inset-x-0 md:fixed">
+  <footer class="relative inset-x-0 bottom-0 bg-background px-8 py-4 md:fixed">
     <div class="flex justify-center">
       <p class="text-base">
         <span

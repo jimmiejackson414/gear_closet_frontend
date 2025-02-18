@@ -29,7 +29,7 @@
       <range-calendar-next-button />
     </range-calendar-header>
 
-    <div class="flex sm:flex-row flex-col gap-y-4 sm:gap-x-4 sm:gap-y-0 mt-4">
+    <div class="mt-4 flex flex-col gap-y-4 sm:flex-row sm:gap-x-4 sm:gap-y-0">
       <range-calendar-grid
         v-for="month in grid"
         :key="month.value.toString()">

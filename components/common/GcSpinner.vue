@@ -24,7 +24,7 @@
 <template>
   <div
     aria-label="loading"
-    class="animate-spin border-current border-t-transparent inline-block rounded-full"
+    class="inline-block animate-spin rounded-full border-current border-t-transparent"
     :class="[ fillClass, sizeClass ]"
     role="status">
     <span class="sr-only">Loading...</span>

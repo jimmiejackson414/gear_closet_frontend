@@ -85,13 +85,13 @@
               variant="destructive" />
             <div class="flex items-center gap-1.5 leading-none">
               <label
-                class="font-bold leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-destructive text-sm"
+                class="text-sm font-bold leading-none text-destructive peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
                 for="accept-checkbox">
                 Remove from closet?
               </label>
               <icon-info
                 v-tippy="{ content: 'Checking this will additionally remove the item from your closet.' }"
-                class="h-4 w-4" />
+                class="size-4" />
             </div>
           </div>
         </alert-dialog-description>

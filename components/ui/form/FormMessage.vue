@@ -10,6 +10,6 @@
   <error-message
     :id="formMessageId"
     as="p"
-    class="font-medium text-destructive text-sm"
+    class="text-sm font-medium text-destructive"
     :name="toValue(name)" />
 </template>

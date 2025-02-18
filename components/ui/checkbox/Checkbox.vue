@@ -39,9 +39,9 @@
       variantClasses,
       props.class
     )">
-    <checkbox-indicator class="flex justify-center items-center h-full text-current w-full">
+    <checkbox-indicator class="flex size-full items-center justify-center text-current">
       <slot>
-        <icon-check class="h-4 w-4" />
+        <icon-check class="size-4" />
       </slot>
     </checkbox-indicator>
   </checkbox-root>

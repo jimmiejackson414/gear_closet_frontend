@@ -43,44 +43,44 @@
 
 <template>
   <card
-    class="px-4 md:px-8 py-4 rounded-3xl"
+    class="rounded-3xl p-4 md:px-8"
     data-testid="upcoming-trips-widget">
     <gc-skeleton
       v-if="loading"
       avatar
       :lines="3" />
     <div v-else>
-      <div class="flex justify-start items-center py-4">
-        <icon-footprints class="h-6 mr-6 text-primary dark:text-primary-foreground w-6" />
+      <div class="flex items-center justify-start py-4">
+        <icon-footprints class="mr-6 size-6 text-primary dark:text-primary-foreground" />
         <typography
           class="!font-bold"
           variant="p">
-          Upcoming Trips <span class="font-normal text-grey">({{ data.length || 0 }})</span>
+          Upcoming Trips <span class="font-normal text-muted-foreground">({{ data.length || 0 }})</span>
         </typography>
       </div>
       <div v-if="data.length">
-        <ul class="divide-gray-200 divide-y">
+        <ul class="divide-y divide-gray-200">
           <li
             v-for="trip in data"
             :key="trip.id"
             class="cursor-pointer"
             @click="handleRouteClick(trip)">
-            <div class="duration-150 ease-in-out flex md:flex-row items-stretch flex-col p-3 rounded-md space-y-2 md:space-x-4 md:space-y-0 hover:bg-gray-100">
-              <div class="flex-1 min-w-0">
-                <p class="font-semibold text-base text-dark-grey truncate">
+            <div class="flex flex-col items-stretch space-y-2 rounded-md p-3 duration-150 ease-in-out hover:bg-gray-100 md:flex-row md:space-x-4 md:space-y-0">
+              <div class="min-w-0 flex-1">
+                <typography class="truncate text-base font-semibold">
                   {{ trip.name }}
-                </p>
-                <p class="text-grey text-sm truncate">
+                </typography>
+                <typography class="truncate text-sm text-muted-foreground">
                   {{ trip.description }}
-                </p>
+                </typography>
               </div>
-              <div class="flex justify-end flex-1 flex-col min-w-0">
-                <p class="font-medium inline-flex items-center text-dark-gray text-sm">
+              <div class="flex min-w-0 flex-1 flex-col justify-end">
+                <typography class="inline-flex items-center text-sm font-medium">
                   Begins {{ formattedRelativeDate(trip.starting_date) }}
-                </p>
-                <div class="bg-gray-200 h-2.5 rounded-full w-full">
+                </typography>
+                <div class="h-2.5 w-full rounded-full bg-gray-200">
                   <div
-                    class="bg-gradient-to-r from-accent to-accent-alt h-2.5 rounded-full"
+                    class="h-2.5 rounded-full bg-gradient-to-r from-accent to-accent-alt"
                     :style="calculatedProgress(trip)" />
                 </div>
               </div>
@@ -90,7 +90,7 @@
       </div>
       <div
         v-else
-        class="flex justify-center items-center flex-col">
+        class="flex flex-col items-center justify-center">
         <typography
           class="mb-4 text-center"
           variant="p">

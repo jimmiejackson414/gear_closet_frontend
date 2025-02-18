@@ -17,16 +17,16 @@
 </script>
 
 <template>
-  <card class="px-8 py-4 rounded-3xl">
-    <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
-      <icon-users-round class="h-6 mr-6 text-primary w-6" />
+  <card class="rounded-3xl px-8 py-4">
+    <div class="grid grid-cols-[auto,auto,1fr] items-center justify-start py-4">
+      <icon-users-round class="mr-6 size-6 text-primary" />
       <div class="flex items-center gap-3">
-        <p class="!font-bold text-base">
+        <p class="text-base !font-bold">
           Friends
         </p>
         <icon-info
           v-tippy="{ content: infoContent }"
-          class="cursor-pointer h-4 text-muted-foreground w-4" />
+          class="size-4 cursor-pointer text-muted-foreground" />
       </div>
       <button-root
         v-if="!$store.pageLoading && $store.data?.friends.length"

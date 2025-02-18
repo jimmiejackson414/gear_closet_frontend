@@ -12,7 +12,7 @@ export const buttonVariants = cva(
     variants: {
       size: {
         default: 'h-9 px-4 py-2',
-        icon: 'h-9 w-9',
+        icon: 'size-9',
         lg: 'h-10 rounded-md px-8',
         sm: 'h-8 rounded-md px-3 text-xs',
       },
@@ -24,7 +24,7 @@ export const buttonVariants = cva(
         destructive:
           'bg-destructive text-destructive-foreground shadow-sm hover:bg-destructive/90',
         ghost: 'hover:bg-accent hover:text-accent-foreground',
-        link: 'text-primary underline-offset-4 hover:underline hover:text-primary/75 transition-all duration-200 ease-in-out',
+        link: 'text-primary underline-offset-4 transition-all duration-200 ease-in-out hover:text-primary/75 hover:underline',
         outline:
           'border border-input bg-background shadow-sm hover:bg-accent hover:text-accent-foreground',
         secondary:

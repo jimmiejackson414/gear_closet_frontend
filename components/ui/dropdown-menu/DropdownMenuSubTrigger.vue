@@ -27,6 +27,6 @@
       props.class,
     )">
     <slot />
-    <icon-chevron-right class="h-4 ml-auto w-4" />
+    <icon-chevron-right class="ml-auto size-4" />
   </dropdown-menu-sub-trigger>
 </template>

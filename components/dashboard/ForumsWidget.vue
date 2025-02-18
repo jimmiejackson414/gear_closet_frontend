@@ -20,16 +20,16 @@
 </script>
 
 <template>
-  <card class="p-4 px-8 rounded-3xl">
-    <div class="flex justify-start items-center py-4">
-      <icon-messages-square class="h-6 mr-6 text-primary dark:text-primary-foreground w-6" />
-      <p class="!font-bold text-base">
+  <card class="rounded-3xl p-4 px-8">
+    <div class="flex items-center justify-start py-4">
+      <icon-messages-square class="mr-6 size-6 text-primary dark:text-primary-foreground" />
+      <p class="text-base !font-bold">
         Latest From The Community
       </p>
       <icon-lock
         v-if="!$store.isPaidMember"
         v-tippy="{ content: 'Upgrade to access the forums', placement: 'top', offset: [0, 10] }"
-        class="h-4 ml-2 text-gray-400 w-4" />
+        class="ml-2 size-4 text-gray-400" />
     </div>
     <gc-skeleton
       v-if="loading"
@@ -38,8 +38,8 @@
     <div v-else>
       <div
         v-if="data.latest_posts.length"
-        class="grid lg:grid-cols-2 grid-cols-1 gap-8 lg:gap-0">
-        <div class="border-gray-200 border-r pr-8">
+        class="grid grid-cols-1 gap-8 lg:grid-cols-2 lg:gap-0">
+        <div class="border-r border-gray-200 pr-8">
           <forum-post
             v-for="post in data.latest_posts"
             :key="post.id"
@@ -50,15 +50,15 @@
           <div
             v-for="category in data.categories"
             :key="category.id"
-            class="border border-gray-200 grid grid-cols-[auto,1fr] gap-4 items-center p-4 rounded-2xl">
+            class="grid grid-cols-[auto,1fr] items-center gap-4 rounded-2xl border border-gray-200 p-4">
             <span
-              class="h-3 rounded-full w-3"
+              class="size-3 rounded-full"
               :style="{ backgroundColor: `#${category.color}` }" />
-            <div class="flex justify-center flex-col">
+            <div class="flex flex-col justify-center">
               <typography class="!font-bold">
                 {{ category.name }}
               </typography>
-              <typography class="text-grey">
+              <typography class="text-muted-foreground">
                 {{ category.topic_count }} topics
               </typography>
             </div>

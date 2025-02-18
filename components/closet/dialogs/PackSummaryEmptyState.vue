@@ -47,7 +47,7 @@
   <div>
     <gc-empty-state data-testid="pack-summary-empty-state">
       <typography
-        class="font-bold mb-2"
+        class="mb-2 font-bold"
         variant="h5">
         Successfully created your new {{ $store.data.selectedPack?.name }} pack!
       </typography>
@@ -57,7 +57,7 @@
       <typography class="mb-4">
         You can add items to your pack by clicking the Get Started button below or by uploading a CSV file.
       </typography>
-      <div class="flex justify-center items-center gap-4">
+      <div class="flex items-center justify-center gap-4">
         <button-root
           size="sm"
           @click="createDefaultCategory">

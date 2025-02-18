@@ -28,17 +28,17 @@
 
 <template>
   <li
-    class="cursor-pointer flex px-4 py-3 hover:bg-gray-100"
+    class="flex cursor-pointer px-4 py-3 hover:bg-gray-100"
     :class="{ 'bg-primary-light/40': !notification?.read_on_date }"
     @mouseover="emit('markAsRead', notification)">
-    <div class="flex-shrink-0">
+    <div class="shrink-0">
       <div
-        class="bg-center bg-cover bg-no-repeat h-11 rounded-full w-11"
+        class="size-11 rounded-full bg-cover bg-center bg-no-repeat"
         :style="computedImageSrc" />
-      <div class="-mt-5 absolute bg-primary border border-white flex justify-center items-center h-5 ms-6 rounded-full w-5">
+      <div class="absolute -mt-5 ms-6 flex size-5 items-center justify-center rounded-full border border-white bg-primary">
         <svg
           aria-hidden="true"
-          class="h-2 text-white w-2"
+          class="size-2 text-white"
           fill="currentColor"
           viewBox="0 0 18 18"
           xmlns="http://www.w3.org/2000/svg">
@@ -47,11 +47,13 @@
         </svg>
       </div>
     </div>
-    <div class="ps-3 w-full">
-      <div class="mb-1.5 text-dark-grey text-sm">
+    <div class="w-full ps-3">
+      <typography
+        class="mb-1.5"
+        variant="small">
         New message from <span class="font-semibold text-gray-900">{{ friendlyUsername(notification?.sender) }}</span>: "{{ notification?.content }}"
-      </div>
-      <div class="font-bold text-primary text-xs">
+      </typography>
+      <div class="text-xs font-bold text-primary">
         {{ relativeDate }}
       </div>
     </div>

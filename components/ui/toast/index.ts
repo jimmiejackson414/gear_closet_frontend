@@ -24,8 +24,8 @@ export const toastVariants = cva(
       variant: {
         default: 'border border-secondary-foreground bg-primary-foreground text-foreground',
         destructive: 'destructive group border-destructive bg-destructive-light text-destructive',
-        info: 'border bg-primary-light border-primary text-primary',
-        positive: 'border bg-accent border-accent-alt text-accent-alt',
+        info: 'border border-primary bg-primary-light text-primary',
+        positive: 'border border-accent-alt bg-accent text-accent-alt',
       },
     },
   },

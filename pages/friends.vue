@@ -128,7 +128,7 @@
 <template>
   <div class="pb-8">
     <div>
-      <div class="flex justify-start items-center">
+      <div class="flex items-center justify-start">
         <typography class="!font-bold">
           Friend Requests ({{ requests.length }})
         </typography>
@@ -159,9 +159,9 @@
 
     <separator class="my-8" />
 
-    <div class="flex justify-center flex-col">
+    <div class="flex flex-col justify-center">
       <div>
-        <div class="grid grid-cols-[auto,1fr] gap-8 justify-start items-center">
+        <div class="grid grid-cols-[auto,1fr] items-center justify-start gap-8">
           <typography class="!font-bold">
             Find New Friends
           </typography>
@@ -176,13 +176,13 @@
         </div>
         <div
           v-if="searching"
-          class="flex justify-center mt-8">
+          class="mt-8 flex justify-center">
           <gc-spinner />
         </div>
         <div
           v-else-if="results.length && !searching"
           class="mt-8">
-          <div class="flex justify-start items-center">
+          <div class="flex items-center justify-start">
             <typography
               class="font-bold uppercase"
               size="sm">
@@ -215,7 +215,7 @@
     <separator class="my-8" />
 
     <div>
-      <div class="flex justify-start items-center">
+      <div class="flex items-center justify-start">
         <typography class="!font-bold">
           All Friends ({{ currentFriends.length }})
         </typography>

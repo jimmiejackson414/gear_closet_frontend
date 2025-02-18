@@ -29,8 +29,8 @@
         props.class,
       )
     ">
-    <radio-group-indicator class="flex justify-center items-center">
-      <icon-circle class="fill-current h-2.5 text-current w-2.5" />
+    <radio-group-indicator class="flex items-center justify-center">
+      <icon-circle class="size-2.5 fill-current text-current" />
     </radio-group-indicator>
   </radio-group-item>
 </template>

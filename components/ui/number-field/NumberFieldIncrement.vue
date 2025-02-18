@@ -22,7 +22,7 @@
     :class="cn('absolute top-1/2 -translate-y-1/2 right-0 disabled:cursor-not-allowed disabled:opacity-20 p-3', props.class)"
     data-slot="increment">
     <slot>
-      <icon-plus class="h-4 w-4" />
+      <icon-plus class="size-4" />
     </slot>
   </number-field-increment>
 </template>

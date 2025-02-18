@@ -32,7 +32,7 @@
 
 <template>
   <span
-    class="!font-semibold me-2 rounded-lg"
+    class="me-2 rounded-lg !font-semibold"
     :class="computedClasses">
     {{ copy }}
   </span>

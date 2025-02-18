@@ -111,23 +111,23 @@
 
 <template>
   <card
-    class="h-full p-4 rounded-3xl"
+    class="h-full rounded-3xl p-4"
     data-testid="invitations-widget">
     <gc-skeleton
       v-if="loading"
       avatar
       :lines="3" />
     <div v-else>
-      <div class="flex justify-start items-center mb-4 py-4">
-        <icon-calendar-check class="h-6 mr-6 text-primary dark:text-primary-foreground w-6" />
-        <p class="!font-bold text-base">
-          Invitations <span class="font-normal text-grey">({{ data.length || 0 }})</span>
+      <div class="mb-4 flex items-center justify-start py-4">
+        <icon-calendar-check class="mr-6 size-6 text-primary dark:text-primary-foreground" />
+        <p class="text-base !font-bold">
+          Invitations <span class="font-normal text-muted-foreground">({{ data.length || 0 }})</span>
         </p>
       </div>
       <div>
         <ul
           v-if="data.length"
-          class="divide-grey divide-y">
+          class="divide-y divide-muted-foreground">
           <li
             v-for="invite in data"
             :key="invite.id"
@@ -137,7 +137,7 @@
                 {{ invite.trip?.name }}
               </typography>
               <typography
-                class="italic my-1"
+                class="my-1 italic"
                 variant="muted">
                 Invited by {{ friendlyUsername(invite.profile) }}
               </typography>
@@ -147,13 +147,13 @@
               <div
                 v-if="madeSelection"
                 class="mt-3">
-                <typography class="italic text-muted-foreground text-xs">
+                <typography class="text-xs italic text-muted-foreground">
                   {{ capitalize(madeSelection) }} {{ dayjs().to(selectionTimestamp) }}
                 </typography>
               </div>
               <div
                 v-else
-                class="flex items-center mt-3">
+                class="mt-3 flex items-center">
                 <button-root
                   class="mr-2"
                   :disabled="submitting"

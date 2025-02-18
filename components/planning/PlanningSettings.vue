@@ -23,13 +23,13 @@
 </script>
 
 <template>
-  <div class="flex justify-between lg:justify-end items-center gap-6 mb-8">
-    <div class="flex justify-center items-center gap-4">
+  <div class="mb-8 flex items-center justify-between gap-6 lg:justify-end">
+    <div class="flex items-center justify-center gap-4">
       <div class="flex">
         <dropdown-menu>
           <dropdown-menu-trigger>
             <icon-settings
-              class="h-6 w-6"
+              class="size-6"
               data-testid="settings-icon" />
           </dropdown-menu-trigger>
           <dropdown-menu-content>

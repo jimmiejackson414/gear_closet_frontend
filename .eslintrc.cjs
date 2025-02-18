@@ -6,6 +6,7 @@ module.exports = {
     'plugin:vue/vue3-strongly-recommended',
     'eslint:recommended',
     '@vue/eslint-config-typescript',
+    'plugin:tailwindcss/recommended',
     './.eslintrc-auto-import.json',
   ],
   overrides: [
@@ -32,12 +33,12 @@ module.exports = {
     parser: '@typescript-eslint/parser',
   },
 
-  plugins: ['@kalimahapps/eslint-plugin-tailwind', '@stylistic/js', 'no-relative-import-paths', 'perfectionist'],
+  plugins: ['@stylistic/js', 'no-relative-import-paths', 'perfectionist'],
 
   root: true,
 
   rules: {
-    '@kalimahapps/tailwind/sort': 'off',
+    // '@kalimahapps/tailwind/sort': 'off',
     '@stylistic/js/comma-dangle': ['warn', 'always-multiline'],
     '@stylistic/js/indent': 'off',
     '@stylistic/js/linebreak-style': 'off',
@@ -163,7 +164,10 @@ module.exports = {
     ],
   },
 
-  // settings: {
-
-  // },
+  settings: {
+    tailwindcss: {
+      config: './tailwind.config.ts',
+      whitelist: ['destructive', 'toaster', 'lucide', 'lucide-loader-circle', 'ray', 'darkmode_icon', 'row-handle'],
+    },
+  },
 };

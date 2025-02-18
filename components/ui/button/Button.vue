@@ -28,7 +28,7 @@
     :class="cn(buttonVariants({ variant, size }), props.class)">
     <spinner-icon
       v-if="loading"
-      class="animate-spin h-4 mr-2 w-4" />
+      class="mr-2 size-4 animate-spin" />
     <slot />
   </primitive>
 </template>

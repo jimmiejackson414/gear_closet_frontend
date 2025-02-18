@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="flex justify-center items-center flex-col h-screen w-full">
+  <div class="flex h-screen w-full flex-col items-center justify-center">
     <gc-loading icon-class="w-12 h-12 mb-4" />
   </div>
 </template>

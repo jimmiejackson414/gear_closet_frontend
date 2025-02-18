@@ -45,8 +45,8 @@
           Add a website URL to link to more information about this item.
         </dialog-description>
       </dialog-header>
-      <div class="flex flex-col w-full">
-        <div class="flex items-center gap-4 w-full">
+      <div class="flex w-full flex-col">
+        <div class="flex w-full items-center gap-4">
           <input-root
             v-model="newUrl"
             class="w-full"
@@ -62,7 +62,7 @@
             rel="noopener noreferrer"
             target="_blank">
             <icon-external-link
-              class="duration-150 ease-expo h-6 transition w-6"
+              class="size-6 transition duration-150 ease-in-out"
               :class="!isValidUrl ? 'cursor-not-allowed text-gray-300' : 'text-accent-alt cursor-pointer'" />
           </a>
         </div>

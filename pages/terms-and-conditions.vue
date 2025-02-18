@@ -29,18 +29,18 @@
 </script>
 
 <template>
-  <div class="flex justify-center mt-14">
-    <div class="w-full md:max-w-4xl md:mx-auto">
-      <h5 class="mb-4 text-2xl text-center">
+  <div class="mt-14 flex justify-center">
+    <div class="w-full md:mx-auto md:max-w-4xl">
+      <h5 class="mb-4 text-center text-2xl">
         Terms and Conditions of Use
       </h5>
 
       <!-- Table of Contents -->
       <section class="my-12">
-        <p class="font-bold text-base uppercase">
+        <p class="text-base font-bold uppercase">
           Contents
         </p>
-        <ol class="list-decimal list-outside pl-4">
+        <ol class="list-outside list-decimal pl-4">
           <li
             v-for="content in tableOfContents"
             :key="content.id">
@@ -61,7 +61,7 @@
       <section
         id="changes"
         class="my-12">
-        <p class="font-bold text-base uppercase">
+        <p class="text-base font-bold uppercase">
           Changes to these Terms and Conditions
         </p>
         <p class="mb-4 text-sm">
@@ -76,7 +76,7 @@
       <section
         id="disclaimer"
         class="my-12">
-        <p class="font-bold text-base uppercase">
+        <p class="text-base font-bold uppercase">
           Disclaimer
         </p>
         <p class="mb-4 text-sm">
@@ -114,7 +114,7 @@
       <section
         id="membership-privileges"
         class="my-12">
-        <p class="font-bold text-base uppercase">
+        <p class="text-base font-bold uppercase">
           Membership Privileges
         </p>
         <p class="mb-4 text-sm">
@@ -165,7 +165,7 @@
       <section
         id="subscription-refund-policy"
         class="my-12">
-        <p class="font-bold text-base uppercase">
+        <p class="text-base font-bold uppercase">
           Subscription Refund and Renewal Policy
         </p>
         <p class="mb-4 text-sm">
@@ -189,7 +189,7 @@
       <section
         id="fraud-management"
         class="my-12">
-        <p class="font-bold text-base uppercase">
+        <p class="text-base font-bold uppercase">
           Fraud Management Policies
         </p>
         <p class="mb-4 text-sm">
@@ -197,7 +197,7 @@
           flags suspect transactions. Every transaction is assigned a
           fraud potential score based on the following criteria:
         </p>
-        <ul class="q-mb-sm">
+        <ul class="mb-4">
           <li>
             <p class="mb-4 text-sm">
               An AVS match of the cardholder's billing address and zip
@@ -264,7 +264,7 @@
           valid telephone number is required for all orders) for the
           purpose of:
         </p>
-        <ol class="q-mb-sm">
+        <ol class="mb-4">
           <li>
             <p class="mb-4 text-sm">
               Confirm your cardholder billing information and CSC/CVC
@@ -322,7 +322,7 @@
       <section
         id="security-statement"
         class="my-12">
-        <p class="font-bold text-base uppercase">
+        <p class="text-base font-bold uppercase">
           Security Statement
         </p>
         <p class="mb-4 text-sm">
@@ -342,7 +342,7 @@
       <section
         id="chat-message-board-policy"
         class="my-12">
-        <p class="font-bold text-base uppercase">
+        <p class="text-base font-bold uppercase">
           Chat/Message Boards
         </p>
         <p class="mb-4 text-sm">
@@ -384,7 +384,7 @@
           You agree not to submit, upload or post to a chat/message board
           any content which:
         </p>
-        <ol class="q-mb-sm">
+        <ol class="mb-4">
           <li>
             <p class="mb-4 text-sm">
               libels, defames, invades privacy, or is obscene, profane,
@@ -491,7 +491,7 @@
       <section
         id="privacy-policy"
         class="my-12">
-        <p class="font-bold text-base uppercase">
+        <p class="text-base font-bold uppercase">
           Privacy Policy
         </p>
         <p class="mb-4 text-sm">
@@ -677,7 +677,7 @@
       <section
         id="disclosure"
         class="my-12">
-        <p class="font-bold text-base uppercase">
+        <p class="text-base font-bold uppercase">
           Disclosure
         </p>
         <p class="mb-4 text-sm">

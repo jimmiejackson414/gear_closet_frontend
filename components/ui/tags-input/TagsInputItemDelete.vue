@@ -20,7 +20,7 @@
     v-bind="forwardedProps"
     :class="cn('flex rounded bg-transparent mr-1', props.class)">
     <slot>
-      <icon-x class="h-4 w-4" />
+      <icon-x class="size-4" />
     </slot>
   </tags-input-item-delete>
 </template>

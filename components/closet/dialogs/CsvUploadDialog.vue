@@ -119,7 +119,7 @@
           Upload a CSV file to automatically add items to your pack. Any items that already exist will not be affected.
         </dialog-description>
       </dialog-header>
-      <div class="flex items-center flex-col gap-6">
+      <div class="flex flex-col items-center gap-6">
         <div class="flex flex-col gap-1.5">
           <label-root for="file-upload">
             Import pack items (optional)
@@ -130,7 +130,7 @@
             type="file"
             @change="file = $event.target.files?.[0]" />
           <a
-            class="inline-block text-hyperlink"
+            class="text-hyperlink inline-block"
             href="gear_closet_template.csv">Download CSV template</a>
         </div>
       </div>

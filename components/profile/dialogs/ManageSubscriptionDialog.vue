@@ -53,42 +53,42 @@
 <template>
   <dialog-root :open="isOpen">
     <dialog-content
-      class="flex flex-col max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      class="flex max-h-[90dvh] flex-col sm:max-w-[450px] lg:max-w-[650px]"
       @escape-key-down="handleClose"
       @interact-outside="handleClose">
       <dialog-header>
         <dialog-title>Manage Subscription</dialog-title>
       </dialog-header>
-      <div class="flex-grow mt-2 overflow-y-auto w-full">
+      <div class="mt-2 w-full grow overflow-y-auto">
         <stepper
           v-model="activeStep"
-          class="grid pt-4 w-full">
-          <div class="flex flex-start gap-2 w-full">
+          class="grid w-full pt-4">
+          <div class="flex w-full gap-2">
             <stepper-item
               v-for="step in steps"
               :key="step.step"
               v-slot="{ state }"
-              class="flex justify-center items-center flex-col relative w-full"
+              class="relative flex w-full flex-col items-center justify-center"
               :step="step.step">
               <stepper-separator
                 v-if="step.step !== steps[steps.length - 1].step"
-                class="absolute top-5 right-[calc(-50%+10px)] left-[calc(50%+20px)] bg-muted block group-data-[state=completed]:bg-primary h-0.5 rounded-full shrink-0" />
+                class="absolute left-[calc(50%+20px)] right-[calc(-50%+10px)] top-5 block h-0.5 shrink-0 rounded-full bg-muted group-data-[state=completed]:bg-primary" />
               <stepper-trigger as-child>
                 <button-root
-                  class="rounded-full shrink-0 z-10"
+                  class="z-10 shrink-0 rounded-full"
                   :class="[state === 'active' && 'ring-2 ring-ring ring-offset-2 ring-offset-background']"
                   :disabled="state !== 'active'"
                   size="sm"
                   variant="secondary">
                   <component
                     :is="step.icon"
-                    class="h-2 w-2" />
+                    class="size-2" />
                 </button-root>
               </stepper-trigger>
 
-              <div class="flex items-center flex-col mt-2 text-center">
+              <div class="mt-2 flex flex-col items-center text-center">
                 <stepper-title
-                  class="font-regular text-sm transition"
+                  class="text-sm font-normal transition"
                   :class="[state === 'active' && 'text-primary']">
                   {{ step.title }}
                 </stepper-title>
@@ -96,12 +96,12 @@
             </stepper-item>
           </div>
 
-          <div class="flex flex-col gap-4 mt-2 mx-auto w-full">
+          <div class="mx-auto mt-2 flex w-full flex-col gap-4">
             <template v-if="activeStep === 1">
               <div
                 v-if="subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() === SubscriptionLevel.LIFE"
                 class="mb-4 mt-2 text-center">
-                <typography class="font-bold text-lg">
+                <typography class="text-lg font-bold">
                   Good news!
                 </typography>
                 <typography>
@@ -111,14 +111,14 @@
               <div
                 v-else
                 class="mb-4 mt-2 text-center">
-                <typography class="font-bold text-base-lg">
+                <typography class="text-base-lg font-bold">
                   Here's what you've got.
                 </typography>
                 <typography variant="small">
                   You're currently subscribed to the <span class="font-bold">{{ capitalize(subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname) }} Plan.</span>
                 </typography>
               </div>
-              <div class="grid lg:grid-cols-3 grid-cols-1 gap-4">
+              <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
                 <subscription-item
                   v-for="tier in tiers"
                   :key="tier.title"

@@ -19,22 +19,22 @@
 
 <template>
   <card
-    class="h-full px-8 py-4 rounded-3xl"
+    class="h-full rounded-3xl px-8 py-4"
     data-testid="friends-widget">
     <gc-skeleton
       v-if="loading"
       avatar
       :lines="3" />
     <div v-else>
-      <div class="flex justify-start items-center mb-4 py-4">
-        <icon-users class="h-6 mr-6 text-primary dark:text-primary-foreground w-6" />
+      <div class="mb-4 flex items-center justify-start py-4">
+        <icon-users class="mr-6 size-6 text-primary dark:text-primary-foreground" />
         <nuxt-link
-          class="!font-bold duration-150 ease-in-out text-base hover:text-primary"
+          class="text-base !font-bold duration-150 ease-in-out hover:text-primary"
           :to="{ name: 'friends' }">
-          Friends <span class="font-normal text-grey">({{ data.length }})</span>
+          Friends <span class="font-normal text-muted-foreground">({{ data.length }})</span>
         </nuxt-link>
       </div>
-      <ul class="-space-x-3 flex">
+      <ul class="flex -space-x-3">
         <template v-if="computedUsers.length">
           <li
             v-for="user in computedUsers"
@@ -45,7 +45,7 @@
               :url="buildImageSrc(user.image)" />
             <nuxt-link
               v-if="data.length > 5"
-              class="bg-dark-grey hover:bg-dark-grey/75 border-2 border-white flex justify-center items-center flex-shrink-0 font-medium h-12 min-w-12 rounded-full text-white text-xs w-12 z-10"
+              class="z-10 flex size-12 min-w-12 shrink-0 items-center justify-center rounded-full border-2 border-white bg-text text-xs font-medium text-white hover:bg-text/75"
               data-testid="friends-widget-more"
               :to="{ name: 'friends' }">
               {{ `+${data.length - 5}` }}
@@ -53,7 +53,7 @@
           </li>
         </template>
         <template v-else>
-          <div class="flex justify-center items-center flex-col">
+          <div class="flex flex-col items-center justify-center">
             <typography
               class="mb-4 text-center"
               variant="p">

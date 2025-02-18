@@ -28,11 +28,11 @@
 
 <template>
   <div
-    class="bg-background fixed h-screen pb-4 pt-12 px-2 z-50"
+    class="fixed z-50 h-screen bg-background px-2 pb-4 pt-12"
     data-testid="gc-drawer">
-    <ul class="flex items-center flex-col gap-4 h-full">
-      <li class="border-b border-light-grey">
-        <span class="block mb-4 px-4 py-2">
+    <ul class="flex h-full flex-col items-center gap-4">
+      <li class="border-b border-muted-foreground">
+        <span class="mb-4 block px-4 py-2">
           <gc-logo-icon
             :fill="tailwind.theme.colors.primary.DEFAULT"
             wrapper-class="w-8 h-8" />
@@ -45,7 +45,7 @@
           :class="link.disabled ? 'cursor-not-allowed' : 'cursor-pointer'">
           <template v-if="link.external">
             <a
-              class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg dark:hover:bg-accent hover:bg-gray-100"
+              class="mb-4 inline-flex items-center justify-center rounded-lg px-4 py-2 hover:bg-gray-100 dark:hover:bg-accent"
               :href="link.disabled ? undefined : link.to"
               rel="noopener noreferrer"
               target="_blank"
@@ -59,7 +59,7 @@
           </template>
           <template v-else>
             <nuxt-link
-              class="duration-200 ease-in-out inline-flex justify-center items-center mb-4 px-4 py-2 relative rounded-lg transition dark:hover:bg-accent hover:bg-gray-100"
+              class="relative mb-4 inline-flex items-center justify-center rounded-lg px-4 py-2 transition duration-200 ease-in-out hover:bg-gray-100 dark:hover:bg-accent"
               :class="[isActiveRoute(link) ? 'bg-accent dark:bg-accent-light' : '']"
               :disabled="link.disabled"
               :to="{ name: link.to }">
@@ -77,7 +77,7 @@
                 :size="24" />
               <div
                 v-if="shouldShowBadge && link.to === 'friends'"
-                class="absolute top-1 bg-destructive block border-2 border-white end-1 h-3 rounded-full w-3" />
+                class="absolute end-1 top-1 block size-3 rounded-full border-2 border-white bg-destructive" />
             </nuxt-link>
           </template>
         </li>
@@ -89,7 +89,7 @@
         <li class="cursor-pointer">
           <span
             v-tippy="{ content: 'Logout', placement: 'right' }"
-            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg dark:hover:bg-accent hover:bg-gray-100"
+            class="mb-4 inline-flex items-center justify-center rounded-lg px-4 py-2 hover:bg-gray-100 dark:hover:bg-accent"
             data-testid="logout"
             @click="handleLogout">
             <icon-log-out

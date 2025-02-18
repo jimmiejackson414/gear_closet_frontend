@@ -23,6 +23,6 @@
       'flex h-6 w-6 items-center justify-center rounded-full text-muted-foreground hover:bg-muted disabled:pointer-events-none disabled:opacity-50',
       props.class
     )">
-    <icon-x class="h-4 w-4" />
+    <icon-x class="size-4" />
   </combobox-cancel>
 </template>
