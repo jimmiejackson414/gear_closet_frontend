@@ -33,6 +33,7 @@
 
   const $router = useRouter();
   const handleRouteClick = (trip: Tables<'trips'>) => {
+    // TODO: set to cookie instead of query
     $router.push({
       name: 'planning',
       query: { trip: encrypt(trip.id) },
