@@ -1057,9 +1057,10 @@ export type Database = {
           created_at: string | null
           id: number
           invite_token: string | null
-          invited_by_id: string
+          invited_by_id: string | null
           profile_id: string
-          status: Database["public"]["Enums"]["trip_friend_status"]
+          role: Database["public"]["Enums"]["trip_friend_role"] | null
+          status: Database["public"]["Enums"]["trip_friend_status"] | null
           trip_id: number | null
           updated_at: string
         }
@@ -1068,9 +1069,10 @@ export type Database = {
           created_at?: string | null
           id?: number
           invite_token?: string | null
-          invited_by_id: string
+          invited_by_id?: string | null
           profile_id: string
-          status?: Database["public"]["Enums"]["trip_friend_status"]
+          role?: Database["public"]["Enums"]["trip_friend_role"] | null
+          status?: Database["public"]["Enums"]["trip_friend_status"] | null
           trip_id?: number | null
           updated_at?: string
         }
@@ -1079,9 +1081,10 @@ export type Database = {
           created_at?: string | null
           id?: number
           invite_token?: string | null
-          invited_by_id?: string
+          invited_by_id?: string | null
           profile_id?: string
-          status?: Database["public"]["Enums"]["trip_friend_status"]
+          role?: Database["public"]["Enums"]["trip_friend_role"] | null
+          status?: Database["public"]["Enums"]["trip_friend_status"] | null
           trip_id?: number | null
           updated_at?: string
         }
@@ -1166,7 +1169,6 @@ export type Database = {
           ending_point: string | null
           id: number
           name: string | null
-          profile_id: string | null
           slug: string | null
           starting_date: string | null
           starting_point: string | null
@@ -1179,7 +1181,6 @@ export type Database = {
           ending_point?: string | null
           id?: number
           name?: string | null
-          profile_id?: string | null
           slug?: string | null
           starting_date?: string | null
           starting_point?: string | null
@@ -1192,21 +1193,12 @@ export type Database = {
           ending_point?: string | null
           id?: number
           name?: string | null
-          profile_id?: string | null
           slug?: string | null
           starting_date?: string | null
           starting_point?: string | null
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "trips_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
@@ -1259,7 +1251,7 @@ export type Database = {
           search_term: string
         }
         Returns: {
-          id: string
+          id: number
           created_at: string
           updated_at: string
           profile_id: string
@@ -1346,6 +1338,7 @@ export type Database = {
         | "JEWELBRIGHT9"
         | "HUECIRCLE19"
       trip_details_type: "HIKE" | "TRIP"
+      trip_friend_role: "OWNER" | "MEMBER"
       trip_friend_status: "ACCEPTED" | "DECLINED" | "PENDING"
       user_role: "ADMIN" | "USER"
     }
@@ -1774,16 +1767,16 @@ export type CompositeTypes<
 
 
 export enum FriendRequestStatus {
+  PENDING = "PENDING",
   ACCEPTED = "ACCEPTED",
-  DECLINED = "DECLINED",
-  PENDING = "PENDING"
+  DECLINED = "DECLINED"
 }
 
 export enum ItemUnit {
   g = "g",
   kg = "kg",
-  lb = "lb",
-  oz = "oz"
+  oz = "oz",
+  lb = "lb"
 }
 
 export enum MeasuringSystem {
@@ -1793,8 +1786,8 @@ export enum MeasuringSystem {
 
 export enum PricingPlanInterval {
   day = "day",
-  month = "month",
   week = "week",
+  month = "month",
   year = "year"
 }
 
@@ -1804,24 +1797,24 @@ export enum PricingType {
 }
 
 export enum ResourceType {
-  GROUP = "GROUP",
-  USER = "USER"
+  USER = "USER",
+  GROUP = "GROUP"
 }
 
 export enum SubscriptionLevel {
-  ANNUAL = "ANNUAL",
   FREE = "FREE",
-  LIFE = "LIFE",
-  MONTHLY = "MONTHLY"
+  MONTHLY = "MONTHLY",
+  ANNUAL = "ANNUAL",
+  LIFE = "LIFE"
 }
 
 export enum SubscriptionStatus {
+  trialing = "trialing",
   active = "active",
   canceled = "canceled",
   incomplete = "incomplete",
   incomplete_expired = "incomplete_expired",
   past_due = "past_due",
-  trialing = "trialing",
   unpaid = "unpaid"
 }
 
@@ -1831,23 +1824,28 @@ export enum Theme {
   BREEZE6 = "BREEZE6",
   CELESTIAL6 = "CELESTIAL6",
   CIRCUIT6 = "CIRCUIT6",
-  COLORBLIND10 = "COLORBLIND10",
   DAMASK6 = "DAMASK6",
   DEPTH6 = "DEPTH6",
   FLOW6 = "FLOW6",
   FORTE6 = "FORTE6",
   GENESIS6 = "GENESIS6",
   GRAYSCALE6 = "GRAYSCALE6",
-  HUECIRCLE19 = "HUECIRCLE19",
   IONBOARDROOM6 = "IONBOARDROOM6",
-  JEWELBRIGHT9 = "JEWELBRIGHT9",
   KILTER6 = "KILTER6",
-  TABLEAU10 = "TABLEAU10"
+  TABLEAU10 = "TABLEAU10",
+  COLORBLIND10 = "COLORBLIND10",
+  JEWELBRIGHT9 = "JEWELBRIGHT9",
+  HUECIRCLE19 = "HUECIRCLE19"
 }
 
 export enum TripDetailsType {
   HIKE = "HIKE",
   TRIP = "TRIP"
+}
+
+export enum TripFriendRole {
+  OWNER = "OWNER",
+  MEMBER = "MEMBER"
 }
 
 export enum TripFriendStatus {

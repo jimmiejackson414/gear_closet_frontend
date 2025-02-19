@@ -27,7 +27,7 @@
       @select-trip="handleSelectTrip" />
 
     <planning-empty-state
-      v-if="!$store.data.trips.length && !$store.pageLoading"
+      v-if="!$store.data.trips?.length && !$store.pageLoading"
       @open-dialog="isCreateTripDialogOpen = true" />
 
     <planning-content v-else />

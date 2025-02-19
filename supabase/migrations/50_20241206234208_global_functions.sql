@@ -96,34 +96,36 @@ AS $function$
     poll_data JSON;
     dynamic_trip_id BIGINT;
   BEGIN
-    -- Fetch trips data (both created by the user and accepted invitations)
-    SELECT json_agg(row_to_json(sub.*)) INTO trips_data
-    FROM (
-      SELECT DISTINCT t.*
-      FROM trips t
-      LEFT JOIN trip_friends tf ON tf.trip_id = t.id
-        AND tf.profile_id = auth.uid()
-        AND tf.status = 'ACCEPTED'
-      WHERE t.profile_id = auth.uid() OR tf.profile_id IS NOT NULL
-      ORDER BY t.created_at ASC
-    ) sub;
 
-    -- Set dynamic_trip_id based on p_trip_id or to the ID of the first trip
-    IF p_trip_id = 0 THEN
-      SELECT COALESCE((
-        SELECT t.id 
-        FROM trips t
-        LEFT JOIN trip_friends tf 
-          ON tf.trip_id = t.id 
-          AND tf.profile_id = auth.uid() 
-          AND tf.status = 'ACCEPTED'
-        WHERE t.profile_id = auth.uid() OR tf.profile_id IS NOT NULL
-        ORDER BY t.created_at ASC
-        LIMIT 1
-      ), 0) INTO dynamic_trip_id;
-    ELSE
-      dynamic_trip_id := p_trip_id;
-    END IF;
+  -- Fetch all trips where the user is an OWNER (no status check) or an ACCEPTED MEMBER
+  SELECT json_agg(row_to_json(sub.*)) INTO trips_data
+  FROM (
+    SELECT DISTINCT t.*
+    FROM trips t
+    JOIN trip_friends tf ON tf.trip_id = t.id
+    WHERE tf.profile_id = auth.uid()
+      AND (tf.role = 'OWNER' OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED'))
+    ORDER BY t.created_at ASC
+  ) sub;
+
+  -- Set dynamic_trip_id to the first trip found
+  SELECT COALESCE((
+    SELECT sub.id 
+    FROM (
+      SELECT DISTINCT t.id
+      FROM trips t
+      JOIN trip_friends tf ON tf.trip_id = t.id
+      WHERE tf.profile_id = auth.uid()
+        AND (tf.role = 'OWNER' OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED'))
+      ORDER BY t.created_at ASC
+      LIMIT 1
+    ) sub
+  ), 0) INTO dynamic_trip_id;
+
+  -- If p_trip_id is provided, use it instead
+  IF p_trip_id != 0 THEN
+    dynamic_trip_id := p_trip_id;
+  END IF;
 
     -- Fetch trip packs data using dynamic_trip_id along with associated pack details
     SELECT (COALESCE(json_agg(
@@ -221,7 +223,8 @@ AS $function$
     ) INTO friends_data
     FROM trip_friends tf
     JOIN profiles p ON tf.profile_id = p.id
-    WHERE tf.trip_id = dynamic_trip_id;
+    WHERE tf.trip_id = dynamic_trip_id
+      AND tf.profile_id != auth.uid();
 
     -- Fetch poll data
     SELECT json_build_object(

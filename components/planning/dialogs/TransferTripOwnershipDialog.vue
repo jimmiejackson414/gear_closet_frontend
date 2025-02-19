@@ -1,10 +1,11 @@
 <script lang='ts' setup>
-  import type { Database, Tables } from '@/types';
+  import { type Database, type Tables, TripFriendRole } from '@/types';
   import type { SelectOption } from '@/types/helpers';
 
   const isOpen = defineModel('isOpen', { default: false, required: true, type: Boolean });
 
   const $appStore = useAppStore();
+  const $userStore = useUserStore();
   const $store = usePlanningStore();
   const isSubmitting = ref(false);
 
@@ -18,14 +19,20 @@
     try {
       isSubmitting.value = true;
 
-      const { data, error } = await supabase
-        .from('trips')
-        .update({ profile_id: selectedTransferUserId.value })
-        .eq('id', Number($store.selectedTripId))
-        .select();
+      // update old owner and new owner records
+      const [{ error: oldOwnerError }, { error: newOwnerError }] = await Promise.all([
+        supabase.from('trip_friends')
+          .update({ role: TripFriendRole.MEMBER })
+          .match({ profile_id: $userStore.profile?.id, trip_id: Number($store.selectedTripId) }),
+        supabase.from('trip_friends')
+          .update({ role: TripFriendRole.OWNER })
+          .match({ profile_id: selectedTransferUserId.value, trip_id: Number($store.selectedTripId) }),
+      ]);
 
-      if (!data || error) throw error;
+      if (oldOwnerError || newOwnerError) throw oldOwnerError || newOwnerError;
+
       $appStore.notifyPositive('Trip ownership transferred successfully.');
+      isOpen.value = false;
     } catch (err) {
       $appStore.notifyNegative('There was an error transferring the trip.');
     } finally {

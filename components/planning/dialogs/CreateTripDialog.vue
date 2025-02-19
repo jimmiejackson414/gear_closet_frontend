@@ -5,7 +5,7 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { IconBackpack, IconMapPin, IconText } from '#components';
-  import type { Database, TablesInsert } from '@/types';
+  import { type Database, type TablesInsert, TripFriendRole } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
   interface Props {
@@ -67,7 +67,6 @@
         ending_date: values.dateRange?.[1].toISOString(),
         ending_point: values.ending_point,
         name: values.name,
-        profile_id: user.value?.id as string,
         starting_date: values.dateRange?.[0].toISOString(),
         starting_point: values.starting_point,
       };
@@ -76,7 +75,16 @@
         .select();
 
       if (error) { $appStore.notifyNegative('There was an error creating a new trip.'); }
+
       else {
+        const { error } = await supabase.from('trip_friends')
+          .insert({
+            profile_id: user.value!.id,
+            role: TripFriendRole.OWNER,
+            trip_id: createdTrip[0].id,
+          });
+
+        if (error) throw error;
         $appStore.notifyPositive('Successfully created a new trip!');
         emits('onClose');
         if ($store.selectedTripId) {
