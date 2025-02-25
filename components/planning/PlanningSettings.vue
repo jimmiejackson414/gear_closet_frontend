@@ -15,17 +15,6 @@
     (event: 'openDialog'): void;
     (event: 'selectTrip', id: string): void;
   }>();
-
-  // const isTripOwner = computed(() => {
-  //   const trip = $store.data.trips.find((t: Tables<'trips'>) => t.id === Number($store.selectedTripId));
-  //   return trip?.profile_id === $userStore.profile?.id;
-  // });
-  const isTripOwner = computed(() => {
-    const tripId = Number($store.selectedTripId);
-    return $store.data.friends.some((tf: Tables<'trip_friends'>) =>
-      tf.trip_id === tripId && tf.profile_id === $userStore.profile?.id && tf.role === 'OWNER',
-    );
-  });
 </script>
 
 <template>
@@ -44,17 +33,17 @@
             </dropdown-menu-label>
             <dropdown-menu-separator />
             <dropdown-menu-item
-              v-if="!isTripOwner"
+              v-if="!$store.data.is_trip_owner"
               @select="isLeaveTripDialogOpen = true">
               Leave Trip
             </dropdown-menu-item>
             <dropdown-menu-item
-              v-if="isTripOwner"
+              v-if="$store.data.is_trip_owner"
               @select="isTransferTripDialogOpen = true">
               Transfer Trip Ownership
             </dropdown-menu-item>
             <dropdown-menu-item
-              v-if="isTripOwner"
+              v-if="$store.data.is_trip_owner"
               class="text-destructive"
               @select="isDeleteTripDialogOpen = true">
               Delete Trip

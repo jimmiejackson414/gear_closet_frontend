@@ -95,6 +95,7 @@ AS $function$
     friends_data JSON;
     poll_data JSON;
     dynamic_trip_id BIGINT;
+    is_trip_owner BOOLEAN;
   BEGIN
 
   -- Fetch all trips where the user is an OWNER (no status check) or an ACCEPTED MEMBER
@@ -240,6 +241,15 @@ AS $function$
     WHERE p.trip_id = dynamic_trip_id
     LIMIT 1;
 
+    -- Compute is_owner flag for the current user
+    SELECT EXISTS (
+      SELECT 1
+      FROM trip_friends
+      WHERE trip_id = dynamic_trip_id
+        AND profile_id = auth.uid()
+        AND role = 'OWNER'
+    ) INTO is_trip_owner;
+
     -- Output the result
     RETURN jsonb_build_object(
       'trips', trips_data,
@@ -248,7 +258,8 @@ AS $function$
       'todos', todos_data,
       'shopping_items', shopping_items_data,
       'friends', friends_data,
-      'poll', poll_data
+      'poll', poll_data,
+      'is_trip_owner', is_trip_owner
     );
     END;
 $function$

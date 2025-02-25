@@ -5,6 +5,7 @@ import type { ExtendedPack, ExtendedPoll, ExtendedTripFriend } from "@/types/hel
 export interface PlanningPageData {
   errors?: string[];
   friends: ExtendedTripFriend[];
+  is_trip_owner: boolean;
   pack?: ExtendedPack;
   poll?: ExtendedPoll;
   shopping_items: Tables<'shopping_list_items'>[];
@@ -71,6 +72,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
       return {
         data: {
           friends: [],
+          is_trip_owner: false,
           pack: undefined,
           poll: undefined,
           shopping_items: [],
