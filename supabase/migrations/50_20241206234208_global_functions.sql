@@ -57,8 +57,10 @@ CREATE OR REPLACE FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) RETUR
     -- Fetch trips
     SELECT COALESCE(json_agg(row_to_json(t.*)), '[]'::JSON) INTO trips
     FROM trips t
-    WHERE t.profile_id = p_user_id
-    AND t.starting_date >= NOW();
+    JOIN trip_friends tf ON t.id = tf.trip_id
+    WHERE tf.profile_id = p_user_id
+      AND (tf.role = 'OWNER' OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED'))
+      AND t.starting_date >= NOW();
 
     -- Fetch friends
     SELECT COALESCE(json_agg(row_to_json(sub.*)), '[]'::JSON) INTO friends
