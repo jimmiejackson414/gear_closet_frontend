@@ -1,5 +1,5 @@
-import { FieldContextKey, useFieldError, useIsFieldDirty, useIsFieldTouched, useIsFieldValid } from 'vee-validate';
 import { inject } from 'vue';
+import { FieldContextKey, useFieldError, useIsFieldDirty, useIsFieldTouched, useIsFieldValid } from 'vee-validate';
 import { FORM_ITEM_INJECTION_KEY } from './injectionKeys';
 
 export function useFormField () {
@@ -13,18 +13,18 @@ export function useFormField () {
   const id = fieldItemContext;
 
   const fieldState = {
-    valid: useIsFieldValid(name),
+    error: useFieldError(name),
     isDirty: useIsFieldDirty(name),
     isTouched: useIsFieldTouched(name),
-    error: useFieldError(name),
+    valid: useIsFieldValid(name),
   };
 
   return {
+    formDescriptionId: `${id}-form-item-description`,
+    formItemId: `${id}-form-item`,
+    formMessageId: `${id}-form-item-message`,
     id,
     name,
-    formItemId: `${id}-form-item`,
-    formDescriptionId: `${id}-form-item-description`,
-    formMessageId: `${id}-form-item-message`,
     ...fieldState,
   };
 }

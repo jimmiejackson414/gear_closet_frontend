@@ -1,12 +1,12 @@
 <script lang='ts' setup>
   interface Props {
-    variant?: 'primary' | 'default';
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'lg' | 'md' | 'sm';
+    variant?: 'default' | 'primary';
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    variant: 'default',
     size: 'md',
+    variant: 'default',
   });
 
   const fillClass = computed(() => {
@@ -24,7 +24,7 @@
 <template>
   <div
     aria-label="loading"
-    class="animate-spin border-current border-t-transparent inline-block rounded-full"
+    class="inline-block animate-spin rounded-full border-current border-t-transparent"
     :class="[ fillClass, sizeClass ]"
     role="status">
     <span class="sr-only">Loading...</span>

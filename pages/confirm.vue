@@ -1,5 +1,5 @@
 <script setup lang="ts">
-  definePageMeta({ layout: 'auth-layout', colorMode: 'light' });
+  definePageMeta({ colorMode: 'light', layout: 'auth-layout' });
   useHead({ title: 'Confirm '});
 
   const user = useSupabaseUser();

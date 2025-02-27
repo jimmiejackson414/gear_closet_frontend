@@ -23,8 +23,8 @@ async function insertUser (email: string, password: string) {
   try {
     const { data, error } = await supabase.auth.admin.createUser({
       email,
-      password,
       email_confirm: true,
+      password,
       user_metadata: {
         first_name: 'John',
         last_name: 'Doe',

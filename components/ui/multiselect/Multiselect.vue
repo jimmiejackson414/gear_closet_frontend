@@ -16,18 +16,18 @@
   import type { SelectOption } from '@/types/helpers';
 
   interface Props {
-    options: SelectOption[];
-    placeholder?: string;
     disabled?: boolean;
     loading?: boolean;
     multiple?: boolean;
+    options: SelectOption[];
+    placeholder?: string;
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    placeholder: 'Begin searching...',
     disabled: false,
     loading: false,
     multiple: false,
+    placeholder: 'Begin searching...',
   });
 
   const emit = defineEmits<{
@@ -97,7 +97,7 @@
         role="combobox"
         variant="outline">
         {{ selectedValues.length > 0 ? `${selectedValues.length} selected` : placeholder }}
-        <icon-chevrons-up-down class="h-4 ml-2 opacity-50 shrink-0 w-4" />
+        <icon-chevrons-up-down class="ml-2 size-4 shrink-0 opacity-50" />
       </button-root>
     </popover-trigger>
 
@@ -113,10 +113,10 @@
           <template #prepend-icon>
             <spinner-icon
               v-if="loading"
-              class="animate-spin h-4 mr-2 shrink-0 w-4" />
+              class="mr-2 size-4 shrink-0 animate-spin" />
             <icon-search
               v-else
-              class="h-4 mr-2 opacity-50 shrink-0 w-4" />
+              class="mr-2 size-4 shrink-0 opacity-50" />
           </template>
         </command-input>
         <command-empty v-if="loading">
@@ -128,7 +128,7 @@
         <command-empty v-else-if="!options.length && searchTerm && !loading">
           Your search for {{ searchTerm }} returned no results.
         </command-empty>
-        <command-list class="bg-popover border w-[--radix-popper-anchor-width]">
+        <command-list class="relative w-[--radix-popper-anchor-width] border bg-popover">
           <command-group>
             <command-item
               v-for="option in filteredOptions"

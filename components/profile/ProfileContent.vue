@@ -2,11 +2,11 @@
   import { toTypedSchema } from '@vee-validate/zod';
   import dayjs from 'dayjs';
   import utc from 'dayjs/plugin/utc';
-  import type { FilePondFile } from 'filepond';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
   import type { SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
+  import type { FilePondFile } from 'filepond';
 
   dayjs.extend(utc);
 
@@ -58,23 +58,23 @@
       .min(2),
     last_name: z.string()
       .min(2),
-    trail_name: z.string()
-      .optional(),
     measuring_system: z.union([
       z.literal(MeasuringSystem.IMPERIAL),
       z.literal(MeasuringSystem.METRIC),
     ]),
+    trail_name: z.string()
+      .optional(),
   }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
-    keepValuesOnUnmount: true,
-    validationSchema: formSchema,
+  const { handleSubmit, isFieldDirty, isSubmitting } = useForm({
     initialValues: {
       first_name: $store.profile?.first_name ?? undefined,
       last_name: $store.profile?.last_name ?? undefined,
-      trail_name: $store.profile?.trail_name ?? undefined,
       measuring_system: $store.profile?.measuring_system as MeasuringSystem ?? undefined,
+      trail_name: $store.profile?.trail_name ?? undefined,
     },
+    keepValuesOnUnmount: true,
+    validationSchema: formSchema,
   });
 
   /**
@@ -95,9 +95,9 @@
   const fetchingSubscription = ref(false);
   const subscriptionData = ref<SubscriptionApiResponse>({
     customer: undefined,
-    paymentMethods: [],
-    nextBillingDate: 0,
     invoices: [],
+    nextBillingDate: 0,
+    paymentMethods: [],
     subscriptions: [],
   });
 
@@ -199,8 +199,8 @@
 </script>
 
 <template>
-  <div class="max-w-full lg:max-w-5xl mx-auto py-8 w-full">
-    <div class="grid lg:grid-cols-[400px,1fr] grid-cols-1 gap-6 lg:gap-14">
+  <div class="mx-auto w-full max-w-full py-8 lg:max-w-5xl">
+    <div class="grid grid-cols-1 gap-6 lg:grid-cols-[400px,1fr] lg:gap-14">
       <client-only>
         <gc-avatar-upload
           :file="profileAvatar"
@@ -234,7 +234,7 @@
           v-model="activeTab"
           class="w-[400px]"
           default-value="profile">
-          <tabs-list class="grid grid-cols-3 w-full">
+          <tabs-list class="grid w-full grid-cols-3">
             <tabs-trigger value="profile">
               Profile
             </tabs-trigger>
@@ -248,9 +248,9 @@
 
           <!-- Profile Tab Content -->
           <tabs-content value="profile">
-            <card class="bg-card p-4 rounded-lg">
+            <card class="rounded-lg bg-card p-4">
               <form
-                class="auto-rows-auto grid grid-cols-1 gap-6"
+                class="grid auto-rows-auto grid-cols-1 gap-6"
                 @submit.prevent="onProfileSubmit">
                 <form-field
                   v-slot="{ componentField }"
@@ -335,7 +335,7 @@
 
           <!-- Subscription Tab Content -->
           <tabs-content value="subscription">
-            <card class="bg-card p-4 rounded-lg">
+            <card class="rounded-lg bg-card p-4">
               <div
                 v-if="fetchingSubscription"
                 class="flex justify-center">
@@ -343,8 +343,8 @@
               </div>
               <div
                 v-else
-                class="auto-rows-auto grid grid-cols-1 gap-12">
-                <div class="flex items-start flex-col gap-2">
+                class="grid auto-rows-auto grid-cols-1 gap-12">
+                <div class="flex flex-col items-start gap-2">
                   <typography variant="small">
                     Current Subscription: <span class="font-bold">{{ capitalize(subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname) }}</span>
                   </typography>
@@ -355,7 +355,7 @@
                     Manage Subscription
                   </button-root>
                 </div>
-                <div class="flex items-start flex-col gap-2">
+                <div class="flex flex-col items-start gap-2">
                   <typography
                     class="!font-bold"
                     variant="small">
@@ -414,15 +414,15 @@
                           <li
                             v-for="invoice in subscriptionData.invoices"
                             :key="invoice.id"
-                            class="flex justify-start items-center gap-8 mb-3">
+                            class="mb-3 flex items-center justify-start gap-8">
                             {{ dayjs.utc(invoice.created * 1000).format('MMM DD, YYYY') }} - ${{ (invoice.amount_paid / 100).toFixed(2) }} ({{ invoice.lines.data[0].plan?.nickname || 'N/A' }})
                             <a
                               v-tippy="'Download Invoice'"
-                              class="duration-200 ease-in-out text-gray-400 hover:text-primary transition-colors"
+                              class="text-gray-400 transition-colors duration-200 ease-in-out hover:text-primary"
                               :href="(invoice.invoice_pdf as string)"
                               rel="noopener noreferrer"
                               target="_blank">
-                              <icon-download class="h-4 w-4" />
+                              <icon-download class="size-4" />
                             </a>
                           </li>
                         </ul>
@@ -436,8 +436,8 @@
 
           <!-- Settings Tab Content -->
           <tabs-content value="settings">
-            <card class="bg-card p-4 rounded-lg">
-              <div class="auto-rows-auto grid grid-cols-1 gap-6">
+            <card class="rounded-lg bg-card p-4">
+              <div class="grid auto-rows-auto grid-cols-1 gap-6">
                 <form-field
                   v-slot="{ componentField }"
                   name="new_password">
@@ -468,7 +468,7 @@
                     </form-control>
                   </form-item>
                 </form-field>
-                <div class="flex justify-end items-center">
+                <div class="flex items-center justify-end">
                   <button-root
                     :disabled="isSubmittingPassword"
                     :loading="isSubmittingPassword"
@@ -477,8 +477,8 @@
                   </button-root>
                 </div>
                 <separator />
-                <div class="flex items-start flex-col">
-                  <typography class="!font-bold mb-2 text-destructive">
+                <div class="flex flex-col items-start">
+                  <typography class="mb-2 !font-bold text-destructive">
                     Danger Zone
                   </typography>
                   <button-root

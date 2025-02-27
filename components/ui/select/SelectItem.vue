@@ -1,5 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { type HTMLAttributes } from 'vue';
   import {
     SelectItem,
     SelectItemIndicator,
@@ -7,7 +8,6 @@
     SelectItemText,
     useForwardProps,
   } from 'radix-vue';
-  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<SelectItemProps & { class?: HTMLAttributes['class'], hideCheckmark?: boolean }>();
@@ -33,9 +33,9 @@
     ">
     <span
       v-if="!hideCheckmark"
-      class="absolute left-2 flex justify-center items-center h-3.5 w-3.5">
+      class="absolute left-2 flex size-3.5 items-center justify-center">
       <select-item-indicator>
-        <icon-check class="h-4 w-4" />
+        <icon-check class="size-4" />
       </select-item-indicator>
     </span>
 

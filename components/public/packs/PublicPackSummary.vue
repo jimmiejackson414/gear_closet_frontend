@@ -1,6 +1,6 @@
 <script lang='ts' setup>
+  import VChart from 'vue-echarts';
   import convert, { type Mass } from 'convert';
-  import type { EChartsOption } from 'echarts';
   import { BarChart } from 'echarts/charts';
   import {
     GridComponent,
@@ -11,10 +11,10 @@
   import { use } from 'echarts/core';
   import { CanvasRenderer } from 'echarts/renderers';
   import round from 'lodash.round';
-  import VChart from 'vue-echarts';
   import { Theme } from '@/types';
-  import type { ExtendedCategory, PublicPack } from '@/types/helpers';
   import { findTheme } from '@/utils/chartTheme';
+  import type { ExtendedCategory, PublicPack } from '@/types/helpers';
+  import type { EChartsOption } from 'echarts';
 
   use([
     CanvasRenderer,
@@ -35,10 +35,10 @@
   const chartRef = ref<InstanceType<typeof VChart> | null>(null);
   const details = computed(() => {
     const initialDetails = [
-      { title: 'Worn', weight: 0, color: '' },
-      { title: 'Consumable', weight: 0, color: '' },
-      { title: 'Base', weight: 0, color: '' },
-      { title: 'Total', weight: 0, color: '' },
+      { color: '', title: 'Worn', weight: 0 },
+      { color: '', title: 'Consumable', weight: 0 },
+      { color: '', title: 'Base', weight: 0 },
+      { color: '', title: 'Total', weight: 0 },
     ];
     if (!props.pack) return initialDetails;
     const weights = calculatePackWeights(props.pack);
@@ -54,23 +54,6 @@
   });
   const chartOptions = ref<EChartsOption>({
     animationDuration: 300,
-    xAxis: {
-      type: 'category',
-      axisTick: { alignWithLabel: true },
-      axisLabel: { rotate: 30, overflow: 'break', width: 100, margin: 24 },
-      data: props.pack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
-    },
-    yAxis: {
-      type: 'value',
-      splitLine: { show: false },
-      axisLabel: {
-        formatter: (value: any) => {
-          const weight = round(convert(value as number, 'g')
-            .to('lb'));
-          return `${weight} lbs`;
-        },
-      },
-    },
     grid: { show: false },
     series: [
       {
@@ -79,7 +62,6 @@
           return round(convert(categoryWeight, 'mg')
             .to((category as ExtendedCategory).unit as Mass), 2);
         }),
-        type: 'bar',
         itemStyle: {
           borderRadius: 5,
           color: (params: any) => {
@@ -87,11 +69,10 @@
             return theme[params.dataIndex];
           },
         },
+        type: 'bar',
       },
     ],
     tooltip: {
-      show: true,
-      trigger: 'item',
       formatter: (value: any) => {
         const category = props.pack?.categories?.[value.dataIndex];
         const categoryWeight = calculateCategoryWeight(category as ExtendedCategory);
@@ -109,20 +90,39 @@
           </div>
         `);
       },
+      show: true,
+      trigger: 'item',
+    },
+    xAxis: {
+      axisLabel: { margin: 24, overflow: 'break', rotate: 30, width: 100 },
+      axisTick: { alignWithLabel: true },
+      data: props.pack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
+      type: 'category',
+    },
+    yAxis: {
+      axisLabel: {
+        formatter: (value: any) => {
+          const weight = round(convert(value as number, 'g')
+            .to('lb'));
+          return `${weight} lbs`;
+        },
+      },
+      splitLine: { show: false },
+      type: 'value',
     },
   });
 </script>
 
 <template>
-  <div class="flex lg:flex-row flex-col gap-6 pt-4">
+  <div class="flex flex-col gap-6 pt-4 lg:flex-row">
     <div class="flex flex-col lg:w-3/5">
       <div class="flex items-center">
-        <icon-backpack class="h-6 mr-6 text-primary w-6" />
-        <p class="!font-bold text-base">
+        <icon-backpack class="mr-6 size-6 text-primary" />
+        <p class="text-base !font-bold">
           Pack Summary
         </p>
       </div>
-      <div class="h-[20vh] lg:h-[30vh] mb-4 mt-0 mx-auto w-full">
+      <div class="mx-auto mb-4 mt-0 h-[20vh] w-full lg:h-[30vh]">
         <client-only>
           <v-chart
             ref="chartRef"
@@ -132,24 +132,24 @@
       </div>
     </div>
     <div class="flex flex-col lg:w-2/5">
-      <div class="flex justify-between items-center mb-10">
+      <div class="mb-10 flex items-center justify-between">
         <div class="flex items-center">
-          <icon-bar-chart-3 class="h-6 mr-6 text-primary w-6" />
-          <p class="!font-bold text-base">
+          <icon-bar-chart-3 class="mr-6 size-6 text-primary" />
+          <p class="text-base !font-bold">
             Stats
           </p>
         </div>
       </div>
-      <div class="grid grid-cols-2 gap-6 h-full pb-4">
+      <div class="grid h-full grid-cols-2 gap-6 pb-4">
         <div
           v-for="detail in details"
           :key="detail.title"
-          class="border border-dashed border-gray-400 p-4 rounded-2xl">
-          <span class="font-bold text-eyebrow text-grey-8">
+          class="rounded-2xl border border-dashed border-gray-400 p-4">
+          <span class="text-eyebrow font-bold text-muted-foreground">
             {{ detail.title }}
           </span>
           <h6
-            class="duration-300 ease-snap font-bold text-lg transition-colors"
+            class="text-lg font-bold transition-colors duration-300 ease-in-out"
             :style="{ color: detail.color }">
             {{ detail.weight || '' }} lbs
           </h6>

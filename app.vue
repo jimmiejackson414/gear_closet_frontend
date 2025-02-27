@@ -19,7 +19,7 @@
 
 <template>
   <config-provider :use-id="ssrId">
-    <div class="bg-background h-full">
+    <div class="h-full bg-background">
       <suspense>
         <nuxt-layout>
           <nuxt-page />

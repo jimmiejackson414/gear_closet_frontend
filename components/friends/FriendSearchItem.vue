@@ -45,9 +45,9 @@
       await supabase.from('notifications')
         .insert([
           {
-            title: 'New Friend Request',
             content: `You have a new friend request from ${$store.profile?.first_name} ${$store.profile?.last_name}.`,
             profile_id: props.profile.id,
+            title: 'New Friend Request',
           },
         ]);
 
@@ -61,7 +61,7 @@
 </script>
 
 <template>
-  <card class="duration-200 my-4 px-8 py-4 rounded-2xl w-fit">
+  <card class="my-4 w-fit rounded-2xl px-8 py-4 duration-200">
     <div class="flex items-center gap-4">
       <gc-avatar
         :initials="initials(profile)"
@@ -85,8 +85,8 @@
       </button-root>
       <div
         v-else
-        class="flex mt-2">
-        <typography class="italic text-muted-foreground text-xs">
+        class="mt-2 flex">
+        <typography class="text-xs italic text-muted-foreground">
           Invite requested
         </typography>
       </div>

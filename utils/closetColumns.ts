@@ -1,53 +1,53 @@
 export const columns = [
   {
-    name: 'drag', label: '', field: 'drag', align: 'left', sortable: false, style: 'width: 40px',
+    align: 'left', field: 'drag', label: '', name: 'drag', sortable: false, style: 'width: 40px',
   },
   {
-    name: 'generic_type', label: 'Description', field: 'generic_type', align: 'left', sortable: true,
+    align: 'left', field: 'generic_type', label: 'Description', name: 'generic_type', sortable: true,
   },
   {
-    name: 'name', label: 'Name', field: 'name', align: 'left', sortable: true,
+    align: 'left', field: 'name', label: 'Name', name: 'name', sortable: true,
   },
   {
-    name: 'consumable', label: 'Consumable', field: 'consumable', align: 'center', sortable: true,
+    align: 'center', field: 'consumable', label: 'Consumable', name: 'consumable', sortable: true,
   },
   {
-    name: 'worn', label: 'Worn', field: 'worn', align: 'center', sortable: true,
+    align: 'center', field: 'worn', label: 'Worn', name: 'worn', sortable: true,
   },
   {
-    name: 'weight', label: 'Weight', field: 'weight', align: 'center', sortable: true,
+    align: 'center', field: 'weight', label: 'Weight', name: 'weight', sortable: true,
   },
   {
-    name: 'price', label: 'Price', field: 'price', align: 'center', sortable: true,
+    align: 'center', field: 'price', label: 'Price', name: 'price', sortable: true,
   },
   {
-    name: 'quantity', label: 'Quantity', field: 'quantity', align: 'center', sortable: true,
+    align: 'center', field: 'quantity', label: 'Quantity', name: 'quantity', sortable: true,
   },
   {
-    name: 'actions', label: 'Actions', field: 'actions', align: 'right', sortable: false,
+    align: 'right', field: 'actions', label: 'Actions', name: 'actions', sortable: false,
   },
 ];
 
 export const publicColumns = [
   {
-    name: 'generic_type', label: 'Description', field: 'generic_type', align: 'left',
+    align: 'left', field: 'generic_type', label: 'Description', name: 'generic_type',
   },
   {
-    name: 'name', label: 'Name', field: 'name', align: 'left',
+    align: 'left', field: 'name', label: 'Name', name: 'name',
   },
   {
-    name: 'consumable', label: 'Consumable', field: 'consumable', align: 'center',
+    align: 'center', field: 'consumable', label: 'Consumable', name: 'consumable',
   },
   {
-    name: 'worn', label: 'Worn', field: 'worn', align: 'center',
+    align: 'center', field: 'worn', label: 'Worn', name: 'worn',
   },
   {
-    name: 'weight', label: 'Weight', field: 'weight', align: 'center',
+    align: 'center', field: 'weight', label: 'Weight', name: 'weight',
   },
   {
-    name: 'price', label: 'Price', field: 'price', align: 'center',
+    align: 'center', field: 'price', label: 'Price', name: 'price',
   },
   {
-    name: 'quantity', label: 'Quantity', field: 'quantity', align: 'center',
+    align: 'center', field: 'quantity', label: 'Quantity', name: 'quantity',
   },
 ];

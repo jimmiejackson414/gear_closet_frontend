@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-  import { StepperTrigger, useForwardProps } from 'radix-vue';
-  import type { StepperTriggerProps } from 'radix-vue';
   import { type HTMLAttributes } from 'vue';
+  import { StepperTrigger, useForwardProps } from 'radix-vue';
   import { cn } from '@/lib/utils';
+  import type { StepperTriggerProps } from 'radix-vue';
 
 
   const props = defineProps<StepperTriggerProps & { class?: HTMLAttributes['class'] }>();

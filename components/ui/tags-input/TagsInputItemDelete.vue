@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { TagsInputItemDelete, type TagsInputItemDeleteProps, useForwardProps } from 'radix-vue';
   import { type HTMLAttributes } from 'vue';
+  import { TagsInputItemDelete, type TagsInputItemDeleteProps, useForwardProps } from 'radix-vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<TagsInputItemDeleteProps & { class?: HTMLAttributes['class'] }>();
@@ -20,7 +20,7 @@
     v-bind="forwardedProps"
     :class="cn('flex rounded bg-transparent mr-1', props.class)">
     <slot>
-      <icon-x class="h-4 w-4" />
+      <icon-x class="size-4" />
     </slot>
   </tags-input-item-delete>
 </template>

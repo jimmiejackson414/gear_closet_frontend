@@ -7,5 +7,5 @@
 <template>
   <avatar-image
     v-bind="props"
-    class="h-full object-cover w-full" />
+    class="size-full object-cover" />
 </template>

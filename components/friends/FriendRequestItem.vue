@@ -28,8 +28,8 @@
       // update friend request status
       const { data, error } = await supabase.from('friend_invitations')
         .update({
-          status: FriendRequestStatus.ACCEPTED,
           request_responded_at: acceptedAt,
+          status: FriendRequestStatus.ACCEPTED,
         })
         .eq('id', props.friend.id)
         .select();
@@ -40,8 +40,8 @@
       const { error: insertError } = await supabase
         .from('friends')
         .insert([
-          { profile_id: data[0].recipient_id, friend_id: data[0].sender_id },
-          { profile_id: data[0].sender_id, friend_id: data[0].recipient_id },
+          { friend_id: data[0].sender_id, profile_id: data[0].recipient_id },
+          { friend_id: data[0].recipient_id, profile_id: data[0].sender_id },
         ]);
 
       if (insertError) throw new Error();
@@ -59,9 +59,9 @@
       await supabase.from('notifications')
         .insert([
           {
-            title: 'Friend Request Accepted',
             content,
             profile_id: newFriend.profile_id,
+            title: 'Friend Request Accepted',
           },
         ]);
 
@@ -87,9 +87,9 @@
       submittingDecline.value = true;
       const { error } = await supabase.from('friend_invitations')
         .update({
-          status: FriendRequestStatus.DECLINED,
           request_responded_at: new Date()
             .toISOString(),
+          status: FriendRequestStatus.DECLINED,
         })
         .eq('id', props.friend.id)
         .select();
@@ -109,12 +109,12 @@
 
   const madeSelection = ref<'accepted' | 'declined' | null>(null);
   const selectionTimestamp = ref<Dayjs | null>(null);
-  const mutualFriends = computed(() => '2 mutual friends'); // TODO: Implement mutual friends
+  // const mutualFriends = computed(() => '2 mutual friends'); // TODO: Implement mutual friends
 </script>
 
 <template>
-  <card class="my-4 px-8 py-4 rounded-2xl w-fit">
-    <div class="grid grid-cols-[auto,1fr] gap-4 items-center">
+  <card class="my-4 w-fit rounded-2xl px-8 py-4">
+    <div class="grid grid-cols-[auto,1fr] items-center gap-4">
       <gc-avatar
         :initials="initials(friend.sender)"
         size="xl"
@@ -130,7 +130,7 @@
         </typography> -->
         <div
           v-if="!madeSelection"
-          class="flex gap-4 mt-2">
+          class="mt-2 flex gap-4">
           <button-root
             :disabled="submittingDecline || submittingAccept"
             :loading="submittingDecline"
@@ -150,8 +150,8 @@
         </div>
         <div
           v-else
-          class="flex mt-2">
-          <typography class="italic text-muted-foreground text-xs">
+          class="mt-2 flex">
+          <typography class="text-xs italic text-muted-foreground">
             {{ capitalize(madeSelection) }} {{ dayjs().to(selectionTimestamp) }}
           </typography>
         </div>

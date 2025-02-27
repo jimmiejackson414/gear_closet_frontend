@@ -9,8 +9,11 @@
 
   const { data } = await useAsyncData(
     'planningData',
-    () => $store.fetchPlanningPage(Number($store.selectedTripId || 0)),
-    { watch: [() => $store.selectedTripId], immediate: true },
+    () => {
+      const tripId = $cookie.value ? decrypt($cookie.value) : $store.selectedTripId;
+      return $store.fetchPlanningPage(Number(tripId || 0));
+    },
+    { immediate: true, watch: [() => $store.selectedTripId] },
   );
 
   watch(data, (newData) => {
@@ -27,7 +30,7 @@
       @select-trip="handleSelectTrip" />
 
     <planning-empty-state
-      v-if="!$store.data.trips.length && !$store.pageLoading"
+      v-if="!$store.data.trips?.length && !$store.pageLoading"
       @open-dialog="isCreateTripDialogOpen = true" />
 
     <planning-content v-else />

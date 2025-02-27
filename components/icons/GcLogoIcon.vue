@@ -1,12 +1,12 @@
 <script lang='ts' setup>
   interface Props {
-    wrapperClass?: string;
     fill?: string;
+    wrapperClass?: string;
   }
 
   withDefaults(defineProps<Props>(), {
-    wrapperClass: 'w-4 h-4',
     fill: '#4a4a4a',
+    wrapperClass: 'w-4 h-4',
   });
 </script>
 

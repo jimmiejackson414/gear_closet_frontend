@@ -17,38 +17,38 @@
     try {
       // This is the category for the optimistic update
       const optimisticCategory = {
+        category_items: [],
+        created_at: new Date()
+          .toISOString(),
         id: 0, // temporary id
         name: '',
         pack_id: $store.data.selectedPack?.id as number,
+        position: 1,
         slug: '',
         unit: 'g',
-        position: 1,
-        created_at: new Date()
-          .toISOString(),
         updated_at: new Date()
           .toISOString(),
-        category_items: [],
       };
 
       $store.data.selectedPack?.categories.unshift(optimisticCategory);
 
       // This is the item data for the optimistic update
       const itemData = [{
-        name: 'New Item',
-        generic_type: 'Description',
-        weight: "0",
-        quantity: 1,
-        price: 0,
         consumable: false,
-        worn: false,
+        generic_type: 'Description',
+        name: 'New Item',
+        price: 0,
+        quantity: 1,
         slug: '',
+        weight: "0",
+        worn: false,
       }];
 
       const supabase = useSupabaseClient<Database>();
       const { data: createdCategory, error: categoryError } = await supabase.rpc('create_category_and_item', {
+        p_items: itemData,
         p_name: 'Category Name',
         p_pack_id: $store.data.selectedPack?.id as number,
-        p_items: itemData,
       })
         .returns<ExtendedCategory>();
       if (categoryError) throw categoryError;
@@ -112,7 +112,7 @@
   <div :class="$store.isPublicRoute ? 'mt-0' : 'mt-10'">
     <div
       v-if="!$store.isPublicRoute"
-      class="flex justify-between items-center mb-4">
+      class="mb-4 flex items-center justify-between">
       <typography
         class="font-semibold"
         variant="h4">
@@ -122,7 +122,7 @@
         size="sm"
         variant="outline"
         @click="createDefaultCategory">
-        <icon-plus class="h-4 text-primary dark:text-primary-light w-4" />
+        <icon-plus class="size-4 text-primary dark:text-primary-light" />
         New Category
       </button-root>
     </div>

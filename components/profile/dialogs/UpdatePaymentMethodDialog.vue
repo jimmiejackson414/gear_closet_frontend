@@ -1,5 +1,5 @@
 <script lang="ts" setup="">
-  import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js';
+  import type { StripeCardElement } from '@stripe/stripe-js';
 
   interface Props {
     isOpen: boolean;
@@ -32,13 +32,13 @@
           },
           style: {
             base: {
-              color: tailwind.theme.colors.primary.DEFAULT,
-              fontFamily: '"Lato", Helvetica, sans-serif',
-              fontSmoothing: 'antialiased',
-              fontSize: '16px',
               '::placeholder': {
                 color: '#aab7c4',
               },
+              color: tailwind.theme.colors.primary.DEFAULT,
+              fontFamily: '"Lato", Helvetica, sans-serif',
+              fontSize: '16px',
+              fontSmoothing: 'antialiased',
             },
             invalid: {
               color: tailwind.theme.colors.destructive.DEFAULT,
@@ -75,18 +75,18 @@
       </dialog-header>
       <div class="mt-6 w-full">
         <div ref="cardElementRef" />
-        <div class="flex items-top gap-x-2 mt-6">
+        <div class="mt-6 flex items-start gap-x-2">
           <checkbox
             id="accept-checkbox"
             :checked="acceptsConditions"
             @update:checked="acceptsConditions = $event" />
           <div class="grid gap-1.5 leading-none">
             <label
-              class="font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
+              class="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
               for="accept-checkbox">
               I accept
             </label>
-            <p class="text-muted-foreground text-sm">
+            <p class="text-sm text-muted-foreground">
               By updating your payment method, all future subscription invoices will be paid using this card.
             </p>
           </div>

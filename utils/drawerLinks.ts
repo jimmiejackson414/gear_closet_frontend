@@ -1,13 +1,13 @@
 import { IconDoorOpen,  IconHome, IconListTodo, IconMessagesSquare, IconUserCircle2, IconUsers } from '#components';
 
 export type LinkItem = {
-  to: string;
-  title: string;
-  icon: typeof IconDoorOpen;
   disabled: boolean;
+  external: boolean;
+  icon: typeof IconDoorOpen;
   requiresSubscription: boolean;
   requiresSubscriptionCopy?: string;
-  external: boolean;
+  title: string;
+  to: string;
 }
 
 export const drawerLinks = () => {
@@ -17,53 +17,53 @@ export const drawerLinks = () => {
 
   return [
     {
-      to: 'index',
-      title: 'Dashboard',
+      disabled: false,
+      external: false,
       icon: IconHome,
-      disabled: false,
       requiresSubscription: false,
-      external: false,
+      title: 'Dashboard',
+      to: 'index',
     },
     {
-      to: 'closet',
-      title: 'Closet',
+      disabled: false,
+      external: false,
       icon: IconDoorOpen,
-      disabled: false,
       requiresSubscription: false,
-      external: false,
+      title: 'Closet',
+      to: 'closet',
     },
     {
-      to: 'planning',
-      title: 'Planning',
+      disabled: false,
+      external: false,
       icon: IconListTodo,
-      disabled: false,
       requiresSubscription: false,
-      external: false,
+      title: 'Planning',
+      to: 'planning',
     },
     {
-      to: 'friends',
-      title: 'Friends',
+      disabled: false,
+      external: false,
       icon: IconUsers,
-      disabled: false,
       requiresSubscription: false,
-      external: false,
+      title: 'Friends',
+      to: 'friends',
     },
     {
-      to: config.public.forumsUrl,
-      title: 'Forums',
-      icon: IconMessagesSquare,
       disabled: !$store.isPaidMember,
+      external: true,
+      icon: IconMessagesSquare,
       requiresSubscription: true,
       requiresSubscriptionCopy: 'The forums are only available to paid members.',
-      external: true,
+      title: 'Forums',
+      to: config.public.forumsUrl,
     },
     {
-      to: 'profile',
-      title: 'Profile',
-      icon: IconUserCircle2,
       disabled: false,
-      requiresSubscription: false,
       external: false,
+      icon: IconUserCircle2,
+      requiresSubscription: false,
+      title: 'Profile',
+      to: 'profile',
     },
   ] satisfies LinkItem[];
 };

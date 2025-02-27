@@ -11,23 +11,23 @@
 </script>
 
 <template>
-  <div class="animate-pulse flex">
+  <div class="flex animate-pulse">
     <div
       v-if="avatar"
-      class="flex-shrink-0">
-      <span class="bg-gray-200 block h-12 rounded-full w-12" />
+      class="shrink-0">
+      <span class="block size-12 rounded-full bg-gray-200" />
     </div>
 
     <div class="ms-4 mt-2 w-full">
       <h3
-        class="bg-gray-200 h-4 rounded-full"
+        class="h-4 rounded-full bg-gray-200"
         style="width: 40%;" />
 
       <ul class="mt-5 space-y-3">
         <li
           v-for="index in Number(lines)"
           :key="index"
-          class="bg-gray-200 h-4 rounded-full w-full" />
+          class="h-4 w-full rounded-full bg-gray-200" />
       </ul>
     </div>
   </div>

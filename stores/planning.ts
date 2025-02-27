@@ -3,14 +3,15 @@ import type { Database, Tables } from "@/types";
 import type { ExtendedPack, ExtendedPoll, ExtendedTripFriend } from "@/types/helpers";
 
 export interface PlanningPageData {
-  trips: Tables<'trips'>[];
-  pack?: ExtendedPack;
-  trip_details: Tables<'trip_details'>[];
-  todos: Tables<'todos'>[];
-  shopping_items: Tables<'shopping_list_items'>[];
-  friends: ExtendedTripFriend[];
-  poll?: ExtendedPoll;
   errors?: string[];
+  friends: ExtendedTripFriend[];
+  is_trip_owner: boolean;
+  pack?: ExtendedPack;
+  poll?: ExtendedPoll;
+  shopping_items: Tables<'shopping_list_items'>[];
+  todos: Tables<'todos'>[];
+  trip_details: Tables<'trip_details'>[];
+  trips: Tables<'trips'>[];
 }
 
 type State = {
@@ -30,28 +31,6 @@ type Actions = {
 export const usePlanningStore = defineStore<"planning", State, Getters, Actions>(
   'planning',
   {
-    state () {
-      return {
-        data: {
-          trips: [],
-          pack: undefined,
-          trip_details: [],
-          todos: [],
-          shopping_items: [],
-          friends: [],
-          poll: undefined,
-        },
-        pageLoading: true,
-        selectedTripId: undefined,
-      };
-    },
-
-    getters: {
-      selectedTrip () {
-        return this.data.trips.find(trip => String(trip.id) === this.selectedTripId);
-      },
-    },
-
     actions: {
       /**
        * Fetches the planning page data.
@@ -81,6 +60,29 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           this.pageLoading = false;
         }
       },
+    },
+
+    getters: {
+      selectedTrip () {
+        return this.data.trips.find(trip => String(trip.id) === this.selectedTripId);
+      },
+    },
+
+    state () {
+      return {
+        data: {
+          friends: [],
+          is_trip_owner: false,
+          pack: undefined,
+          poll: undefined,
+          shopping_items: [],
+          todos: [],
+          trip_details: [],
+          trips: [],
+        },
+        pageLoading: true,
+        selectedTripId: undefined,
+      };
     },
   },
 );

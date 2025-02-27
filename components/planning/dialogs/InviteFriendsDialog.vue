@@ -39,10 +39,10 @@
         // @ts-ignore
         friendObjects.value = friends.map(f => f.profile as Tables<'profiles'>);
         searchResults.value = friends.map(f => ({
-          label: friendlyUsername(f.profile as Tables<'profiles'>),
-          value: f.id,
-          profile_id: f.profile_id,
           image: f.profile.image,
+          label: friendlyUsername(f.profile as Tables<'profiles'>),
+          profile_id: f.profile_id,
+          value: f.id,
         }));
       }
     } catch (err) {
@@ -65,10 +65,10 @@
 
       // invite friends
       const existingFriendsPayload = friendsToInvite.value.map((f: Tables<'profiles'>) => ({
-        trip_id: Number($store.selectedTripId),
+        invited_by_id: user.value?.id as string,
         profile_id: f.id,
         status: TripFriendStatus.PENDING,
-        invited_by_id: user.value?.id as string,
+        trip_id: Number($store.selectedTripId),
       }));
 
       const { data: invitedFriends, error } = await supabase.from('trip_friends')
@@ -91,11 +91,11 @@
 
       // send each friend a notification
       const notificationsPayload = friendsToInvite.value.map(f => ({
-        title: "You've been invited to a trip!",
         content: `${friendlyUsername($userStore.profile)} invited you to a trip!`,
-        read_on_date: null,
         profile_id: f.id,
+        read_on_date: null,
         sender_id: user.value?.id,
+        title: "You've been invited to a trip!",
       })) as TablesInsert<'notifications'>;
 
       await supabase.from('notifications')
@@ -153,8 +153,8 @@
           Invite existing friends to your trip and get started planning!
         </dialog-description>
       </dialog-header>
-      <div class="grid grid-cols-1 gap-6 justify-center items-center w-full">
-        <div class="flex flex-col gap-2 w-full lg:w-1/2 lg:mx-auto">
+      <div class="grid w-full grid-cols-1 items-center justify-center gap-6">
+        <div class="flex w-full flex-col gap-2 lg:mx-auto lg:w-1/2">
           <label-root>
             Search for friends
           </label-root>

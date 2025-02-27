@@ -2,10 +2,10 @@
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
-  import { type Severity } from '@/components/common/GcAlert.vue';
+  import type { Severity } from '@/components/common/GcAlert.vue';
 
   const supabase = useSupabaseClient();
-  const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
+  const submitAction = ref<undefined | {message: string, severity: Severity}>(undefined);
 
   const formSchema = toTypedSchema(z.object({
     password: z.string()
@@ -18,7 +18,7 @@
       path: ['passwordConfirm'],
     }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting, resetForm } = useForm({
+  const { handleSubmit, isFieldDirty, isSubmitting, resetForm } = useForm({
     validationSchema: formSchema,
   });
 
@@ -47,10 +47,10 @@
 
 <template>
   <form
-    class="max-w-md w-full"
+    class="w-full max-w-md"
     @keydown.enter="onSubmit"
     @submit.prevent="onSubmit">
-    <div class="auto-rows-auto grid grid-cols-1 gap-4">
+    <div class="grid auto-rows-auto grid-cols-1 gap-4">
       <form-field
         v-slot="{ componentField }"
         name="password"

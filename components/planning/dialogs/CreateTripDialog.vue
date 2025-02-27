@@ -5,7 +5,7 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { IconBackpack, IconMapPin, IconText } from '#components';
-  import type { Database, TablesInsert } from '@/types';
+  import { type Database, type TablesInsert, TripFriendRole } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
   interface Props {
@@ -19,27 +19,27 @@
 
   const $store = usePlanningStore();
   const formSchema = toTypedSchema(z.object({
-    name: z.string()
-      .min(3)
-      .max(50),
+    dateRange: z.array(z.date())
+      .length(2)
+      .optional(),
     description: z.string()
       .min(3)
       .max(500)
-      .optional(),
-    starting_point: z.string()
-      .min(3)
-      .max(50)
       .optional(),
     ending_point: z.string()
       .min(3)
       .max(50)
       .optional(),
-    dateRange: z.array(z.date())
-      .length(2)
+    name: z.string()
+      .min(3)
+      .max(50),
+    starting_point: z.string()
+      .min(3)
+      .max(50)
       .optional(),
   }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
+  const { handleSubmit, isFieldDirty, isSubmitting } = useForm({
     validationSchema: formSchema,
   });
 
@@ -63,20 +63,28 @@
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
       const payload: TablesInsert<'trips'> = {
-        name: values.name,
         description: values.description,
-        starting_point: values.starting_point,
-        ending_point: values.ending_point,
-        starting_date: values.dateRange?.[0].toISOString(),
         ending_date: values.dateRange?.[1].toISOString(),
-        profile_id: user.value?.id as string,
+        ending_point: values.ending_point,
+        name: values.name,
+        starting_date: values.dateRange?.[0].toISOString(),
+        starting_point: values.starting_point,
       };
       const { data: createdTrip, error } = await supabase.from('trips')
         .insert([payload])
         .select();
 
       if (error) { $appStore.notifyNegative('There was an error creating a new trip.'); }
+
       else {
+        const { error } = await supabase.from('trip_friends')
+          .insert({
+            profile_id: user.value!.id,
+            role: TripFriendRole.OWNER,
+            trip_id: createdTrip[0].id,
+          });
+
+        if (error) throw error;
         $appStore.notifyPositive('Successfully created a new trip!');
         emits('onClose');
         if ($store.selectedTripId) {
@@ -103,7 +111,7 @@
         <dialog-description />
       </dialog-header>
       <div class="w-full">
-        <form class="flex flex-col gap-6 w-full">
+        <form class="flex w-full flex-col gap-6">
           <!-- Name -->
           <form-field
             v-slot="{ componentField }"
@@ -181,7 +189,7 @@
                 :action-row="{ showNow: false, showPreview: false, showCancel: false, showSelect: true }"
                 :auto-apply="true"
                 calendar-cell-class-name="gc-dp-cell"
-                class="!w-full gc-dp"
+                class="gc-dp !w-full"
                 :format="format"
                 :hide-navigation="['time']"
                 input-class-name="gc-dp-input"
@@ -192,7 +200,7 @@
                 range
                 @update:model-value="dateRange = $event">
                 <template #input-icon>
-                  <icon-calendar class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-foreground w-5" />
+                  <icon-calendar class="pointer-events-none absolute left-2.5 top-1/2 inline-block size-5 -translate-y-1/2 text-base text-foreground" />
                 </template>
               </vue-date-picker>
             </form-item>

@@ -6,7 +6,7 @@
   <div v-if="!$store.data.allPacks.length && !$store.pageLoading">
     <gc-empty-state data-testid="closet-empty-state">
       <typography
-        class="font-bold mb-3"
+        class="mb-3 font-bold"
         variant="h5">
         You haven't created any packs yet!
       </typography>

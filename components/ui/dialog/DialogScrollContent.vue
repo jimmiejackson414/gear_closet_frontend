@@ -1,5 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { type HTMLAttributes } from 'vue';
   import {
     DialogClose,
     DialogContent,
@@ -9,7 +10,6 @@
     DialogPortal,
     useForwardPropsEmits,
   } from 'radix-vue';
-  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'] }>();
@@ -26,7 +26,7 @@
 
 <template>
   <dialog-portal>
-    <dialog-overlay class="bg-black/80 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 fixed inset-0 grid place-items-center overflow-y-auto z-50 ">
+    <dialog-overlay class="fixed inset-0 z-50 grid place-items-center overflow-y-auto bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 ">
       <dialog-content
         :class="
           cn(
@@ -44,8 +44,8 @@
         }">
         <slot />
 
-        <dialog-close class="absolute top-3 right-3 p-0.5 rounded-md transition-colors hover:bg-secondary">
-          <icon-x class="h-4 w-4" />
+        <dialog-close class="absolute right-3 top-3 rounded-md p-0.5 transition-colors hover:bg-secondary">
+          <icon-x class="size-4" />
           <span class="sr-only">Close</span>
         </dialog-close>
       </dialog-content>

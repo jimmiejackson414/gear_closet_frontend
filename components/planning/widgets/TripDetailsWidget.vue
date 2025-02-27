@@ -23,8 +23,8 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
-          trip_id: Number($store.selectedTripId),
           title: 'New detail',
+          trip_id: Number($store.selectedTripId),
           type: TripDetailsType.TRIP,
           value: 'New trip detail description',
         })
@@ -75,7 +75,7 @@
     return `${date1} to ${date2}`;
   };
 
-  const formattedDate = (date: string | undefined | null) => {
+  const formattedDate = (date: string | null | undefined) => {
     if (!date) return '';
     return dayjs(date)
       .format('MMM D, YYYY');
@@ -85,17 +85,17 @@
 </script>
 
 <template>
-  <card class="px-8 py-4 rounded-3xl">
-    <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center">
-      <icon-footprints class="h-6 mr-6 text-primary w-6" />
+  <card class="rounded-3xl px-8 py-4">
+    <div class="grid grid-cols-[auto,auto,1fr] items-center justify-start">
+      <icon-footprints class="mr-6 size-6 text-primary" />
       <div class="flex items-center gap-3">
-        <p class="!font-bold text-base">
+        <p class="text-base !font-bold">
           Trip Details
         </p>
 
         <icon-info
           v-tippy="{ content: 'Track details such as flights, car rentals, and hike dates.' }"
-          class="cursor-pointer h-4 text-muted-foreground w-4" />
+          class="size-4 cursor-pointer text-muted-foreground" />
       </div>
       <button-root
         v-if="!$store.pageLoading && tripDetails.length"
@@ -119,7 +119,7 @@
       </button-root>
     </gc-empty-state>
     <div v-else>
-      <div class="flex flex-col mb-6">
+      <div class="mb-6 flex flex-col">
         <gc-inline-edit
           :model-value="$store.selectedTrip?.name"
           name="trip_name"
@@ -135,17 +135,17 @@
         <div>
           <div
             v-if="!editingTripDates"
-            class="flex items-center gap-4 group"
+            class="group flex items-center gap-4"
             @click="editingTripDates = !editingTripDates">
-            <typography class="cursor-pointer text-grey">
+            <typography class="cursor-pointer text-muted-foreground">
               {{ $store.selectedTrip?.starting_date ? formattedDate($store.selectedTrip?.starting_date) : 'Start Date' }}
             </typography>
-            <icon-move-right class="h-6 text-grey w-6" />
-            <typography class="cursor-pointer text-grey">
+            <icon-move-right class="size-6 text-muted-foreground" />
+            <typography class="cursor-pointer text-muted-foreground">
               {{ $store.selectedTrip?.ending_date ? formattedDate($store.selectedTrip?.ending_date) : 'End Date' }}
             </typography>
             <button-root
-              class="group-hover:opacity-100 opacity-0 rounded-full"
+              class="rounded-full opacity-0 group-hover:opacity-100"
               size="sm"
               variant="ghost">
               <icon-pencil />
@@ -176,9 +176,9 @@
           v-for="detail in tripDetails"
           :key="detail.id"
           class="mb-0">
-          <div class="flex items-center gap-4 group space-between">
-            <div class="flex justify-between items-center flex-1">
-              <typography class="!font-bold text-grey">
+          <div class="group flex items-center justify-between gap-4">
+            <div class="flex flex-1 items-center justify-between">
+              <typography class="!font-bold text-muted-foreground">
                 {{ detail.title }}
               </typography>
               <a
@@ -196,7 +196,7 @@
               </typography>
             </div>
             <button-root
-              class="group-hover:opacity-100 opacity-0 rounded-full"
+              class="rounded-full opacity-0 group-hover:opacity-100"
               size="sm"
               variant="ghost"
               @click="[activeDetail = detail, isModifyDetailDialogOpen = true]">

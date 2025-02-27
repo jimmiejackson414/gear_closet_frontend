@@ -4,17 +4,17 @@
   interface Props {
     border?: boolean;
     class?: string;
-    size?: 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-    url?: string;
     initials?: string;
+    size?: 'lg' | 'md' | 'sm' | 'xl' | 'xs';
+    url?: string;
   }
 
   const props = withDefaults(defineProps<Props>(), {
     border: false,
     class: '',
-    url: undefined,
     initials: undefined,
     size: 'md',
+    url: undefined,
   });
 
   const sizeClass = computed(() => {
@@ -39,7 +39,7 @@
   <img
     v-if="url"
     alt="User Avatar"
-    class="object-cover rounded-full"
+    class="rounded-full object-cover"
     :class="cn(sizeClass, { 'border-2 border-white': props.border }, props.class)"
     :src="url">
   <div

@@ -3,3 +3,8 @@
 /dist
 *.html
 !.*
+/.nuxt
+/.output
+/.vscode
+/.zed
+/types/index.ts

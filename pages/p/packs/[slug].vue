@@ -1,7 +1,7 @@
 <script lang='ts' setup>
+  import tailwind from '@/utils/tailwind';
   import type { Database } from '@/types';
   import type { ExtendedComment, PublicPack } from '@/types/helpers';
-  import tailwind from '@/utils/tailwind';
 
   const user = useSupabaseUser();
   // TODO: Figure out way to access user to dynamically set colorMode. Currently causes 500 error.
@@ -13,7 +13,7 @@
   const $appStore = useAppStore();
   const $store = useClosetStore();
   const $route = useRoute();
-  const displayPrivatePackWarning = ref($store.data.selectedPack?.private ?? true);
+  const displayPrivatePackWarning = ref(true);
 
   const fetchPack = async () => {
     try {
@@ -37,13 +37,14 @@
           )
         `)
         .eq('slug', $route.params.slug)
-        .order('created_at', { referencedTable: 'comments', ascending: false })
-        .order('created_at', { referencedTable: 'comments.replies', ascending: false })
+        .order('created_at', { ascending: false, referencedTable: 'comments' })
+        .order('created_at', { ascending: false, referencedTable: 'comments.replies' })
         .maybeSingle();
 
       if (error) throw error;
       if (!fetchedPack) throw new Error('No pack data found');
       $store.data.selectedPack = fetchedPack as PublicPack;
+      displayPrivatePackWarning.value = fetchedPack.private;
     } catch (error) {
       $appStore.notifyNegative('Failed to fetch pack data');
     } finally {
@@ -88,7 +89,7 @@
           )
         `)
         .eq('id', data?.[0]?.id as number)
-        .order('created_at', { referencedTable: 'replies', ascending: false })
+        .order('created_at', { ascending: false, referencedTable: 'replies' })
         .returns<ExtendedComment | undefined>()
         .maybeSingle();
 
@@ -113,8 +114,8 @@
    * Tabs functionality
    */
   enum TableTabs {
-    DETAILS,
-    COMMENTS,
+    COMMENTS = 'COMMENTS',
+    DETAILS = 'DETAILS',
   }
   const activeTab = ref(TableTabs.DETAILS);
 
@@ -124,17 +125,17 @@
 <template>
   <div class="py-8">
     <div v-if="!displayPrivatePackWarning">
-      <div class="card card-main">
-        <div class="flex justify-start items-center gap-4 mb-4">
+      <div>
+        <div class="mb-4 flex items-center justify-start gap-4">
           <h1 class="text-2xl">
             {{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile, { includeTrailName: true }) }}'s
           </h1>
-          <h1 class="font-bold text-2xl">
+          <h1 class="text-2xl font-bold">
             {{ selectedPackName }}
           </h1>
         </div>
-        <card class="px-8 py-4 rounded-3xl">
-          <div class="grid lg:grid-cols-[1fr,auto,40%] grid-cols-1 gap-6">
+        <card class="rounded-3xl px-8 py-4">
+          <div class="grid grid-cols-1 gap-6 lg:grid-cols-[1fr,auto,40%]">
             <closet-pack-chart />
             <separator orientation="vertical" />
             <closet-pack-details />
@@ -146,14 +147,14 @@
           activation-mode="manual"
           class="mt-14"
           :default-value="TableTabs.DETAILS">
-          <tabs-list class="bg-background dark:bg-background border-b border-muted-foreground pb-0 rounded-none">
+          <tabs-list class="rounded-none border-b border-muted-foreground bg-background pb-0 dark:bg-background">
             <tabs-trigger
-              class="!shadow-none border-b-[3px] data-[state=active]:border-primary dark:data-[state=active]:border-primary-light dark:data-[state=inactive]:text-accent-light data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-none rounded-none hover:text-primary"
+              class="rounded-none border-b-[3px] !shadow-none outline-none hover:text-primary data-[state=active]:border-primary data-[state=inactive]:border-transparent data-[state=active]:font-bold dark:data-[state=active]:border-primary-light dark:data-[state=inactive]:text-accent-light"
               :value="TableTabs.DETAILS">
               Details
             </tabs-trigger>
             <tabs-trigger
-              class="!shadow-none border-b-[3px] data-[state=active]:border-primary dark:data-[state=inactive]:text-accent-light data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-none rounded-none hover:text-primary"
+              class="rounded-none border-b-[3px] !shadow-none outline-none hover:text-primary data-[state=active]:border-primary data-[state=inactive]:border-transparent data-[state=active]:font-bold dark:data-[state=inactive]:text-accent-light"
               :disabled="!$store.data.selectedPack?.allow_comments"
               :value="TableTabs.COMMENTS">
               Comments ({{ ($store.data.selectedPack as PublicPack)?.comments?.length || 0 }})
@@ -170,14 +171,14 @@
               role="tabpanel">
               <div
                 v-if="user"
-                class="flex items-start flex-col max-w-6xl mx-auto px-6 py-6">
+                class="mx-auto flex max-w-6xl flex-col items-start p-6">
                 <textarea-root
                   v-model="newCommentValue"
-                  class="rounded-xl shadow-sm w-full disabled:bg-gray-100 disabled:pointer-events-none"
+                  class="w-full rounded-xl shadow-sm disabled:pointer-events-none disabled:bg-gray-100"
                   :disabled="submitting"
                   placeholder="Add a comment" />
-                <div class="flex items-center gap-6 ml-auto my-2">
-                  <typography class="text-muted-foreground dark:text-muted-foreground text-sm">
+                <div class="my-2 ml-auto flex items-center gap-6">
+                  <typography class="text-sm text-muted-foreground dark:text-muted-foreground">
                     Commenting as <span class="font-bold">{{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile) }}</span>
                   </typography>
                   <button-root
@@ -198,7 +199,7 @@
                 </gc-empty-state>
                 <div
                   v-else
-                  class="flex items-end flex-col w-full">
+                  class="flex w-full flex-col items-end">
                   <public-pack-comment
                     v-for="comment in ($store.data.selectedPack as PublicPack)?.comments"
                     :key="comment.id"
@@ -229,61 +230,61 @@
           </div>
         </alert-dialog-content>
       </alert-dialog>
-      <div class="blur-sm card card-main">
+      <div class="blur-sm">
         <div
-          class="max-w-xl mx-auto p-4 md:p-6 w-full"
+          class="mx-auto w-full max-w-xl p-4 md:p-6"
           role="status">
-          <div class="bg-gray-200 h-2.5 mb-2.5 rounded-full w-32" />
-          <div class="bg-gray-200 h-2 mb-10 rounded-full w-48" />
-          <div class="flex items-baseline mt-4">
-            <div class="bg-gray-200 h-72 rounded-t-lg w-full" />
-            <div class="bg-gray-200 h-56 ms-6 rounded-t-lg w-full" />
-            <div class="bg-gray-200 h-72 ms-6 rounded-t-lg w-full" />
-            <div class="bg-gray-200 h-64 ms-6 rounded-t-lg w-full" />
-            <div class="bg-gray-200 h-80 ms-6 rounded-t-lg w-full" />
-            <div class="bg-gray-200 h-72 ms-6 rounded-t-lg w-full" />
-            <div class="bg-gray-200 h-80 ms-6 rounded-t-lg w-full" />
+          <div class="mb-2.5 h-2.5 w-32 rounded-full bg-gray-200" />
+          <div class="mb-10 h-2 w-48 rounded-full bg-gray-200" />
+          <div class="mt-4 flex items-baseline">
+            <div class="h-72 w-full rounded-t-lg bg-gray-200" />
+            <div class="ms-6 h-56 w-full rounded-t-lg bg-gray-200" />
+            <div class="ms-6 h-72 w-full rounded-t-lg bg-gray-200" />
+            <div class="ms-6 h-64 w-full rounded-t-lg bg-gray-200" />
+            <div class="ms-6 h-80 w-full rounded-t-lg bg-gray-200" />
+            <div class="ms-6 h-72 w-full rounded-t-lg bg-gray-200" />
+            <div class="ms-6 h-80 w-full rounded-t-lg bg-gray-200" />
           </div>
           <span class="sr-only">Loading...</span>
         </div>
 
         <div
-          class="divide-gray-200 divide-y max-w-xl mt-14 mx-auto p-4 md:p-6 space-y-4"
+          class="mx-auto mt-14 max-w-xl space-y-4 divide-y divide-gray-200 p-4 md:p-6"
           role="status">
-          <div class="flex justify-between items-center">
+          <div class="flex items-center justify-between">
             <div>
-              <div class="bg-gray-300 h-2.5 mb-2.5 rounded-full w-24" />
-              <div class="bg-gray-200 h-2 rounded-full w-32" />
+              <div class="mb-2.5 h-2.5 w-24 rounded-full bg-gray-300" />
+              <div class="h-2 w-32 rounded-full bg-gray-200" />
             </div>
-            <div class="bg-gray-300 h-2.5 rounded-full w-12" />
+            <div class="h-2.5 w-12 rounded-full bg-gray-300" />
           </div>
-          <div class="flex justify-between items-center pt-4">
+          <div class="flex items-center justify-between pt-4">
             <div>
-              <div class="bg-gray-300 h-2.5 mb-2.5 rounded-full w-24" />
-              <div class="bg-gray-200 h-2 rounded-full w-32" />
+              <div class="mb-2.5 h-2.5 w-24 rounded-full bg-gray-300" />
+              <div class="h-2 w-32 rounded-full bg-gray-200" />
             </div>
-            <div class="bg-gray-300 h-2.5 rounded-full w-12" />
+            <div class="h-2.5 w-12 rounded-full bg-gray-300" />
           </div>
-          <div class="flex justify-between items-center pt-4">
+          <div class="flex items-center justify-between pt-4">
             <div>
-              <div class="bg-gray-300 h-2.5 mb-2.5 rounded-full w-24" />
-              <div class="bg-gray-200 h-2 rounded-full w-32" />
+              <div class="mb-2.5 h-2.5 w-24 rounded-full bg-gray-300" />
+              <div class="h-2 w-32 rounded-full bg-gray-200" />
             </div>
-            <div class="bg-gray-300 h-2.5 rounded-full w-12" />
+            <div class="h-2.5 w-12 rounded-full bg-gray-300" />
           </div>
-          <div class="flex justify-between items-center pt-4">
+          <div class="flex items-center justify-between pt-4">
             <div>
-              <div class="bg-gray-300 h-2.5 mb-2.5 rounded-full w-24" />
-              <div class="bg-gray-200 h-2 rounded-full w-32" />
+              <div class="mb-2.5 h-2.5 w-24 rounded-full bg-gray-300" />
+              <div class="h-2 w-32 rounded-full bg-gray-200" />
             </div>
-            <div class="bg-gray-300 h-2.5 rounded-full w-12" />
+            <div class="h-2.5 w-12 rounded-full bg-gray-300" />
           </div>
-          <div class="flex justify-between items-center pt-4">
+          <div class="flex items-center justify-between pt-4">
             <div>
-              <div class="bg-gray-300 h-2.5 mb-2.5 rounded-full w-24" />
-              <div class="bg-gray-200 h-2 rounded-full w-32" />
+              <div class="mb-2.5 h-2.5 w-24 rounded-full bg-gray-300" />
+              <div class="h-2 w-32 rounded-full bg-gray-200" />
             </div>
-            <div class="bg-gray-300 h-2.5 rounded-full w-12" />
+            <div class="h-2.5 w-12 rounded-full bg-gray-300" />
           </div>
           <span class="sr-only">Loading...</span>
         </div>

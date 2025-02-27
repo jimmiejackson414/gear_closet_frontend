@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import type { EChartsOption } from 'echarts';
+  import VChart from 'vue-echarts';
   import { BarChart } from 'echarts/charts';
   import {
     GridComponent,
@@ -9,9 +9,9 @@
   } from 'echarts/components';
   import { use } from 'echarts/core';
   import { CanvasRenderer } from 'echarts/renderers';
-  import VChart from 'vue-echarts';
   import { Theme } from '@/types';
   import type { ExtendedCategory } from '@/types/helpers';
+  import type { EChartsOption } from 'echarts';
 
   use([
     CanvasRenderer,
@@ -29,23 +29,10 @@
   const chartRef = ref<InstanceType<typeof VChart> | undefined>(undefined);
   const chartOptions = ref<EChartsOption>({
     animationDuration: 300,
-    xAxis: {
-      type: 'category',
-      axisLine: { lineStyle: { color: legendTextColor.value } },
-      axisTick: { alignWithLabel: true },
-      axisLabel: { rotate: 30, overflow: 'break', width: 100, margin: 24 },
-      data: $store.data.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
-    },
-    yAxis: {
-      type: 'value',
-      splitLine: { show: false },
-      axisLabel: { formatter: (value: any) => `${value} lbs` },
-    },
     grid: { show: false },
     series: [
       {
         data: $store.data.selectedPack?.categories?.map(category => calculateCategoryWeight(category as ExtendedCategory)),
-        type: 'bar',
         itemStyle: {
           borderRadius: 5,
           color: (params: any) => {
@@ -54,11 +41,10 @@
             return extendedTheme[params.dataIndex];
           },
         },
+        type: 'bar',
       },
     ],
     tooltip: {
-      show: true,
-      trigger: 'item',
       formatter: (value: any) => {
         const category = $store.data.selectedPack?.categories?.[value.dataIndex];
         const weight = calculateCategoryWeight(category as ExtendedCategory);
@@ -74,6 +60,20 @@
           </div>
         `);
       },
+      show: true,
+      trigger: 'item',
+    },
+    xAxis: {
+      axisLabel: { margin: 24, overflow: 'break', rotate: 30, width: 100 },
+      axisLine: { lineStyle: { color: legendTextColor.value } },
+      axisTick: { alignWithLabel: true },
+      data: $store.data.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
+      type: 'category',
+    },
+    yAxis: {
+      axisLabel: { formatter: (value: any) => `${value} lbs` },
+      splitLine: { show: false },
+      type: 'value',
     },
   });
 
@@ -115,12 +115,12 @@
 
   watch(() => $store.data.selectedPack?.categories, () => {
     chartRef.value?.setOption({
-      xAxis: {
-        data: $store.data.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
-      },
       series: [{
         data: $store.data.selectedPack?.categories?.map(category => calculateCategoryWeight(category as ExtendedCategory)),
       }],
+      xAxis: {
+        data: $store.data.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
+      },
     });
   }, { deep: true, immediate: true });
 </script>
@@ -128,12 +128,12 @@
 <template>
   <div class="flex flex-col">
     <div class="flex items-center">
-      <icon-backpack class="h-6 mr-6 text-primary dark:text-primary-light w-6" />
+      <icon-backpack class="mr-6 size-6 text-primary dark:text-primary-light" />
       <typography class="!font-bold">
         Pack Summary
       </typography>
     </div>
-    <div class="h-[200px] lg:h-[375px] mb-4 mt-0 w-auto">
+    <div class="mb-4 mt-0 h-[200px] w-auto lg:h-[375px]">
       <client-only>
         <v-chart
           ref="chartRef"

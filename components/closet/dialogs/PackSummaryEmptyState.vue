@@ -15,17 +15,17 @@
       const supabase = useSupabaseClient<Database>();
       const { data: createdCategory, error } = await supabase
         .rpc('create_category_and_item', {
-          p_name: 'Miscellaneous',
-          p_pack_id: $store.data.selectedPack?.id as number,
           p_items: [{
-            name: 'Miscellaneous',
-            generic_type: 'Miscellaneous',
-            weight: 0,
-            quantity: 0,
-            price: 0,
             consumable: false,
+            generic_type: 'Miscellaneous',
+            name: 'Miscellaneous',
+            price: 0,
+            quantity: 0,
+            weight: 0,
             worn: false,
           }],
+          p_name: 'Miscellaneous',
+          p_pack_id: $store.data.selectedPack?.id as number,
         })
         .returns<ExtendedCategory>();
 
@@ -47,7 +47,7 @@
   <div>
     <gc-empty-state data-testid="pack-summary-empty-state">
       <typography
-        class="font-bold mb-2"
+        class="mb-2 font-bold"
         variant="h5">
         Successfully created your new {{ $store.data.selectedPack?.name }} pack!
       </typography>
@@ -57,7 +57,7 @@
       <typography class="mb-4">
         You can add items to your pack by clicking the Get Started button below or by uploading a CSV file.
       </typography>
-      <div class="flex justify-center items-center gap-4">
+      <div class="flex items-center justify-center gap-4">
         <button-root
           size="sm"
           @click="createDefaultCategory">

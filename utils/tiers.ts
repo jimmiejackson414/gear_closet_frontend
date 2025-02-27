@@ -2,39 +2,37 @@ import dinero from 'dinero.js';
 import { SubscriptionLevel } from '@/types';
 
 export interface Tier {
-  title: string;
-  subheader?: string;
+  borderColor: string;
+  buttonDisabled: boolean;
+  buttonText: string;
+  description: string[];
   price: string;
   priceSubtitle: string;
-  description: string[];
-  borderColor: string;
-  buttonText: string;
-  buttonDisabled: boolean;
+  subheader?: string;
+  title: string;
   value: SubscriptionLevel;
 }
 
 const tiers: Tier[] = [
   {
-    title: 'Free',
-    price: dinero({ amount: 0, currency: 'USD' })
-      .toFormat('$0,0.00'),
-    priceSubtitle: 'for forever',
+    borderColor: tailwind.theme.colors.warning,
+    buttonDisabled: false,
+    buttonText: 'Select',
     description: [
       '1 Pack',
       '1 Trip',
       'Email Support',
     ],
-    borderColor: tailwind.theme.colors.warning,
-    buttonText: 'Select',
-    buttonDisabled: false,
+    price: dinero({ amount: 0, currency: 'USD' })
+      .toFormat('$0,0.00'),
+    priceSubtitle: 'for forever',
+    title: 'Free',
     value: SubscriptionLevel.FREE,
   },
   {
-    title: 'Annual',
-    subheader: 'Most popular',
-    price: dinero({ amount: 1899, currency: 'USD' })
-      .toFormat('$0,0.00'),
-    priceSubtitle: 'per year',
+    borderColor: tailwind.theme.colors.primary.DEFAULT,
+    buttonDisabled: false,
+    buttonText: 'Select',
     description: [
       'Unlimited Packs',
       'Unlimited Trips',
@@ -42,25 +40,27 @@ const tiers: Tier[] = [
       'Email Support',
       '20% discount',
     ],
-    borderColor: tailwind.theme.colors.primary.DEFAULT,
-    buttonText: 'Select',
-    buttonDisabled: false,
+    price: dinero({ amount: 1899, currency: 'USD' })
+      .toFormat('$0,0.00'),
+    priceSubtitle: 'per year',
+    subheader: 'Most popular',
+    title: 'Annual',
     value: SubscriptionLevel.ANNUAL,
   },
   {
-    title: 'Monthly',
-    price: dinero({ amount: 199, currency: 'USD' })
-      .toFormat('$0,0.00'),
-    priceSubtitle: 'per month',
+    borderColor: tailwind.theme.colors.positive,
+    buttonDisabled: false,
+    buttonText: 'Select',
     description: [
       'Unlimited Packs',
       'Unlimited Trips',
       'Forum Access',
       'Email Support',
     ],
-    borderColor: tailwind.theme.colors.positive,
-    buttonText: 'Select',
-    buttonDisabled: false,
+    price: dinero({ amount: 199, currency: 'USD' })
+      .toFormat('$0,0.00'),
+    priceSubtitle: 'per month',
+    title: 'Monthly',
     value: SubscriptionLevel.MONTHLY,
   },
 ];

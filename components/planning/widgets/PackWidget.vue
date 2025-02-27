@@ -1,15 +1,15 @@
 <script lang='ts' setup>
+  import VChart from 'vue-echarts';
   import convert from 'convert';
-  import type { EChartsOption } from 'echarts';
   import { PieChart } from 'echarts/charts';
   import { GridComponent, LegendComponent, PolarComponent, TitleComponent, TooltipComponent } from 'echarts/components';
   import { use } from 'echarts/core';
   import { CanvasRenderer } from 'echarts/renderers';
   import round from 'lodash.round';
-  import VChart from 'vue-echarts';
+  import { findTheme } from '@/utils/chartTheme';
   import type { Theme } from '@/types';
   import type { ExtendedCategory } from '@/types/helpers';
-  import { findTheme } from '@/utils/chartTheme';
+  import type { EChartsOption } from 'echarts';
 
   use([
     CanvasRenderer,
@@ -57,13 +57,10 @@
     get () {
       return {
         animationDuration: 300,
+        grid: {
+          bottom: '30%',
+        },
         legend: {
-          orient: 'vertical',
-          left: 'left',
-          top: 'center',
-          textStyle: {
-            color: legendTextColor.value,
-          },
           data: $store.data.pack?.categories?.map(c => ({
             name: c.name as string,
             textStyle: {
@@ -71,24 +68,24 @@
               width: 180,
             },
           })),
-        },
-        grid: {
-          bottom: '30%',
+          left: 'left',
+          orient: 'vertical',
+          textStyle: {
+            color: legendTextColor.value,
+          },
+          top: 'center',
         },
         loading: $store.pageLoading,
         media: [
           {
-            query: {
-              maxWidth: 600,
-            },
             option: {
-              legend: {
-                orient: 'horizontal',
-                left: 'center',
-                top: 'bottom',
-              },
               grid: {
                 bottom: '20%',
+              },
+              legend: {
+                left: 'center',
+                orient: 'horizontal',
+                top: 'bottom',
               },
               series: [
                 {
@@ -97,24 +94,22 @@
                 },
               ],
             },
+            query: {
+              maxWidth: 600,
+            },
           },
         ],
         series: [
           {
-            name: 'Pack Categories',
-            type: 'pie',
-            radius: ['40%', '90%'],
             center: ['80%', '50%'],
-            left: 'center',
-            height: '100%',
             data: $store.data.pack?.categories?.map(c => ({
               name: c.name,
               value: calculateCategoryWeight(c as ExtendedCategory),
             })) as { name: string, value: number }[],
-            label: { show: false },
+            height: '100%',
             itemStyle: {
-              borderRadius: 8,
               borderColor: 'white',
+              borderRadius: 8,
               borderWidth: 2,
               color: (params: any) => {
                 const theme = findTheme($store.data.pack?.theme as Theme);
@@ -122,11 +117,14 @@
                 return extendedTheme[params.dataIndex];
               },
             },
+            label: { show: false },
+            left: 'center',
+            name: 'Pack Categories',
+            radius: ['40%', '90%'],
+            type: 'pie',
           },
         ],
         tooltip: {
-          show: true,
-          trigger: 'item',
           formatter: (value: any) => {
             const category = $store.data.pack?.categories?.[value.dataIndex];
             const categoryWeight = calculateCategoryWeight(category as ExtendedCategory);
@@ -144,6 +142,8 @@
               </div>
             `);
           },
+          show: true,
+          trigger: 'item',
         },
       };
     },
@@ -168,11 +168,11 @@
 </script>
 
 <template>
-  <card class="px-8 py-4 rounded-3xl">
-    <div class="flex justify-between items-center py-4">
+  <card class="rounded-3xl px-8 py-4">
+    <div class="flex items-center justify-between py-4">
       <div class="flex items-center">
-        <icon-backpack class="h-6 mr-6 text-primary w-6" />
-        <p class="!font-bold text-base">
+        <icon-backpack class="mr-6 size-6 text-primary" />
+        <p class="text-base !font-bold">
           Pack
         </p>
       </div>
@@ -181,7 +181,7 @@
         class="flex">
         <dropdown-menu>
           <dropdown-menu-trigger>
-            <icon-ellipsis-vertical class="h-6 w-6" />
+            <icon-ellipsis-vertical class="size-6" />
           </dropdown-menu-trigger>
           <dropdown-menu-content>
             <dropdown-menu-label>
@@ -215,7 +215,7 @@
         Selected Pack:
         <span class="font-black">{{ $store.data.pack?.name }}</span>
       </h5>
-      <div class="h-[400px] mb-4 mt-0 mx-auto w-full">
+      <div class="mx-auto mb-4 mt-0 h-[400px] w-full">
         <client-only>
           <v-chart
             ref="chartRef"

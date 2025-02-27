@@ -6,10 +6,10 @@
   const $store = useClosetStore();
 
   const details = reactive([
-    { title: 'Worn', weight: 0, color: '' },
-    { title: 'Consumable', weight: 0, color: '' },
-    { title: 'Base', weight: 0, color: '' },
-    { title: 'Total', weight: 0, color: '' },
+    { color: '', title: 'Worn', weight: 0 },
+    { color: '', title: 'Consumable', weight: 0 },
+    { color: '', title: 'Base', weight: 0 },
+    { color: '', title: 'Total', weight: 0 },
   ]);
   watchEffect(() => {
     if ($store.data.selectedPack) {
@@ -29,19 +29,19 @@
 
 <template>
   <div class="flex flex-col">
-    <div class="flex justify-between items-center mb-10">
+    <div class="mb-10 flex items-center justify-between">
       <div class="flex items-center">
-        <icon-bar-chart-3 class="h-6 mr-6 text-primary dark:text-primary-light w-6" />
+        <icon-bar-chart-3 class="mr-6 size-6 text-primary dark:text-primary-light" />
         <typography class="!font-bold">
           Stats
         </typography>
       </div>
     </div>
-    <div class="grid grid-cols-2 gap-6 h-full pb-4">
+    <div class="grid h-full grid-cols-2 gap-6 pb-4">
       <div
         v-for="detail in details"
         :key="detail.title"
-        class="border border-dashed border-gray-400 p-4 rounded-2xl w-auto"
+        class="w-auto rounded-2xl border border-dashed border-gray-400 p-4"
         data-testid="pack-summary-detail">
         <typography
           class="font-bold"
@@ -49,7 +49,7 @@
           {{ detail.title }}
         </typography>
         <typography
-          class="duration-300 ease-snap font-bold transition-colors"
+          class="font-bold transition-colors duration-300 ease-in-out"
           data-testid="detail-weight"
           :style="{ color: detail.color }"
           variant="large">

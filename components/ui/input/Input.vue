@@ -1,31 +1,31 @@
 <script setup lang="ts">
   import { useVModel } from '@vueuse/core';
-  import type { HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
+  import type { HTMLAttributes } from 'vue';
 
   const props = defineProps<{
-    defaultValue?: string | number;
-    modelValue?: string | number | null;
     class?: HTMLAttributes['class'];
+    defaultValue?: number | string;
+    dense?: boolean;
+    forceColorMode?: 'dark' | 'light';
+    modelValue?: number | string | null;
     passwordToggle?: boolean;
     prependIcon?: any;
     type?: string;
-    dense?: boolean;
-    forceColorMode?: 'light' | 'dark';
   }>();
 
   const showPassword = ref(false);
 
   const emits = defineEmits<{
-    (e: 'update:modelValue', payload: string | number): void
+    (e: 'update:modelValue', payload: number | string): void
   }>();
 
   const modelValue = useVModel(props, 'modelValue', emits, {
-    passive: true,
     defaultValue: props.defaultValue,
+    passive: true,
   });
 
-  const attrs = useAttrs();
+  const attrs = useAttrs() as Record<string, unknown>;
   const computedClasses = computed(() => {
     const baseClasses =
       'flex w-full rounded-md border bg-transparent px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
@@ -63,10 +63,10 @@
 </script>
 
 <template>
-  <div class="items-center relative w-full">
+  <div class="relative w-full items-center">
     <component
       :is="prependIcon"
-      class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-foreground w-5" />
+      class="pointer-events-none absolute left-2.5 top-1/2 inline-block size-5 -translate-y-1/2 text-base text-foreground" />
     <input
       v-bind="$attrs"
       ref="inputRef"
@@ -75,15 +75,15 @@
       :type="computedType">
     <button
       v-if="passwordToggle"
-      class="absolute bottom-0.5 end-0 px-2 py-2 rounded-e-md"
+      class="absolute bottom-0.5 end-0 rounded-e-md p-2"
       type="button"
       @click="showPassword = !showPassword">
       <icon-eye
         v-if="!showPassword"
-        class="h-6 text-gray-400 w-5" />
+        class="h-6 w-5 text-gray-400" />
       <icon-eye-off
         v-if="showPassword"
-        class="h-6 text-gray-400 w-5" />
+        class="h-6 w-5 text-gray-400" />
     </button>
   </div>
 </template>

@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { ComboboxInput, type ComboboxInputProps, useForwardProps } from 'radix-vue';
   import { type HTMLAttributes } from 'vue';
-  import { CommandCancel } from '.';
+  import { ComboboxInput, type ComboboxInputProps, useForwardProps } from 'radix-vue';
   import { cn } from '@/lib/utils';
+  import { CommandCancel } from '.';
 
   defineOptions({
     inheritAttrs: false,
@@ -27,10 +27,10 @@
 
 <template>
   <div
-    class="border-b flex items-center px-3"
+    class="flex items-center border-b px-3"
     cmdk-input-wrapper>
     <slot name="prepend-icon">
-      <icon-search class="h-4 mr-2 opacity-50 shrink-0 w-4" />
+      <icon-search class="mr-2 size-4 shrink-0 opacity-50" />
     </slot>
     <combobox-input
       v-bind="{ ...forwardedProps, ...$attrs }"

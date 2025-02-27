@@ -1,5 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { type HTMLAttributes } from 'vue';
   import {
     DialogClose,
     DialogContent,
@@ -9,7 +10,6 @@
     DialogPortal,
     useForwardPropsEmits,
   } from 'radix-vue';
-  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'] }>();
@@ -26,7 +26,7 @@
 
 <template>
   <dialog-portal>
-    <dialog-overlay class="bg-black/80 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:animate-in data-[state=open]:fade-in-0 fixed inset-0 z-50 " />
+    <dialog-overlay class="fixed inset-0 z-50 bg-black/80 data-[state=open]:animate-in data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0 " />
     <dialog-content
       v-bind="forwarded"
       :class="
@@ -37,9 +37,9 @@
       <slot />
 
       <dialog-close
-        class="absolute top-4 right-4 data-[state=open]:bg-accent data-[state=open]:text-muted-foreground opacity-70 hover:opacity-100 ring-offset-background focus:ring-2 focus:ring-offset-2 focus:ring-ring rounded-sm transition-opacity disabled:pointer-events-none focus:outline-none"
+        class="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none data-[state=open]:bg-accent data-[state=open]:text-muted-foreground"
         @click="emits('escapeKeyDown', $event)">
-        <icon-x class="h-4 w-4" />
+        <icon-x class="size-4" />
         <span class="sr-only">Close</span>
       </dialog-close>
     </dialog-content>

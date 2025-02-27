@@ -1,13 +1,13 @@
 <script lang='ts' setup>
   interface Props {
     copy: string;
-    variant?: 'primary' | 'positive' | 'secondary' | 'warning' | 'danger';
-    size?: 'sm' | 'md' | 'lg';
+    size?: 'lg' | 'md' | 'sm';
+    variant?: 'danger' | 'positive' | 'primary' | 'secondary' | 'warning';
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    variant: 'primary',
     size: 'md',
+    variant: 'primary',
   });
 
   const computedClasses = computed(() => {
@@ -32,7 +32,7 @@
 
 <template>
   <span
-    class="!font-semibold me-2 rounded-lg"
+    class="me-2 rounded-lg !font-semibold"
     :class="computedClasses">
     {{ copy }}
   </span>

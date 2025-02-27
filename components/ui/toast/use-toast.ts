@@ -1,28 +1,28 @@
-import type { Component, VNode } from 'vue';
-import type { ToastProps } from '.';
 import { IconBadgeAlert } from '#components';
+import type { ToastProps } from '.';
+import type { Component, VNode } from 'vue';
 
 const TOAST_LIMIT = 5;
 const TOAST_REMOVE_DELAY = 1000000;
 
 export type StringOrVNode =
-  | string
   | VNode
+  | string
   | (() => VNode)
 
 type ToasterToast = ToastProps & {
+  action?: Component
+  description?: StringOrVNode
+  icon?: typeof IconBadgeAlert;
   id: string
   title?: string
-  description?: StringOrVNode
-  action?: Component
-  icon?: typeof IconBadgeAlert;
 }
 
 const actionTypes = {
   ADD_TOAST: 'ADD_TOAST',
-  UPDATE_TOAST: 'UPDATE_TOAST',
   DISMISS_TOAST: 'DISMISS_TOAST',
   REMOVE_TOAST: 'REMOVE_TOAST',
+  UPDATE_TOAST: 'UPDATE_TOAST',
 } as const;
 
 let count = 0;
@@ -36,20 +36,20 @@ type ActionType = typeof actionTypes
 
 type Action =
   | {
-    type: ActionType['ADD_TOAST']
-    toast: ToasterToast
-  }
-  | {
-    type: ActionType['UPDATE_TOAST']
     toast: Partial<ToasterToast>
+    type: ActionType['UPDATE_TOAST']
   }
   | {
+    toast: ToasterToast
+    type: ActionType['ADD_TOAST']
+  }
+  | {
+    toastId?: ToasterToast['id']
     type: ActionType['DISMISS_TOAST']
-    toastId?: ToasterToast['id']
   }
   | {
-    type: ActionType['REMOVE_TOAST']
     toastId?: ToasterToast['id']
+    type: ActionType['REMOVE_TOAST']
   }
 
 interface State {
@@ -65,8 +65,8 @@ function addToRemoveQueue (toastId: string) {
   const timeout = setTimeout(() => {
     toastTimeouts.delete(toastId);
     dispatch({
-      type: actionTypes.REMOVE_TOAST,
       toastId,
+      type: actionTypes.REMOVE_TOAST,
     });
   }, TOAST_REMOVE_DELAY);
 
@@ -124,9 +124,9 @@ function dispatch (action: Action) {
 
 function useToast () {
   return {
-    toasts: computed(() => state.value.toasts),
+    dismiss: (toastId?: string) => dispatch({ toastId, type: actionTypes.DISMISS_TOAST }),
     toast,
-    dismiss: (toastId?: string) => dispatch({ type: actionTypes.DISMISS_TOAST, toastId }),
+    toasts: computed(() => state.value.toasts),
   };
 }
 
@@ -137,28 +137,28 @@ function toast (props: Toast) {
 
   const update = (props: ToasterToast) =>
     dispatch({
-      type: actionTypes.UPDATE_TOAST,
       toast: { ...props, id },
+      type: actionTypes.UPDATE_TOAST,
     });
 
-  const dismiss = () => dispatch({ type: actionTypes.DISMISS_TOAST, toastId: id });
+  const dismiss = () => dispatch({ toastId: id, type: actionTypes.DISMISS_TOAST });
 
   dispatch({
-    type: actionTypes.ADD_TOAST,
     toast: {
       ...props,
       id,
-      open: true,
       onOpenChange: (open: boolean) => {
         if (!open)
           dismiss();
       },
+      open: true,
     },
+    type: actionTypes.ADD_TOAST,
   });
 
   return {
-    id,
     dismiss,
+    id,
     update,
   };
 }

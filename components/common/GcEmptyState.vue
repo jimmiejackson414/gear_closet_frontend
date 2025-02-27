@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="font-light py-8 text-center text-grey">
+  <div class="py-8 text-center font-light text-muted-foreground">
     <slot />
   </div>
 </template>

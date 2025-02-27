@@ -57,8 +57,10 @@ CREATE OR REPLACE FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) RETUR
     -- Fetch trips
     SELECT COALESCE(json_agg(row_to_json(t.*)), '[]'::JSON) INTO trips
     FROM trips t
-    WHERE t.profile_id = p_user_id
-    AND t.starting_date >= NOW();
+    JOIN trip_friends tf ON t.id = tf.trip_id
+    WHERE tf.profile_id = p_user_id
+      AND (tf.role = 'OWNER' OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED'))
+      AND t.starting_date >= NOW();
 
     -- Fetch friends
     SELECT COALESCE(json_agg(row_to_json(sub.*)), '[]'::JSON) INTO friends
@@ -81,7 +83,7 @@ ALTER FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) OWNER TO "postgre
 
 -- Get planning page data function
 ------------------------
-CREATE OR REPLACE FUNCTION public.get_planning_page_data(p_trip_id bigint)
+CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"(p_trip_id bigint)
  RETURNS json
  LANGUAGE plpgsql
  SECURITY DEFINER
@@ -95,35 +97,38 @@ AS $function$
     friends_data JSON;
     poll_data JSON;
     dynamic_trip_id BIGINT;
+    is_trip_owner BOOLEAN;
   BEGIN
-    -- Fetch trips data (both created by the user and accepted invitations)
-    SELECT json_agg(row_to_json(sub.*)) INTO trips_data
-    FROM (
-      SELECT DISTINCT t.*
-      FROM trips t
-      LEFT JOIN trip_friends tf ON tf.trip_id = t.id
-        AND tf.profile_id = auth.uid()
-        AND tf.status = 'ACCEPTED'
-      WHERE t.profile_id = auth.uid() OR tf.profile_id IS NOT NULL
-      ORDER BY t.created_at ASC
-    ) sub;
 
-    -- Set dynamic_trip_id based on p_trip_id or to the ID of the first trip
-    IF p_trip_id = 0 THEN
-      SELECT COALESCE((
-        SELECT t.id 
-        FROM trips t
-        LEFT JOIN trip_friends tf 
-          ON tf.trip_id = t.id 
-          AND tf.profile_id = auth.uid() 
-          AND tf.status = 'ACCEPTED'
-        WHERE t.profile_id = auth.uid() OR tf.profile_id IS NOT NULL
-        ORDER BY t.created_at ASC
-        LIMIT 1
-      ), 0) INTO dynamic_trip_id;
-    ELSE
-      dynamic_trip_id := p_trip_id;
-    END IF;
+  -- Fetch all trips where the user is an OWNER (no status check) or an ACCEPTED MEMBER
+  SELECT COALESCE(json_agg(row_to_json(sub.*)), '[]'::JSON) INTO trips_data
+  FROM (
+    SELECT DISTINCT t.*
+    FROM trips t
+    JOIN trip_friends tf ON tf.trip_id = t.id
+    WHERE tf.profile_id = auth.uid()
+      AND (tf.role = 'OWNER' OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED'))
+    ORDER BY t.created_at ASC
+  ) sub;
+
+  -- Set dynamic_trip_id to the first trip found
+  SELECT COALESCE((
+    SELECT sub.id 
+    FROM (
+      SELECT DISTINCT t.id
+      FROM trips t
+      JOIN trip_friends tf ON tf.trip_id = t.id
+      WHERE tf.profile_id = auth.uid()
+        AND (tf.role = 'OWNER' OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED'))
+      ORDER BY t.created_at ASC
+      LIMIT 1
+    ) sub
+  ), 0) INTO dynamic_trip_id;
+
+  -- If p_trip_id is provided, use it instead
+  IF p_trip_id != 0 THEN
+    dynamic_trip_id := p_trip_id;
+  END IF;
 
     -- Fetch trip packs data using dynamic_trip_id along with associated pack details
     SELECT (COALESCE(json_agg(
@@ -221,7 +226,8 @@ AS $function$
     ) INTO friends_data
     FROM trip_friends tf
     JOIN profiles p ON tf.profile_id = p.id
-    WHERE tf.trip_id = dynamic_trip_id;
+    WHERE tf.trip_id = dynamic_trip_id
+      AND tf.profile_id != auth.uid();
 
     -- Fetch poll data
     SELECT json_build_object(
@@ -237,6 +243,15 @@ AS $function$
     WHERE p.trip_id = dynamic_trip_id
     LIMIT 1;
 
+    -- Compute is_owner flag for the current user
+    SELECT EXISTS (
+      SELECT 1
+      FROM trip_friends
+      WHERE trip_id = dynamic_trip_id
+        AND profile_id = auth.uid()
+        AND role = 'OWNER'
+    ) INTO is_trip_owner;
+
     -- Output the result
     RETURN jsonb_build_object(
       'trips', trips_data,
@@ -245,7 +260,8 @@ AS $function$
       'todos', todos_data,
       'shopping_items', shopping_items_data,
       'friends', friends_data,
-      'poll', poll_data
+      'poll', poll_data,
+      'is_trip_owner', is_trip_owner
     );
     END;
 $function$

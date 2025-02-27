@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { SelectIcon, SelectTrigger, type SelectTriggerProps, useForwardProps } from 'radix-vue';
   import { type HTMLAttributes } from 'vue';
+  import { SelectIcon, SelectTrigger, type SelectTriggerProps, useForwardProps } from 'radix-vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<SelectTriggerProps & { class?: HTMLAttributes['class'], prependIcon?: any }>();
@@ -26,10 +26,10 @@
     <component
       :is="prependIcon"
       v-if="prependIcon"
-      class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-foreground w-5" />
+      class="pointer-events-none absolute left-2.5 top-1/2 inline-block size-5 -translate-y-1/2 text-base text-foreground" />
     <slot />
     <select-icon as-child>
-      <icon-chevron-down class="h-4 opacity-50 shrink-0 w-4" />
+      <icon-chevron-down class="size-4 shrink-0 opacity-50" />
     </select-icon>
   </select-trigger>
 </template>

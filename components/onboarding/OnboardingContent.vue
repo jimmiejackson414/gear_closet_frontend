@@ -1,14 +1,14 @@
 <script lang='ts' setup>
   import { toTypedSchema } from '@vee-validate/zod';
-  import type { FilePondFile } from 'filepond';
   import { useForm } from 'vee-validate';
-  import type { FunctionalComponent } from 'vue';
   import * as z from 'zod';
   import { IconAperture, IconCheck, IconCircleUser, IconHeart } from '#components';
   import { useToast } from '@/components/ui';
   import { MeasuringSystem, SubscriptionLevel } from '@/types';
+  import type { FilePondFile } from 'filepond';
+  import type { FunctionalComponent } from 'vue';
 
-  type StepperState = 'completed' | 'active' | 'inactive';
+  type StepperState = 'active' | 'completed' | 'inactive';
 
   /**
    * Global definitions
@@ -21,36 +21,36 @@
   const stepIndex = ref(1);
   const steps = [
     {
+      description: 'Upload a photo of yourself (optional)',
       step: 1,
       title: 'Upload Avatar',
-      description: 'Upload a photo of yourself (optional)',
     },
     {
+      description: 'Tell us a little about yourself',
       step: 2,
       title: 'Account Info',
-      description: 'Tell us a little about yourself',
     },
     {
+      description: 'Choose your plan',
       step: 3,
       title: 'Plan Options',
-      description: 'Choose your plan',
     },
   ];
 
   const icons: Record<number, Record<StepperState, FunctionalComponent>> = {
     1: {
-      completed: IconCheck,
       active: IconAperture,
+      completed: IconCheck,
       inactive: IconAperture,
     },
     2: {
-      completed: IconCheck,
       active: IconCircleUser,
+      completed: IconCheck,
       inactive: IconCircleUser,
     },
     3: {
-      completed: IconCheck,
       active: IconHeart,
+      completed: IconCheck,
       inactive: IconHeart,
     },
   };
@@ -64,18 +64,18 @@
       .min(1),
     last_name: z.string()
       .min(1),
+    measuring_system: z.union([z.literal(MeasuringSystem.IMPERIAL), z.literal(MeasuringSystem.METRIC)]),
     trail_name: z.string()
       .optional(),
-    measuring_system: z.union([z.literal(MeasuringSystem.IMPERIAL), z.literal(MeasuringSystem.METRIC)]),
   }));
 
   const $store = useUserStore();
-  const { meta, values, errorBag } = useForm({
+  const { errorBag, meta, values } = useForm({
     initialValues: {
       first_name: $store.profile?.first_name ?? '',
       last_name: $store.profile?.last_name ?? '',
-      trail_name: $store.profile?.trail_name ?? '',
       measuring_system: ($store.profile?.measuring_system as MeasuringSystem) ?? MeasuringSystem.IMPERIAL,
+      trail_name: $store.profile?.trail_name ?? '',
     },
     keepValuesOnUnmount: true,
     validationSchema: formSchema,
@@ -88,8 +88,8 @@
   const avatarFile = ref<FilePondFile | string | null>(null);
   const handleAvatarError = () => {
     return toast({
-      title: 'Error',
       description: 'There was an error uploading your avatar. Please try again.',
+      title: 'Error',
       variant: 'destructive',
     });
   };
@@ -132,8 +132,8 @@
       if (!success) throw new Error();
 
       const response = await $fetch('/api/stripe/subscription', {
-        method: 'POST',
         body: JSON.stringify({ subscription: SubscriptionLevel.LIFE }),
+        method: 'POST',
       });
 
       if (!response.ok) throw new Error();
@@ -141,8 +141,8 @@
       await $router.push({ name: 'index' });
     } catch (error) {
       toast({
-        title: 'Error',
         description: 'There was an error completing the onboarding process. Please try again.',
+        title: 'Error',
         variant: 'destructive',
       });
     } finally {
@@ -169,23 +169,23 @@
 <template>
   <stepper
     v-model="stepIndex"
-    class="block max-w-4xl mt-8 mx-auto w-full">
-    <div class="flex flex-start gap-2 w-full">
+    class="mx-auto mt-8 block w-full max-w-4xl">
+    <div class="flex w-full gap-2">
       <!-- Stepper Navigation -->
       <stepper-item
         v-for="step in steps"
         :key="step.step"
         v-slot="{ state }"
-        class="flex justify-center items-center flex-col relative w-full"
+        class="relative flex w-full flex-col items-center justify-center"
         :step="step.step">
         <stepper-separator
           v-if="step.step !== steps[steps.length - 1].step"
-          class="absolute top-5 right-[calc(-50%+10px)] left-[calc(50%+20px)] bg-muted block group-data-[state=completed]:bg-primary h-0.5 rounded-full shrink-0" />
+          class="absolute left-[calc(50%+20px)] right-[calc(-50%+10px)] top-5 block h-0.5 shrink-0 rounded-full bg-muted group-data-[state=completed]:bg-primary" />
 
         <stepper-trigger as-child>
           <button-root
             :ref="`step${step.step}Ref`"
-            class="rounded-full shrink-0 z-10"
+            class="z-10 shrink-0 rounded-full"
             :class="[state === 'active' && 'ring-2 ring-ring ring-offset-2 ring-offset-background']"
             :disabled="( state !== 'completed' && !meta.valid ) || isNextDisabled || ( step.step === 3 )"
             size="icon"
@@ -195,14 +195,14 @@
           </button-root>
         </stepper-trigger>
 
-        <div class="flex items-center flex-col mt-5 text-center">
+        <div class="mt-5 flex flex-col items-center text-center">
           <stepper-title
-            class="font-semibold text-sm lg:text-base transition"
+            class="text-sm font-semibold transition lg:text-base"
             :class="[state === 'active' && 'text-primary']">
             {{ step.title }}
           </stepper-title>
           <stepper-description
-            class="sr-only text-muted-foreground lg:text-sm text-xs transition md:not-sr-only"
+            class="sr-only text-xs text-muted-foreground transition md:not-sr-only lg:text-sm"
             :class="[state === 'active' && 'text-primary']">
             {{ step.description }}
           </stepper-description>
@@ -211,7 +211,7 @@
     </div>
 
     <!-- Stepper Content -->
-    <div class="flex flex-col gap-4 mt-16 mx-auto w-full">
+    <div class="mx-auto mt-16 flex w-full flex-col gap-4">
       <!-- Step 1: Upload Avatar -->
       <template v-if="stepIndex === 1">
         <client-only>
@@ -225,7 +225,7 @@
 
       <!-- Step 2: Account Info -->
       <template v-if="stepIndex === 2">
-        <div class="flex flex-col gap-4 max-w-xl mx-auto w-full">
+        <div class="mx-auto flex w-full max-w-xl flex-col gap-4">
           <form-field
             v-slot="{ componentField }"
             name="first_name">
@@ -300,7 +300,7 @@
 
       <!-- Step 3: Plan Options -->
       <template v-if="stepIndex === 3">
-        <div class="grid lg:grid-cols-3 grid-cols-1 gap-4">
+        <div class="grid grid-cols-1 gap-4 lg:grid-cols-3">
           <upgrade-card
             v-for="tier in tiers"
             :key="tier.title"
@@ -313,7 +313,7 @@
     </div>
 
     <!-- Stepper Button Actions -->
-    <div class="flex justify-between items-center mt-16">
+    <div class="mt-16 flex items-center justify-between">
       <button-root
         :disabled="stepIndex === 1"
         variant="outline"
@@ -342,7 +342,7 @@
     <alert-dialog-content>
       <alert-dialog-header>
         <alert-dialog-title class="flex items-center gap-2">
-          <icon-heart class="h-8 text-primary w-8" />
+          <icon-heart class="size-8 text-primary" />
           Promotional Period
         </alert-dialog-title>
       </alert-dialog-header>

@@ -32,8 +32,8 @@ export default stripeWebhookHandler(async ( event, context ) => {
       const { data, error } = await supabase
         .from('customers')
         .insert({
-          stripe_customer_id: customer.id,
           profile_id: customer.metadata.profile_id,
+          stripe_customer_id: customer.id,
         })
         .select();
 
@@ -60,7 +60,7 @@ export default stripeWebhookHandler(async ( event, context ) => {
           deleted_at: new Date()
             .toISOString(),
         })
-        .match({ stripe_customer_id: customer.id, profile_id: customer.metadata.profil_id })
+        .match({ profile_id: customer.metadata.profil_id, stripe_customer_id: customer.id })
         .select();
 
       if (error || !data) throw throwError('An error occurred while deleting a customer');
@@ -83,19 +83,19 @@ export default stripeWebhookHandler(async ( event, context ) => {
       const { data, error } = await supabase
         .from('subscriptions')
         .insert({
-          profile_id: subscription.metadata.profile_id,
-          stripe_subscription_id: subscription.id,
-          status: subscription.status as SubscriptionStatus,
-          metadata: subscription.metadata,
-          price_id: subscription.items.data[0].price.id,
-          quantity: subscription.items.data[0].quantity,
-          cancel_at_period_end: subscription.cancel_at_period_end,
-          current_period_start: new Date(subscription.current_period_start * 1000)
-            .toISOString(),
-          current_period_end: new Date(subscription.current_period_end * 1000)
-            .toISOString(),
           cancel_at: subscription.cancel_at ? new Date(subscription.cancel_at * 1000)
             .toISOString() : null,
+          cancel_at_period_end: subscription.cancel_at_period_end,
+          current_period_end: new Date(subscription.current_period_end * 1000)
+            .toISOString(),
+          current_period_start: new Date(subscription.current_period_start * 1000)
+            .toISOString(),
+          metadata: subscription.metadata,
+          price_id: subscription.items.data[0].price.id,
+          profile_id: subscription.metadata.profile_id,
+          quantity: subscription.items.data[0].quantity,
+          status: subscription.status as SubscriptionStatus,
+          stripe_subscription_id: subscription.id,
         })
         .select();
 
@@ -120,19 +120,19 @@ export default stripeWebhookHandler(async ( event, context ) => {
       const { data, error } = await supabase
         .from('subscriptions')
         .update({
-          status: subscription.status as SubscriptionStatus,
+          cancel_at: subscription.cancel_at ? new Date(subscription.cancel_at * 1000)
+            .toISOString() : null,
+          cancel_at_period_end: subscription.cancel_at_period_end,
+          current_period_end: new Date(subscription.current_period_end * 1000)
+            .toISOString(),
+          current_period_start: new Date(subscription.current_period_start * 1000)
+            .toISOString(),
           metadata: subscription.metadata,
           price_id: subscription.items.data[0].price.id,
           quantity: subscription.items.data[0].quantity,
-          cancel_at_period_end: subscription.cancel_at_period_end,
-          current_period_start: new Date(subscription.current_period_start * 1000)
-            .toISOString(),
-          current_period_end: new Date(subscription.current_period_end * 1000)
-            .toISOString(),
-          cancel_at: subscription.cancel_at ? new Date(subscription.cancel_at * 1000)
-            .toISOString() : null,
+          status: subscription.status as SubscriptionStatus,
         })
-        .match({ stripe_subscription_id: subscription.id, profile_id: subscription.metadata.profile_id })
+        .match({ profile_id: subscription.metadata.profile_id, stripe_subscription_id: subscription.id })
         .select();
 
       if (error || !data) throw throwError('An error occurred while updating subscription');
@@ -154,11 +154,11 @@ export default stripeWebhookHandler(async ( event, context ) => {
       const { data, error } = await supabase
         .from('subscriptions')
         .update({
-          status: subscription.status as SubscriptionStatus,
           canceled_at: new Date()
             .toISOString(),
+          status: subscription.status as SubscriptionStatus,
         })
-        .match({ stripe_subscription_id: subscription.id, profile_id: subscription.metadata.profile_id })
+        .match({ profile_id: subscription.metadata.profile_id, stripe_subscription_id: subscription.id })
         .select();
 
       if (error || !data) throw throwError('An error occurred while deleting subscription');
@@ -181,13 +181,13 @@ export default stripeWebhookHandler(async ( event, context ) => {
       const { data, error } = await supabase
         .from('products')
         .insert({
-          id: product.id,
           active: product.active,
-          name: product.name.toUpperCase() as SubscriptionLevel,
           description: product.description,
+          environment: product.livemode ? 'production' : 'test',
+          id: product.id,
           image: product.images[0],
           metadata: product.metadata,
-          environment: product.livemode ? 'production' : 'test',
+          name: product.name.toUpperCase() as SubscriptionLevel,
         })
         .select();
 
@@ -212,11 +212,11 @@ export default stripeWebhookHandler(async ( event, context ) => {
         .from('products')
         .update({
           active: product.active,
-          name: product.name.toUpperCase() as SubscriptionLevel,
           description: product.description,
+          environment: product.livemode ? 'production' : 'test',
           image: product.images[0],
           metadata: product.metadata,
-          environment: product.livemode ? 'production' : 'test',
+          name: product.name.toUpperCase() as SubscriptionLevel,
         })
         .match({ id: product.id })
         .select();
@@ -263,17 +263,17 @@ export default stripeWebhookHandler(async ( event, context ) => {
       const { data, error } = await supabase
         .from('prices')
         .insert({
-          id: price.id,
-          product_id: price.product as string,
           active: price.active,
-          description: price.nickname,
-          unit_amount: price.unit_amount,
           currency: price.currency,
-          type: price.type,
+          description: price.nickname,
+          environment: price.livemode ? 'production' : 'test',
+          id: price.id,
           interval: price.recurring?.interval,
           interval_count: price.recurring?.interval_count,
           metadata: price.metadata,
-          environment: price.livemode ? 'production' : 'test',
+          product_id: price.product as string,
+          type: price.type,
+          unit_amount: price.unit_amount,
         })
         .select();
 
@@ -297,16 +297,16 @@ export default stripeWebhookHandler(async ( event, context ) => {
       const { data, error } = await supabase
         .from('prices')
         .update({
-          product_id: price.product as string,
           active: price.active,
-          description: price.nickname,
-          unit_amount: price.unit_amount,
           currency: price.currency,
-          type: price.type,
+          description: price.nickname,
+          environment: price.livemode ? 'production' : 'test',
           interval: price.recurring?.interval,
           interval_count: price.recurring?.interval_count,
           metadata: price.metadata,
-          environment: price.livemode ? 'production' : 'test',
+          product_id: price.product as string,
+          type: price.type,
+          unit_amount: price.unit_amount,
         })
         .match({ id: price.id })
         .select();

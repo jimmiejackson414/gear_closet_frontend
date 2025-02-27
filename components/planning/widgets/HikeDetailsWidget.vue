@@ -20,8 +20,8 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
-          trip_id: Number($store.selectedTripId),
           title: 'New detail',
+          trip_id: Number($store.selectedTripId),
           type: TripDetailsType.HIKE,
           value: 'New hike detail description',
         })
@@ -61,16 +61,16 @@
 </script>
 
 <template>
-  <card class="px-8 py-4 rounded-3xl">
-    <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center">
-      <icon-mountain class="h-6 mr-6 text-primary w-6" />
+  <card class="rounded-3xl px-8 py-4">
+    <div class="grid grid-cols-[auto,auto,1fr] items-center justify-start">
+      <icon-mountain class="mr-6 size-6 text-primary" />
       <div class="flex items-center gap-3">
         <typography class="!font-bold">
           Hike Details
         </typography>
         <icon-info
           v-tippy="{ content: 'Track details such as number of miles, elevation gains, and start and end points.' }"
-          class="cursor-pointer h-4 text-muted-foreground w-4" />
+          class="size-4 cursor-pointer text-muted-foreground" />
       </div>
       <button-root
         v-if="!$store.pageLoading && hikeDetails.length"
@@ -97,7 +97,7 @@
       </button-root>
     </gc-empty-state>
     <div v-else>
-      <div class="flex items-center gap-6 w-fit">
+      <div class="flex w-fit items-center gap-6">
         <gc-inline-edit
           :model-value="$store.selectedTrip?.starting_point"
           name="starting_point"
@@ -110,7 +110,7 @@
             {{ $store.selectedTrip?.starting_point }}
           </typography>
         </gc-inline-edit>
-        <icon-move-right class="h-6 text-grey w-6" />
+        <icon-move-right class="size-6 text-muted-foreground" />
         <gc-inline-edit
           :model-value="$store.selectedTrip?.ending_point"
           name="ending_point"
@@ -124,14 +124,14 @@
           </typography>
         </gc-inline-edit>
       </div>
-      <div class="flex items-center mb-6">
+      <div class="mb-6 flex items-center">
         <gc-inline-edit
           :model-value="$store.selectedTrip?.description"
           name="description"
           placeholder="Trip description"
           size="sm"
           @update:model-value="updateTrip({ description: ( $event as string ) })">
-          <typography class="cursor-pointer text-grey">
+          <typography class="cursor-pointer text-muted-foreground">
             {{ $store.selectedTrip?.description }}
           </typography>
         </gc-inline-edit>
@@ -141,9 +141,9 @@
           v-for="detail in hikeDetails"
           :key="detail.id"
           class="mb-0">
-          <div class="flex items-center gap-4 group space-between">
-            <div class="flex justify-between items-center flex-1">
-              <typography class="!font-bold text-grey">
+          <div class="group flex items-center justify-between gap-4">
+            <div class="flex flex-1 items-center justify-between">
+              <typography class="!font-bold text-muted-foreground">
                 {{ detail.title }}
               </typography>
               <a
@@ -161,7 +161,7 @@
               </typography>
             </div>
             <button-root
-              class="group-hover:opacity-100 opacity-0 rounded-full"
+              class="rounded-full opacity-0 group-hover:opacity-100"
               size="sm"
               variant="ghost"
               @click="[activeDetail = detail, isModifyDetailDialogOpen = true]">

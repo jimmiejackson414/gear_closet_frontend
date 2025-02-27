@@ -9,13 +9,7 @@
 </script>
 
 <template>
-  <div class="toast-icon">
+  <div class="mr-2">
     <component :is="iconToRender" />
   </div>
 </template>
-
-<style scoped>
-.toast-icon {
-  margin-right: 0.5rem;
-}
-</style>

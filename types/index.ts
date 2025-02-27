@@ -1057,9 +1057,10 @@ export type Database = {
           created_at: string | null
           id: number
           invite_token: string | null
-          invited_by_id: string
+          invited_by_id: string | null
           profile_id: string
-          status: Database["public"]["Enums"]["trip_friend_status"]
+          role: Database["public"]["Enums"]["trip_friend_role"] | null
+          status: Database["public"]["Enums"]["trip_friend_status"] | null
           trip_id: number | null
           updated_at: string
         }
@@ -1068,9 +1069,10 @@ export type Database = {
           created_at?: string | null
           id?: number
           invite_token?: string | null
-          invited_by_id: string
+          invited_by_id?: string | null
           profile_id: string
-          status?: Database["public"]["Enums"]["trip_friend_status"]
+          role?: Database["public"]["Enums"]["trip_friend_role"] | null
+          status?: Database["public"]["Enums"]["trip_friend_status"] | null
           trip_id?: number | null
           updated_at?: string
         }
@@ -1079,9 +1081,10 @@ export type Database = {
           created_at?: string | null
           id?: number
           invite_token?: string | null
-          invited_by_id?: string
+          invited_by_id?: string | null
           profile_id?: string
-          status?: Database["public"]["Enums"]["trip_friend_status"]
+          role?: Database["public"]["Enums"]["trip_friend_role"] | null
+          status?: Database["public"]["Enums"]["trip_friend_status"] | null
           trip_id?: number | null
           updated_at?: string
         }
@@ -1166,7 +1169,6 @@ export type Database = {
           ending_point: string | null
           id: number
           name: string | null
-          profile_id: string | null
           slug: string | null
           starting_date: string | null
           starting_point: string | null
@@ -1179,7 +1181,6 @@ export type Database = {
           ending_point?: string | null
           id?: number
           name?: string | null
-          profile_id?: string | null
           slug?: string | null
           starting_date?: string | null
           starting_point?: string | null
@@ -1192,21 +1193,12 @@ export type Database = {
           ending_point?: string | null
           id?: number
           name?: string | null
-          profile_id?: string | null
           slug?: string | null
           starting_date?: string | null
           starting_point?: string | null
           updated_at?: string
         }
-        Relationships: [
-          {
-            foreignKeyName: "trips_profile_id_fkey"
-            columns: ["profile_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
     }
     Views: {
@@ -1259,7 +1251,7 @@ export type Database = {
           search_term: string
         }
         Returns: {
-          id: string
+          id: number
           created_at: string
           updated_at: string
           profile_id: string
@@ -1346,6 +1338,7 @@ export type Database = {
         | "JEWELBRIGHT9"
         | "HUECIRCLE19"
       trip_details_type: "HIKE" | "TRIP"
+      trip_friend_role: "OWNER" | "MEMBER"
       trip_friend_status: "ACCEPTED" | "DECLINED" | "PENDING"
       user_role: "ADMIN" | "USER"
     }
@@ -1848,6 +1841,11 @@ export enum Theme {
 export enum TripDetailsType {
   HIKE = "HIKE",
   TRIP = "TRIP"
+}
+
+export enum TripFriendRole {
+  OWNER = "OWNER",
+  MEMBER = "MEMBER"
 }
 
 export enum TripFriendStatus {

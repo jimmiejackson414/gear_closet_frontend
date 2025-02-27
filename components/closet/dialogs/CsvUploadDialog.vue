@@ -6,9 +6,9 @@
   const $store = useClosetStore();
   const submitting = ref(false);
   const file = ref<File | undefined>(undefined);
-  const parsingResult = ref<{ status?: 'success' | 'failure', message?: string }>({
-    status: undefined,
+  const parsingResult = ref<{ message?: string; status?: 'failure' | 'success', }>({
     message: undefined,
+    status: undefined,
   });
 
   /**
@@ -18,40 +18,40 @@
     if (!file) return;
     return new Promise((resolve, reject) => {
       const unitMap: Record<string, string> = {
-        ounce: 'oz',
         gram: 'g',
         kilogram: 'kg',
+        ounce: 'oz',
         pound: 'lb',
       };
 
       Papa.parse(file, {
-        header: true,
+        complete: (results: ParseResult<Record<string, unknown>>) => {
+          parsingResult.value = {
+            message: 'Successfully parsed CSV file!',
+            status: 'success',
+          };
+          resolve(results);
+        },
         dynamicTyping: true,
+        error: (err) => {
+          parsingResult.value = {
+            message: 'There was an error parsing the CSV file.',
+            status: 'failure',
+          };
+          reject(err);
+        },
+        header: true,
         skipEmptyLines: true,
-        transformHeader: (header: string) => header.toLowerCase()
-          .trim()
-          .replace(/\s/g, '_'),
-        transform: (value: string | number, header: string) => {
+        transform: (value: number | string, header: string) => {
           if (header === 'unit' && typeof value === 'string') {
             const normalizedUnit = unitMap[value.toLowerCase()];
             return normalizedUnit || value;
           }
           return value;
         },
-        complete: (results: ParseResult<Record<string, unknown>>) => {
-          parsingResult.value = {
-            status: 'success',
-            message: 'Successfully parsed CSV file!',
-          };
-          resolve(results);
-        },
-        error: (err) => {
-          parsingResult.value = {
-            status: 'failure',
-            message: 'There was an error parsing the CSV file.',
-          };
-          reject(err);
-        },
+        transformHeader: (header: string) => header.toLowerCase()
+          .trim()
+          .replace(/\s/g, '_'),
       });
     });
   };
@@ -69,8 +69,8 @@
       if (parseResults.data?.length) {
         const { data: createdCategory, error } = await supabase
           .rpc('import_csv_data', {
-            p_pack_id: $store.data.selectedPack?.id as number,
             csv_data: parseResults.data,
+            p_pack_id: $store.data.selectedPack?.id as number,
           })
           .returns<ExtendedCategory[]>();
 
@@ -96,8 +96,8 @@
     if (!newValue) {
       file.value = undefined;
       parsingResult.value = {
-        status: undefined,
         message: undefined,
+        status: undefined,
       };
     }
   });
@@ -119,7 +119,7 @@
           Upload a CSV file to automatically add items to your pack. Any items that already exist will not be affected.
         </dialog-description>
       </dialog-header>
-      <div class="flex items-center flex-col gap-6">
+      <div class="flex flex-col items-center gap-6">
         <div class="flex flex-col gap-1.5">
           <label-root for="file-upload">
             Import pack items (optional)
@@ -130,7 +130,7 @@
             type="file"
             @change="file = $event.target.files?.[0]" />
           <a
-            class="inline-block text-hyperlink"
+            class="text-hyperlink inline-block"
             href="gear_closet_template.csv">Download CSV template</a>
         </div>
       </div>

@@ -6,18 +6,18 @@ export type SubscriptionType = Tables<'subscriptions'> & {
 };
 
 export type ProfileApiResponse = Tables<'profiles'> & {
-  onboarding_steps: Tables<'onboarding_steps'>[];
-  notifications: ExtendedNotification[];
-  subscriptions: SubscriptionType[];
   friend_invitations: number;
+  notifications: ExtendedNotification[];
+  onboarding_steps: Tables<'onboarding_steps'>[];
+  subscriptions: SubscriptionType[];
 };
 
 export type SubscriptionApiResponse = {
   customer?: Stripe.Customer;
-  subscriptions: Stripe.Subscription[];
+  invoices: Stripe.Invoice[];
   nextBillingDate: number | null;
   paymentMethods: Stripe.PaymentMethod[];
-  invoices: Stripe.Invoice[];
+  subscriptions: Stripe.Subscription[];
 };
 
 export type ExtendedCategoryItem = Tables<'category_items'> & {
@@ -38,8 +38,8 @@ export type ExtendedUser = Tables<'profiles'> & {
 };
 
 export type ExtendedFriend = Tables<'friends'> & {
-  profile?: Tables<'profiles'>;
   friend: Tables<'profiles'>;
+  profile?: Tables<'profiles'>;
 };
 
 export type ExtendedTripFriend = Tables<'trip_friends'> & {
@@ -61,8 +61,8 @@ export type ExtendedNotification = Tables<'notifications'> & {
 }
 
 export type ExtendedPoll = Tables<'polls'> & {
-  question: Tables<'questions'>;
   answers: Tables<'answers'>[];
+  question: Tables<'questions'>;
   votes: Tables<'profile_answers'>[];
 }
 
@@ -76,14 +76,15 @@ export type ExtendedComment = Tables<'comments'> & {
 }
 
 export interface PublicPack extends ExtendedPack {
-  profile: Tables<'profiles'>;
   categories: ExtendedCategory[];
   comments: ExtendedComment[];
+  profile: Tables<'profiles'>;
 }
 
 export type ForumPost = {
   avatar_template: string;
   category_id: number;
+  categoryColor?: string;
   cooked: string;
   created_at: string;
   display_username: string;
@@ -96,7 +97,6 @@ export type ForumPost = {
   topic_title: string;
   updated_at: string;
   username: string;
-  categoryColor?: string;
 }
 
 export type ForumLatestPosts = {
@@ -104,13 +104,13 @@ export type ForumLatestPosts = {
 }
 
 export type ForumCategory = {
+  color: string;
+  description: string;
   id: number;
   name: string;
-  color: string;
+  post_count: number;
   slug: string;
   topic_count: number;
-  post_count: number;
-  description: string;
   topic_url: string;
 }
 
@@ -121,9 +121,9 @@ export type ForumCategories = {
 }
 
 export type SelectOption = {
-  label: string;
-  value: string | number;
   [key: string]: any;
+  label: string;
+  value: number | string;
 }
 
 // Closet page CSV import results

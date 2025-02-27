@@ -80,10 +80,10 @@
 </script>
 
 <template>
-  <card class="px-8 py-4 rounded-3xl">
-    <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
-      <icon-check-square-2 class="h-6 mr-6 text-primary w-6" />
-      <p class="!font-bold text-base">
+  <card class="rounded-3xl px-8 py-4">
+    <div class="grid grid-cols-[auto,auto,1fr] items-center justify-start py-4">
+      <icon-check-square-2 class="mr-6 size-6 text-primary" />
+      <p class="text-base !font-bold">
         Shopping Items
       </p>
       <button-root
@@ -113,7 +113,7 @@
         activation-mode="manual"
         class="w-full"
         :default-value="ResourceType.USER">
-        <tabs-list class="grid grid-cols-2 w-full">
+        <tabs-list class="grid w-full grid-cols-2">
           <tabs-trigger :value="ResourceType.USER">
             You
           </tabs-trigger>
@@ -171,7 +171,7 @@
           </div>
           <typography
             v-else
-            class="text-base text-center">
+            class="text-center text-base">
             No todos found.
           </typography>
         </tabs-content>
@@ -225,7 +225,7 @@
           </div>
           <typography
             v-else
-            class="text-base text-center">
+            class="text-center text-base">
             No group todos found.
           </typography>
         </tabs-content>

@@ -1,14 +1,14 @@
 <script lang='ts' setup>
-  definePageMeta({ layout: 'auth-layout', colorMode: 'light' });
+  definePageMeta({ colorMode: 'light', layout: 'auth-layout' });
 
   useHead({
-    title: 'Login',
     meta: [
       {
-        name: 'description',
         content: 'Login to your account',
+        name: 'description',
       },
     ],
+    title: 'Login',
   });
 </script>
 

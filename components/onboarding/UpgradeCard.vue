@@ -3,14 +3,14 @@
 
   interface Props {
     isSelected: boolean;
-    tier: Tier;
     submitting: boolean;
+    tier: Tier;
   }
 
   const props = withDefaults(defineProps<Props>(), {
     isSelected: false,
-    tier: undefined,
     submitting: false,
+    tier: undefined,
   });
 
   const emit = defineEmits(['handleAction']);
@@ -22,10 +22,10 @@
 
 <template>
   <div
-    class="cursor-pointer w-full"
+    class="w-full cursor-pointer"
     @click="handleSelect">
     <div
-      class="duration-200 ease-in-out rounded-lg transition-all"
+      class="rounded-lg transition-all duration-200 ease-in-out"
       :class="[
         {
           'border-tertiary': props.tier.value === SubscriptionLevel.FREE,
@@ -37,28 +37,30 @@
       ]">
       <div class="bg-charlie-brown p-4 text-center">
         <div
-          class="inline-block px-4 py-2 rounded-[5px]"
+          class="inline-block rounded-[5px] px-4 py-2"
           :class="[{
             'bg-tertiary': props.tier.value === SubscriptionLevel.FREE,
             'bg-primary text-white': props.tier.value === SubscriptionLevel.ANNUAL,
             'bg-accent-alt': props.tier.value === SubscriptionLevel.MONTHLY,
           } ]">
-          <p class="font-bold text-base text-white uppercase">
+          <typography class="font-bold uppercase text-white">
             {{ tier?.title }}
-          </p>
+          </typography>
         </div>
         <div>
-          <h4 class="font-black mt-6 text-2xl">
+          <typography
+            class="mt-6 font-black"
+            variant="h4">
             {{ tier?.price }}
-          </h4>
-          <p class="mb-4 text-base text-grey">
+          </typography>
+          <typography class="mb-4 text-muted-foreground">
             {{ tier?.priceSubtitle }}
-          </p>
+          </typography>
         </div>
       </div>
-      <hr class="bg-gray-200 border-0 h-px">
+      <hr class="h-px border-0 bg-gray-200">
       <div class="p-4">
-        <ul class="space-y-4 text-dark-grey text-left">
+        <ul class="space-y-4 text-left text-text">
           <li
             v-for="(item, i) in tier?.description"
             :key="i"

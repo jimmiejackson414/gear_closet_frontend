@@ -7,6 +7,12 @@ CREATE TYPE "public"."trip_friend_status" AS ENUM (
 );
 ALTER TYPE "public"."trip_friend_status" OWNER TO "postgres";
 
+CREATE TYPE "public"."trip_friend_role" as ENUM (
+  'OWNER',
+  'MEMBER'
+)
+ALTER TYPE "public"."trip_friend_role" OWNER TO "postgres";
+
 -- Create trip_friends table
 ------------------------
 CREATE TABLE IF NOT EXISTS "public"."trip_friends" (
@@ -14,10 +20,11 @@ CREATE TABLE IF NOT EXISTS "public"."trip_friends" (
     "trip_id" BIGINT,
     "accepted_invite_on" TIMESTAMP WITH TIME ZONE,
     "created_at" TIMESTAMP WITH TIME ZONE DEFAULT "now"(),
-    "status" "public"."trip_friend_status" DEFAULT 'PENDING'::"public"."trip_friend_status" NOT NULL,
+    "status" "public"."trip_friend_status" DEFAULT 'PENDING'::"public"."trip_friend_status",
     "profile_id" UUID NOT NULL, -- Represents the friend
-    "invited_by_id" UUID NOT NULL, -- Represents the inviter
+    "invited_by_id" UUID, -- Represents the inviter
     "invite_token" CHARACTER VARYING,
+    "role" "public"."trip_friend_role" DEFAULT 'MEMBER'::"public"."trip_friend_role" NOT NULL,
     "updated_at" TIMESTAMP WITH TIME ZONE DEFAULT "now"() NOT NULL
 );
 

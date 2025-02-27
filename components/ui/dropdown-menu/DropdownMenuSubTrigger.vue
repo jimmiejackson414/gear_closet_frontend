@@ -1,11 +1,11 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { type HTMLAttributes } from 'vue';
   import {
     DropdownMenuSubTrigger,
     type DropdownMenuSubTriggerProps,
     useForwardProps,
   } from 'radix-vue';
-  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DropdownMenuSubTriggerProps & { class?: HTMLAttributes['class'] }>();
@@ -27,6 +27,6 @@
       props.class,
     )">
     <slot />
-    <icon-chevron-right class="h-4 ml-auto w-4" />
+    <icon-chevron-right class="ml-auto size-4" />
   </dropdown-menu-sub-trigger>
 </template>
