@@ -12,7 +12,7 @@
   /**
    * Transfers ownership of the current trip.
    */
-  const selectedTransferUserId = ref<string | undefined>(undefined);
+  const selectedTransferUserId = ref<string>('');
   const searchQuery = ref('');
   const supabase = useSupabaseClient<Database>();
   const transferTripOwnership = async () => {
@@ -31,6 +31,8 @@
 
       if (oldOwnerError || newOwnerError) throw oldOwnerError || newOwnerError;
 
+      $store.data.is_trip_owner = false;
+
       $appStore.notifyPositive('Trip ownership transferred successfully.');
       isOpen.value = false;
     } catch (err) {
@@ -44,7 +46,7 @@
   watch(isOpen, (newIsOpen) => {
     if (newIsOpen) {
       searchQuery.value = '';
-      selectedTransferUserId.value = undefined;
+      selectedTransferUserId.value = '';
       // @ts-ignore
       selectOptions.value = $store.data.friends.map(f => ({ label: friendlyUsername(f.profile), value: f.profile_id }));
     }
@@ -64,6 +66,7 @@
         <alert-dialog-title>
           Transfer ownership of the "{{ $store.data.trips.find((t: Tables<'trips'>) => t.id === Number($store.selectedTripId))?.name }}" trip?
         </alert-dialog-title>
+        <alert-dialog-description />
       </alert-dialog-header>
       <div class="mb-4 flex flex-col items-start space-x-2">
         <combobox

@@ -9,7 +9,10 @@
 
   const { data } = await useAsyncData(
     'planningData',
-    () => $store.fetchPlanningPage(Number($store.selectedTripId || 0)),
+    () => {
+      const tripId = $cookie.value ? decrypt($cookie.value) : $store.selectedTripId;
+      return $store.fetchPlanningPage(Number(tripId || 0));
+    },
     { immediate: true, watch: [() => $store.selectedTripId] },
   );
 

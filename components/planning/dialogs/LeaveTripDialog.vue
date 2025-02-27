@@ -49,6 +49,7 @@
         <alert-dialog-title>
           Leave trip
         </alert-dialog-title>
+        <alert-dialog-description />
       </alert-dialog-header>
       <div class="mb-4 flex items-center space-x-2">
         <div class="flex flex-col">

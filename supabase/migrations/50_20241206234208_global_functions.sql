@@ -83,7 +83,7 @@ ALTER FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) OWNER TO "postgre
 
 -- Get planning page data function
 ------------------------
-CREATE OR REPLACE FUNCTION public.get_planning_page_data(p_trip_id bigint)
+CREATE OR REPLACE FUNCTION "public"."get_planning_page_data"(p_trip_id bigint)
  RETURNS json
  LANGUAGE plpgsql
  SECURITY DEFINER
