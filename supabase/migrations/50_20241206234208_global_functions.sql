@@ -101,7 +101,7 @@ AS $function$
   BEGIN
 
   -- Fetch all trips where the user is an OWNER (no status check) or an ACCEPTED MEMBER
-  SELECT json_agg(row_to_json(sub.*)) INTO trips_data
+  SELECT COALESCE(json_agg(row_to_json(sub.*)), '[]'::JSON) INTO trips_data
   FROM (
     SELECT DISTINCT t.*
     FROM trips t

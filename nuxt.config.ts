@@ -29,6 +29,7 @@ export default defineNuxtConfig({
       'echarts',
       'zrender',
       'tslib',
+      'vee-validate',
     ],
   },
 

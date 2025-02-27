@@ -1,17 +1,66 @@
 <script lang='ts' setup>
-  import type { Tables } from '@/types';
+  import type { Database, Tables, TablesInsert } from '@/types';
 
   const isOpen = defineModel('isOpen', { default: false, required: true, type: Boolean });
 
   const $store = usePlanningStore();
+  const $appStore = useAppStore();
+  const $userStore = useUserStore();
   const isSubmitting = ref(false);
 
   /**
    * Deletes the current trip.
    */
+  const supabase = useSupabaseClient<Database>();
   const deleteTrip = async () => {
-    // TODO: implement
-    // NOTE: This is only allowed for trip owners
+    try {
+      isSubmitting.value = true;
+
+      // Delete trip_friends records
+      const { error: deleteTripFriendsError } = await supabase
+        .from('trip_friends')
+        .delete()
+        .eq('trip_id', Number($store.selectedTripId));
+
+      if (deleteTripFriendsError) throw deleteTripFriendsError;
+
+      // Delete the trip
+      const { data, error } = await supabase
+        .from('trips')
+        .delete()
+        .eq('id', Number($store.selectedTripId))
+        .select();
+
+      if (error) throw error;
+      if (!data?.length) throw new Error('No trip found to delete');
+
+      // Create notifications for each friend
+      const tripFriends = $store.data.friends as Tables<'trip_friends'>[];
+      const notifications: TablesInsert<'notifications'>[] = tripFriends.map(friend => ({
+        content: `The trip "${data[0].name}" has been deleted by the trip owner.`,
+        profile_id: friend.profile_id,
+        sender_id: $userStore.profile?.id as string,
+        title: 'Trip deleted',
+      }));
+
+      const { error: notifyFriendsError } = await supabase
+        .from('notifications')
+        .insert(notifications);
+
+      if (notifyFriendsError) throw notifyFriendsError;
+
+      // Update local state after all database operations are successful
+      $store.data.trips = $store.data.trips.filter((t: Tables<'trips'>) => t.id !== data[0].id);
+      $store.selectedTripId = $store.data.trips.length ? String($store.data.trips[0].id) : undefined;
+
+      $appStore.notifyPositive('Trip deleted successfully.');
+      isOpen.value = false;
+      isSubmitting.value = false;
+    } catch (err) {
+      $appStore.notifyNegative('There was an error deleting the trip.');
+    } finally {
+      isSubmitting.value = false;
+    }
   };
 </script>
 

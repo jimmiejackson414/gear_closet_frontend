@@ -19,11 +19,11 @@
       const { data, error } = await supabase
         .from('trip_friends')
         .delete()
-        .eq('trip_id', Number($store.selectedTripId))
-        .eq('profile_id', $userStore.profile?.id as string)
+        .match({ profile_id: $userStore.profile?.id as string, trip_id: Number($store.selectedTripId) })
         .select();
 
       if (error) throw error;
+      if (!data?.length) throw new Error('No trip friend record found to delete');
 
       // remove from $store.data.trips
       $store.data.trips = $store.data.trips.filter((t: Tables<'trips'>) => t.id !== data[0].trip_id);
