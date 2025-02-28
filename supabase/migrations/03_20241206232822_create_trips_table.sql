@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS "public"."trips" (
     "starting_date" timestamp with time zone,
     "ending_date" timestamp with time zone,
     "slug" character varying,
-    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL
 );
 
 -- Alter table statements

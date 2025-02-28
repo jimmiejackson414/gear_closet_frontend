@@ -29,11 +29,78 @@ ALTER TABLE ONLY "public"."profile_answers" ADD CONSTRAINT "profile_answers_prof
 ------------------------
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."profile_answers" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."profile_answers" ENABLE ROW LEVEL SECURITY;
+
+-- Define policies
+------------------------
+-- Allow viewing profile_answers for trip members
+CREATE POLICY "Trip members can view profile_answers" ON "public"."profile_answers"
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM polls p
+    JOIN trip_friends tf ON tf.trip_id = p.trip_id
+    WHERE p.id = profile_answers.poll_id
+    AND tf.profile_id = auth.uid()
+    AND (
+      tf.role = 'OWNER' 
+      OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED')
+    )
+  )
+);
+
+-- Allow trip members to create their own votes
+CREATE POLICY "Trip members can create their own votes" ON "public"."profile_answers"
+FOR INSERT WITH CHECK (
+  profile_id = auth.uid() AND
+  EXISTS (
+    SELECT 1 FROM polls p
+    JOIN trip_friends tf ON tf.trip_id = p.trip_id
+    WHERE p.id = poll_id
+    AND tf.profile_id = auth.uid()
+    AND (
+      tf.role = 'OWNER' 
+      OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED')
+    )
+  )
+);
+
+-- Allow trip members to update their own votes
+CREATE POLICY "Trip members can update their own votes" ON "public"."profile_answers"
+FOR UPDATE USING (
+  profile_id = auth.uid() AND
+  EXISTS (
+    SELECT 1 FROM polls p
+    JOIN trip_friends tf ON tf.trip_id = p.trip_id
+    WHERE p.id = profile_answers.poll_id
+    AND tf.profile_id = auth.uid()
+    AND (
+      tf.role = 'OWNER' 
+      OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED')
+    )
+  )
+);
+
+-- Allow trip members to delete their own votes
+CREATE POLICY "Trip members can delete their own votes" ON "public"."profile_answers"
+FOR DELETE USING (
+  profile_id = auth.uid() AND
+  EXISTS (
+    SELECT 1 FROM polls p
+    JOIN trip_friends tf ON tf.trip_id = p.trip_id
+    WHERE p.id = profile_answers.poll_id
+    AND tf.profile_id = auth.uid()
+    AND (
+      tf.role = 'OWNER' 
+      OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED')
+    )
+  )
+);
+
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."profile_answers" TO "anon";
 GRANT ALL ON TABLE "public"."profile_answers" TO "authenticated";
 GRANT ALL ON TABLE "public"."profile_answers" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."profile_answers_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."profile_answers_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."profile_answers_id_seq" TO "service_role";

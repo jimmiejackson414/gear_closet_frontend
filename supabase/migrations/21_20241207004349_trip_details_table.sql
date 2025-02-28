@@ -37,16 +37,38 @@ ALTER TYPE "public"."trip_details_type" OWNER TO "postgres";
 ------------------------
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."trip_details" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."trip_details" ENABLE ROW LEVEL SECURITY;
+
 -- Define policies
 ------------------------
-CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."trip_details" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+-- Allow trip members to read trip details
+CREATE POLICY "Trip members can view trip details" ON "public"."trip_details"
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM trip_friends
+    WHERE trip_friends.trip_id = trip_id
+    AND trip_friends.profile_id = auth.uid()
+    AND trip_friends.status = 'ACCEPTED'
+  )
+);
+
+-- Allow trip members to manage trip details
+CREATE POLICY "Trip members can manage trip details" ON "public"."trip_details"
+FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM trip_friends
+    WHERE trip_friends.trip_id = trip_id
+    AND trip_friends.profile_id = auth.uid()
+    AND trip_friends.status = 'ACCEPTED'
+  )
+);
 
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."trip_details" TO "anon";
 GRANT ALL ON TABLE "public"."trip_details" TO "authenticated";
 GRANT ALL ON TABLE "public"."trip_details" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."trip_details_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."trip_details_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."trip_details_id_seq" TO "service_role";
 
