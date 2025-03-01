@@ -32,15 +32,57 @@ ALTER TABLE ONLY "public"."trips" ADD CONSTRAINT "trips_slug_key" UNIQUE ("slug"
 CREATE OR REPLACE TRIGGER "generate_slug_for_trips" BEFORE INSERT ON "public"."trips" FOR EACH ROW EXECUTE FUNCTION "public"."generate_slug"();
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."trips" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."trips" ENABLE ROW LEVEL SECURITY;
+
 -- Define policies
 ------------------------
-CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."trips" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+-- Allow viewing trips you're a member of
+CREATE POLICY "View trips you're a member of" ON "public"."trips"
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM trip_friends tf
+    WHERE tf.trip_id = trips.id
+    AND tf.profile_id = auth.uid()
+    AND (
+      tf.role = 'OWNER'
+      OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED')
+    )
+  )
+);
+
+-- Allow creating trips (anyone can create a trip)
+CREATE POLICY "Anyone can create trips" ON "public"."trips"
+FOR INSERT WITH CHECK (
+  auth.role() = 'authenticated'
+);
+
+-- Allow updating trips if you're an owner
+CREATE POLICY "Trip owners can update trips" ON "public"."trips"
+FOR UPDATE USING (
+  EXISTS (
+    SELECT 1 FROM trip_friends tf
+    WHERE tf.trip_id = trips.id
+    AND tf.profile_id = auth.uid()
+    AND tf.role = 'OWNER'
+  )
+);
+
+-- Allow deleting trips if you're an owner
+CREATE POLICY "Trip owners can delete trips" ON "public"."trips"
+FOR DELETE USING (
+  EXISTS (
+    SELECT 1 FROM trip_friends tf
+    WHERE tf.trip_id = trips.id
+    AND tf.profile_id = auth.uid()
+    AND tf.role = 'OWNER'
+  )
+);
 
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."trips" TO "anon";
 GRANT ALL ON TABLE "public"."trips" TO "authenticated";
 GRANT ALL ON TABLE "public"."trips" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."trips_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."trips_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."trips_id_seq" TO "service_role";
