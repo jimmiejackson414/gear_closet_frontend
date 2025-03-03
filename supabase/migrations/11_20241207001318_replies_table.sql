@@ -30,11 +30,102 @@ ALTER TABLE ONLY "public"."replies" ADD CONSTRAINT "replies_profile_id_fkey" FOR
 ------------------------
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."replies" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."replies" ENABLE ROW LEVEL SECURITY;
+
+-- Define policies
+------------------------
+-- View policy: Anyone can view replies (including deleted ones) on comments they can see
+CREATE POLICY "View allowed replies" ON "public"."replies"
+FOR SELECT TO public
+USING (
+  EXISTS (
+    SELECT 1 FROM comments c
+    JOIN packs p ON p.id = c.pack_id
+    WHERE c.id = comment_id
+    AND (
+      -- Pack is public and allows comments
+      (NOT p.private AND p.allow_comments)
+      OR
+      -- Or you own the pack
+      p.profile_id = auth.uid()
+      OR
+      -- Or you're in a trip with the pack owner
+      EXISTS (
+        SELECT 1 FROM trip_friends tf1
+        JOIN trip_friends tf2 ON tf2.trip_id = tf1.trip_id
+        WHERE tf1.profile_id = auth.uid()
+        AND tf2.profile_id = p.profile_id
+        AND (
+          tf1.role = 'OWNER' OR (tf1.role = 'MEMBER' AND tf1.status = 'ACCEPTED')
+        )
+        AND (
+          tf2.role = 'OWNER' OR (tf2.role = 'MEMBER' AND tf2.status = 'ACCEPTED')
+        )
+      )
+    )
+  )
+);
+
+-- Insert policy: Authenticated users can reply to comments they can view
+CREATE POLICY "Create replies on allowed comments" ON "public"."replies"
+FOR INSERT TO authenticated
+WITH CHECK (
+  -- Must be your reply
+  profile_id = auth.uid()
+  AND
+  EXISTS (
+    SELECT 1 FROM comments c
+    JOIN packs p ON p.id = c.pack_id
+    WHERE c.id = comment_id
+    AND p.allow_comments
+    AND (
+      -- Pack is public
+      NOT p.private
+      OR
+      -- Or you own the pack
+      p.profile_id = auth.uid()
+      OR
+      -- Or you're in a trip with the pack owner
+      EXISTS (
+        SELECT 1 FROM trip_friends tf1
+        JOIN trip_friends tf2 ON tf2.trip_id = tf1.trip_id
+        WHERE tf1.profile_id = auth.uid()
+        AND tf2.profile_id = p.profile_id
+        AND (
+          tf1.role = 'OWNER' OR (tf1.role = 'MEMBER' AND tf1.status = 'ACCEPTED')
+        )
+        AND (
+          tf2.role = 'OWNER' OR (tf2.role = 'MEMBER' AND tf2.status = 'ACCEPTED')
+        )
+      )
+    )
+  )
+);
+
+-- Update policy: Users can update their own replies
+CREATE POLICY "Update own replies" ON "public"."replies"
+FOR UPDATE TO authenticated
+USING (profile_id = auth.uid());
+
+-- Delete policy: Users can soft-delete their own replies
+CREATE POLICY "Delete own replies" ON "public"."replies"
+FOR UPDATE TO authenticated
+USING (profile_id = auth.uid())
+WITH CHECK (
+  -- Only allow updating the deleted_at field
+  CASE WHEN deleted_at IS DISTINCT FROM OLD.deleted_at
+    AND OLD.deleted_at IS NULL
+  THEN true
+  ELSE false
+  END
+);
+
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."replies" TO "anon";
+GRANT SELECT ON TABLE "public"."replies" TO "anon";
 GRANT ALL ON TABLE "public"."replies" TO "authenticated";
 GRANT ALL ON TABLE "public"."replies" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."replies_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."replies_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."replies_id_seq" TO "service_role";
