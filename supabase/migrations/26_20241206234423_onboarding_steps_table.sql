@@ -18,8 +18,36 @@ ALTER TABLE ONLY "public"."onboarding_steps" ADD CONSTRAINT "onboarding_steps_pr
 ------------------------
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."onboarding_steps" FOR EACH ROW EXECUTE FUNCTION "storage"."update_updated_at_column"();
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."onboarding_steps" ENABLE ROW LEVEL SECURITY;
+
+-- Define policies
+------------------------
+CREATE POLICY "Users can view own onboarding steps" ON "public"."onboarding_steps"
+FOR SELECT
+TO authenticated
+USING (
+  profile_id = auth.uid()
+);
+
+CREATE POLICY "Users can manage own onboarding steps" ON "public"."onboarding_steps"
+FOR ALL
+TO authenticated
+USING (
+  profile_id = auth.uid()
+)
+WITH CHECK (
+  profile_id = auth.uid()
+);
+
+CREATE POLICY "Service role can manage onboarding steps" ON "public"."onboarding_steps"
+FOR ALL
+TO service_role
+USING (true)
+WITH CHECK (true);
+
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."onboarding_steps" TO "anon";
 GRANT ALL ON TABLE "public"."onboarding_steps" TO "authenticated";
 GRANT ALL ON TABLE "public"."onboarding_steps" TO "service_role";

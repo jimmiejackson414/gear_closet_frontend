@@ -36,3 +36,52 @@ ALTER TABLE "public"."friend_invitations" ADD CONSTRAINT "friend_invitations_sen
 ALTER TABLE "public"."friend_invitations" ADD CONSTRAINT "friend_invitations_recipient_id_fkey" FOREIGN KEY ("recipient_id") REFERENCES "public"."profiles" ("id") ON DELETE SET NULL;
 ALTER TABLE "public"."friend_invitations" ADD CONSTRAINT "friend_invitations_status_check" CHECK (status IN ('PENDING', 'ACCEPTED', 'DECLINED'));
 ALTER TYPE "public"."friend_request_status" OWNER TO "postgres";
+
+-- Define triggers
+------------------------
+CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."friend_invitations" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
+
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."friend_invitations" ENABLE ROW LEVEL SECURITY;
+
+-- Define policies
+------------------------
+CREATE POLICY "View own invitations" ON "public"."friend_invitations"
+FOR SELECT
+TO authenticated
+USING (
+  sender_id = auth.uid() OR
+  recipient_id = auth.uid()
+);
+
+CREATE POLICY "Send friend invitations" ON "public"."friend_invitations"
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  sender_id = auth.uid()
+);
+
+CREATE POLICY "Respond to friend invitations" ON "public"."friend_invitations"
+FOR UPDATE
+TO authenticated
+USING (
+  recipient_id = auth.uid()
+)
+WITH CHECK (
+  recipient_id = auth.uid()
+);
+
+CREATE POLICY "Delete sent invitations" ON "public"."friend_invitations"
+FOR DELETE
+TO authenticated
+USING (
+  sender_id = auth.uid()
+);
+
+-- Grant permissions
+------------------------
+GRANT ALL ON TABLE "public"."friend_invitations" TO "authenticated";
+GRANT ALL ON TABLE "public"."friend_invitations" TO "service_role";
+GRANT ALL ON SEQUENCE "public"."friend_invitations_id_seq" TO "authenticated";
+GRANT ALL ON SEQUENCE "public"."friend_invitations_id_seq" TO "service_role";

@@ -28,9 +28,35 @@ ALTER TABLE ONLY "public"."friends" ADD CONSTRAINT "friends_profile_id_fkey" FOR
 ------------------------
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."friends" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."friends" ENABLE ROW LEVEL SECURITY;
+
 -- Define policies
 ------------------------
-CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."friends" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+CREATE POLICY "View own friendships" ON "public"."friends"
+FOR SELECT
+TO authenticated
+USING (
+  profile_id = auth.uid() OR
+  friend_id = auth.uid()
+);
+
+CREATE POLICY "Create friendships through requests" ON "public"."friends"
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  profile_id = auth.uid() OR
+  friend_id = auth.uid()
+);
+
+CREATE POLICY "Delete own friendships" ON "public"."friends"
+FOR DELETE
+TO authenticated
+USING (
+  profile_id = auth.uid() OR
+  friend_id = auth.uid()
+);
 
 -- Search friends
 ------------------------
@@ -60,9 +86,7 @@ $$ LANGUAGE plpgsql;
 
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."friends" TO "anon";
 GRANT ALL ON TABLE "public"."friends" TO "authenticated";
 GRANT ALL ON TABLE "public"."friends" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."friends_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."friends_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."friends_id_seq" TO "service_role";

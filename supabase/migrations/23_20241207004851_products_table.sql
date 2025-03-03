@@ -10,27 +10,40 @@ CREATE TYPE "public"."subscription_level" AS ENUM (
 -- Create products table
 ------------------------
 CREATE TABLE IF NOT EXISTS "public"."products" (
-    "id" "text" NOT NULL,
-    "active" boolean DEFAULT true NOT NULL,
-    "name" "public"."subscription_level",
-    "description" "text",
-    "image" "text",
-    "metadata" "jsonb",
-    "environment" "text"
+    "id" text NOT NULL,
+    "name" text NOT NULL,
+    "description" text,
+    "active" boolean NOT NULL DEFAULT true,
+    "image" text,
+    "metadata" jsonb,
+    "environment" text NOT NULL,
+    "created_at" timestamp with time zone NOT NULL DEFAULT now(),
+    "updated_at" timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT "products_pkey" PRIMARY KEY ("id")
 );
 
--- Alter table statements
-------------------------
-ALTER TABLE "public"."products" OWNER TO "postgres";
-ALTER TABLE ONLY "public"."products" ADD CONSTRAINT "products_pkey" PRIMARY KEY ("id");
+-- Create updated_at trigger
+CREATE TRIGGER "set_public_products_updated_at"
+BEFORE UPDATE ON "public"."products"
+FOR EACH ROW
+EXECUTE FUNCTION "public"."set_current_timestamp_updated_at"();
 
--- Define policies
-------------------------
-CREATE POLICY "Allow public read-only access." ON "public"."products" FOR SELECT USING (true);
+-- Enable RLS
+ALTER TABLE "public"."products" ENABLE ROW LEVEL SECURITY;
+
+-- Create policies
+CREATE POLICY "Anyone can view products" ON "public"."products"
+FOR SELECT
+TO public
+USING (true);
+
+CREATE POLICY "Service role can manage products" ON "public"."products"
+FOR ALL
+TO service_role
+USING (true)
+WITH CHECK (true);
 
 -- Grant permissions
-------------------------
-GRANT ALL ON TABLE "public"."products" TO "anon";
+GRANT SELECT ON TABLE "public"."products" TO "anon";
 GRANT ALL ON TABLE "public"."products" TO "authenticated";
 GRANT ALL ON TABLE "public"."products" TO "service_role";
-

@@ -35,15 +35,52 @@ ALTER TABLE ONLY "public"."notifications"
 ------------------------
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."notifications" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."notifications" ENABLE ROW LEVEL SECURITY;
+
 -- Define policies
 ------------------------
-CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."notifications" USING (("auth"."uid"() = "profile_id")) WITH CHECK (("auth"."uid"() = "profile_id"));
+CREATE POLICY "Users can view own notifications" ON "public"."notifications"
+FOR SELECT
+TO authenticated
+USING (
+  profile_id = auth.uid()
+);
+
+CREATE POLICY "Users can create notifications" ON "public"."notifications"
+FOR INSERT
+TO authenticated
+WITH CHECK (
+  sender_id = auth.uid()
+);
+
+CREATE POLICY "Users can update own notifications" ON "public"."notifications"
+FOR UPDATE
+TO authenticated
+USING (
+  profile_id = auth.uid()
+)
+WITH CHECK (
+  profile_id = auth.uid()
+);
+
+CREATE POLICY "Users can delete own notifications" ON "public"."notifications"
+FOR DELETE
+TO authenticated
+USING (
+  profile_id = auth.uid()
+);
+
+CREATE POLICY "Service role can manage notifications" ON "public"."notifications"
+FOR ALL
+TO service_role
+USING (true)
+WITH CHECK (true);
 
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."notifications" TO "anon";
 GRANT ALL ON TABLE "public"."notifications" TO "authenticated";
 GRANT ALL ON TABLE "public"."notifications" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."notifications_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."notifications_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."notifications_id_seq" TO "service_role";
