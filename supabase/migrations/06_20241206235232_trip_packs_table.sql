@@ -31,13 +31,84 @@ CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."trip_pa
 
 -- Define policies
 ------------------------
-CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."trip_packs" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+-- View policy: Trip members can view trip_packs
+CREATE POLICY "Trip members can view trip_packs" ON "public"."trip_packs"
+FOR SELECT TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM trip_friends tf
+    WHERE tf.trip_id = trip_packs.trip_id
+    AND tf.profile_id = auth.uid()
+    AND (
+      tf.role = 'OWNER'
+      OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED')
+    )
+  )
+);
+
+-- Insert policy: Trip members can add packs they own or public packs
+CREATE POLICY "Trip members can add their packs" ON "public"."trip_packs"
+FOR INSERT TO authenticated
+WITH CHECK (
+  -- Must be a trip member
+  EXISTS (
+    SELECT 1 FROM trip_friends tf
+    WHERE tf.trip_id = trip_id
+    AND tf.profile_id = auth.uid()
+    AND (
+      tf.role = 'OWNER'
+      OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED')
+    )
+  )
+  AND
+  -- Must own the pack OR the pack must be public
+  EXISTS (
+    SELECT 1 FROM packs p
+    WHERE p.id = pack_id
+    AND (
+      p.profile_id = auth.uid()
+      OR NOT p.private
+    )
+  )
+  -- Ensure profile_id matches the authenticated user
+  AND profile_id = auth.uid()
+);
+
+-- Update policy: Trip members can update their own pack associations
+CREATE POLICY "Trip members can update their pack associations" ON "public"."trip_packs"
+FOR UPDATE TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM trip_friends tf
+    WHERE tf.trip_id = trip_packs.trip_id
+    AND tf.profile_id = auth.uid()
+    AND (
+      tf.role = 'OWNER'
+      OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED')
+    )
+  )
+  AND profile_id = auth.uid()
+);
+
+-- Delete policy: Trip members can remove their own pack associations
+CREATE POLICY "Trip members can remove their pack associations" ON "public"."trip_packs"
+FOR DELETE TO authenticated
+USING (
+  EXISTS (
+    SELECT 1 FROM trip_friends tf
+    WHERE tf.trip_id = trip_packs.trip_id
+    AND tf.profile_id = auth.uid()
+    AND (
+      tf.role = 'OWNER'
+      OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED')
+    )
+  )
+  AND profile_id = auth.uid()
+);
 
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."trip_packs" TO "anon";
 GRANT ALL ON TABLE "public"."trip_packs" TO "authenticated";
 GRANT ALL ON TABLE "public"."trip_packs" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."trip_packs_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."trip_packs_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."trip_packs_id_seq" TO "service_role";

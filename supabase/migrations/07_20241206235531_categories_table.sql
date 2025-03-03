@@ -57,15 +57,75 @@ CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."categor
 CREATE OR REPLACE TRIGGER "trigger_adjust_positions" BEFORE INSERT ON "public"."categories" FOR EACH ROW EXECUTE FUNCTION "public"."adjust_category_positions"();
 -- CREATE TRIGGER "trigger_reorder_positions_after_update" AFTER UPDATE OF position ON "public"."categories" FOR EACH ROW EXECUTE FUNCTION "public"."reorder_positions_after_update"();
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."categories" ENABLE ROW LEVEL SECURITY;
+
 -- Define policies
 ------------------------
-CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."categories" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+-- Allow viewing categories if you can view their parent pack
+CREATE POLICY "View allowed categories" ON "public"."categories"
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM packs p
+    WHERE p.id = categories.pack_id
+    AND (
+      -- Pack owner can view
+      p.profile_id = auth.uid()
+      OR
+      -- Public packs can be viewed
+      NOT p.private
+      OR
+      -- Trip members can view
+      EXISTS (
+        SELECT 1 FROM trip_friends tf1
+        JOIN trip_friends tf2 ON tf2.trip_id = tf1.trip_id
+        WHERE tf1.profile_id = auth.uid()
+        AND tf2.profile_id = p.profile_id
+        AND (
+          tf1.role = 'OWNER' OR (tf1.role = 'MEMBER' AND tf1.status = 'ACCEPTED')
+        )
+        AND (
+          tf2.role = 'OWNER' OR (tf2.role = 'MEMBER' AND tf2.status = 'ACCEPTED')
+        )
+      )
+    )
+  )
+);
+
+-- Allow creating categories if you own the parent pack
+CREATE POLICY "Pack owners can create categories" ON "public"."categories"
+FOR INSERT WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM packs p
+    WHERE p.id = pack_id
+    AND p.profile_id = auth.uid()
+  )
+);
+
+-- Allow updating categories if you own the parent pack
+CREATE POLICY "Pack owners can update categories" ON "public"."categories"
+FOR UPDATE USING (
+  EXISTS (
+    SELECT 1 FROM packs p
+    WHERE p.id = categories.pack_id
+    AND p.profile_id = auth.uid()
+  )
+);
+
+-- Allow deleting categories if you own the parent pack
+CREATE POLICY "Pack owners can delete categories" ON "public"."categories"
+FOR DELETE USING (
+  EXISTS (
+    SELECT 1 FROM packs p
+    WHERE p.id = categories.pack_id
+    AND p.profile_id = auth.uid()
+  )
+);
 
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."categories" TO "anon";
 GRANT ALL ON TABLE "public"."categories" TO "authenticated";
 GRANT ALL ON TABLE "public"."categories" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."categories_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."categories_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."categories_id_seq" TO "service_role";

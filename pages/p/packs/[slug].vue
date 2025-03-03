@@ -4,8 +4,7 @@
   import type { ExtendedComment, PublicPack } from '@/types/helpers';
 
   const user = useSupabaseUser();
-  // TODO: Figure out way to access user to dynamically set colorMode. Currently causes 500 error.
-  definePageMeta({ layout: 'public-layout', public: true });
+  definePageMeta({ colorMode: 'light', layout: 'public-layout', public: true });
 
   /**
    * Fetches the pack data.
