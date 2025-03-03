@@ -44,15 +44,94 @@ ALTER TYPE "public"."resource_type" OWNER TO "postgres";
 ------------------------
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."shopping_list_items" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."shopping_list_items" ENABLE ROW LEVEL SECURITY;
+
 -- Define policies
 ------------------------
-CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."shopping_list_items" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+-- Allow viewing shopping list items for trip members
+CREATE POLICY "Trip members can view trip shopping list items" ON "public"."shopping_list_items"
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM trip_friends
+    WHERE trip_friends.trip_id = shopping_list_items.trip_id
+    AND trip_friends.profile_id = auth.uid()
+    AND (
+      trip_friends.role = 'OWNER' 
+      OR (trip_friends.role = 'MEMBER' AND trip_friends.status = 'ACCEPTED')
+    )
+  )
+);
+
+-- Allow creating shopping list items (both USER and GROUP)
+CREATE POLICY "Trip members can create shopping list items" ON "public"."shopping_list_items"
+FOR INSERT WITH CHECK (
+  CASE 
+    WHEN resource_type = 'USER' THEN
+      profile_id = auth.uid()
+    WHEN resource_type = 'GROUP' THEN
+      EXISTS (
+        SELECT 1 FROM trip_friends
+        WHERE trip_friends.trip_id = trip_id
+        AND trip_friends.profile_id = auth.uid()
+        AND (
+          trip_friends.role = 'OWNER' 
+          OR (trip_friends.role = 'MEMBER' AND trip_friends.status = 'ACCEPTED')
+        )
+      )
+    ELSE
+      false
+  END
+);
+
+-- Allow updating your own USER shopping list items
+CREATE POLICY "Users can manage their own shopping list items" ON "public"."shopping_list_items"
+FOR UPDATE USING (
+  resource_type = 'USER'
+  AND profile_id = auth.uid()
+);
+
+-- Allow updating GROUP shopping list items for trip members
+CREATE POLICY "Trip members can manage group shopping list items" ON "public"."shopping_list_items"
+FOR UPDATE USING (
+  resource_type = 'GROUP'
+  AND EXISTS (
+    SELECT 1 FROM trip_friends
+    WHERE trip_friends.trip_id = shopping_list_items.trip_id
+    AND trip_friends.profile_id = auth.uid()
+    AND (
+      trip_friends.role = 'OWNER' 
+      OR (trip_friends.role = 'MEMBER' AND trip_friends.status = 'ACCEPTED')
+    )
+  )
+);
+
+-- Allow deleting your own USER shopping list items
+CREATE POLICY "Users can delete their own shopping list items" ON "public"."shopping_list_items"
+FOR DELETE USING (
+  resource_type = 'USER'
+  AND profile_id = auth.uid()
+);
+
+-- Allow deleting GROUP shopping list items for trip members
+CREATE POLICY "Trip members can delete group shopping list items" ON "public"."shopping_list_items"
+FOR DELETE USING (
+  resource_type = 'GROUP'
+  AND EXISTS (
+    SELECT 1 FROM trip_friends
+    WHERE trip_friends.trip_id = shopping_list_items.trip_id
+    AND trip_friends.profile_id = auth.uid()
+    AND (
+      trip_friends.role = 'OWNER' 
+      OR (trip_friends.role = 'MEMBER' AND trip_friends.status = 'ACCEPTED')
+    )
+  )
+);
 
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."shopping_list_items" TO "anon";
 GRANT ALL ON TABLE "public"."shopping_list_items" TO "authenticated";
 GRANT ALL ON TABLE "public"."shopping_list_items" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."shopping_list_items_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."shopping_list_items_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."shopping_list_items_id_seq" TO "service_role";

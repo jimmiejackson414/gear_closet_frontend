@@ -28,11 +28,66 @@ ALTER TABLE ONLY "public"."questions" ADD CONSTRAINT "questions_profile_id_fkey"
 ------------------------
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."questions" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."questions" ENABLE ROW LEVEL SECURITY;
+
+-- Define policies
+------------------------
+-- Allow viewing questions for trip members
+CREATE POLICY "Trip members can view questions" ON "public"."questions"
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM polls p
+    JOIN trip_friends tf ON tf.trip_id = p.trip_id
+    WHERE p.id = questions.poll_id
+    AND tf.profile_id = auth.uid()
+    AND (
+      tf.role = 'OWNER' 
+      OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED')
+    )
+  )
+);
+
+-- Allow creating questions for trip owners only
+CREATE POLICY "Trip owners can create questions" ON "public"."questions"
+FOR INSERT WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM polls p
+    JOIN trip_friends tf ON tf.trip_id = p.trip_id
+    WHERE p.id = poll_id
+    AND tf.profile_id = auth.uid()
+    AND tf.role = 'OWNER'
+  )
+);
+
+-- Allow updating questions for trip owners only
+CREATE POLICY "Trip owners can update questions" ON "public"."questions"
+FOR UPDATE USING (
+  EXISTS (
+    SELECT 1 FROM polls p
+    JOIN trip_friends tf ON tf.trip_id = p.trip_id
+    WHERE p.id = questions.poll_id
+    AND tf.profile_id = auth.uid()
+    AND tf.role = 'OWNER'
+  )
+);
+
+-- Allow deleting questions for trip owners only
+CREATE POLICY "Trip owners can delete questions" ON "public"."questions"
+FOR DELETE USING (
+  EXISTS (
+    SELECT 1 FROM polls p
+    JOIN trip_friends tf ON tf.trip_id = p.trip_id
+    WHERE p.id = questions.poll_id
+    AND tf.profile_id = auth.uid()
+    AND tf.role = 'OWNER'
+  )
+);
+
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."questions" TO "anon";
 GRANT ALL ON TABLE "public"."questions" TO "authenticated";
 GRANT ALL ON TABLE "public"."questions" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."questions_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."questions_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."questions_id_seq" TO "service_role";

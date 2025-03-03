@@ -28,11 +28,70 @@ ALTER TABLE ONLY "public"."answers" ADD CONSTRAINT "answers_profile_id_fkey" FOR
 ------------------------
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."answers" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."answers" ENABLE ROW LEVEL SECURITY;
+
+-- Define policies
+------------------------
+-- Allow viewing answers for trip members
+CREATE POLICY "Trip members can view answers" ON "public"."answers"
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM questions q
+    JOIN polls p ON p.id = q.poll_id
+    JOIN trip_friends tf ON tf.trip_id = p.trip_id
+    WHERE q.id = answers.question_id
+    AND tf.profile_id = auth.uid()
+    AND (
+      tf.role = 'OWNER' 
+      OR (tf.role = 'MEMBER' AND tf.status = 'ACCEPTED')
+    )
+  )
+);
+
+-- Allow creating answers for trip owners only
+CREATE POLICY "Trip owners can create answers" ON "public"."answers"
+FOR INSERT WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM questions q
+    JOIN polls p ON p.id = q.poll_id
+    JOIN trip_friends tf ON tf.trip_id = p.trip_id
+    WHERE q.id = question_id
+    AND tf.profile_id = auth.uid()
+    AND tf.role = 'OWNER'
+  )
+);
+
+-- Allow updating answers for trip owners only
+CREATE POLICY "Trip owners can update answers" ON "public"."answers"
+FOR UPDATE USING (
+  EXISTS (
+    SELECT 1 FROM questions q
+    JOIN polls p ON p.id = q.poll_id
+    JOIN trip_friends tf ON tf.trip_id = p.trip_id
+    WHERE q.id = answers.question_id
+    AND tf.profile_id = auth.uid()
+    AND tf.role = 'OWNER'
+  )
+);
+
+-- Allow deleting answers for trip owners only
+CREATE POLICY "Trip owners can delete answers" ON "public"."answers"
+FOR DELETE USING (
+  EXISTS (
+    SELECT 1 FROM questions q
+    JOIN polls p ON p.id = q.poll_id
+    JOIN trip_friends tf ON tf.trip_id = p.trip_id
+    WHERE q.id = answers.question_id
+    AND tf.profile_id = auth.uid()
+    AND tf.role = 'OWNER'
+  )
+);
+
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."answers" TO "anon";
 GRANT ALL ON TABLE "public"."answers" TO "authenticated";
 GRANT ALL ON TABLE "public"."answers" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."answers_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."answers_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."answers_id_seq" TO "service_role";

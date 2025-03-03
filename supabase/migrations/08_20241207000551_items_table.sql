@@ -46,15 +46,69 @@ ALTER TABLE ONLY "public"."items" ADD CONSTRAINT "items_profile_id_fkey" FOREIGN
 CREATE OR REPLACE TRIGGER "generate_slug_for_items" BEFORE INSERT ON "public"."items" FOR EACH ROW EXECUTE FUNCTION "public"."generate_slug"();
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."items" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."items" ENABLE ROW LEVEL SECURITY;
+
 -- Define policies
 ------------------------
-CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."items" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+-- Allow viewing items if:
+-- 1. You own the item
+-- 2. The item is in a category of a pack that you can view
+CREATE POLICY "View allowed items" ON "public"."items"
+FOR SELECT USING (
+  profile_id = auth.uid()
+  OR
+  EXISTS (
+    SELECT 1 FROM category_items ci
+    JOIN categories c ON c.id = ci.category_id
+    JOIN packs p ON p.id = c.pack_id
+    WHERE ci.item_id = items.id
+    AND (
+      -- Pack owner can view
+      p.profile_id = auth.uid()
+      OR
+      -- Public packs can be viewed
+      NOT p.private
+      OR
+      -- Trip members can view
+      EXISTS (
+        SELECT 1 FROM trip_friends tf1
+        JOIN trip_friends tf2 ON tf2.trip_id = tf1.trip_id
+        WHERE tf1.profile_id = auth.uid()
+        AND tf2.profile_id = p.profile_id
+        AND (
+          tf1.role = 'OWNER' OR (tf1.role = 'MEMBER' AND tf1.status = 'ACCEPTED')
+        )
+        AND (
+          tf2.role = 'OWNER' OR (tf2.role = 'MEMBER' AND tf2.status = 'ACCEPTED')
+        )
+      )
+    )
+  )
+);
+
+-- Allow creating items (any authenticated user can create their own items)
+CREATE POLICY "Users can create items" ON "public"."items"
+FOR INSERT WITH CHECK (
+  profile_id = auth.uid()
+);
+
+-- Allow updating your own items
+CREATE POLICY "Users can update own items" ON "public"."items"
+FOR UPDATE USING (
+  profile_id = auth.uid()
+);
+
+-- Allow deleting your own items
+CREATE POLICY "Users can delete own items" ON "public"."items"
+FOR DELETE USING (
+  profile_id = auth.uid()
+);
 
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."items" TO "anon";
 GRANT ALL ON TABLE "public"."items" TO "authenticated";
 GRANT ALL ON TABLE "public"."items" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."items_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."items_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."items_id_seq" TO "service_role";

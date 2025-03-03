@@ -57,13 +57,38 @@ CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."packs" 
 
 -- Define policies
 ------------------------
-CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."packs" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+-- View policy: Anyone (including anonymous users) can view public packs
+CREATE POLICY "Anyone can view public packs" ON "public"."packs"
+FOR SELECT TO public
+USING (NOT private);
+
+-- View policy: Authenticated users can view their own packs
+CREATE POLICY "Users can view own packs" ON "public"."packs"
+FOR SELECT TO authenticated
+USING (profile_id = auth.uid());
+
+-- Insert policy: Authenticated users can create packs
+CREATE POLICY "Users can create packs" ON "public"."packs"
+FOR INSERT TO authenticated
+WITH CHECK (
+  auth.role() = 'authenticated'
+  AND profile_id = auth.uid()
+);
+
+-- Update policy: Users can update their own packs
+CREATE POLICY "Users can update own packs" ON "public"."packs"
+FOR UPDATE TO authenticated
+USING (profile_id = auth.uid());
+
+-- Delete policy: Users can delete their own packs
+CREATE POLICY "Users can delete own packs" ON "public"."packs"
+FOR DELETE TO authenticated
+USING (profile_id = auth.uid());
 
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."packs" TO "anon";
 GRANT ALL ON TABLE "public"."packs" TO "authenticated";
 GRANT ALL ON TABLE "public"."packs" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."packs_id_seq" TO "anon";
+GRANT SELECT ON TABLE "public"."packs" TO "anon";
 GRANT ALL ON SEQUENCE "public"."packs_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."packs_id_seq" TO "service_role";

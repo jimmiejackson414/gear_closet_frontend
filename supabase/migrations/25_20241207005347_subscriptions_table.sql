@@ -13,38 +13,50 @@ CREATE TYPE "public"."subscription_status" AS ENUM (
 -- Create subscriptions table
 ------------------------
 CREATE TABLE IF NOT EXISTS "public"."subscriptions" (
-    "id" "uuid" DEFAULT "extensions"."uuid_generate_v4"() NOT NULL,
-    "profile_id" "uuid" NOT NULL,
-    "status" "public"."subscription_status",
-    "metadata" "jsonb",
-    "price_id" "text",
+    "id" uuid NOT NULL DEFAULT gen_random_uuid(),
+    "profile_id" uuid NOT NULL,
+    "stripe_subscription_id" text NOT NULL,
+    "price_id" text NOT NULL,
+    "status" text NOT NULL,
     "quantity" integer,
-    "cancel_at_period_end" boolean,
-    "created_at" timestamp with time zone DEFAULT ("now"() AT TIME ZONE 'utc'::"text") NOT NULL,
-    "current_period_start" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
-    "current_period_end" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()) NOT NULL,
-    "ended_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()),
-    "cancel_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()),
-    "canceled_at" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()),
-    "trial_start" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()),
-    "trial_end" timestamp with time zone DEFAULT "timezone"('utc'::"text", "now"()),
-    "stripe_subscription_id" "text"
+    "cancel_at" timestamp with time zone,
+    "cancel_at_period_end" boolean NOT NULL DEFAULT false,
+    "canceled_at" timestamp with time zone,
+    "current_period_end" timestamp with time zone NOT NULL,
+    "current_period_start" timestamp with time zone NOT NULL,
+    "metadata" jsonb,
+    "created_at" timestamp with time zone NOT NULL DEFAULT now(),
+    "updated_at" timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT "subscriptions_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "subscriptions_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id") ON DELETE CASCADE,
+    CONSTRAINT "subscriptions_stripe_subscription_id_key" UNIQUE ("stripe_subscription_id")
 );
 
--- Alter table statements
-------------------------
-ALTER TABLE "public"."subscriptions" OWNER TO "postgres";
-ALTER TABLE ONLY "public"."subscriptions" ADD CONSTRAINT "subscriptions_pkey" PRIMARY KEY ("id");
-ALTER TABLE ONLY "public"."subscriptions" ADD CONSTRAINT "subscriptions_price_id_fkey" FOREIGN KEY ("price_id") REFERENCES "public"."prices"("id");
-ALTER TABLE ONLY "public"."subscriptions" ADD CONSTRAINT "subscriptions_profile_id_fkey" FOREIGN KEY ("profile_id") REFERENCES "public"."profiles"("id");
-ALTER TYPE "public"."subscription_status" OWNER TO "postgres";
+-- Create updated_at trigger
+CREATE TRIGGER "set_public_subscriptions_updated_at"
+BEFORE UPDATE ON "public"."subscriptions"
+FOR EACH ROW
+EXECUTE FUNCTION "public"."set_current_timestamp_updated_at"();
 
--- Define policies
+-- Enable RLS
 ------------------------
-CREATE POLICY "Can only view own subs data." ON "public"."subscriptions" FOR SELECT USING (("auth"."uid"() = "profile_id"));
+ALTER TABLE "public"."subscriptions" ENABLE ROW LEVEL SECURITY;
+
+-- Create policies
+------------------------
+CREATE POLICY "Users can view their own subscriptions" ON "public"."subscriptions"
+FOR SELECT
+TO authenticated
+USING (profile_id = auth.uid());
+
+CREATE POLICY "Service role can manage all subscriptions" ON "public"."subscriptions"
+FOR ALL
+TO service_role
+USING (true)
+WITH CHECK (true);
 
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."subscriptions" TO "anon";
 GRANT ALL ON TABLE "public"."subscriptions" TO "authenticated";
 GRANT ALL ON TABLE "public"."subscriptions" TO "service_role";
+REVOKE ALL ON TABLE "public"."subscriptions" FROM "anon";

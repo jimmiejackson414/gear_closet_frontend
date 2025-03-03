@@ -4,8 +4,7 @@
   import type { ExtendedComment, PublicPack } from '@/types/helpers';
 
   const user = useSupabaseUser();
-  // TODO: Figure out way to access user to dynamically set colorMode. Currently causes 500 error.
-  definePageMeta({ layout: 'public-layout', public: true });
+  definePageMeta({ colorMode: 'light', layout: 'public-layout', public: true });
 
   /**
    * Fetches the pack data.
@@ -169,32 +168,46 @@
               id="comments"
               aria-labelledby="comments-tab"
               role="tabpanel">
-              <div
-                v-if="user"
-                class="mx-auto flex max-w-6xl flex-col items-start p-6">
-                <textarea-root
-                  v-model="newCommentValue"
-                  class="w-full rounded-xl shadow-sm disabled:pointer-events-none disabled:bg-gray-100"
-                  :disabled="submitting"
-                  placeholder="Add a comment" />
-                <div class="my-2 ml-auto flex items-center gap-6">
-                  <typography class="text-sm text-muted-foreground dark:text-muted-foreground">
-                    Commenting as <span class="font-bold">{{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile) }}</span>
-                  </typography>
-                  <button-root
+              <div class="mx-auto flex max-w-6xl flex-col items-start p-6">
+                <div
+                  v-if="user"
+                  class="w-full">
+                  <textarea-root
+                    v-model="newCommentValue"
+                    class="w-full rounded-xl shadow-sm disabled:pointer-events-none disabled:bg-gray-100"
                     :disabled="submitting"
-                    :loading="submitting"
-                    size="sm"
-                    @click="addComment">
-                    Submit
-                  </button-root>
+                    placeholder="Add a comment" />
+                  <div class="my-2 flex w-full items-center justify-end gap-6">
+                    <typography class="text-sm text-muted-foreground dark:text-muted-foreground">
+                      Commenting as <span class="font-bold">{{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile) }}</span>
+                    </typography>
+                    <button-root
+                      :disabled="submitting"
+                      :loading="submitting"
+                      size="sm"
+                      @click="addComment">
+                      Submit
+                    </button-root>
+                  </div>
+                  <separator class="mb-4" />
                 </div>
-                <separator class="mb-4" />
+                <div
+                  v-else
+                  class="w-full">
+                  <typography class="mb-4 text-center text-muted-foreground">
+                    Please <nuxt-link
+                      class="text-primary hover:underline"
+                      to="/auth">
+                      sign in
+                    </nuxt-link> to leave a comment
+                  </typography>
+                  <separator class="mb-4" />
+                </div>
                 <gc-empty-state
                   v-if="!($store.data.selectedPack as PublicPack)?.comments?.length"
                   class="mx-auto">
                   <typography>
-                    Be the first to comment!
+                    No comments yet
                   </typography>
                 </gc-empty-state>
                 <div

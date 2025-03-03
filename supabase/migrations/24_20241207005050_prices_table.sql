@@ -15,39 +15,44 @@ CREATE TYPE "public"."pricing_plan_interval" AS ENUM (
 -- Create prices table
 ------------------------
 CREATE TABLE IF NOT EXISTS "public"."prices" (
-    "id" "text" NOT NULL,
-    "product_id" "text",
-    "active" boolean,
-    "description" "text",
-    "unit_amount" bigint,
-    "currency" "text",
-    "type" "public"."pricing_type",
-    "interval" "public"."pricing_plan_interval",
+    "id" text NOT NULL,
+    "product_id" text NOT NULL,
+    "active" boolean NOT NULL DEFAULT true,
+    "description" text,
+    "unit_amount" integer NOT NULL,
+    "currency" text NOT NULL DEFAULT 'usd',
+    "type" text NOT NULL DEFAULT 'recurring',
+    "interval" text,
     "interval_count" integer,
-    "trial_period_days" integer,
-    "metadata" "jsonb",
-    "identifier" "public"."subscription_level" DEFAULT 'FREE'::"public"."subscription_level",
-    "environment" "text" DEFAULT 'development'::"text",
-    CONSTRAINT "prices_currency_check" CHECK (("char_length"("currency") = 3))
+    "metadata" jsonb,
+    "created_at" timestamp with time zone NOT NULL DEFAULT now(),
+    "updated_at" timestamp with time zone NOT NULL DEFAULT now(),
+    CONSTRAINT "prices_pkey" PRIMARY KEY ("id"),
+    CONSTRAINT "prices_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id") ON DELETE CASCADE
 );
 
--- Alter table statements
-------------------------
-ALTER TABLE "public"."prices" OWNER TO "postgres";
-ALTER TABLE ONLY "public"."prices" ADD CONSTRAINT "prices_pkey" PRIMARY KEY ("id");
-ALTER TABLE ONLY "public"."prices" ADD CONSTRAINT "prices_product_id_fkey" FOREIGN KEY ("product_id") REFERENCES "public"."products"("id");
-ALTER TYPE "public"."pricing_type" OWNER TO "postgres";
-ALTER TYPE "public"."pricing_plan_interval" OWNER TO "postgres";
-ALTER TYPE "public"."subscription_level" OWNER TO "postgres";
+-- Create updated_at trigger
+CREATE TRIGGER "set_public_prices_updated_at"
+BEFORE UPDATE ON "public"."prices"
+FOR EACH ROW
+EXECUTE FUNCTION "public"."set_current_timestamp_updated_at"();
 
--- Define policies
-------------------------
-CREATE POLICY "Allow public read-only access." ON "public"."prices" FOR SELECT USING (true);
+-- Enable RLS
+ALTER TABLE "public"."prices" ENABLE ROW LEVEL SECURITY;
+
+-- Create policies
+CREATE POLICY "Anyone can view prices" ON "public"."prices"
+FOR SELECT
+TO public
+USING (true);
+
+CREATE POLICY "Service role can manage prices" ON "public"."prices"
+FOR ALL
+TO service_role
+USING (true)
+WITH CHECK (true);
 
 -- Grant permissions
-------------------------
-GRANT ALL ON TABLE "public"."prices" TO "anon";
+GRANT SELECT ON TABLE "public"."prices" TO "anon";
 GRANT ALL ON TABLE "public"."prices" TO "authenticated";
 GRANT ALL ON TABLE "public"."prices" TO "service_role";
-
-

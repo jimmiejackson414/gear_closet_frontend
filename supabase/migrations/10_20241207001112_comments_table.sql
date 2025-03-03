@@ -30,11 +30,100 @@ ALTER TABLE ONLY "public"."comments" ADD CONSTRAINT "comments_profile_id_fkey" F
 ------------------------
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."comments" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."comments" ENABLE ROW LEVEL SECURITY;
+
+-- Define policies
+------------------------
+-- View policy: Anyone can view comments (including deleted ones) on public packs or packs they have access to
+CREATE POLICY "View allowed comments" ON "public"."comments"
+FOR SELECT TO public
+USING (
+  EXISTS (
+    SELECT 1 FROM packs p
+    WHERE p.id = pack_id
+    AND (
+      -- Pack is public and allows comments
+      (NOT p.private AND p.allow_comments)
+      OR
+      -- Or you own the pack
+      p.profile_id = auth.uid()
+      OR
+      -- Or you're in a trip with the pack owner
+      EXISTS (
+        SELECT 1 FROM trip_friends tf1
+        JOIN trip_friends tf2 ON tf2.trip_id = tf1.trip_id
+        WHERE tf1.profile_id = auth.uid()
+        AND tf2.profile_id = p.profile_id
+        AND (
+          tf1.role = 'OWNER' OR (tf1.role = 'MEMBER' AND tf1.status = 'ACCEPTED')
+        )
+        AND (
+          tf2.role = 'OWNER' OR (tf2.role = 'MEMBER' AND tf2.status = 'ACCEPTED')
+        )
+      )
+    )
+  )
+);
+
+-- Insert policy: Authenticated users can comment on packs they can view that allow comments
+CREATE POLICY "Create comments on allowed packs" ON "public"."comments"
+FOR INSERT TO authenticated
+WITH CHECK (
+  -- Must be your comment
+  profile_id = auth.uid()
+  AND
+  EXISTS (
+    SELECT 1 FROM packs p
+    WHERE p.id = pack_id
+    AND p.allow_comments
+    AND (
+      -- Pack is public
+      NOT p.private
+      OR
+      -- Or you own the pack
+      p.profile_id = auth.uid()
+      OR
+      -- Or you're in a trip with the pack owner
+      EXISTS (
+        SELECT 1 FROM trip_friends tf1
+        JOIN trip_friends tf2 ON tf2.trip_id = tf1.trip_id
+        WHERE tf1.profile_id = auth.uid()
+        AND tf2.profile_id = p.profile_id
+        AND (
+          tf1.role = 'OWNER' OR (tf1.role = 'MEMBER' AND tf1.status = 'ACCEPTED')
+        )
+        AND (
+          tf2.role = 'OWNER' OR (tf2.role = 'MEMBER' AND tf2.status = 'ACCEPTED')
+        )
+      )
+    )
+  )
+);
+
+-- Update policy: Users can update their own comments
+CREATE POLICY "Update own comments" ON "public"."comments"
+FOR UPDATE TO authenticated
+USING (profile_id = auth.uid());
+
+-- Delete policy: Users can soft-delete their own comments
+CREATE POLICY "Delete own comments" ON "public"."comments"
+FOR UPDATE TO authenticated
+USING (profile_id = auth.uid())
+WITH CHECK (
+  -- Only allow updating the deleted_at field
+  CASE WHEN deleted_at IS DISTINCT FROM OLD.deleted_at
+    AND OLD.deleted_at IS NULL
+  THEN true
+  ELSE false
+  END
+);
+
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."comments" TO "anon";
+GRANT SELECT ON TABLE "public"."comments" TO "anon";
 GRANT ALL ON TABLE "public"."comments" TO "authenticated";
 GRANT ALL ON TABLE "public"."comments" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."comments_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."comments_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."comments_id_seq" TO "service_role";

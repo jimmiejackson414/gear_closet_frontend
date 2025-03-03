@@ -27,6 +27,59 @@ ALTER TABLE ONLY "public"."polls" ADD CONSTRAINT "polls_profile_id_fkey" FOREIGN
 ------------------------
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."polls" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."polls" ENABLE ROW LEVEL SECURITY;
+
+-- Define policies
+------------------------
+-- Allow viewing polls for trip members
+CREATE POLICY "Trip members can view polls" ON "public"."polls"
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM trip_friends
+    WHERE trip_friends.trip_id = polls.trip_id
+    AND trip_friends.profile_id = auth.uid()
+    AND (
+      trip_friends.role = 'OWNER' 
+      OR (trip_friends.role = 'MEMBER' AND trip_friends.status = 'ACCEPTED')
+    )
+  )
+);
+
+-- Allow creating polls for trip owners only
+CREATE POLICY "Trip owners can create polls" ON "public"."polls"
+FOR INSERT WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM trip_friends
+    WHERE trip_friends.trip_id = trip_id
+    AND trip_friends.profile_id = auth.uid()
+    AND trip_friends.role = 'OWNER'
+  )
+);
+
+-- Allow updating polls for trip owners only
+CREATE POLICY "Trip owners can update polls" ON "public"."polls"
+FOR UPDATE USING (
+  EXISTS (
+    SELECT 1 FROM trip_friends
+    WHERE trip_friends.trip_id = polls.trip_id
+    AND trip_friends.profile_id = auth.uid()
+    AND trip_friends.role = 'OWNER'
+  )
+);
+
+-- Allow deleting polls for trip owners only
+CREATE POLICY "Trip owners can delete polls" ON "public"."polls"
+FOR DELETE USING (
+  EXISTS (
+    SELECT 1 FROM trip_friends
+    WHERE trip_friends.trip_id = polls.trip_id
+    AND trip_friends.profile_id = auth.uid()
+    AND trip_friends.role = 'OWNER'
+  )
+);
+
 -- Create poll function
 ------------------------
 CREATE OR REPLACE FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[])
@@ -129,15 +182,11 @@ ALTER FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answer
 
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."polls" TO "anon";
 GRANT ALL ON TABLE "public"."polls" TO "authenticated";
 GRANT ALL ON TABLE "public"."polls" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."polls_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."polls_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."polls_id_seq" TO "service_role";
-GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "anon";
 GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."create_poll"("trip_id" bigint, "question" text, "answers" text[]) TO "service_role";
-GRANT ALL ON FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answers" text[]) TO "anon";
 GRANT ALL ON FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answers" text[]) TO "authenticated";
 GRANT ALL ON FUNCTION "public"."update_poll"("poll_id" bigint, "question" text, "answers" text[]) TO "service_role";

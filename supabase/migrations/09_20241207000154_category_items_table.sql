@@ -39,15 +39,87 @@ ALTER TABLE "public"."category_items" ADD CONSTRAINT "unique_category_position" 
 ------------------------
 CREATE OR REPLACE TRIGGER "handle_updated_at" BEFORE UPDATE ON "public"."category_items" FOR EACH ROW EXECUTE FUNCTION "extensions"."moddatetime"('updated_at');
 
+-- Enable RLS
+------------------------
+ALTER TABLE "public"."category_items" ENABLE ROW LEVEL SECURITY;
+
 -- Define policies
 ------------------------
-CREATE POLICY "Enable CRUD for authenticated profiles only" ON "public"."category_items" WITH CHECK (("auth"."role"() = 'authenticated'::"text"));
+-- Allow viewing category_items if you can view both the category and item
+CREATE POLICY "View allowed category_items" ON "public"."category_items"
+FOR SELECT USING (
+  EXISTS (
+    SELECT 1 FROM categories c
+    JOIN packs p ON p.id = c.pack_id
+    WHERE c.id = category_items.category_id
+    AND (
+      -- Pack owner can view
+      p.profile_id = auth.uid()
+      OR
+      -- Public packs can be viewed
+      NOT p.private
+      OR
+      -- Trip members can view
+      EXISTS (
+        SELECT 1 FROM trip_friends tf1
+        JOIN trip_friends tf2 ON tf2.trip_id = tf1.trip_id
+        WHERE tf1.profile_id = auth.uid()
+        AND tf2.profile_id = p.profile_id
+        AND (
+          tf1.role = 'OWNER' OR (tf1.role = 'MEMBER' AND tf1.status = 'ACCEPTED')
+        )
+        AND (
+          tf2.role = 'OWNER' OR (tf2.role = 'MEMBER' AND tf2.status = 'ACCEPTED')
+        )
+      )
+    )
+  )
+);
+
+-- Allow creating category_items if:
+-- 1. You own the pack that contains the category
+-- 2. You own the item being added
+CREATE POLICY "Add items to categories" ON "public"."category_items"
+FOR INSERT WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM categories c
+    JOIN packs p ON p.id = c.pack_id
+    WHERE c.id = category_id
+    AND p.profile_id = auth.uid()
+  )
+  AND
+  EXISTS (
+    SELECT 1 FROM items i
+    WHERE i.id = item_id
+    AND i.profile_id = auth.uid()
+  )
+);
+
+-- Allow updating category_items if you own the pack
+CREATE POLICY "Update category items" ON "public"."category_items"
+FOR UPDATE USING (
+  EXISTS (
+    SELECT 1 FROM categories c
+    JOIN packs p ON p.id = c.pack_id
+    WHERE c.id = category_items.category_id
+    AND p.profile_id = auth.uid()
+  )
+);
+
+-- Allow deleting category_items if you own the pack
+CREATE POLICY "Delete category items" ON "public"."category_items"
+FOR DELETE USING (
+  EXISTS (
+    SELECT 1 FROM categories c
+    JOIN packs p ON p.id = c.pack_id
+    WHERE c.id = category_items.category_id
+    AND p.profile_id = auth.uid()
+  )
+);
 
 -- Grant permissions
 ------------------------
-GRANT ALL ON TABLE "public"."category_items" TO "anon";
 GRANT ALL ON TABLE "public"."category_items" TO "authenticated";
 GRANT ALL ON TABLE "public"."category_items" TO "service_role";
-GRANT ALL ON SEQUENCE "public"."category_items_id_seq" TO "anon";
 GRANT ALL ON SEQUENCE "public"."category_items_id_seq" TO "authenticated";
 GRANT ALL ON SEQUENCE "public"."category_items_id_seq" TO "service_role";
