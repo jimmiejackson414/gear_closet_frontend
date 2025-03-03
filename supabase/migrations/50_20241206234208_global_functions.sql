@@ -33,26 +33,14 @@ CREATE OR REPLACE FUNCTION "public"."get_dashboard_data"("p_user_id" uuid) RETUR
     friends JSON;
   BEGIN
     -- Fetch trip_friends
-    SELECT COALESCE(json_agg(
-      json_build_object(
-        'id', tf.id,
-        'trip_id', tf.trip_id,
-        'accepted_invite_on', tf.accepted_invite_on,
-        'created_at', tf.created_at,
-        'status', tf.status,
-        'profile_id', tf.profile_id,
-        'invited_by_id', tf.invited_by_id,
-        'invite_token', tf.invite_token,
-        'updated_at', tf.updated_at,
-        'profile', row_to_json(p.*),
-        'trip', row_to_json(t.*)
-      )
-    ), '[]'::JSON) INTO trip_friends
+    SELECT COALESCE(json_agg(row_to_json(tf.*)), '[]'::JSON) INTO trip_friends
     FROM trip_friends tf
     LEFT JOIN profiles p ON tf.invited_by_id = p.id
     LEFT JOIN trips t ON tf.trip_id = t.id
     WHERE tf.profile_id = p_user_id
-    AND tf.status = 'PENDING';
+    AND tf.status = 'PENDING'
+    AND tf.role = 'MEMBER'
+    AND tf.profile_id != auth.uid();
 
     -- Fetch trips
     SELECT COALESCE(json_agg(row_to_json(t.*)), '[]'::JSON) INTO trips
