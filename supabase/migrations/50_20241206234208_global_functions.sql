@@ -118,140 +118,140 @@ AS $function$
     dynamic_trip_id := p_trip_id;
   END IF;
 
-    -- Fetch trip packs data using dynamic_trip_id along with associated pack details
-    SELECT (COALESCE(json_agg(
-      json_build_object(
-        'id', pack.id,
-        'name', pack.name,
-        'slug', pack.slug,
-        'created_at', pack.created_at,
-        'updated_at', pack.updated_at,
-        'profile_id', pack.profile_id,
-        'theme', pack.theme,
-        'private', pack.private,
-        'allow_comments', pack.allow_comments,
-        'categories', (
-          SELECT COALESCE(json_agg(json_build_object(
-            'id', c.id,
-            'created_at', c.created_at,
-            'name', c.name,
-            'unit', c.unit,
-            'slug', c.slug,
-            'pack_id', c.pack_id,
-            'updated_at', c.updated_at,
-            'category_items', (
-              SELECT COALESCE(json_agg(json_build_object(
-                'id', ci.id,
-                'category_id', ci.category_id,
-                'item_id', ci.item_id,
-                'position', ci.position,
-                'created_at', ci.created_at,
-                'updated_at', ci.updated_at,
-                'item', row_to_json(i.*)
-              )), '[]'::JSON)
-              FROM category_items ci
-              JOIN items i ON ci.item_id = i.id
-              WHERE ci.category_id = c.id
-            )
-          )), '[]'::JSON)
-          FROM categories c
-          WHERE c.pack_id = pack.id
-        )
+  -- Fetch trip packs data using dynamic_trip_id along with associated pack details
+  SELECT (COALESCE(json_agg(
+    json_build_object(
+      'id', pack.id,
+      'name', pack.name,
+      'slug', pack.slug,
+      'created_at', pack.created_at,
+      'updated_at', pack.updated_at,
+      'profile_id', pack.profile_id,
+      'theme', pack.theme,
+      'private', pack.private,
+      'allow_comments', pack.allow_comments,
+      'categories', (
+        SELECT COALESCE(json_agg(json_build_object(
+          'id', c.id,
+          'created_at', c.created_at,
+          'name', c.name,
+          'unit', c.unit,
+          'slug', c.slug,
+          'pack_id', c.pack_id,
+          'updated_at', c.updated_at,
+          'category_items', (
+            SELECT COALESCE(json_agg(json_build_object(
+              'id', ci.id,
+              'category_id', ci.category_id,
+              'item_id', ci.item_id,
+              'position', ci.position,
+              'created_at', ci.created_at,
+              'updated_at', ci.updated_at,
+              'item', row_to_json(i.*)
+            )), '[]'::JSON)
+            FROM category_items ci
+            JOIN items i ON ci.item_id = i.id
+            WHERE ci.category_id = c.id
+          )
+        )), '[]'::JSON)
+        FROM categories c
+        WHERE c.pack_id = pack.id
       )
-    ), '[]'::JSON) -> 0) INTO trip_packs_data
-    FROM trip_packs tp
-    JOIN packs pack ON tp.pack_id = pack.id
-    WHERE tp.profile_id = auth.uid()
-      AND (p_trip_id = 0 OR tp.trip_id = dynamic_trip_id);
+    )
+  ), '[]'::JSON) -> 0) INTO trip_packs_data
+  FROM trip_packs tp
+  JOIN packs pack ON tp.pack_id = pack.id
+  WHERE tp.profile_id = auth.uid()
+    AND (p_trip_id = 0 OR tp.trip_id = dynamic_trip_id);
 
-    -- Fetch trip details data
-    SELECT COALESCE(json_agg(row_to_json(td.*)), '[]'::JSON) INTO trip_details_data
-    FROM trip_details td
-    WHERE td.trip_id = dynamic_trip_id;
+  -- Fetch trip details data
+  SELECT COALESCE(json_agg(row_to_json(td.*)), '[]'::JSON) INTO trip_details_data
+  FROM trip_details td
+  WHERE td.trip_id = dynamic_trip_id;
 
-    -- Fetch todos data
-    SELECT COALESCE(json_agg(row_to_json(todo.*)), '[]'::JSON) INTO todos_data
-      FROM todos todo
-      WHERE (todo.resource_type = 'USER' AND todo.profile_id = auth.uid()) 
-        OR (todo.resource_type = 'GROUP' AND todo.trip_id = dynamic_trip_id);
+  -- Fetch todos data
+  SELECT COALESCE(json_agg(row_to_json(todo.*)), '[]'::JSON) INTO todos_data
+    FROM todos todo
+    WHERE (todo.resource_type = 'USER' AND todo.profile_id = auth.uid()) 
+      OR (todo.resource_type = 'GROUP' AND todo.trip_id = dynamic_trip_id);
 
-    -- Fetch shopping items data
-    SELECT COALESCE(json_agg(row_to_json(si.*)), '[]'::JSON) INTO shopping_items_data
-      FROM shopping_list_items si
-      WHERE (si.resource_type = 'USER' AND si.profile_id = auth.uid()) 
-        OR (si.resource_type = 'GROUP' AND si.trip_id = dynamic_trip_id);
+  -- Fetch shopping items data
+  SELECT COALESCE(json_agg(row_to_json(si.*)), '[]'::JSON) INTO shopping_items_data
+    FROM shopping_list_items si
+    WHERE (si.resource_type = 'USER' AND si.profile_id = auth.uid()) 
+      OR (si.resource_type = 'GROUP' AND si.trip_id = dynamic_trip_id);
 
-    -- Fetch friends data with details from related tables
-    SELECT COALESCE(
-      jsonb_agg(
+  -- Fetch friends data with details from related tables
+  SELECT COALESCE(
+    jsonb_agg(
+      jsonb_set(
+        row_to_json(tf)::jsonb,
+        '{profile}',
         jsonb_set(
-          row_to_json(tf)::jsonb,
-          '{profile}',
-          jsonb_set(
-            row_to_json(p)::jsonb,
-            '{trip_pack}',
-            COALESCE((
-              SELECT jsonb_set(
-                row_to_json(tp)::jsonb,
-                '{pack}',
-                COALESCE((
-                  SELECT row_to_json(pk)::jsonb
-                  FROM packs pk
-                  WHERE pk.id = tp.pack_id
-                ), 'null'::jsonb),
-                true
-              )
-              FROM trip_packs tp
-              WHERE tp.profile_id = p.id
-                AND (dynamic_trip_id = 0 OR tp.trip_id = dynamic_trip_id)
-              LIMIT 1
-            ), 'null'::jsonb),
-            true
-          ),
+          row_to_json(p)::jsonb,
+          '{trip_pack}',
+          COALESCE((
+            SELECT jsonb_set(
+              row_to_json(tp)::jsonb,
+              '{pack}',
+              COALESCE((
+                SELECT row_to_json(pk)::jsonb
+                FROM packs pk
+                WHERE pk.id = tp.pack_id
+              ), 'null'::jsonb),
+              true
+            )
+            FROM trip_packs tp
+            WHERE tp.profile_id = p.id
+              AND (dynamic_trip_id = 0 OR tp.trip_id = dynamic_trip_id)
+            LIMIT 1
+          ), 'null'::jsonb),
           true
-        )
-      ), '[]'::jsonb
-    ) INTO friends_data
-    FROM trip_friends tf
-    JOIN profiles p ON tf.profile_id = p.id
-    WHERE tf.trip_id = dynamic_trip_id
-      AND tf.profile_id != auth.uid();
+        ),
+        true
+      )
+    ), '[]'::jsonb
+  ) INTO friends_data
+  FROM trip_friends tf
+  JOIN profiles p ON tf.profile_id = p.id
+  WHERE tf.trip_id = dynamic_trip_id
+    AND tf.profile_id != auth.uid();
 
-    -- Fetch poll data
-    SELECT json_build_object(
-      'id', p.id::integer,
-      'trip_id', p.trip_id::integer,
-      'profile_id', p.profile_id::uuid,
-      'question', (SELECT row_to_json(q.*) FROM questions q WHERE q.poll_id = p.id),
-      'answers', COALESCE((SELECT json_agg(row_to_json(a.*)) FROM answers a WHERE a.question_id = q.id), '[]'),
-      'votes', COALESCE((SELECT json_agg(row_to_json(pa.*)) FROM profile_answers pa WHERE pa.poll_id = p.id), '[]')
-    ) INTO poll_data
-    FROM polls p
-    JOIN questions q ON p.id = q.poll_id
-    WHERE p.trip_id = dynamic_trip_id
-    LIMIT 1;
+  -- Fetch poll data
+  SELECT json_build_object(
+    'id', p.id::integer,
+    'trip_id', p.trip_id::integer,
+    'profile_id', p.profile_id::uuid,
+    'question', (SELECT row_to_json(q.*) FROM questions q WHERE q.poll_id = p.id),
+    'answers', COALESCE((SELECT json_agg(row_to_json(a.*)) FROM answers a WHERE a.question_id = q.id), '[]'),
+    'votes', COALESCE((SELECT json_agg(row_to_json(pa.*)) FROM profile_answers pa WHERE pa.poll_id = p.id), '[]')
+  ) INTO poll_data
+  FROM polls p
+  JOIN questions q ON p.id = q.poll_id
+  WHERE p.trip_id = dynamic_trip_id
+  LIMIT 1;
 
-    -- Compute is_owner flag for the current user
-    SELECT EXISTS (
-      SELECT 1
-      FROM trip_friends
-      WHERE trip_id = dynamic_trip_id
-        AND profile_id = auth.uid()
-        AND role = 'OWNER'
-    ) INTO is_trip_owner;
+  -- Compute is_owner flag for the current user
+  SELECT EXISTS (
+    SELECT 1
+    FROM trip_friends
+    WHERE trip_id = dynamic_trip_id
+      AND profile_id = auth.uid()
+      AND role = 'OWNER'
+  ) INTO is_trip_owner;
 
-    -- Output the result
-    RETURN jsonb_build_object(
-      'trips', trips_data,
-      'pack', trip_packs_data,
-      'trip_details', trip_details_data,
-      'todos', todos_data,
-      'shopping_items', shopping_items_data,
-      'friends', friends_data,
-      'poll', poll_data,
-      'is_trip_owner', is_trip_owner
-    );
-    END;
+  -- Output the result
+  RETURN jsonb_build_object(
+    'trips', trips_data,
+    'pack', trip_packs_data,
+    'trip_details', trip_details_data,
+    'todos', todos_data,
+    'shopping_items', shopping_items_data,
+    'friends', friends_data,
+    'poll', poll_data,
+    'is_trip_owner', is_trip_owner
+  );
+  END;
 $function$
 
 ALTER FUNCTION "public"."get_planning_page_data"("p_trip_id" bigint) OWNER TO "postgres";
