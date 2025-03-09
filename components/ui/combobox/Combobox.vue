@@ -8,16 +8,19 @@
   interface Props {
     disabled?: boolean;
     loading?: boolean;
-    modelValue: string;
+    modelValue?: string;
     options: SelectOption[];
     placeholder?: string;
+    prependIcon?: any;
   }
 
   const emit = defineEmits(['update:modelValue', 'update:searchTerm']);
   const props = withDefaults(defineProps<Props>(), {
     disabled: false,
     loading: false,
+    modelValue: undefined,
     placeholder: 'Select an option',
+    prependIcon: undefined,
   });
 
   const open = ref(false);
@@ -40,10 +43,13 @@
     <popover-trigger as-child>
       <button-root
         :aria-expanded="open"
-        class="w-full justify-between"
+        :class="cn('w-full justify-between relative', props.prependIcon ? 'ps-9' : '', !value ? 'text-muted-foreground font-normal' : '')"
         :disabled="disabled"
         role="combobox"
         variant="outline">
+        <component
+          :is="prependIcon"
+          class="pointer-events-none absolute left-2.5 top-1/2 inline-block size-5 -translate-y-1/2 text-base text-foreground" />
         {{ selectedLabel }}
         <spinner-icon
           v-if="loading"

@@ -100,13 +100,13 @@ export default defineNuxtConfig({
       cloudinaryCloudName: process.env.NUXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
       cookieKey: process.env.NUXT_COOKIE_KEY,
       forumsUrl: process.env.NUXT_PUBLIC_FORUMS_URL,
+      radarAccessToken: process.env.NUXT_PUBLIC_RADAR_ACCESS_TOKEN,
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       supabaseKey: process.env.NUXT_PUBLIC_SUPABASE_KEY,
       supabaseUrl: process.env.NUXT_PUBLIC_SUPABASE_URL,
     },
     sendgridApiKey: process.env.NUXT_SENDGRID_API_KEY,
     stripeSecret: process.env.NUXT_STRIPE_SECRET,
-
     stripeWebhookSecret: process.env.NUXT_STRIPE_WEBHOOK_SECRET,
   },
 

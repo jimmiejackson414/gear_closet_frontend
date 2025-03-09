@@ -6,6 +6,7 @@
   import * as z from 'zod';
   import { IconBackpack, IconMapPin, IconText } from '#components';
   import { type Database, type TablesInsert, TripFriendRole } from '@/types';
+  import type { RadarPlace } from '@/components/planning/types/searchResult';
   import '@vuepic/vue-datepicker/dist/main.css';
 
   interface Props {
@@ -39,7 +40,7 @@
       .optional(),
   }));
 
-  const { handleSubmit, isFieldDirty, isSubmitting } = useForm({
+  const { handleSubmit, isFieldDirty, isSubmitting, setFieldValue } = useForm({
     validationSchema: formSchema,
   });
 
@@ -98,6 +99,64 @@
       isSubmitting.value = false;
     }
   });
+
+  const searchResults = ref<RadarPlace[]>([]);
+  const isSearching = ref(false);
+
+  /**
+   * Debounced search function
+   */
+  const RADAR_TOKEN = useRuntimeConfig().public.radarAccessToken;
+  const searchTrails = debounce(async (query: string) => {
+    if (!query || query.length < 3) {
+      searchResults.value = [];
+      return;
+    }
+
+    isSearching.value = true;
+    try {
+      const response = await fetch(
+        `https://api.radar.io/v1/search/autocomplete?` +
+          `query=${encodeURIComponent(query)}&` +
+          `limit=10&` +
+          `layers=place`,
+        {
+          headers: {
+            'Authorization': RADAR_TOKEN,
+          },
+        },
+      );
+      const data = await response.json();
+
+      console.log({ data });
+      searchResults.value = data.addresses?.map((place: any) => ({
+        context: [{
+          id: 'region',
+          text: place.state,
+        }, {
+          id: 'country',
+          text: place.country,
+        }],
+        country: place.country,
+        geometry: {
+          coordinates: [place.longitude, place.latitude],
+        },
+        id: place.placeLabel,
+        name: place.placeLabel,
+        place_name: `${place.placeLabel}, ${place.formattedAddress}`,
+        properties: {
+          category: place.layer || 'location',
+        },
+        state: place.state,
+        text: place.placeLabel,
+      })) || [];
+    } catch (error) {
+      console.error(error);
+      $appStore.notifyNegative('There was an error searching for locations.');
+    } finally {
+      isSearching.value = false;
+    }
+  }, 300);
 </script>
 
 <template>
@@ -120,10 +179,55 @@
             <form-item>
               <form-label>Trip Name</form-label>
               <form-control>
-                <input-root
-                  :disabled="isSubmitting"
+                <combobox
+                  v-bind="componentField"
+                  :loading="isSearching"
+                  :model-value="componentField.value"
+                  :options="searchResults.map((result: RadarPlace) => ({
+                    label: result.name,
+                    value: result.id,
+                    place_name: result.place_name,
+                    category: result.properties?.category || 'location',
+                    context: [{
+                      id: 'region',
+                      text: result.state
+                    }, {
+                      id: 'country',
+                      text: result.country
+                    }],
+                    coordinates: [result.geometry.coordinates[0], result.geometry.coordinates[1]]
+                  }))"
+                  placeholder="Search for a trail (e.g. Appalachian Trail)"
                   :prepend-icon="IconBackpack"
-                  v-bind="componentField" />
+                  @update:model-value="(value: string) => {
+                    console.log({ value });
+                    const selected = searchResults.find(r => r.id === value);
+                    if (!selected) return;
+
+                    // Set the trail name
+                    setFieldValue('name', selected.name);
+
+                    // Set description using context
+                    const description = [
+                      selected.layer || 'location',
+                      selected.state,
+                      selected.country
+                    ].filter(Boolean).join(', ');
+                    setFieldValue('description', description);
+
+                    // Set location
+                    const location = `${selected.name}, ${selected.state}`;
+                    setFieldValue('starting_point', location);
+                    setFieldValue('ending_point', location);
+                  }"
+                  @update:search-term="searchTrails">
+                  <template #option="{ option }">
+                    <div class="flex flex-col gap-0.5">
+                      <span class="font-medium">{{ option.label }}</span>
+                      <span class="text-xs text-muted-foreground">{{ option.place_name }}</span>
+                    </div>
+                  </template>
+                </combobox>
               </form-control>
             </form-item>
           </form-field>
@@ -138,6 +242,7 @@
               <form-control>
                 <input-root
                   :disabled="isSubmitting"
+                  placeholder="A 2,200 mile long hiking trail in the eastern United States"
                   :prepend-icon="IconText"
                   v-bind="componentField" />
               </form-control>
@@ -154,6 +259,7 @@
               <form-control>
                 <input-root
                   :disabled="isSubmitting"
+                  placeholder="Springer Mountain, Georgia"
                   :prepend-icon="IconMapPin"
                   v-bind="componentField" />
               </form-control>
@@ -170,6 +276,7 @@
               <form-control>
                 <input-root
                   :disabled="isSubmitting"
+                  placeholder="Katahdin, Maine"
                   :prepend-icon="IconMapPin"
                   v-bind="componentField" />
               </form-control>
