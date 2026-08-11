@@ -19,13 +19,12 @@ Revive the late-2024 / early-2025 Nuxt 3 stack toward current Nuxt 4. Do this in
 | VueUse | **14.4.0** | 14.x | Done (Phase 3) |
 | ESLint | **10.8.1** (`@nuxt/eslint` flat) | 10.x | Done (Phase 7) |
 | Vitest / `@nuxt/test-utils` | **4.1.10 / 4.1.0** | 4.x / 4.x | Done (Phase 7) |
-| Stripe | stripe-js 5 / stripe 17 (`@fixers/nuxt-stripe` **4.1.1**) | 9 / 22 | Deferred (needs fresh key) |
+| Stripe | stripe-js **5.10** / stripe **22.5** (`@fixers/nuxt-stripe` **4.1.1**) | 9 / 22 | Server done (Phase 10); stripe-js 9 blocked on module |
 | Zod | 3.x | 4.x | Deferred (vee-validate peers zod 3) |
 
 Also notable:
 
 - `crypto-js` replaced in Phase 6 (`@noble/ciphers` / `@noble/hashes` in `utils/encryption.ts`)
-- Stripe test key in `.env` is expired (known; CLI auth 401 on `pnpm dev`) — refresh before billing work
 - Optional: enable JWT signing keys in Supabase dashboard and set `NUXT_PUBLIC_SUPABASE_KEY` (publishable) + `NUXT_SUPABASE_SECRET_KEY`
 
 ---
@@ -50,8 +49,8 @@ Also notable:
 
 ### Known follow-ups (carried forward)
 
-- [ ] Stripe test secret in `.env` — refresh before billing (ops)
-- [ ] Unit tests need Pinia/`createTestingPinia` setup fixes → **dedicated PR**
+- [x] Stripe test secret in `.env` — refreshed (ops); server majors in Phase 10
+- [x] Unit tests need Pinia/`createTestingPinia` setup fixes → Done (Phase 10)
 - [x] Browserslist / `caniuse-lite` refreshed in Phase 1
 
 ---
@@ -119,8 +118,8 @@ Also notable:
 
 ### Deferred from Phase 6 → Remaining work
 
-- [ ] Stripe majors (blocked on fresh test key + module peer pins)
-- [ ] Zod 4, dinero 2, convert 7, uuid 14, echarts 6 + vue-echarts 8, vue-filepond 8
+- [x] Stripe server major (`stripe` 17→**22.5**) → Done on Phase 10 branch
+- [ ] Zod 4, dinero 2, convert 7, echarts 6 + vue-echarts 8
 - [ ] Safe patch/minors (ongoing)
 
 ---
@@ -165,15 +164,15 @@ Do these as **separate PRs** — not one mega upgrade.
 
 ### Ops / env (no code PR required)
 
-- [ ] Refresh Stripe **test secret** in `.env` (current key expired — blocks billing smoke + Stripe majors)
+- [x] Refresh Stripe **test secret** in `.env` (done)
 - [ ] Optional: Supabase JWT signing keys + `NUXT_SUPABASE_SECRET_KEY`
 
 ### High priority product / quality
 
 | PR | Scope | Notes |
 |---|---|---|
-| [ ] `fix: unit tests / Pinia setup` | Vitest specs + `@pinia/testing` | ~45 failing / 22 passing after Vitest 4; use `createTestingPinia` |
-| [ ] `chore: stripe majors` | `stripe` 17→22, `@stripe/stripe-js` 5→9 | Needs fresh key; `@fixers/nuxt-stripe` still peers stripe ^17 / stripe-js ^5 — may need module override/fork |
+| [x] `fix: unit tests / Pinia setup` | Vitest specs + `@pinia/testing` | Done on `phase-10_fix-unit-tests-pinia` — **67/67 passing** |
+| [x] `chore: stripe majors` | `stripe` 17→**22.5** | Basil: period fields via subscription items; `pnpm.overrides.stripe`; invoice `plan` → `description`. **`@stripe/stripe-js` stays 5.10** — module `@fixers/nuxt-stripe@4.1.1` breaks on stripe-js 9 types |
 
 ### Library majors (isolate)
 
@@ -200,7 +199,7 @@ Do these as **separate PRs** — not one mega upgrade.
 
 ## Phase 9 — Stability + safe bumps
 
-**Status:** In progress on branch `phase-9_stability-and-safe-bumps` (2026-08-11)
+**Status:** Done on branch `phase-9_stability-and-safe-bumps` (2026-08-11) ✅
 
 - [x] Pin `vue@3.5.41` (+ `pnpm.overrides`) to fix SSR `currentRenderingInstance.ce` white screen (duplicate Vue)
 - [x] Transpile `reka-ui`
@@ -208,6 +207,28 @@ Do these as **separate PRs** — not one mega upgrade.
 - [x] `uuid` **14.0.1** (dropped `@types/uuid`; package ships types)
 - [x] `vue-filepond` **8.0.0** + Vite 8 default-export interop in `GcAvatarUpload.vue`
 - [x] Safe minors: `dotenv` **17.4.2**, `sortablejs` **1.15.7**
+
+---
+
+## Phase 10 — Unit tests / Pinia + Stripe server major
+
+**Status:** Done on branch `phase-10_fix-unit-tests-pinia` (2026-08-11) ✅
+
+### Unit tests / Pinia
+
+- [x] Fix Vitest specs after reka/shadcn migration (`Button` / Dialog / Select slots / dropdowns)
+- [x] Shared `tests/unit/helpers.ts` with `createTestingPinia` + mount helpers
+- [x] Suite green: **67 passed / 0 failed** (was 45 failed / 22 passed)
+- [x] Minimal testids on `PackItemsTable` / `ClosetPackDetails` where selectors were missing
+
+### Stripe (`stripe` 17 → 22.5)
+
+- [x] Bump `stripe` **22.5.0** + `pnpm.overrides.stripe` so `@fixers/nuxt-stripe` does not keep nested 17
+- [x] Basil migration: read `current_period_*` from subscription **items** (`server/utils/stripe.ts`)
+- [x] Update create/update/get subscription handlers + webhook
+- [x] Invoice line display: `plan.nickname` → `description`
+- [ ] `@stripe/stripe-js` 5→9 — **blocked**: `@fixers/nuxt-stripe@4.1.1` types reference removed Elements APIs; keep **5.10.0** until module updates or we replace it
+- [ ] Manual billing smoke with refreshed test keys (subscribe / update PM / webhook)
 
 ### Explicitly out of scope for now
 
@@ -217,7 +238,7 @@ Do these as **separate PRs** — not one mega upgrade.
 
 ---
 
-## Completed PR sequence (Phases 0–8)
+## Completed PR sequence (Phases 0–10)
 
 1. [x] Baseline revive
 2. [x] Nuxt 3.15 → latest 3.x + safe minors
@@ -228,7 +249,8 @@ Do these as **separate PRs** — not one mega upgrade.
 7. [x] Domain: crypto-js → noble, datepicker 14
 8. [x] ESLint flat + Vitest 4
 9. [x] Phase 8 wrapup (bugs, dead deps, docs)
-10. [~] Phase 9 stability + uuid/filepond/safe minors (this branch)
+10. [x] Phase 9 stability + uuid/filepond/safe minors
+11. [x] Phase 10 unit tests / Pinia + Stripe server major
 
 ---
 
@@ -241,20 +263,19 @@ Do these as **separate PRs** — not one mega upgrade.
 | 3 Modules (esp. Supabase) | 1–3 days | ✅ |
 | 4 UI / Reka / shadcn | 3–7 days | ✅ |
 | 5 Tailwind 4 | 2–4 days | ✅ |
-| 6 Domain libraries | 1–2 days (+ Stripe later) | ✅ / Stripe deferred |
+| 6 Domain libraries | 1–2 days (+ Stripe later) | ✅ |
 | 7 Tooling | 1–2 days | ✅ |
 | 8 Wrapup | ~0.5–1 day | ✅ |
-| 9 Stability + safe bumps | ~0.5 day | In progress |
+| 9 Stability + safe bumps | ~0.5 day | ✅ |
+| 10 Unit tests + Stripe server | ~0.5–1 day | ✅ |
 | Remaining dedicated PRs | 2–5+ days spread | Open |
 
 ---
 
 ## Bottom line
 
-The **Nuxt 4 revival is complete** through tooling and wrapup. Next work is opportunistic or dedicated:
+The **Nuxt 4 revival is complete** through tooling, wrapup, unit tests, and Stripe Node 22. Next work is opportunistic or dedicated:
 
-1. Land Phase 9 (Vue pin / reka SSR fix + uuid 14 + filepond 8 + safe minors)
-2. Refresh Stripe test key → Stripe majors PR  
-3. Fix unit test Pinia setup  
-4. Isolated library majors (convert / dinero / echarts / Zod when ready)  
-5. Optional polish (`@theme`, `noUncheckedIndexedAccess`, ESLint warn debt)
+1. Manual Stripe billing smoke + optional `@stripe/stripe-js` 9 when `@fixers/nuxt-stripe` supports it (or replace the module)  
+2. Isolated library majors (convert / dinero / echarts / Zod when ready)  
+3. Optional polish (`@theme`, `noUncheckedIndexedAccess`, ESLint warn debt)

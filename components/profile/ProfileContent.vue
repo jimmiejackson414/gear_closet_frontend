@@ -424,7 +424,7 @@
                             v-for="invoice in subscriptionData.invoices"
                             :key="invoice.id"
                             class="flex justify-start items-center gap-8 mb-3">
-                            {{ dayjs.utc(invoice.created * 1000).format('MMM DD, YYYY') }} - ${{ (invoice.amount_paid / 100).toFixed(2) }} ({{ invoice.lines.data[0].plan?.nickname || 'N/A' }})
+                            {{ dayjs.utc(invoice.created * 1000).format('MMM DD, YYYY') }} - ${{ (invoice.amount_paid / 100).toFixed(2) }} ({{ invoice.lines.data[0]?.description || 'N/A' }})
                             <a
                               v-tippy="'Download Invoice'"
                               class="text-gray-400 hover:text-primary transition-colors duration-200 ease-in-out"

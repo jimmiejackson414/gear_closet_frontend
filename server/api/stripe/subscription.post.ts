@@ -66,6 +66,8 @@ export default defineEventHandler(async (event) => {
       });
     }
 
+    const period = getSubscriptionItemPeriod(stripeSubscription);
+
     // Save the subscription ID to your database
     const { data: sub, error: subscriptionError } = await supabase.from('subscriptions')
       .insert({
@@ -75,9 +77,9 @@ export default defineEventHandler(async (event) => {
         price_id: price.id,
         quantity: 1,
         cancel_at_period_end: false,
-        current_period_start: new Date(stripeSubscription.current_period_start * 1000)
+        current_period_start: new Date(period.current_period_start * 1000)
           .toISOString(),
-        current_period_end: new Date(stripeSubscription.current_period_end * 1000)
+        current_period_end: new Date(period.current_period_end * 1000)
           .toISOString(),
         ended_at: stripeSubscription.ended_at ? new Date(stripeSubscription.ended_at * 1000)
           .toISOString() : null,
