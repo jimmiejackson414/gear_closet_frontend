@@ -26,6 +26,11 @@
   const open = ref(false);
   const value = ref(props.modelValue);
 
+  // Watch for changes to modelValue prop
+  watch(() => props.modelValue, (newValue) => {
+    value.value = newValue;
+  }, { deep: true });
+
   const selectedLabel = computed(() => {
     const selectedOption = props.options.find(option => option.value === value.value);
     return selectedOption ? selectedOption.label : props.placeholder;
@@ -43,7 +48,7 @@
     <popover-trigger as-child>
       <button-root
         :aria-expanded="open"
-        :class="cn('w-full justify-between relative', props.prependIcon ? 'ps-9' : '', !value ? 'text-muted-foreground font-normal' : '')"
+        :class="cn('w-full justify-between relative font-normal', props.prependIcon ? 'ps-9' : '', !value ? 'text-muted-foreground' : '')"
         :disabled="disabled"
         role="combobox"
         variant="outline">

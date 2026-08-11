@@ -427,12 +427,16 @@
             </p>
           </li>
         </ol>
-        <p class="mb-4 text-sm">
+        <!-- <p class="mb-4 text-sm">
           Please visit the
           <nuxt-link to="/forums/guidelines">
             Forum Guidelines
           </nuxt-link> for
           additional guidelines regarding forum behavior.
+        </p> -->
+        <p class="mb-4 text-sm">
+          Please visit the Forum Guidelines for additional guidelines regarding
+          forum behavior.
         </p>
         <p class="mb-4 text-sm">
           The information and opinions expressed in materials posted by
@@ -714,7 +718,7 @@
         </p>
       </section>
     </div>
+    <scroll-to-top />
   </div>
-  <scroll-to-top />
 </template>
 

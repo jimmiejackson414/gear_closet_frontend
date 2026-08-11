@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  import { IconChevronUp } from '#build/components';
   // define props
   const props = defineProps({
     color: { default: 'blue-6', required: false, type: String },

@@ -1,24 +1,24 @@
-export interface RadarPlace {
+export interface RadarAddress {
+  borough: string;
+  city: string;
   country: string;
   countryCode: string;
   countryFlag: string;
+  county: string;
   distance: number;
   formattedAddress: string;
   geometry: {
     coordinates: [number, number];
     type: string;
-  };
-  id: string;
+  },
   latitude: number;
   layer: string;
   longitude: number;
-  name: string;
-  place_name: string;
+  neighborhood: string;
+  number: string;
   placeLabel: string;
-  properties: {
-    category: string;
-  };
+  postalCode: string;
   state: string;
   stateCode: string;
-  text: string;
+  street: string;
 }
