@@ -8,7 +8,7 @@
     AlertDialogOverlay,
     AlertDialogPortal,
     useForwardPropsEmits,
-  } from 'radix-vue';
+  } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<AlertDialogContentProps & { class?: HTMLAttributes['class'] }>();

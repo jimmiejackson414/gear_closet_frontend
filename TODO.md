@@ -13,7 +13,7 @@ Revive the late-2024 / early-2025 Nuxt 3 stack toward current Nuxt 4. Do this in
 | Node (`.nvmrc`) | 22 (verified **22.23.2**) | Nuxt 4.5 wants `^22.19 \|\| ^24.11 \|\| ≥26` | Low |
 | Nuxt | **4.5.2** | 4.5.2 | Done (Phase 2) |
 | Tailwind | 3.4 | 4.3 | High (defer) |
-| UI | `radix-vue` + `shadcn-nuxt` 0.11 | `reka-ui` + `shadcn-nuxt` 2.x | **Very high** (~113 files) |
+| UI | **`reka-ui` + `shadcn-nuxt` 2.8.2** | reka-ui + shadcn-nuxt 2.x | Done (Phase 4) |
 | Supabase module | **2.0.10** | 2.0.10 | Done (Phase 3) |
 | Pinia / `@pinia/nuxt` | **4.0.2 / 1.0.1** | 4.x / 1.x | Done (Phase 3) |
 | VueUse | **14.4.0** | 14.x | Done (Phase 3) |
@@ -189,25 +189,31 @@ npx nuxt@latest upgrade --dedupe --channel=v3
 
 **Effort:** 3–7 days  
 **Risk:** Very high  
-**Defer until:** Nuxt 4 is solid
+**Defer until:** Nuxt 4 is solid  
+**Status:** Done on branch `phase-4_ui-stack-upgrade` (2026-08-11)
 
-~113 files import `radix-vue` under `components/ui`.
+~113 files previously imported `radix-vue` under `components/ui`.
 
 ### Target end state
 
-- [ ] `radix-vue` → **`reka-ui`** ([migration guide](https://reka-ui.com/docs/guides/migration))
-- [ ] `shadcn-nuxt` 0.11 → **2.x**
-- [ ] Prefer regenerating components with `npx shadcn-vue@latest add …` over hand-editing every file
+- [x] `radix-vue` → **`reka-ui` 2.10.3** ([migration guide](https://reka-ui.com/docs/guides/migration))
+- [x] `shadcn-nuxt` 0.11 → **2.8.2**
+- [x] Mechanical migration (not full CLI regenerate) — preserves `*Root` barrels, Input/Textarea customizations, toast variants, Multiselect
 
-### Expect
+### Also done
 
-- Import renames (`radix-vue` → `reka-ui`)
-- `--radix-*` / `data-radix-*` → `--reka-*` / `data-reka-*`
-- Some form API changes (`v-model:checked` → `v-model`)
-- Regenerating toast may drop the `shallowRef` workaround in `use-toast.ts` (needed today because radix-vue `ToastProps` is too deep for Vue `Ref` unwrap / TS2589)
-- Drop `fixShadcnComponentDirs` in `nuxt.config.ts` and `components.ignore: ['ui/**']` once shadcn-nuxt no longer double-scans `components/ui`
+- [x] CSS `--radix-*` → `--reka-*` (tailwind accordion/collapsible, toast, select, multiselect, combobox)
+- [x] `v-model:checked` → `v-model` on delete-confirm dialogs
+- [x] Combobox: Multiselect search on `ComboboxInput`; Command `ignore-filter` + search emit on input
+- [x] Dropped `fixShadcnComponentDirs` (no same-name duplicates under shadcn-nuxt 2); kept `components.ignore: ['ui/**']` for barrel registration
+- [x] Added real [`lib/utils.ts`](lib/utils.ts) `cn()` helper (shadcn-nuxt 2 no longer aliases `@/lib/utils` to `.nuxt`)
+- [x] Select handlers accept Reka `AcceptableValue`
+- [x] Kept toast `shallowRef` workaround (still needed)
+- [x] `pnpm typecheck` / `pnpm lint` 0 errors; `/login` smoke
 
 **Do not** combine this with Tailwind 4 in the same PR.
+
+**Exit criteria:** reka-ui + shadcn-nuxt 2, app builds, core UI (dialogs/select/toast) works. ✅
 
 ---
 

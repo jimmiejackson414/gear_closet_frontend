@@ -1,24 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 
-/**
- * TEMP (remove in Phase 4 / shadcn-nuxt 2): shadcn-nuxt@0.11 registers UI via
- * addComponent() from index barrels (needed for renames like Button→ButtonRoot)
- * but also scans components/ui with extensions:[], which double-registers.
- * Strip that scan dir after shadcn runs. Nuxt config `hooks` would run too early.
- */
-function fixShadcnComponentDirs (_options: unknown, nuxt: any) {
-  nuxt.hook('components:dirs', (dirs: Array<string | { path?: string }>) => {
-    for (let i = dirs.length - 1; i >= 0; i -= 1) {
-      const dir = dirs[i];
-      const rawPath = typeof dir === 'string' ? dir : dir?.path;
-      const dirPath = rawPath?.replace(/\\/g, '/') ?? '';
-      if (dirPath.endsWith('/components/ui') || dirPath.endsWith('/components/ui/')) {
-        dirs.splice(i, 1);
-      }
-    }
-  });
-}
-
 export default defineNuxtConfig({
   // Nuxt 4 defaults to srcDir: 'app/'. Keep the existing root layout until we
   // intentionally migrate directories (optional; Nuxt usually auto-detects).
@@ -108,7 +89,6 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "shadcn-nuxt",
     "nuxt-lucide-icons",
-    fixShadcnComponentDirs,
   ],
 
   postcss: {

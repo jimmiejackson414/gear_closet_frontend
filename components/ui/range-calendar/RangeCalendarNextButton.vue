@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-  import { RangeCalendarNext, type RangeCalendarNextProps, useForwardProps } from 'radix-vue';
+  import { RangeCalendarNext, type RangeCalendarNextProps, useForwardProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
   import { buttonVariants } from '@/components/ui/button';
   import { cn } from '@/lib/utils';

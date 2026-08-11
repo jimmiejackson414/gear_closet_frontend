@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { type LabelProps, Label as UiLabel } from 'radix-vue';
+  import { type LabelProps, Label as UiLabel } from 'reka-ui';
   import { type HTMLAttributes, computed } from 'vue';
   import { cn } from '@/lib/utils';
 

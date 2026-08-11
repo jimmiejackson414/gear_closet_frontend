@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
   import { computed, type HTMLAttributes } from 'vue';
-  import { DropdownMenuItem, type DropdownMenuItemProps, useForwardProps } from 'radix-vue';
+  import { DropdownMenuItem, type DropdownMenuItemProps, useForwardProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DropdownMenuItemProps & { class?: HTMLAttributes['class'], inset?: boolean }>();

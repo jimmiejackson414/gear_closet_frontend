@@ -5,7 +5,7 @@
     ComboboxInput,
     ComboboxPortal,
     ComboboxRoot,
-  } from 'radix-vue';
+  } from 'reka-ui';
   import type { SelectOption } from '@/types/helpers';
 
   interface Props {
@@ -78,12 +78,13 @@
 
     <combobox-root
       v-model:open="open"
-      v-model:search-term="searchTerm"
       class="w-full"
       :model-value="modelValue">
       <!-- Input Box -->
       <combobox-anchor as-child>
-        <combobox-input as-child>
+        <combobox-input
+          v-model="searchTerm"
+          as-child>
           <div class="flex items-center pl-8 relative">
             <!-- Icon Slot -->
             <div
@@ -113,7 +114,7 @@
       <combobox-portal>
         <combobox-content>
           <command-list
-            class="bg-popover border data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 mt-2 outline-none rounded-md shadow-md text-popover-foreground w-[--radix-popper-anchor-width] z-[100]"
+            class="bg-popover border data-[side=bottom]:slide-in-from-top-2 data-[side=left]:slide-in-from-right-2 data-[side=right]:slide-in-from-left-2 data-[side=top]:slide-in-from-bottom-2 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95 data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 mt-2 outline-none rounded-md shadow-md text-popover-foreground w-[--reka-popper-anchor-width] z-[100]"
             position="popper">
             <command-empty v-if="!options.length">
               No options available

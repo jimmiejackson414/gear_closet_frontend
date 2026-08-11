@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
   import { computed, type HTMLAttributes } from 'vue';
-  import { ToastAction, type ToastActionProps } from 'radix-vue';
+  import { ToastAction, type ToastActionProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<ToastActionProps & { class?: HTMLAttributes['class'] }>();

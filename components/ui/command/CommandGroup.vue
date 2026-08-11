@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { ComboboxGroup, ComboboxLabel } from 'radix-vue';
-  import type { ComboboxGroupProps } from 'radix-vue';
+  import { ComboboxGroup, ComboboxLabel } from 'reka-ui';
+  import type { ComboboxGroupProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 

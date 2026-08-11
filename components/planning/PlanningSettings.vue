@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  import type { AcceptableValue } from 'reka-ui';
   import type { Tables } from '@/types';
   import type { SelectOption } from '@/types/helpers';
 
@@ -19,10 +20,10 @@
   /**
    * Handles selecting a trip and setting the cookie.
    */
-  const handleSelectTrip = async (value: string) => {
+  const handleSelectTrip = async (value: AcceptableValue) => {
     const cookie = useCookie('selectedTripId');
-    cookie.value = encrypt(value);
-    $store.selectedTripId = value;
+    cookie.value = encrypt(String(value));
+    $store.selectedTripId = String(value);
   };
 
   const emits = defineEmits<{

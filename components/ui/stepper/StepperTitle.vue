@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-  import { StepperTitle, useForwardProps } from 'radix-vue';
-  import type { StepperTitleProps } from 'radix-vue';
+  import { StepperTitle, useForwardProps } from 'reka-ui';
+  import type { StepperTitleProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 

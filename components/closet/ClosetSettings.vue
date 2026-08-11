@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  import type { AcceptableValue } from 'reka-ui';
   import type { SelectOption } from '@/types/helpers';
 
   const $store = useClosetStore();
@@ -8,7 +9,7 @@
 
   const defaultMode = ref<'create' | 'update'>('create');
   const mode = inject<Ref<'create' | 'update'>>('dialogMode', defaultMode);
-  const handleSelectPack = async (val: string) => {
+  const handleSelectPack = async (val: AcceptableValue) => {
     const cookie = useCookie('selectedPackId');
     const foundPack = $store.data.allPacks.find(p => p.id === Number(val));
     cookie.value = encrypt(foundPack?.id);

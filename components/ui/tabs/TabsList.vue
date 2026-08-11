@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { TabsList, type TabsListProps } from 'radix-vue';
+  import { TabsList, type TabsListProps } from 'reka-ui';
   import { type HTMLAttributes, computed } from 'vue';
   import { cn } from '@/lib/utils';
 

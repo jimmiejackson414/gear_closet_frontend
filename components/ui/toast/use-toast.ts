@@ -52,7 +52,7 @@ type Action =
   }
 
 /**
- * shallowRef (not ref): ToastProps from radix-vue is too deep for Vue's
+ * shallowRef (not ref): ToastProps from reka-ui is too deep for Vue's
  * Ref unwrap, which surfaces as TS2589 on assignments. We replace the
  * array wholesale anyway, so deep reactivity is unnecessary.
  */
