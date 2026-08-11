@@ -91,13 +91,13 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
           const supabase = useSupabaseClient<Database>();
 
           const { data: pageData, error } = await supabase
-            .rpc('get_closet_page_data', { p_pack_id: packId || 0 })
-            .returns<ClosetPageResponse>();
+            .rpc('get_closet_page_data', { p_pack_id: packId || 0 });
 
           if (error) throw new Error(error.message);
           if (!error && pageData) {
-            this.data.selectedPack = pageData.pack;
-            this.data.allPacks = pageData.packs || [];
+            const data = pageData as unknown as ClosetPageResponse;
+            this.data.selectedPack = data.pack;
+            this.data.allPacks = data.packs || [];
           }
         } catch (err: any) {
           $store.notifyNegative('An error occurred fetching the closet page.');
@@ -202,15 +202,16 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
         try {
           const supabase = useSupabaseClient<Database>();
 
-          const { data: updatedCategoryItems, error } = await supabase.from('category_items')
+          const { data: updatedCategoryItemsData, error } = await supabase.from('category_items')
             .upsert(payload)
-            .returns<ExtendedCategoryItem[]>()
             .select(`*, item:items(*)`);
 
-          if (error || !updatedCategoryItems) {
+          if (error || !updatedCategoryItemsData) {
             $appStore.notifyNegative('There was an error updating the category items.');
             return;
           }
+
+          const updatedCategoryItems = updatedCategoryItemsData as ExtendedCategoryItem[];
 
           // Check if all category_id values are the same (indicating a single category or multiple)
           const isSingleCategory = updatedCategoryItems.every(
@@ -292,7 +293,7 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
           const { data: updatedItem, error } = await supabase.from('items')
             .update({
               [key]: value,
-            })
+            } as any)
             .eq('id', item.id)
             .select();
 

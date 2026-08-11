@@ -64,7 +64,7 @@
 <template>
   <dialog-root :open="isOpen">
     <dialog-content
-      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      class="sm:max-w-[450px] lg:max-w-[650px] max-h-[90dvh]"
       @escape-key-down="emits('onClose')"
       @interact-outside="emits('onClose')">
       <dialog-header>
@@ -80,9 +80,9 @@
             id="accept-checkbox"
             :checked="acceptsConditions"
             @update:checked="acceptsConditions = $event" />
-          <div class="grid gap-1.5 leading-none">
+          <div class="gap-1.5 grid leading-none">
             <label
-              class="font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 text-sm"
+              class="peer-disabled:opacity-70 font-medium text-sm leading-none peer-disabled:cursor-not-allowed"
               for="accept-checkbox">
               I accept
             </label>

@@ -1,4 +1,4 @@
-<script lang='ts' setup>
+<script lang="ts" setup>
   import { type Database, type Tables, type TablesInsert, TripFriendStatus } from '@/types';
   import type { SelectOption } from '@/types/helpers';
 
@@ -30,19 +30,18 @@
     try {
       searching.value = true;
       const supabase = useSupabaseClient<Database>();
-      const { data: friends, error } = await supabase
+      // Nested `profile:profiles!profile_id(*)` select depth blows Volar (cascade: missing auto-imports).
+      const { data: friendsData, error } = await (supabase
         .from('friends')
         .select('*, profile:profiles!profile_id(*)')
         .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`, { referencedTable: 'profiles' })
-        .neq('profile_id', $store.selectedTrip?.profile_id)
-        .returns<FriendSearchResult[]>()
-        .limit(10);
+        .neq('profile_id', $store.selectedTrip?.profile_id ?? null)
+        .limit(10) as any) as { data: FriendSearchResult[] | null; error: unknown };
 
-      if (friends?.length && !error) {
-        // @ts-ignore
-        friendObjects.value = friends.map(f => f.profile as Tables<'profiles'>);
-        searchResults.value = friends.map(f => ({
-          label: friendlyUsername(f.profile as Tables<'profiles'>),
+      if (friendsData?.length && !error) {
+        friendObjects.value = friendsData.map(f => f.profile);
+        searchResults.value = friendsData.map(f => ({
+          label: friendlyUsername(f.profile),
           value: f.id,
           image: f.profile.image,
         }));
@@ -76,9 +75,11 @@
         .select();
 
       // send each friend a notification
-      const notificationsPayload = friendsToInvite.value.map(f => ({
+      // Pinia profile state is a deep supabase join type; erase before use.
+      const inviter = ($userStore as any).profile as Tables<'profiles'> | null;
+      const notificationsPayload = friendsToInvite.value.map((f: Tables<'profiles'>) => ({
         title: "You've been invited to a trip!",
-        content: `${friendlyUsername($userStore.profile)} invited you to a trip!`,
+        content: `${friendlyUsername(inviter)} invited you to a trip!`,
         read_on_date: null,
         profile_id: f.id,
         sender_id: user.value?.id,
@@ -102,7 +103,7 @@
   const friendsToInvite = shallowRef<Tables<'profiles'>[]>([]);
   const setFriendsPayload = (event: SelectOption[]) => {
     friendsToInvite.value = event.map((f: SelectOption) => {
-      return friendObjects.value.find((friend) => friend.id === f.value) as Tables<'profiles'>;
+      return friendObjects.value.find((friend: Tables<'profiles'>) => friend.id === f.value) as Tables<'profiles'>;
     })
       .filter(Boolean) as Tables<'profiles'>[];
   };

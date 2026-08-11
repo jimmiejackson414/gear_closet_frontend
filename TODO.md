@@ -75,7 +75,8 @@ Also notable:
 
 **Effort:** 1–3 days (with Phase 0)  
 **Risk:** Low  
-**Goal:** Close the 3.15 → last 3.x gap before Nuxt 4.
+**Goal:** Close the 3.15 → last 3.x gap before Nuxt 4.  
+**Status:** Done on branch `phase-1_update-nuxt` (2026-08-10)
 
 ```bash
 npx nuxt@latest upgrade --dedupe --channel=v3
@@ -83,10 +84,20 @@ npx nuxt@latest upgrade --dedupe --channel=v3
 
 ### Bump (compat-safe)
 
-- [ ] `@supabase/supabase-js`, `supabase` CLI
-- [ ] `@playwright/test`, `dayjs`, filepond plugins, `tsx`, `papaparse`
-- [ ] Remove or revisit the Vite `6.0.6` pin after Nuxt’s Vite settles
-- [ ] Pin `@nuxt/devtools` (stop using `"latest"`)
+- [x] `@supabase/supabase-js` → 2.112.2, `supabase` CLI → 2.113.0
+- [x] `@playwright/test` → 1.62.1, `dayjs` → 1.11.21, filepond patches, `tsx` → 4.23.12, `papaparse` → 5.5.4
+- [x] Removed Vite `6.0.6` pin (Nuxt 3.21 pulls Vite **7.3.6**)
+- [x] Pin `@nuxt/devtools` → `^3.4.1` (was `"latest"`)
+
+### Also done
+
+- [x] `nuxt` **3.15.0 → 3.21.11**
+- [x] `@vitejs/plugin-vue` → 6.0.8, `vue-tsc` → 2.2.12, `@types/node` → 22.x (Vite 7 peers)
+- [x] Bumped `compatibilityDate` to `2025-07-15`
+- [x] Refreshed `caniuse-lite` / browserslist
+- [x] Fixed ~50 typecheck breakages from Nuxt 3.21 + supabase-js typing (removed `.returns<T>()`, explicit callback types, vitest Vite plugin conflict)
+- [x] Simplified `watch` usage: root cause was Nuxt auto-imported `watch` losing overloads — fixed with explicit `import { watch } from 'vue'` (cookie watches use `() => cookie.value`). Revisit after Nuxt 4 (see Phase 2 step 7).
+- [x] Fixed Volar “Cannot find name `ref`/`useXStore`” / `@/` path errors: Vue Official **3.3.9** always uses `ts-plugin` (`hybridMode` is gone). Need `@vue/typescript-plugin@3.3.9` in generated tsconfig + restore `baseUrl: '.'` (do **not** override Nuxt `paths`). Also avoid broken `~/modules` types refs; keep vitest globals in `vitest-globals.d.ts`.
 
 ### Skip for now
 
@@ -97,7 +108,7 @@ npx nuxt@latest upgrade --dedupe --channel=v3
 - Stripe majors
 - `radix-vue` → `reka-ui`
 
-**Exit criteria:** Still Nuxt 3, green CI, no intentional product changes.
+**Exit criteria:** Still Nuxt 3, green CI, no intentional product changes. ✅ (`pnpm typecheck` / `pnpm lint` 0 errors; `/login` 200 on Nuxt 3.21.11)
 
 ---
 
@@ -121,6 +132,7 @@ npx nuxt@latest upgrade --dedupe --channel=v3
 4. [ ] Update `compatibilityDate`
 5. [ ] Confirm Node engine matches Nuxt 4.5 requirements
 6. [ ] Drop obsolete `build.transpile` entries if no longer needed
+7. [ ] **Simplify `watch` imports:** Nuxt 3.21 auto-imported `watch` loses overload inference (callback params become implicit `any`). We work around this with explicit `import { watch } from 'vue'` in affected SFCs (and `watch(() => cookie.value, …)` for `useCookie`). After Nuxt 4, re-check whether auto-imported `watch` infers again; if yes, remove those explicit imports.
 
 ### Module watchlist
 
@@ -171,6 +183,8 @@ npx nuxt@latest upgrade --dedupe --channel=v3
 - Import renames (`radix-vue` → `reka-ui`)
 - `--radix-*` / `data-radix-*` → `--reka-*` / `data-reka-*`
 - Some form API changes (`v-model:checked` → `v-model`)
+- Regenerating toast may drop the `shallowRef` workaround in `use-toast.ts` (needed today because radix-vue `ToastProps` is too deep for Vue `Ref` unwrap / TS2589)
+- Drop `fixShadcnComponentDirs` in `nuxt.config.ts` and `components.ignore: ['ui/**']` once shadcn-nuxt no longer double-scans `components/ui`
 
 **Do not** combine this with Tailwind 4 in the same PR.
 

@@ -22,22 +22,20 @@
         .from('friend_invitations')
         .select('*, sender:profiles!sender_id(*), recipient:profiles!recipient_id(*)')
         .eq('recipient_id', user.value!.id)
-        .eq('status', FriendRequestStatus.PENDING)
-        .returns<ExtendedFriendInvite[]>();
+        .eq('status', FriendRequestStatus.PENDING);
 
       if (requestsData?.length && !requestsError) {
-        requests.value = requestsData;
+        requests.value = requestsData as ExtendedFriendInvite[];
       }
 
       // Fetch current friends
       const { data: friendsData, error: friendsError } = await supabase
         .from('friends')
         .select('*, friend:profiles!friends_friend_id_fkey(*)')
-        .eq('profile_id', user.value!.id)
-        .returns<ExtendedFriend[]>();
+        .eq('profile_id', user.value!.id);
 
       if (friendsData?.length && !friendsError) {
-        currentFriends.value = friendsData;
+        currentFriends.value = friendsData as ExtendedFriend[];
       }
     } catch (err) {
       $appStore.notifyPositive('An error occurred while fetching the page.');
@@ -52,7 +50,7 @@
   };
 
   const handleDeclineRequest = (id: number) => {
-    requests.value.filter(r => r.id !== id);
+    requests.value.filter((r: ExtendedFriendInvite) => r.id !== id);
   };
 
   const showAllFriends = ref(false);
@@ -79,7 +77,7 @@
         const tsquery = searchQuery.value.replace(/ /g, '&');
         const { data, error } = await supabase
           .rpc('search_profiles', { search_query: tsquery })
-          .neq('id', user.value?.id)
+          .neq('id', user.value?.id ?? '')
           .select();
 
         if (!error) {

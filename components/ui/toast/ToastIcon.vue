@@ -2,7 +2,7 @@
   import { IconBadgeAlert } from '#components';
 
   const props = defineProps<{
-    icon?: typeof IconBadgeAlert | null;
+    icon?: Component | null;
   }>();
 
   const iconToRender = computed(() => props.icon || IconBadgeAlert);

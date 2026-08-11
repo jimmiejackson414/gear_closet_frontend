@@ -36,7 +36,7 @@
             )
           )
         `)
-        .eq('slug', $route.params.slug)
+        .eq('slug', Array.isArray($route.params.slug) ? $route.params.slug[0] : $route.params.slug)
         .order('created_at', { referencedTable: 'comments', ascending: false })
         .order('created_at', { referencedTable: 'comments.replies', ascending: false })
         .maybeSingle();
@@ -89,11 +89,10 @@
         `)
         .eq('id', data?.[0]?.id as number)
         .order('created_at', { referencedTable: 'replies', ascending: false })
-        .returns<ExtendedComment | undefined>()
         .maybeSingle();
 
       if (!comment || commentError) throw commentError;
-      ($store.data.selectedPack as PublicPack)?.comments?.unshift(comment);
+      ($store.data.selectedPack as PublicPack)?.comments?.unshift(comment as ExtendedComment);
       newCommentValue.value = undefined;
       $appStore.notifyPositive('Comment successfully added!');
     } catch (error) {

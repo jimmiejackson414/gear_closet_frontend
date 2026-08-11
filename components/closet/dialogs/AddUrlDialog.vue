@@ -34,7 +34,7 @@
 <template>
   <dialog-root :open="$store.dialogStates.addUrlDialog">
     <dialog-content
-      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      class="sm:max-w-[450px] lg:max-w-[650px] max-h-[90dvh]"
       @escape-key-down="handleClose"
       @interact-outside="handleClose">
       <dialog-header>
@@ -62,7 +62,7 @@
             rel="noopener noreferrer"
             target="_blank">
             <icon-external-link
-              class="duration-150 ease-expo h-6 transition w-6"
+              class="w-6 h-6 transition duration-150 ease-expo"
               :class="!isValidUrl ? 'cursor-not-allowed text-gray-300' : 'text-accent-alt cursor-pointer'" />
           </a>
         </div>

@@ -1,13 +1,15 @@
-<script lang='ts' setup>
-  const $store = useClosetStore();
+<script lang="ts" setup>
+  import { watch } from 'vue';
 
+  const $store = useClosetStore();
   const $route = useRoute();
+
   let identifier = 0;
   identifier = $route.query?.pack ? Number(decrypt($route.query.pack)) || 0 : identifier;
   await $store.fetchClosetPage(identifier);
 
   const $cookie = useCookie('selectedPackId');
-  watch($cookie, (newValue) => {
+  watch(() => $cookie.value, (newValue) => {
     if (newValue && !$route.query?.pack) {
       identifier = Number(decrypt(newValue)) || 0;
       $store.fetchClosetPage(identifier);

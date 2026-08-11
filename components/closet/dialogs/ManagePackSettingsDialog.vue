@@ -89,7 +89,7 @@
 <template>
   <dialog-root :open="$store.dialogStates.managePackSettingsDialog">
     <dialog-content
-      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      class="sm:max-w-[450px] lg:max-w-[650px] max-h-[90dvh]"
       @escape-key-down="$store.dialogStates.managePackSettingsDialog = false"
       @interact-outside="$store.dialogStates.managePackSettingsDialog = false">
       <dialog-header>
@@ -140,7 +140,7 @@
                         <span
                           v-for="color in theme.colors"
                           :key="color"
-                          class="border-1 border-white h-4 rounded-[3px] w-4"
+                          class="border-1 border-white rounded-[3px] w-4 h-4"
                           :style="{ backgroundColor: color }" />
                       </div>
                       {{ theme.label }}
@@ -157,7 +157,7 @@
           v-slot="{ value, handleChange }"
           name="private"
           :validate-on-blur="!isFieldDirty">
-          <form-item class="border flex justify-between items-center flex-row p-4 rounded-lg">
+          <form-item class="flex flex-row justify-between items-center p-4 border rounded-lg">
             <div class="space-y-0.5">
               <form-label class="text-base">
                 Private?
@@ -179,7 +179,7 @@
           v-slot="{ value, handleChange }"
           name="allow_comments"
           :validate-on-blur="!isFieldDirty">
-          <form-item class="border flex justify-between items-center flex-row p-4 rounded-lg">
+          <form-item class="flex flex-row justify-between items-center p-4 border rounded-lg">
             <div class="space-y-0.5">
               <form-label class="text-base">
                 Allow comments?
