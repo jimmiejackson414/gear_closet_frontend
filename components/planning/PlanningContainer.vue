@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+
   const $store = usePlanningStore();
   const $route = useRoute();
   const $cookie = useCookie('selectedTripId');

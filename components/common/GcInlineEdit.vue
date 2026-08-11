@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-  import { nextTick, ref, watch } from 'vue';
   import type { InputRoot } from '@/components/ui/input';
   import { cn } from '@/lib/utils';
 

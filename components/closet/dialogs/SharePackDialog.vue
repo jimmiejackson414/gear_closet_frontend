@@ -1,5 +1,4 @@
 <script lang='ts' setup>
-  import { useClipboard } from '@vueuse/core';
   import { IconLink } from '#components';
 
   const $store = useClosetStore();
