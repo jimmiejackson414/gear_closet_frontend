@@ -20,6 +20,17 @@ function fixShadcnComponentDirs (_options: unknown, nuxt: any) {
 }
 
 export default defineNuxtConfig({
+  // Nuxt 4 defaults to srcDir: 'app/'. Keep the existing root layout until we
+  // intentionally migrate directories (optional; Nuxt usually auto-detects).
+  srcDir: '.',
+  dir: {
+    app: 'app',
+  },
+
+  future: {
+    compatibilityVersion: 4,
+  },
+
   app: {
     head: {
       meta: [
@@ -161,6 +172,9 @@ export default defineNuxtConfig({
         // `@/` aliases and Nuxt globals fail in the IDE (CLI vue-tsc still works).
         baseUrl: '.',
         plugins: [{ name: '@vue/typescript-plugin' }],
+        // Nuxt 4 compat enables this by default (~90+ app errors). Opt out for now;
+        // re-enable and fix indexed access after the Nuxt 4 upgrade lands.
+        noUncheckedIndexedAccess: false,
       },
     },
   },
@@ -171,5 +185,5 @@ export default defineNuxtConfig({
     },
   },
 
-  compatibilityDate: "2025-07-15",
+  compatibilityDate: "2026-08-11",
 });

@@ -10,12 +10,12 @@ Revive the late-2024 / early-2025 Nuxt 3 stack toward current Nuxt 4. Do this in
 
 | Layer | Ours | Latest | Risk |
 |---|---|---|---|
-| Node (`.nvmrc`) | 22 | Nuxt 4.5 wants `^22.19 \|\| ^24.11 \|\| ≥26` | Low if patch bumped |
-| Nuxt | 3.15.0 | **4.5.2** (3.x still ~3.17–3.21) | **High / urgent** |
+| Node (`.nvmrc`) | 22 (verified **22.23.2**) | Nuxt 4.5 wants `^22.19 \|\| ^24.11 \|\| ≥26` | Low |
+| Nuxt | **4.5.2** | 4.5.2 | Done (Phase 2) |
 | Tailwind | 3.4 | 4.3 | High (defer) |
 | UI | `radix-vue` + `shadcn-nuxt` 0.11 | `reka-ui` + `shadcn-nuxt` 2.x | **Very high** (~113 files) |
-| Supabase module | 1.4.5 | 2.0.10 | Medium |
-| Pinia / `@pinia/nuxt` | 2.3 / 0.5 | 4.x / 1.x | Medium |
+| Supabase module | 1.4.5 | 2.0.10 | Medium (Phase 3) |
+| Pinia / `@pinia/nuxt` | 2.3 / 0.5 | 4.x / 1.x | Medium (Phase 3; vue-router 5 peer warns) |
 | ESLint | 8 + ts-eslint 6 | 9/10 + flat config | Medium |
 | Stripe | stripe-js 5 / stripe 17 | 9 / 22 | Medium–high |
 | Zod | 3.x | 4.x | Medium |
@@ -24,7 +24,8 @@ Revive the late-2024 / early-2025 Nuxt 3 stack toward current Nuxt 4. Do this in
 Also notable:
 
 - `crypto-js` is **deprecated** (used in `utils/encryption.ts`)
-- Vite is hard-pinned via `resolutions: { "vite": "6.0.6" }`
+- `pnpm.overrides.h3: 1.15.11` — keeps Nitro + `@nuxtjs/supabase` v1 on one `h3` type (clean install required after override)
+- Stripe test key in `.env` is expired (known; CLI auth 401 on `pnpm dev`)
 
 ---
 
@@ -116,32 +117,40 @@ npx nuxt@latest upgrade --dedupe --channel=v3
 
 **Effort:** 2–5 days  
 **Risk:** High / highest priority  
-**Goal:** Land on supported Nuxt 4.x.
+**Goal:** Land on supported Nuxt 4.x.  
+**Status:** Done on branch `phase-2_nuxt-4-migration` (2026-08-11)
 
 ### Steps
 
-1. [ ] On latest Nuxt 3, enable compatibility mode:
+1. [x] On latest Nuxt 3, enable compatibility mode:
    ```ts
    future: { compatibilityVersion: 4 }
    ```
-2. [ ] Fix breakages (data fetching defaults, shared types, directory/layout expectations)
-3. [ ] Upgrade:
-   ```bash
-   npx nuxt upgrade --dedupe
-   ```
-4. [ ] Update `compatibilityDate`
-5. [ ] Confirm Node engine matches Nuxt 4.5 requirements
-6. [ ] Drop obsolete `build.transpile` entries if no longer needed
-7. [ ] **Simplify `watch` imports:** Nuxt 3.21 auto-imported `watch` loses overload inference (callback params become implicit `any`). We work around this with explicit `import { watch } from 'vue'` in affected SFCs (and `watch(() => cookie.value, …)` for `useCookie`). After Nuxt 4, re-check whether auto-imported `watch` infers again; if yes, remove those explicit imports.
+2. [x] Fix breakages (data fetching defaults, shared types, directory/layout expectations)
+   - [x] Opt out of Nuxt 4 `noUncheckedIndexedAccess` for now (~90+ app errors); re-enable + fix later
+   - [x] Keep v3 directory layout: `srcDir: '.'` + `dir.app: 'app'`
+   - [x] Smoke-test under Nuxt 4.5.2: `/login` 200; auth pages redirect 302; `vue-tsc` 0 in-dev
+   - [x] Reviewed shared `useFetch('/api/profile')` across layouts — same URL/default key is intentional (shared profile cache)
+3. [x] Upgrade to **Nuxt 4.5.2** (`vue-router@5.2.0`, `vue-tsc@3.3.9`, `typescript@5.9.3`)
+4. [x] Update `compatibilityDate` → `2026-08-11`
+5. [x] Confirm Node engine — **22.23.2** satisfies Nuxt 4.5 (`^22.19 \|\| ^24.11 \|\| ≥26`)
+6. [x] Reviewed `build.transpile` (`vue-datepicker`, `echarts`, `zrender`, `tslib`) — keep for now
+7. [x] **Simplified `watch` imports:** Nuxt 4 auto-imported `watch` infers again — removed explicit `import { watch } from 'vue'` workarounds. Kept `watch(() => cookie.value, …)` for `useCookie` reactivity.
 
-### Module watchlist
+### Also done
 
-- `@nuxtjs/supabase` — plan v2 in Phase 3 (v1 may still install briefly)
-- `@nuxtjs/tailwindcss` 6.x — fine on Tailwind 3
-- `@pinia/nuxt` 0.5 — may need bump with Nuxt 4
+- [x] `pnpm.overrides.h3: 1.15.11` + clean `node_modules` so `#supabase/server` and Nitro share one `H3Event` type
+- [x] Coerced `GcInlineEdit` `$event` to `string | null` in hike/trip detail widgets
+- [x] `pnpm typecheck` / `pnpm lint` 0 errors on Nuxt 4.5.2
+
+### Module watchlist (carry to Phase 3)
+
+- `@nuxtjs/supabase` — plan v2 in Phase 3 (v1 still in use; h3 override is a stopgap)
+- `@vueuse/nuxt` 10 — peer wants `nuxt@^3` (bump in Phase 3)
+- `@pinia/nuxt` 0.5 / `pinia` 2.3 — `vue-router@5` peer wants Pinia 3/4
 - `shadcn-nuxt` 0.11 — careful bump later; don’t force UI rewrite here
 
-**Exit criteria:** Nuxt 4.x, app builds, auth + main pages work.
+**Exit criteria:** Nuxt 4.x, app builds, auth + main pages work. ✅
 
 ---
 

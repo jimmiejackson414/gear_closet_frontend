@@ -1,3 +1,4 @@
+import { computed, shallowRef, type Component, type ComputedRef, type VNode } from 'vue';
 import type { ToastProps } from '.';
 
 const TOAST_LIMIT = 5;
@@ -81,7 +82,7 @@ function dispatch (action: Action) {
     break;
 
   case actionTypes.UPDATE_TOAST:
-    toastsState.value = toastsState.value.map(t =>
+    toastsState.value = toastsState.value.map((t: ToasterToast) =>
       t.id === action.toast.id ? { ...t, ...action.toast } : t,
     );
     break;
@@ -93,12 +94,12 @@ function dispatch (action: Action) {
       addToRemoveQueue(toastId);
     }
     else {
-      toastsState.value.forEach((toast) => {
+      toastsState.value.forEach((toast: ToasterToast) => {
         addToRemoveQueue(toast.id);
       });
     }
 
-    toastsState.value = toastsState.value.map(t =>
+    toastsState.value = toastsState.value.map((t: ToasterToast) =>
       t.id === toastId || toastId === undefined
         ? {
           ...t,
@@ -113,7 +114,7 @@ function dispatch (action: Action) {
     if (action.toastId === undefined)
       toastsState.value = [];
     else
-      toastsState.value = toastsState.value.filter(t => t.id !== action.toastId);
+      toastsState.value = toastsState.value.filter((t: ToasterToast) => t.id !== action.toastId);
 
     break;
   }

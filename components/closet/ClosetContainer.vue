@@ -1,5 +1,4 @@
 <script lang="ts" setup>
-  import { watch } from 'vue';
 
   const $store = useClosetStore();
   const $route = useRoute();

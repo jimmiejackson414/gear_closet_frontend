@@ -6,7 +6,6 @@
     ComboboxPortal,
     ComboboxRoot,
   } from 'radix-vue';
-  import { computed, ref, watch } from 'vue';
   import type { SelectOption } from '@/types/helpers';
 
   interface Props {

@@ -120,7 +120,7 @@
           name="trip_name"
           placeholder="Trip Name"
           size="sm"
-          @update:model-value="updateTrip({ name: $event })">
+          @update:model-value="updateTrip({ name: $event as string | null })">
           <typography
             class="!font-black"
             variant="large">

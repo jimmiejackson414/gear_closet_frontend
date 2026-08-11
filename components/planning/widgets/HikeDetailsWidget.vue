@@ -97,7 +97,7 @@
           name="starting_point"
           placeholder="Ending point"
           size="sm"
-          @update:model-value="updateTrip({ starting_point: $event })">
+          @update:model-value="updateTrip({ starting_point: $event as string | null })">
           <typography
             class="!font-black"
             variant="large">
@@ -110,7 +110,7 @@
           name="ending_point"
           placeholder="Ending point"
           size="sm"
-          @update:model-value="updateTrip({ ending_point: $event })">
+          @update:model-value="updateTrip({ ending_point: $event as string | null })">
           <typography
             class="!font-black"
             variant="large">
@@ -124,7 +124,7 @@
           name="description"
           placeholder="Trip description"
           size="sm"
-          @update:model-value="updateTrip({ description: $event })">
+          @update:model-value="updateTrip({ description: $event as string | null })">
           <typography class="cursor-pointer text-grey">
             {{ $store.selectedTrip?.description }}
           </typography>
