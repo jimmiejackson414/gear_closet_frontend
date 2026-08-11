@@ -12,7 +12,7 @@ Revive the late-2024 / early-2025 Nuxt 3 stack toward current Nuxt 4. Do this in
 |---|---|---|---|
 | Node (`.nvmrc`) | 22 (verified **22.23.2**) | Nuxt 4.5 wants `^22.19 \|\| ^24.11 \|\| ≥26` | Low |
 | Nuxt | **4.5.2** | 4.5.2 | Done (Phase 2) |
-| Tailwind | 3.4 | 4.3 | High (defer) |
+| Tailwind | **4.3.3** (`@tailwindcss/vite`) | 4.3 | Done (Phase 5) |
 | UI | **`reka-ui` + `shadcn-nuxt` 2.8.2** | reka-ui + shadcn-nuxt 2.x | Done (Phase 4) |
 | Supabase module | **2.0.10** | 2.0.10 | Done (Phase 3) |
 | Pinia / `@pinia/nuxt` | **4.0.2 / 1.0.1** | 4.x / 1.x | Done (Phase 3) |
@@ -217,24 +217,32 @@ npx nuxt@latest upgrade --dedupe --channel=v3
 
 ---
 
-## Phase 5 — Tailwind 4 (optional / later)
+## Phase 5 — Tailwind 4
 
 **Effort:** 2–4 days  
 **Risk:** High  
-**Defer until:** UI + Nuxt 4 are stable
+**Status:** Done on branch `phase-5_taildwind-4-upgrade` (2026-08-11)
 
-Keep **Tailwind 3.4** for now.
+### Done
 
-### Why defer
+- [x] Dedicated PR / branch only (no Zod/Stripe/etc.)
+- [x] Removed `@nuxtjs/tailwindcss` + PostCSS Tailwind plugins
+- [x] Installed `tailwindcss@4.3.3` + `@tailwindcss/vite` + `tw-animate-css`
+- [x] Wired Nuxt via `css: ['~/assets/css/tailwind.css']` and `vite.plugins: [tailwindcss()]`
+- [x] Ran `@tailwindcss/upgrade` for template renames (`shadow-sm`→`shadow-xs`, `outline-none`→`outline-hidden`, etc.)
+- [x] Kept JS theme bridge via `@config '../../tailwind.config.ts'` (complex `hsl(var(--*))` + SVG backgrounds)
+- [x] Replaced `tailwindcss-animate` with `@import 'tw-animate-css'`
+- [x] Class dark mode: `@custom-variant dark` + `.dark { … }` tokens
+- [x] Replaced removed `resolveConfig` helper in [`utils/tailwind.ts`](utils/tailwind.ts)
+- [x] `pnpm typecheck` / `pnpm lint` 0 errors
+- [x] Smoke: `/login` 200; `/_nuxt/assets/css/tailwind.css` serves TW4 utilities (`bg-primary`, `outline-hidden`, `shadow-xs`, `tw-animate`)
 
-- Official `@nuxtjs/tailwindcss` Tailwind 4 path has been rocky
-- Recommended Nuxt approach is `@tailwindcss/vite` + CSS-first config
-- Current shadcn setup still uses `tailwind.config.ts` + `assets/css/tailwind.css`
+### Follow-up (optional)
 
-### When doing it
+- [ ] Full CSS `@theme` migration (drop JS `@config` bridge)
+- [ ] Visual regression pass on closet / planning / auth dialogs (manual)
 
-- [ ] Dedicated PR only
-- [ ] Visual regression pass on closet / planning / auth dialogs
+**Exit criteria:** Tailwind 4 via Vite plugin, app builds and styles load. ✅
 
 ---
 

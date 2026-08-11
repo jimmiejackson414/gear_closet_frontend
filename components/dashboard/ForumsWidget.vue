@@ -23,7 +23,7 @@
   <card class="p-4 px-8 rounded-3xl">
     <div class="flex justify-start items-center py-4">
       <icon-messages-square class="h-6 mr-6 text-primary dark:text-primary-foreground w-6" />
-      <p class="!font-bold text-base">
+      <p class="font-bold! text-base">
         Latest From The Community
       </p>
       <icon-lock
@@ -50,12 +50,12 @@
           <div
             v-for="category in data.categories"
             :key="category.id"
-            class="border border-gray-200 grid grid-cols-[auto,1fr] gap-4 items-center p-4 rounded-2xl">
+            class="border border-gray-200 grid grid-cols-[auto_1fr] gap-4 items-center p-4 rounded-2xl">
             <span
               class="h-3 rounded-full w-3"
               :style="{ backgroundColor: `#${category.color}` }" />
             <div class="flex justify-center flex-col">
-              <typography class="!font-bold">
+              <typography class="font-bold!">
                 {{ category.name }}
               </typography>
               <typography class="text-grey">

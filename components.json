@@ -10,6 +10,7 @@
     "cssVariables": true,
     "prefix": ""
   },
+
   "framework": "nuxt",
   "aliases": {
     "components": "@/components",

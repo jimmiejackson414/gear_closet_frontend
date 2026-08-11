@@ -32,7 +32,7 @@
     <div class="flex justify-between items-center mb-10">
       <div class="flex items-center">
         <icon-bar-chart-3 class="h-6 mr-6 text-primary dark:text-primary-light w-6" />
-        <typography class="!font-bold">
+        <typography class="font-bold!">
           Stats
         </typography>
       </div>

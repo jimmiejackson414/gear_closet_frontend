@@ -1,5 +1,15 @@
-@layer components {
-  .Vue-Toastification__toast--success.gc-toast {
+@utility Vue-Toastification__toast--success {
+  &.gc-toast {
+    @apply bg-white text-dark-grey border-l-[5px] border-positive items-center;
+
+    .Vue-Toastification__icon {
+      @apply fill-positive stroke-white w-8 h-8;
+    }
+  }
+}
+
+@utility gc-toast {
+  &.Vue-Toastification__toast--success {
     @apply bg-white text-dark-grey border-l-[5px] border-positive items-center;
 
     .Vue-Toastification__icon {
@@ -7,7 +17,7 @@
     }
   }
 
-  .Vue-Toastification__toast--error.gc-toast {
+  &.Vue-Toastification__toast--error {
     @apply bg-white text-dark-grey border-l-[5px] border-danger;
 
     .Vue-Toastification__icon {
@@ -15,7 +25,7 @@
     }
   }
 
-  .Vue-Toastification__toast--info.gc-toast {
+  &.Vue-Toastification__toast--info {
     @apply bg-white text-dark-grey border-l-[5px] border-info;
 
     .Vue-Toastification__icon {
@@ -23,7 +33,39 @@
     }
   }
 
-  .Vue-Toastification__toast.gc-toast .Vue-Toastification__close-button {
+  &.Vue-Toastification__toast .Vue-Toastification__close-button {
+    @apply text-dark-grey w-8 h-8;
+  }
+}
+
+@utility Vue-Toastification__toast--error {
+  &.gc-toast {
+    @apply bg-white text-dark-grey border-l-[5px] border-danger;
+
+    .Vue-Toastification__icon {
+      @apply fill-danger stroke-white w-8 h-8;
+    }
+  }
+}
+
+@utility Vue-Toastification__toast--info {
+  &.gc-toast {
+    @apply bg-white text-dark-grey border-l-[5px] border-info;
+
+    .Vue-Toastification__icon {
+      @apply fill-info stroke-white w-8 h-8;
+    }
+  }
+}
+
+@utility Vue-Toastification__toast {
+  &.gc-toast .Vue-Toastification__close-button {
+    @apply text-dark-grey w-8 h-8;
+  }
+}
+
+@utility Vue-Toastification__close-button {
+  .Vue-Toastification__toast.gc-toast & {
     @apply text-dark-grey w-8 h-8;
   }
 }

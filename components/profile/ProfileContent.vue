@@ -209,7 +209,7 @@
 
 <template>
   <div class="mx-auto py-8 w-full max-w-full lg:max-w-5xl">
-    <div class="gap-6 lg:gap-14 grid grid-cols-1 lg:grid-cols-[400px,1fr]">
+    <div class="gap-6 lg:gap-14 grid grid-cols-1 lg:grid-cols-[400px_1fr]">
       <client-only>
         <gc-avatar-upload
           :file="profileAvatar"
@@ -366,7 +366,7 @@
                 </div>
                 <div class="flex flex-col items-start gap-2">
                   <typography
-                    class="!font-bold"
+                    class="font-bold!"
                     variant="small">
                     Payment Methods
                   </typography>
@@ -398,7 +398,7 @@
                 </div>
                 <div>
                   <typography
-                    class="!font-bold"
+                    class="font-bold!"
                     variant="small">
                     Next Billing Date
                   </typography>
@@ -413,7 +413,7 @@
                     <accordion-item value="billing-history">
                       <accordion-trigger>
                         <typography
-                          class="!font-bold"
+                          class="font-bold!"
                           variant="small">
                           Billing History
                         </typography>
@@ -487,7 +487,7 @@
                 </div>
                 <separator />
                 <div class="flex flex-col items-start">
-                  <typography class="mb-2 !font-bold text-destructive">
+                  <typography class="mb-2 font-bold! text-destructive">
                     Danger Zone
                   </typography>
                   <button-root

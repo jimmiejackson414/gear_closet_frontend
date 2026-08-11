@@ -38,7 +38,7 @@
 
 <template>
   <div
-    class="flex flex-col h-full rounded-2xl shadow"
+    class="flex flex-col h-full rounded-2xl shadow-sm"
     :class="computedBorder">
     <div class="flex justify-center items-center flex-col pb-2 pt-4">
       <gc-pill
@@ -50,7 +50,7 @@
           [SubscriptionLevel.FREE]: 'warning' as const,
           [SubscriptionLevel.LIFE]: 'primary' as const,
         }[plan.value as keyof typeof SubscriptionLevel] || 'primary'" />
-      <p class="!font-bold mt-4 text-base-lg">
+      <p class="font-bold! mt-4 text-base-lg">
         {{ plan.value === SubscriptionLevel.FREE ? 'Free' : plan.price }}
       </p>
       <p class="text-sm">
@@ -58,7 +58,7 @@
       </p>
     </div>
     <hr class="bg-gray-200 border-0 h-px my-2">
-    <div class="flex flex-col flex-grow px-4 py-2">
+    <div class="flex flex-col grow px-4 py-2">
       <div
         v-for="(item, index) in plan.description"
         :key="`${plan.value}-${item}-${index}`"

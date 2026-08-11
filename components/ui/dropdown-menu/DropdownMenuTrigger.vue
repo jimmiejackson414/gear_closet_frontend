@@ -8,7 +8,7 @@
 
 <template>
   <dropdown-menu-trigger
-    class="outline-none"
+    class="outline-hidden"
     v-bind="forwardedProps">
     <slot />
   </dropdown-menu-trigger>

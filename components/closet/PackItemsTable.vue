@@ -139,7 +139,7 @@
               <table-head
                 class="p-0 w-8"
                 colspan="1">
-                <!-- <icon-grip-vertical class="!size-6 category-handle cursor-move ease-snap group-hover:opacity-100 opacity-0 stroke-1 text-muted-foreground transition" /> -->
+                <!-- <icon-grip-vertical class="size-6! category-handle cursor-move ease-snap group-hover:opacity-100 opacity-0 stroke-1 text-muted-foreground transition" /> -->
               </table-head>
               <table-head
                 class="font-bold px-0 py-2"
@@ -148,7 +148,7 @@
                   v-if="!$store.isPublicRoute"
                   data-testid="category-name"
                   hide-edit-btn
-                  input-classes="w-full max-w-[25rem]"
+                  input-classes="w-full max-w-100"
                   :model-value="category.name"
                   :name="`category_id_${category.id}`"
                   placeholder="Category Name"
@@ -197,7 +197,7 @@
                 :class="cn(
                   column.visible ? 'opacity-1' : 'opacity-0',
                   column.cellClass,
-                  { '!pr-2': column.value === 'actions', 'w-8': column.value === 'drag' },
+                  { 'pr-2!': column.value === 'actions', 'w-8': column.value === 'drag' },
                 )">
                 {{ column.label }}
               </table-head>
@@ -229,7 +229,7 @@
               <table-cell class="p-0">
                 <icon-grip-vertical
                   v-if="!$store.isPublicRoute"
-                  class="!size-6 cursor-move ease-snap group-hover:opacity-100 opacity-0 row-handle stroke-1 text-muted-foreground transition" />
+                  class="size-6! cursor-move ease-snap group-hover:opacity-100 opacity-0 row-handle stroke-1 text-muted-foreground transition" />
               </table-cell>
 
               <table-cell class="pl-0 pr-1 py-1">
@@ -240,17 +240,17 @@
                   :model-value="catItem.item.name"
                   :name="`item_name_${catItem.id}`"
                   size="sm"
-                  span-classes="min-w-[5rem]"
+                  span-classes="min-w-20"
                   @update:model-value="$store.updateItem(catItem.item, 'name', ($event as string | undefined), category.id)">
                   <typography
-                    :class="cn({ '!text-gray-400': !catItem.item.name })"
+                    :class="cn({ 'text-gray-400!': !catItem.item.name })"
                     variant="muted">
                     {{ catItem.item.name || 'Item Name' }}
                   </typography>
                 </gc-inline-edit>
                 <typography
                   v-else
-                  :class="cn({ '!text-gray-400': !catItem.item.name })"
+                  :class="cn({ 'text-gray-400!': !catItem.item.name })"
                   variant="muted">
                   {{ catItem.item.name || 'Item Name' }}
                 </typography>
@@ -264,15 +264,15 @@
                   :model-value="catItem.item.generic_type"
                   :name="`item_generic_type_${catItem.id}`"
                   size="sm"
-                  span-classes="min-w-[5rem]"
+                  span-classes="min-w-20"
                   @update:model-value="$store.updateItem(catItem.item, 'generic_type', ($event as string | undefined), category.id)">
-                  <typography :class="cn({ '!text-gray-400': !catItem.item.generic_type })">
+                  <typography :class="cn({ 'text-gray-400!': !catItem.item.generic_type })">
                     {{ catItem.item.generic_type || 'Item Description' }}
                   </typography>
                 </gc-inline-edit>
                 <typography
                   v-else
-                  :class="cn({ '!text-gray-400': !catItem.item.generic_type })">
+                  :class="cn({ 'text-gray-400!': !catItem.item.generic_type })">
                   {{ catItem.item.generic_type || 'Item Description' }}
                 </typography>
               </table-cell>
@@ -333,7 +333,7 @@
                     :model-value="catItem.item.weight"
                     :name="`item_weight_${catItem.id}`"
                     size="sm"
-                    span-classes="min-w-[3rem] justify-center !w-fit"
+                    span-classes="min-w-12 justify-center w-fit!"
                     @update:model-value="$store.updateItem(catItem.item, 'weight', ($event as Mass | undefined), category.id)">
                     <typography>
                       {{ catItem.item.weight }}
@@ -380,7 +380,7 @@
                     :model-value="catItem.item.price"
                     :name="`item_price_${catItem.id}`"
                     size="sm"
-                    span-classes="min-w-[2rem] !mx-auto justify-center"
+                    span-classes="min-w-8 mx-auto! justify-center"
                     @update:model-value="$store.updateItem(catItem.item, 'price', ($event as number | undefined), category.id)">
                     <typography>
                       ${{ catItem.item.price }}
@@ -401,7 +401,7 @@
                     :model-value="catItem.item.quantity"
                     :name="`item_quantity_${catItem.id}`"
                     size="sm"
-                    span-classes="min-w-[2rem] !mx-auto justify-center"
+                    span-classes="min-w-8 mx-auto! justify-center"
                     @update:model-value="$store.updateItem(catItem.item, 'quantity', ($event as number | undefined), category.id)">
                     <typography>
                       {{ catItem.item.quantity || 0 }}
@@ -415,7 +415,7 @@
 
               <!-- actions -->
               <table-cell class="p-1 pr-2">
-                <div class="grid grid-cols-[auto,auto] gap-1 justify-end items-center">
+                <div class="grid grid-cols-[auto_auto] gap-1 justify-end items-center">
                   <button-root
                     v-if="!$store.isPublicRoute"
                     v-tippy="{ content: 'Add/Modify URL', placement: 'top' }"
@@ -458,7 +458,7 @@
           </table-body>
 
           <!-- Totals Row -->
-          <table-body class="[&>tr]:last:border-b-0 bg-card border-t font-medium w-full">
+          <table-body class="last:[&>tr]:border-b-0 bg-card border-t font-medium w-full">
             <table-row
               class="font-bold"
               no-hover-effect>
@@ -475,7 +475,7 @@
                 class="px-0 py-2 text-center w-fit"
                 colspan="1">
                 <div class="flex justify-center items-center mx-auto p-0 text-center w-fit">
-                  <span class="min-w-[3rem]">
+                  <span class="min-w-12">
                     {{ calculateCategoryWeight(category) }}
                   </span>
                   <select-root
@@ -504,7 +504,7 @@
                   </select-root>
                   <typography
                     v-else
-                    class="!font-bold">
+                    class="font-bold!">
                     {{ category.unit }}
                   </typography>
                 </div>

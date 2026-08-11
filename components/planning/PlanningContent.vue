@@ -2,7 +2,7 @@
 </script>
 
 <template>
-  <div class="grid lg:grid-cols-[65%,35%] grid-cols-1 gap-6">
+  <div class="grid lg:grid-cols-[65%_35%] grid-cols-1 gap-6">
     <div class="flex flex-col space-y-6">
       <!-- Pack Widget -->
       <pack-widget />

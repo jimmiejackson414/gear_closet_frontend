@@ -1,4 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+import tailwindcss from '@tailwindcss/vite';
 
 export default defineNuxtConfig({
   // Nuxt 4 defaults to srcDir: 'app/'. Keep the existing root layout until we
@@ -61,14 +62,11 @@ export default defineNuxtConfig({
     },
   ],
 
+  // Tailwind 4 via Vite plugin (replaces @nuxtjs/tailwindcss)
+  css: ['~/assets/css/tailwind.css'],
+
   devServer: {
     port: 8000,
-    // https: {
-    //   key: fs.readFileSync('./localhost-key.pem')
-    //     .toString(),
-    //   cert: fs.readFileSync('./localhost.pem')
-    //     .toString(),
-    // },
   },
 
   devtools: {
@@ -82,7 +80,6 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/supabase',
     '@pinia/nuxt',
-    '@nuxtjs/tailwindcss',
     '@vueuse/nuxt',
     '@fixers/nuxt-stripe',
     '@nuxt/test-utils/module',
@@ -90,14 +87,6 @@ export default defineNuxtConfig({
     "shadcn-nuxt",
     "nuxt-lucide-icons",
   ],
-
-  postcss: {
-    plugins: {
-      'tailwindcss/nesting': {},
-      tailwindcss: {},
-      autoprefixer: {},
-    },
-  },
 
   runtimeConfig: {
     cloudinaryApiKey: process.env.NUXT_CLOUDINARY_API_KEY,
@@ -162,9 +151,7 @@ export default defineNuxtConfig({
   },
 
   vite: {
-    optimizeDeps: {
-      include: ['tailwind.config.ts'],
-    },
+    plugins: [tailwindcss()],
   },
 
   compatibilityDate: "2026-08-11",

@@ -127,7 +127,7 @@
   <div class="pb-8">
     <div>
       <div class="flex justify-start items-center">
-        <typography class="!font-bold">
+        <typography class="font-bold!">
           Friend Requests ({{ requests.length }})
         </typography>
         <button-root
@@ -159,8 +159,8 @@
 
     <div class="flex justify-center flex-col">
       <div>
-        <div class="grid grid-cols-[auto,1fr] gap-8 justify-start items-center">
-          <typography class="!font-bold">
+        <div class="grid grid-cols-[auto_1fr] gap-8 justify-start items-center">
+          <typography class="font-bold!">
             Find New Friends
           </typography>
           <input-root
@@ -214,7 +214,7 @@
 
     <div>
       <div class="flex justify-start items-center">
-        <typography class="!font-bold">
+        <typography class="font-bold!">
           All Friends ({{ currentFriends.length }})
         </typography>
         <button-root

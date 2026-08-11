@@ -17,7 +17,7 @@
         :fill="backgroundImage.fill"
         :width="500" />
     </div>
-    <div class="flex justify-end items-center flex-grow p-8">
+    <div class="flex justify-end items-center grow p-8">
       <div class="max-w-md w-full">
         <slot />
       </div>

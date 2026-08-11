@@ -104,7 +104,7 @@
 
 <template>
   <div class="bg-gray-50 duration-200 ease-snap my-4 px-8 py-4 rounded-2xl shadow-light hover:shadow-xl transition w-fit">
-    <div class="grid grid-cols-[auto,1fr] gap-4 items-center">
+    <div class="grid grid-cols-[auto_1fr] gap-4 items-center">
       <gc-avatar
         :initials="initials(friend.sender)"
         size="xl"

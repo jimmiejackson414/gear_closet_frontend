@@ -31,7 +31,7 @@
     class="cursor-pointer flex px-4 py-3 hover:bg-gray-100"
     :class="{ 'bg-primary-light/40': !notification?.read_on_date }"
     @mouseover="emit('markAsRead', notification)">
-    <div class="flex-shrink-0">
+    <div class="shrink-0">
       <div
         class="bg-center bg-cover bg-no-repeat h-11 rounded-full w-11"
         :style="computedImageSrc" />

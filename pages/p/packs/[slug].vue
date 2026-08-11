@@ -133,7 +133,7 @@
           </h1>
         </div>
         <card class="px-8 py-4 rounded-3xl">
-          <div class="grid lg:grid-cols-[1fr,auto,40%] grid-cols-1 gap-6">
+          <div class="grid lg:grid-cols-[1fr_auto_40%] grid-cols-1 gap-6">
             <closet-pack-chart />
             <separator orientation="vertical" />
             <closet-pack-details />
@@ -147,12 +147,12 @@
           :default-value="TableTabs.DETAILS">
           <tabs-list class="bg-background dark:bg-background border-b border-muted-foreground pb-0 rounded-none">
             <tabs-trigger
-              class="!shadow-none border-b-[3px] data-[state=active]:border-primary dark:data-[state=active]:border-primary-light dark:data-[state=inactive]:text-accent-light data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-none rounded-none hover:text-primary"
+              class="shadow-none! border-b-[3px] data-[state=active]:border-primary dark:data-[state=active]:border-primary-light dark:data-[state=inactive]:text-accent-light data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-hidden rounded-none hover:text-primary"
               :value="TableTabs.DETAILS">
               Details
             </tabs-trigger>
             <tabs-trigger
-              class="!shadow-none border-b-[3px] data-[state=active]:border-primary dark:data-[state=inactive]:text-accent-light data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-none rounded-none hover:text-primary"
+              class="shadow-none! border-b-[3px] data-[state=active]:border-primary dark:data-[state=inactive]:text-accent-light data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-hidden rounded-none hover:text-primary"
               :disabled="!$store.data.selectedPack?.allow_comments"
               :value="TableTabs.COMMENTS">
               Comments ({{ ($store.data.selectedPack as PublicPack)?.comments?.length || 0 }})
@@ -172,7 +172,7 @@
                 class="flex items-start flex-col max-w-6xl mx-auto px-6 py-6">
                 <textarea-root
                   v-model="newCommentValue"
-                  class="rounded-xl shadow-sm w-full disabled:bg-gray-100 disabled:pointer-events-none"
+                  class="rounded-xl shadow-xs w-full disabled:bg-gray-100 disabled:pointer-events-none"
                   :disabled="submitting"
                   placeholder="Add a comment" />
                 <div class="flex items-center gap-6 ml-auto my-2">
@@ -228,7 +228,7 @@
           </div>
         </alert-dialog-content>
       </alert-dialog>
-      <div class="blur-sm card card-main">
+      <div class="blur-xs card card-main">
         <div
           class="max-w-xl mx-auto p-4 md:p-6 w-full"
           role="status">
