@@ -38,9 +38,9 @@
 
 <template>
   <div
-    class="flex flex-col h-full rounded-2xl shadow-sm"
+    class="flex flex-col shadow-xs rounded-2xl h-full"
     :class="computedBorder">
-    <div class="flex justify-center items-center flex-col pb-2 pt-4">
+    <div class="flex flex-col justify-center items-center pt-4 pb-2">
       <gc-pill
         :copy="plan.value"
         size="sm"
@@ -50,15 +50,15 @@
           [SubscriptionLevel.FREE]: 'warning' as const,
           [SubscriptionLevel.LIFE]: 'primary' as const,
         }[plan.value as keyof typeof SubscriptionLevel] || 'primary'" />
-      <p class="font-bold! mt-4 text-base-lg">
+      <p class="mt-4 font-bold! text-base-lg">
         {{ plan.value === SubscriptionLevel.FREE ? 'Free' : plan.price }}
       </p>
       <p class="text-sm">
         {{ plan.priceSubtitle }}
       </p>
     </div>
-    <hr class="bg-gray-200 border-0 h-px my-2">
-    <div class="flex flex-col grow px-4 py-2">
+    <hr class="bg-gray-200 my-2 border-0 h-px">
+    <div class="flex flex-col px-4 py-2 grow">
       <div
         v-for="(item, index) in plan.description"
         :key="`${plan.value}-${item}-${index}`"
@@ -71,7 +71,7 @@
         </p>
       </div>
       <button-root
-        class="mt-auto self-center"
+        class="self-center mt-auto"
         :disabled="plan.buttonDisabled || (profile?.subscriptions[0]?.prices.identifier === plan.value)"
         size="sm"
         variant="secondary"

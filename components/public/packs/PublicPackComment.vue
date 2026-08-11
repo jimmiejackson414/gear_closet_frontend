@@ -163,7 +163,7 @@
       style="--depth: 0;">
       <li style="--nested: true">
         <div
-          class="comment flex gap-2 relative"
+          class="relative flex gap-2 comment"
           :class="{ 'pb-4': !replyingTo }">
           <gc-avatar
             class="mt-2 user"
@@ -173,8 +173,8 @@
           <div>
             <!-- body -->
             <div
-              class="comment__body p-4 rounded-xl w-fit"
-              :class="comment.profile_id === user?.id ? 'bg-primary-light/40' : 'bg-gray-200'">
+              class="p-4 rounded-xl w-fit comment__body"
+              :class="comment.profile_id === user?.sub ? 'bg-primary-light/40' : 'bg-gray-200'">
               <div class="flex justify-start items-center gap-4">
                 <p
                   class="font-bold text-sm"
@@ -189,7 +189,7 @@
               </div>
               <p
                 v-if="comment.deleted_at"
-                class="italic text-gray-400">
+                class="text-gray-400 italic">
                 This comment has been deleted
               </p>
               <p
@@ -201,15 +201,15 @@
             <!-- actions -->
             <div
               v-if="!!user"
-              class="comment__actions flex gap-2 pl-4 py-1">
+              class="flex gap-2 py-1 pl-4 comment__actions">
               <button
-                class="duration-150 ease-snap font-semibold text-dark-grey hover:text-dark-grey/75 text-sm transition-colors"
+                class="font-semibold text-dark-grey hover:text-dark-grey/75 text-sm transition-colors duration-150 ease-snap"
                 @click="[replyingTo = true]">
                 Reply
               </button>
               <button
-                v-if="user.id === comment.profile_id && !comment.deleted_at"
-                class="duration-150 ease-snap font-semibold text-danger hover:text-danger/75 text-sm transition-colors"
+                v-if="user?.sub === comment.profile_id && !comment.deleted_at"
+                class="font-semibold text-danger hover:text-danger/75 text-sm transition-colors duration-150 ease-snap"
                 @click="() => deleteComment(comment)">
                 Delete
               </button>
@@ -218,13 +218,13 @@
         </div>
         <div
           v-if="replyingTo"
-          class="flex items-start flex-col max-w-xl mt-4 pb-6 ps-17">
+          class="flex flex-col items-start mt-4 ps-17 pb-6 max-w-xl">
           <textarea-root
             v-model="newReplyValue"
-            class="rounded-xl shadow-xs w-full disabled:bg-gray-100 disabled:pointer-events-none"
+            class="disabled:bg-gray-100 shadow-xs rounded-xl w-full disabled:pointer-events-none"
             :disabled="submitting"
             placeholder="Add a reply" />
-          <div class="grid grid-cols-[1fr_auto_auto] gap-6 items-center my-2 w-full">
+          <div class="items-center gap-6 grid grid-cols-[1fr_auto_auto] my-2 w-full">
             <button-root
               class="justify-self-start text-muted-foreground"
               :disabled="submitting"
@@ -253,7 +253,7 @@
           <li
             v-for="reply in comment.replies"
             :key="reply.id">
-            <div class="comment flex gap-2 pb-4 relative">
+            <div class="relative flex gap-2 pb-4 comment">
               <gc-avatar
                 class="mt-2 user"
                 :initials="initials(reply.profile)"
@@ -262,8 +262,8 @@
               <div>
                 <!-- body -->
                 <div
-                  class="comment__body p-4 rounded-xl w-fit"
-                  :class="reply.profile_id === user?.id ? 'bg-primary-light/40' : 'bg-gray-200'">
+                  class="p-4 rounded-xl w-fit comment__body"
+                  :class="reply.profile_id === user?.sub ? 'bg-primary-light/40' : 'bg-gray-200'">
                   <div class="flex justify-start items-center gap-4">
                     <p
                       class="font-bold text-sm"
@@ -278,7 +278,7 @@
                   </div>
                   <p
                     v-if="reply.deleted_at"
-                    class="italic text-gray-400">
+                    class="text-gray-400 italic">
                     This reply has been deleted
                   </p>
                   <p v-else>
@@ -288,10 +288,10 @@
                 <!-- actions -->
                 <div
                   v-if="!!user && !reply.deleted_at"
-                  class="comment__actions flex gap-2 pl-4 py-1">
+                  class="flex gap-2 py-1 pl-4 comment__actions">
                   <button
-                    v-if="user.id === reply.profile_id"
-                    class="duration-150 ease-snap font-bold text-danger hover:text-danger/75 text-sm transition-colors"
+                    v-if="user?.sub === reply.profile_id"
+                    class="font-bold text-danger hover:text-danger/75 text-sm transition-colors duration-150 ease-snap"
                     @click="() => deleteReply(reply)">
                     Delete
                   </button>
@@ -312,7 +312,7 @@
 
   @container style(--depth: 0) {
     li:has(ul) > .comment {
-      @apply relative before:content-[''] before:absolute before:inset-s-[24px] before:bottom-0 before:w-0.5 before:bg-gray-300;
+      @apply before:bottom-0 before:absolute relative before:inset-s-6 before:bg-gray-300 before:w-0.5 before:content-[''];
 
       &:before {
         top: calc(var(--size) + 8px);
@@ -322,7 +322,7 @@
 
   @container style(--depth: 1) {
     li:has(ul) > .comment {
-      @apply relative before:content-[''] before:absolute before:inset-s-[12px] before:bottom-0 before:w-0.5 before:bg-gray-300;
+      @apply before:bottom-0 before:absolute relative before:inset-s-3 before:bg-gray-300 before:w-0.5 before:content-[''];
 
       &:before {
         top: calc(var(--size) + 8px);
@@ -332,11 +332,11 @@
 
   @container style(--depth: 1) {
     li:not(:last-child) {
-      @apply relative before:content-[''] before:absolute before:inset-s-[24px] before:top-0 before:bottom-0 before:w-0.5 before:bg-gray-300;
+      @apply before:top-0 before:bottom-0 before:absolute relative before:inset-s-6 before:bg-gray-300 before:w-0.5 before:content-[''];
     }
 
     li {
-      @apply relative before:content-[''] after:absolute after:inset-s-[24px] after:top-0 after:h-[28px] after:w-[22px] after:bg-gray-300 after:bg-transparent after:border-l-2 after:border-b-2 after:border-gray-300;
+      @apply after:top-0 after:absolute relative after:inset-s-6 after:bg-transparent after:border-gray-300 after:border-b-2 after:border-l-2 after:w-5.5 after:h-7 before:content-[''];
 
       &:after {
         border-end-start-radius: 10px;

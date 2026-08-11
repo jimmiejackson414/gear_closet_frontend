@@ -1,7 +1,5 @@
 declare module 'vue3-smooth-dnd';
 
-import '@tanstack/vue-table';
-
 // Type definitions for vue-virtual-scroller
 // Project: https://github.com/Akryum/vue-virtual-scroller/
 declare module 'vue-virtual-scroller' {
@@ -78,12 +76,4 @@ declare module 'vue-virtual-scroller' {
   }
 
   export default plugin;
-}
-
-
-declare module "@tanstack/vue-table" {
-  interface ColumnMeta {
-    headerClassName?: string;
-    cellClassName?: string;
-  }
 }

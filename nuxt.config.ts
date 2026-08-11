@@ -126,7 +126,7 @@ export default defineNuxtConfig({
   },
 
   stripe: {
-    publishableKey: process.env.NUXT_STRIPE_PUBLISHABLE_KEY,
+    publishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
   },
 
   supabase: {

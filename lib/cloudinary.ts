@@ -1,9 +1,8 @@
-import { Cloudinary } from '@cloudinary/url-gen';
 import type { Database, Tables } from '@/types';
 
 
 // export const cld = new Cloudinary({
-//   cloud: { cloudName: runtimeConfig.public.CLOUDINARY_CLOUD_NAME as string },
+//   cloud: { cloudName: runtimeConfig.public.cloudinaryCloudName as string },
 //   url: { secure: true },
 // });
 
@@ -11,7 +10,7 @@ export const buildImageSrc = (url: string) => {
   if (!url) return undefined;
 
   const runtimeConfig = useRuntimeConfig();
-  const cloudName = runtimeConfig.public.CLOUDINARY_CLOUD_NAME as string;
+  const cloudName = runtimeConfig.public.cloudinaryCloudName as string;
   return `https://res.cloudinary.com/${cloudName}/image/upload/${url}`;
 };
 

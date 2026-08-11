@@ -1,27 +1,26 @@
 # Gear Closet
 
 ## Included
-* [Nuxt 3](https://nuxt.com/)
+* [Nuxt 4](https://nuxt.com/)
 * [Vite](https://vitejs.dev)
-* [Typescript](https://v3.vuejs.org/guide/typescript-support.html)
-* [Vue Router](https://next.router.vuejs.org/guide/)
-* [Shadcn Vue](https://www.shadcn-vue.com/docs/introduction.html)
+* [TypeScript](https://www.typescriptlang.org/)
+* [Vue Router](https://router.vuejs.org/)
+* [Reka UI](https://reka-ui.com/) / [shadcn-vue](https://www.shadcn-vue.com/)
+* [Tailwind CSS 4](https://tailwindcss.com/)
 * [Pinia](https://pinia.vuejs.org)
-* [Eslint](https://eslint.vuejs.org)
+* [ESLint](https://eslint.org/) (flat config via `@nuxt/eslint`)
 
 ## Recommended IDE Setup
 
-[VSCode](https://code.visualstudio.com/) + [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur) + [TypeScript Vue Plugin (Volar)](https://marketplace.visualstudio.com/items?itemName=Vue.vscode-typescript-vue-plugin).
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vitejs.dev/config/).
+[VSCode](https://code.visualstudio.com/) / [Cursor](https://cursor.com/) + [Vue - Official](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (disable Vetur).
 
 ## Project Setup
 
 ```sh
 pnpm install
 ```
+
+Use Node matching `.nvmrc` (22.19+).
 
 ### Compile and Hot-Reload for Development
 
@@ -32,6 +31,7 @@ pnpm dev
 ### Type-Check, Compile and Minify for Production
 
 ```sh
+pnpm typecheck
 pnpm build
 ```
 
@@ -69,19 +69,13 @@ pnpm lint
 ### Generate Types
 
 ```sh
-pnpm typgen
+pnpm typegen
 ```
 
 ### Generate localhost certs
 
 ```sh
 pnpm cert
-```
-
-### Generate snaplet seeder
-
-```sh
-pnpm snaplet
 ```
 
 ## Other Resources

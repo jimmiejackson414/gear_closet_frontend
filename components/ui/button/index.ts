@@ -8,7 +8,7 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         default:
-          'bg-primary text-primary-foreground shadow-sm hover:bg-primary/90',
+          'bg-primary text-primary-foreground shadow-xs hover:bg-primary/90',
         accent:
           'bg-accent text-accent-foreground shadow-xs hover:bg-accent/90',
         destructive:
@@ -34,4 +34,4 @@ export const buttonVariants = cva(
   },
 );
 
-export type ButtonVariants = VariantProps<typeof buttonVariants>
+export type ButtonVariants = VariantProps<typeof buttonVariants>;
