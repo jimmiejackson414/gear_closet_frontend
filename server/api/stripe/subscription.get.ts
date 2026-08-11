@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
     const { data: customer, error } = await supabase
       .from('customers')
       .select('stripe_customer_id')
-      .eq('profile_id', user!.id)
+      .eq('profile_id', user!.sub)
       .maybeSingle();
 
     if (error || !customer) {

@@ -152,6 +152,8 @@ export default defineNuxtConfig({
   },
 
   supabase: {
+    // Database types live at project-root `types/index.ts` (not the v2 default path).
+    types: '~/types/index.ts',
     cookieOptions: {
       secure: process.env.NODE_ENV === 'production',
     },
@@ -159,7 +161,7 @@ export default defineNuxtConfig({
       login: '/login',
       callback: '/callback',
       exclude: ['/register', '/terms-and-conditions', '/forgot-password', '/p/packs/*'],
-      cookieRedirect: true,
+      saveRedirectToCookie: true,
     },
   },
 

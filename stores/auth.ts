@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
+import type { JwtPayload } from '@supabase/supabase-js';
 import type { RouteLocation } from 'vue-router';
-import type { User } from '@supabase/supabase-js';
 
 type State = {
   redirectRoute: Partial<RouteLocation> | null;
@@ -8,7 +8,7 @@ type State = {
 
 type Getters = {
   isAuthenticated(): boolean;
-  currentUser(): User | null;
+  currentUser(): JwtPayload | null;
 }
 
 type Actions = {

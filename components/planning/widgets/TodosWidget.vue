@@ -23,7 +23,7 @@
       const { data: newTodo, error } = await supabase.from('todos')
         .insert({
           completed: false,
-          profile_id: user.value?.id as string,
+          profile_id: user.value?.sub as string,
           resource_type: activeTab.value,
           title: 'New todo',
           trip_id: Number($store.selectedTripId),

@@ -14,18 +14,19 @@ Revive the late-2024 / early-2025 Nuxt 3 stack toward current Nuxt 4. Do this in
 | Nuxt | **4.5.2** | 4.5.2 | Done (Phase 2) |
 | Tailwind | 3.4 | 4.3 | High (defer) |
 | UI | `radix-vue` + `shadcn-nuxt` 0.11 | `reka-ui` + `shadcn-nuxt` 2.x | **Very high** (~113 files) |
-| Supabase module | 1.4.5 | 2.0.10 | Medium (Phase 3) |
-| Pinia / `@pinia/nuxt` | 2.3 / 0.5 | 4.x / 1.x | Medium (Phase 3; vue-router 5 peer warns) |
+| Supabase module | **2.0.10** | 2.0.10 | Done (Phase 3) |
+| Pinia / `@pinia/nuxt` | **4.0.2 / 1.0.1** | 4.x / 1.x | Done (Phase 3) |
+| VueUse | **14.4.0** | 14.x | Done (Phase 3) |
 | ESLint | 8 + ts-eslint 6 | 9/10 + flat config | Medium |
 | Stripe | stripe-js 5 / stripe 17 | 9 / 22 | Medium–high |
 | Zod | 3.x | 4.x | Medium |
-| Vitest | 1.6 | 4.x | Medium |
+| Vitest / `@nuxt/test-utils` | 1.6 / 3.x | 4.x / 4.x | Medium (Phase 7) |
 
 Also notable:
 
 - `crypto-js` is **deprecated** (used in `utils/encryption.ts`)
-- `pnpm.overrides.h3: 1.15.11` — keeps Nitro + `@nuxtjs/supabase` v1 on one `h3` type (clean install required after override)
 - Stripe test key in `.env` is expired (known; CLI auth 401 on `pnpm dev`)
+- Optional follow-up: enable JWT signing keys in Supabase dashboard and set `NUXT_PUBLIC_SUPABASE_KEY` (publishable) + `NUXT_SUPABASE_SECRET_KEY` (legacy anon key still works)
 
 ---
 
@@ -158,18 +159,29 @@ npx nuxt@latest upgrade --dedupe --channel=v3
 
 **Effort:** 1–3 days  
 **Risk:** Medium  
-**Goal:** Align ecosystem modules with Nuxt 4, one package at a time.
+**Goal:** Align ecosystem modules with Nuxt 4, one package at a time.  
+**Status:** Done on branch `phase-3_core-nuxt-modules-upgrade` (2026-08-11)
 
 | Package | Move | Notes | Done |
 |---|---|---|---|
-| `@nuxtjs/supabase` | 1 → **2** | `useSupabaseUser` becomes JWT **claims**, not full User; env keys toward publishable/secret | [ ] |
-| `@vueuse/nuxt` / `@vueuse/core` | 10 → 14 | Usually smooth; retest composables | [ ] |
-| `@pinia/nuxt` + `pinia` | → current majors | Align with Nuxt 4 peers | [ ] |
-| `@nuxtjs/color-mode` | 3 → 4 | Small surface | [ ] |
-| `@nuxt/test-utils` | 3 → 4 | Pair with Vitest bump in Phase 7 | [ ] |
-| `nuxt-lucide-icons` | 1 → 2 | Check `Icon*` naming | [ ] |
+| `@nuxtjs/supabase` | 1 → **2.0.10** | `useSupabaseUser` / `serverSupabaseUser` → JWT claims (`sub` not `id`); `cookieRedirect` → `saveRedirectToCookie`; `types: '~/types/index.ts'` | [x] |
+| `@vueuse/nuxt` / `@vueuse/core` | 10 → **14.4.0** | Peer now accepts Nuxt 4 | [x] |
+| `@pinia/nuxt` + `pinia` (+ `@pinia/testing`) | → **1.0.1 / 4.0.2 / 2.0.1** | Satisfies vue-router 5 peer | [x] |
+| `@nuxtjs/color-mode` | 3 → **4.0.1** | | [x] |
+| `@nuxt/test-utils` | 3 → 4 | Deferred — pair with Vitest bump in Phase 7 | [ ] deferred |
+| `nuxt-lucide-icons` | 1 → **2.1.0** (`@lucide/vue`) | `Icon*` prefix still works via `lucide.namePrefix` | [x] |
 
-**Regression focus:** `stores/auth.ts`, middleware, callback / redirect flows for Supabase v2.
+### Also done
+
+- [x] Migrated all supabase user id reads: `user.id` → `user.sub` (client + server)
+- [x] `stores/auth.ts` `currentUser` typed as `JwtPayload | null`
+- [x] Removed Phase 2 `pnpm.overrides.h3` stopgap (single `h3@1.15.11` after supabase v2)
+- [x] Updated `.env.example` notes for publishable / secret keys
+- [x] `pnpm typecheck` / `pnpm lint` 0 errors
+
+**Regression focus:** auth middleware, `/callback`, login redirect cookie (`saveRedirectToCookie`), and any code that assumed full `User` fields (`identities`, `last_sign_in_at`, etc. — none found in app code).
+
+**Exit criteria:** Modules aligned with Nuxt 4 peers; supabase auth flows work. ✅ (manual smoke of login/callback recommended before merge)
 
 ---
 

@@ -14,7 +14,7 @@
   const user = useSupabaseUser();
   const emits = defineEmits(['createAnswer', 'createVote']);
 
-  const hasVoted = computed(() => props.poll.votes.some(v => v.profile_id === user.value?.id));
+  const hasVoted = computed(() => props.poll.votes.some(v => v.profile_id === user.value?.sub));
   const totalVotes = computed(() => props.poll.votes.reduce((acc) => acc + 1, 0));
   const calcAnswers = computed(() => {
     if (totalVotes.value === 0) {
@@ -46,7 +46,7 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newVote, error } = await supabase.from('profile_answers')
         .insert({
-          profile_id: user.value?.id,
+          profile_id: user.value?.sub,
           answer_id: answer.id,
           poll_id: props.poll.id,
         })
@@ -74,7 +74,7 @@
         .insert({
           content: newAnswer.value,
           question_id: props.poll.question.id,
-          profile_id: user.value?.id,
+          profile_id: user.value?.sub,
         })
         .select();
 

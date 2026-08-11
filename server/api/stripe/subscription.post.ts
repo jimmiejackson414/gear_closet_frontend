@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
     // Fetch the user's profile from Supabase
     const { data: profile, error: profileError } = await supabase.from('profiles')
       .select('*')
-      .eq('id', user!.id)
+      .eq('id', user!.sub)
       .single();
 
     if (priceError || !price || profileError || !profile) {
@@ -42,7 +42,7 @@ export default defineEventHandler(async (event) => {
     const stripeCustomer = await stripe.customers.create({
       email: user!.email,
       name: `${profile.first_name} ${profile!.last_name}`,
-      metadata: { profile_id: user!.id },
+      metadata: { profile_id: user!.sub },
     });
 
     // Create the subscription in Stripe
@@ -55,7 +55,7 @@ export default defineEventHandler(async (event) => {
     const { data: customer, error: customerError } = await supabase.from('customers')
       .insert({
         stripe_customer_id: stripeCustomer.id,
-        profile_id: user!.id,
+        profile_id: user!.sub,
       })
       .select();
 
@@ -69,9 +69,9 @@ export default defineEventHandler(async (event) => {
     // Save the subscription ID to your database
     const { data: sub, error: subscriptionError } = await supabase.from('subscriptions')
       .insert({
-        profile_id: user!.id,
+        profile_id: user!.sub,
         status: SubscriptionStatus.active,
-        metadata: { profile_id: user!.id },
+        metadata: { profile_id: user!.sub },
         price_id: price.id,
         quantity: 1,
         cancel_at_period_end: false,

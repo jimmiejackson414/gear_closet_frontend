@@ -29,7 +29,7 @@
 
   const canAccessSettings = computed(() => {
     const user = useSupabaseUser();
-    return $store.data.poll?.profile_id === user.value?.id;
+    return $store.data.poll?.profile_id === user.value?.sub;
   });
 </script>
 

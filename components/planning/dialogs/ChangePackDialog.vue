@@ -37,7 +37,7 @@
       const { data: packs, error } = await supabase
         .from('packs')
         .select('*')
-        .eq('profile_id', user.value?.id as string);
+        .eq('profile_id', user.value?.sub as string);
 
       if (packs?.length && !error) {
         packOptions.value = packs.map(p => ({
@@ -98,7 +98,7 @@
         .insert([{
           trip_id: Number($store.selectedTripId),
           pack_id: selectedPackId.value,
-          profile_id: user.value?.id,
+          profile_id: user.value?.sub,
         }])
         .select();
 
@@ -128,7 +128,7 @@
       const { data: updatedTripPack, error } = await supabase.from('trip_packs')
         .update({ pack_id: selectedPackId.value })
         .eq('trip_id', Number($store.selectedTripId))
-        .eq('profile_id', user.value?.id as string)
+        .eq('profile_id', user.value?.sub as string)
         .select();
 
       if (error || !updatedTripPack.length) {
