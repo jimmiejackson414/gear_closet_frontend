@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
   import { computed, type HTMLAttributes } from 'vue';
-  import { RangeCalendarHeader, type RangeCalendarHeaderProps, useForwardProps } from 'radix-vue';
+  import { RangeCalendarHeader, type RangeCalendarHeaderProps, useForwardProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<RangeCalendarHeaderProps & { class?: HTMLAttributes['class'] }>();

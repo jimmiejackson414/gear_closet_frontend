@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
   import { computed, type HTMLAttributes } from 'vue';
-  import { ToastViewport, type ToastViewportProps } from 'radix-vue';
+  import { ToastViewport, type ToastViewportProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<ToastViewportProps & { class?: HTMLAttributes['class'] }>();

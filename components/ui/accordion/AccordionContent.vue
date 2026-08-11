@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
   import { computed, type HTMLAttributes } from 'vue';
-  import { AccordionContent, type AccordionContentProps } from 'radix-vue';
+  import { AccordionContent, type AccordionContentProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<AccordionContentProps & { class?: HTMLAttributes['class'] }>();

@@ -84,7 +84,7 @@
           <div class="flex items-center gap-x-2">
             <checkbox
               id="accept-checkbox"
-              v-model:checked="removeItemCheckbox"
+              v-model="removeItemCheckbox"
               variant="destructive" />
             <div class="flex items-center gap-1.5 leading-none">
               <label

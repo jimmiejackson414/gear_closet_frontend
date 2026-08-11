@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  import { ConfigProvider } from 'radix-vue';
+  import { ConfigProvider } from 'reka-ui';
   import type { Database } from '@/types';
 
   const supabase = useSupabaseClient<Database>();
@@ -9,7 +9,7 @@
     }
   });
 
-  // fixes SSR hydration issue with radix-vue
+  // fixes SSR hydration issue with reka-ui
   const ssrId = () => useId();
 
   useHead({

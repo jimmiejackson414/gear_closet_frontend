@@ -343,7 +343,7 @@
                     class="w-4"
                     :model-value="(catItem.item.unit as Mass)"
                     :name="`item_unit_${catItem.id}`"
-                    @update:model-value="$store.updateItem(catItem.item, 'unit', $event, category.id)">
+                    @update:model-value="$store.updateItem(catItem.item, 'unit', $event as Mass, category.id)">
                     <select-trigger class="border-0 justify-start w-fit">
                       <span>
                         {{ weightOptions({ shortLabel: true }).find(w => w.value === catItem.item.unit)?.label || 'Select Unit' }}

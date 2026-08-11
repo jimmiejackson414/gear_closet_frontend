@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { NumberFieldIncrement, useForwardProps } from 'radix-vue';
-  import type { NumberFieldIncrementProps } from 'radix-vue';
+  import { NumberFieldIncrement, useForwardProps } from 'reka-ui';
+  import type { NumberFieldIncrementProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 

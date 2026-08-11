@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { ComboboxEmpty } from 'radix-vue';
-  import type { ComboboxEmptyProps } from 'radix-vue';
+  import { ComboboxEmpty } from 'reka-ui';
+  import type { ComboboxEmptyProps } from 'reka-ui';
   import { type HTMLAttributes, computed } from 'vue';
   import { cn } from '@/lib/utils';
 

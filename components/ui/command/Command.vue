@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { ComboboxRoot, useForwardPropsEmits } from 'radix-vue';
-  import type { ComboboxRootEmits, ComboboxRootProps } from 'radix-vue';
+  import { ComboboxRoot, useForwardPropsEmits } from 'reka-ui';
+  import type { ComboboxRootEmits, ComboboxRootProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 

@@ -7,7 +7,7 @@
     type PopoverContentProps,
     PopoverPortal,
     useForwardPropsEmits,
-  } from 'radix-vue';
+  } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   defineOptions({

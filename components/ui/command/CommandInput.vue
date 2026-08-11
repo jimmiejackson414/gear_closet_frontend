@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { ComboboxInput, type ComboboxInputProps, useForwardProps } from 'radix-vue';
+  import { ComboboxInput, type ComboboxInputProps, useForwardProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 

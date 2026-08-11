@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { SelectScrollDownButton, type SelectScrollDownButtonProps, useForwardProps } from 'radix-vue';
+  import { SelectScrollDownButton, type SelectScrollDownButtonProps, useForwardProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 

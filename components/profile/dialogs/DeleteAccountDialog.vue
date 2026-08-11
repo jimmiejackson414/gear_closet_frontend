@@ -50,7 +50,7 @@
         <div class="flex items-top gap-x-2">
           <checkbox
             id="accept-checkbox"
-            v-model:checked="confirmDeleteAccount"
+            v-model="confirmDeleteAccount"
             variant="destructive" />
           <div class="grid gap-1.5 leading-none">
             <label

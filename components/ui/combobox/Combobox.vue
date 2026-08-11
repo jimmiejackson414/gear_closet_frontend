@@ -53,13 +53,12 @@
           :class="cn('h-4 ml-2 opacity-50 transform', open ? 'rotate-180' : 'rotate-0')" />
       </button-root>
     </popover-trigger>
-    <popover-content class="p-0 w-[--radix-popover-trigger-width]">
-      <command
-        :should-filter="false"
-        @update:search-term="emit('update:searchTerm', $event)">
+    <popover-content class="p-0 w-[--reka-popover-trigger-width]">
+      <command :ignore-filter="true">
         <command-input
           class="h-9"
-          placeholder="Search..." />
+          placeholder="Search..."
+          @update:model-value="emit('update:searchTerm', $event)" />
         <command-empty>No options found.</command-empty>
         <command-list>
           <command-group>

@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
   import { computed, type HTMLAttributes } from 'vue';
-  import { TabsContent, type TabsContentProps } from 'radix-vue';
+  import { TabsContent, type TabsContentProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<TabsContentProps & { class?: HTMLAttributes['class'] }>();

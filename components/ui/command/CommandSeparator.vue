@@ -1,8 +1,8 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
   import { computed, type HTMLAttributes } from 'vue';
-  import { ComboboxSeparator } from 'radix-vue';
-  import type { ComboboxSeparatorProps } from 'radix-vue';
+  import { ComboboxSeparator } from 'reka-ui';
+  import type { ComboboxSeparatorProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<ComboboxSeparatorProps & { class?: HTMLAttributes['class'] }>();

@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { TagsInputItem, type TagsInputItemProps, useForwardProps } from 'radix-vue';
+  import { TagsInputItem, type TagsInputItemProps, useForwardProps } from 'reka-ui';
   import { type HTMLAttributes, computed } from 'vue';
   import { cn } from '@/lib/utils';
 
