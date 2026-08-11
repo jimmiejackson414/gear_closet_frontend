@@ -56,16 +56,19 @@ export default defineEventHandler(async (event) => {
       items: [{ id: subscriptionItemId, price: price.id }],
     });
 
+    const period = getSubscriptionItemPeriod(updatedStripeSubscription);
+
     // Update the subscription in Supabase
     const { data: updatedSubscription, error: updatedSubscriptionError } = await supabase.from('subscriptions')
       .update({
         price_id: price.id,
-        current_period_start: new Date(updatedStripeSubscription.current_period_start)
+        current_period_start: new Date(period.current_period_start * 1000)
           .toISOString(),
-        current_period_end: new Date(updatedStripeSubscription.current_period_end)
+        current_period_end: new Date(period.current_period_end * 1000)
           .toISOString(),
-        ended_at: updatedStripeSubscription.ended_at ? new Date(updatedStripeSubscription.ended_at)
-          .toISOString() : null,
+        ended_at: updatedStripeSubscription.ended_at
+          ? new Date(updatedStripeSubscription.ended_at * 1000).toISOString()
+          : null,
         cancel_at_period_end: updatedStripeSubscription.cancel_at_period_end,
         stripe_subscription_id: updatedStripeSubscription.id,
       })

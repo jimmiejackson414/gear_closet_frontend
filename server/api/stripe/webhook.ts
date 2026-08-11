@@ -80,6 +80,8 @@ export default stripeWebhookHandler(async ( event, context ) => {
       const subscription = event.data.object;
       console.log('***** STRIPE EVENT: customer.subscription.created *****');
 
+      const period = getSubscriptionItemPeriod(subscription);
+
       const { data, error } = await supabase
         .from('subscriptions')
         .insert({
@@ -90,9 +92,9 @@ export default stripeWebhookHandler(async ( event, context ) => {
           price_id: subscription.items.data[0].price.id,
           quantity: subscription.items.data[0].quantity,
           cancel_at_period_end: subscription.cancel_at_period_end,
-          current_period_start: new Date(subscription.current_period_start * 1000)
+          current_period_start: new Date(period.current_period_start * 1000)
             .toISOString(),
-          current_period_end: new Date(subscription.current_period_end * 1000)
+          current_period_end: new Date(period.current_period_end * 1000)
             .toISOString(),
           cancel_at: subscription.cancel_at ? new Date(subscription.cancel_at * 1000)
             .toISOString() : null,
@@ -117,6 +119,8 @@ export default stripeWebhookHandler(async ( event, context ) => {
       const subscription = event.data.object;
       console.log('***** STRIPE EVENT: customer.subscription.updated *****');
 
+      const period = getSubscriptionItemPeriod(subscription);
+
       const { data, error } = await supabase
         .from('subscriptions')
         .update({
@@ -125,9 +129,9 @@ export default stripeWebhookHandler(async ( event, context ) => {
           price_id: subscription.items.data[0].price.id,
           quantity: subscription.items.data[0].quantity,
           cancel_at_period_end: subscription.cancel_at_period_end,
-          current_period_start: new Date(subscription.current_period_start * 1000)
+          current_period_start: new Date(period.current_period_start * 1000)
             .toISOString(),
-          current_period_end: new Date(subscription.current_period_end * 1000)
+          current_period_end: new Date(period.current_period_end * 1000)
             .toISOString(),
           cancel_at: subscription.cancel_at ? new Date(subscription.cancel_at * 1000)
             .toISOString() : null,
@@ -270,7 +274,7 @@ export default stripeWebhookHandler(async ( event, context ) => {
           unit_amount: price.unit_amount,
           currency: price.currency,
           type: price.type,
-          interval: price.recurring?.interval,
+          interval: price.recurring?.interval as 'day' | 'week' | 'month' | 'year' | undefined,
           interval_count: price.recurring?.interval_count,
           metadata: price.metadata,
           environment: price.livemode ? 'production' : 'test',
@@ -303,7 +307,7 @@ export default stripeWebhookHandler(async ( event, context ) => {
           unit_amount: price.unit_amount,
           currency: price.currency,
           type: price.type,
-          interval: price.recurring?.interval,
+          interval: price.recurring?.interval as 'day' | 'week' | 'month' | 'year' | undefined,
           interval_count: price.recurring?.interval_count,
           metadata: price.metadata,
           environment: price.livemode ? 'production' : 'test',

@@ -1,9 +1,9 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { describe, expect, it, vi } from 'vitest';
+import { friends, invitations, upcomingTrips } from './mocks/dashboard.mock';
 import UpcomingTripsWidget from '@/components/dashboard/UpcomingTripsWidget.vue';
 import FriendsWidget from '@/components/dashboard/FriendsWidget.vue';
 import InvitationsWidget from '@/components/dashboard/InvitationsWidget.vue';
-import { friends, invitations, upcomingTrips } from './mocks/dashboard.mock';
 
 vi.mock('@/utils/helpers', () => {
   const buildImageSrc = vi.fn((url: string) => url);
@@ -37,14 +37,15 @@ describe('Dashboard', async () => {
         },
       });
 
-      const gcButton = wrapper.findComponent({ name: 'GcButton' });
+      const button = wrapper.findComponent({ name: 'Button' });
+      const link = wrapper.findComponent({ name: 'NuxtLink' });
       expect(wrapper.text())
         .toContain('You don\'t have any upcoming trips yet!');
-      expect(gcButton.exists())
+      expect(button.exists())
         .toBe(true);
-      expect(gcButton.text())
+      expect(button.text())
         .toBe('Get Started');
-      expect(gcButton.props('to'))
+      expect(link.props('to'))
         .toEqual({ name: 'planning' });
     });
 
@@ -94,14 +95,17 @@ describe('Dashboard', async () => {
           loading: false,
         },
       });
-      const gcButton = wrapper.findComponent({ name: 'GcButton' });
+      const button = wrapper.findComponent({ name: 'Button' });
+      const getStartedLink = wrapper.findAllComponents({ name: 'NuxtLink' })
+        .find(l => l.find('button')
+          .exists());
       expect(wrapper.text())
         .toContain('You haven\'t connected with any friends yet!');
-      expect(gcButton.exists())
+      expect(button.exists())
         .toBe(true);
-      expect(gcButton.text())
+      expect(button.text())
         .toBe('Get Started');
-      expect(gcButton.props('to'))
+      expect(getStartedLink?.props('to'))
         .toEqual({ name: 'friends' });
     });
 

@@ -40,8 +40,10 @@ export default defineEventHandler(async (event) => {
       customer: customer.stripe_customer_id as string,
     });
 
-    // get the next billing date
-    const nextBillingDate = subscriptions.data[0]?.current_period_end ?? null;
+    // Billing period lives on the subscription item (Basil+), not the subscription
+    const nextBillingDate = subscriptions.data[0]
+      ? getSubscriptionItemPeriod(subscriptions.data[0]).current_period_end
+      : null;
 
     // fetch the payment methods
     const paymentMethods = await stripe.paymentMethods.list({

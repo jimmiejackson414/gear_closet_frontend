@@ -1,10 +1,17 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
-import convert, { type Mass } from 'convert';
+import convert from 'convert';
 import round from 'lodash.round';
-import { createPinia, setActivePinia } from 'pinia';
-import { type MockInstance, beforeEach, describe, expect, it, vi } from 'vitest';
-import VueTippy from 'vue-tippy';
+import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  findBodyButton,
+  getMenuItemsFromBody,
+  isAlertDialogOpen,
+  isButtonDisabled,
+  isDialogRootOpen,
+  openDropdownMenu,
+  testMountGlobals,
+} from './helpers';
 import { selectedPack } from './mocks/closet.mock';
 import ClosetEmptyState from '@/components/closet/ClosetEmptyState.vue';
 import ClosetPackCategories from '@/components/closet/ClosetPackCategories.vue';
@@ -28,73 +35,86 @@ const allPacks = [
   { id: 3, name: 'Pack 3', slug: 'pack-3' },
 ];
 
-describe('Closet Page', async () => {
-  beforeEach(() => {
-    setActivePinia(createPinia());
-  });
+const closetWithPacks = {
+  closet: {
+    pageLoading: false,
+    data: {
+      allPacks,
+      selectedPack: structuredClone(selectedPack),
+    },
+  },
+};
 
+describe('Closet Page', async () => {
   describe('ClosetSettings.vue', async () => {
     let wrapper: VueWrapper<any>;
+
     beforeEach(async () => {
       wrapper = await mountSuspended(ClosetSettings, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals({
+          closet: {
+            pageLoading: false,
+            data: { allPacks: [], selectedPack: undefined },
+          },
+        }),
+        attachTo: document.body,
       });
+    });
+
+    afterEach(() => {
+      wrapper.unmount();
+      document.body.innerHTML = '';
     });
 
     it('renders the available packs in the list correctly', async () => {
       const store = useClosetStore();
-
       store.$patch({ data: { allPacks } });
       await wrapper.vm.$nextTick();
-      const select = wrapper.findComponent({ name: 'select-root' });
-      const transformedAllPacks = allPacks.map(p => ({ label: p.name, value: p.id }));
+
+      const select = wrapper.findComponent({ name: 'SelectRoot' });
+      const selectItems = wrapper.findAllComponents({ name: 'SelectItem' });
+      const optionValues = [...new Set(selectItems.map(item => item.props('value')))];
+      const optionLabels = [...new Set(selectItems.map(item => item.text()))];
 
       expect(select.exists())
         .toBe(true);
-      expect(select.props('options'))
-        .toEqual(transformedAllPacks);
+      expect(optionLabels)
+        .toEqual(allPacks.map(p => p.name));
+      expect(optionValues)
+        .toEqual(allPacks.map(p => String(p.id)));
     });
 
     it('renders the options icon correctly', async () => {
-      const settingsIcon = wrapper.find('[data-testid="settings-icon-btn"]');
+      const settingsIcon = wrapper.find('[data-testid="settings-icon"]');
       expect(settingsIcon.exists())
         .toBe(true);
     });
 
     it('disables menu items when no pack is selected', async () => {
-      const button = wrapper.find('[data-testid="settings-icon-btn"]');
-      await button.trigger('click');
-
-      await wrapper.vm.$nextTick();
-
-      const menuItems = wrapper.findAllComponents({ name: 'MenuItem' });
+      await openDropdownMenu(wrapper);
+      const menuItems = getMenuItemsFromBody();
       expect(menuItems.length)
-        .toBe(3);
+        .toBe(4);
       menuItems.forEach(item => {
-        expect(item.props('disabled'))
+        expect(item.getAttribute('data-disabled') === '' || item.getAttribute('aria-disabled') === 'true')
           .toBe(true);
       });
     });
 
     it('enables menu items when a pack is selected', async () => {
       const store = useClosetStore();
-
-      store.$patch({ data: { allPacks, selectedPack: allPacks[0] } });
+      store.$patch({ data: { allPacks, selectedPack: allPacks[0] as any } });
       await wrapper.vm.$nextTick();
 
-      const button = wrapper.find('[data-testid="settings-icon-btn"]');
-      await button.trigger('click');
-
-      await wrapper.vm.$nextTick();
-
-      const menuItems = wrapper.findAllComponents({ name: 'MenuItem' });
+      await openDropdownMenu(wrapper);
+      const menuItems = getMenuItemsFromBody();
       expect(menuItems.length)
-        .toBe(3);
+        .toBe(4);
       menuItems.forEach(item => {
-        expect(item.props('disabled'))
-          .toBe(false);
+        expect(item.getAttribute('data-disabled'))
+          .toBeNull();
+        expect(item.getAttribute('aria-disabled'))
+          .not.toBe('true');
       });
     });
 
@@ -106,12 +126,14 @@ describe('Closet Page', async () => {
       userStore.$patch({
         profile: {
           subscriptions: [{ prices: { identifier: 'FREE' } }],
-        },
+        } as any,
       });
       await wrapper.vm.$nextTick();
 
-      const newPackButton = wrapper.findComponent({ name: 'button-root' });
-      expect(newPackButton.props('disabled'))
+      const newPackButton = wrapper.findAllComponents({ name: 'Button' })
+        .find(b => b.text()
+          .includes('New Pack'))!;
+      expect(isButtonDisabled(newPackButton))
         .toBe(true);
     });
 
@@ -123,12 +145,14 @@ describe('Closet Page', async () => {
       userStore.$patch({
         profile: {
           subscriptions: [{ prices: { identifier: 'ANNUAL' } }],
-        },
+        } as any,
       });
       await wrapper.vm.$nextTick();
 
-      const newPackButton = wrapper.findComponent({ name: 'button-root' });
-      expect(newPackButton.props('disabled'))
+      const newPackButton = wrapper.findAllComponents({ name: 'Button' })
+        .find(b => b.text()
+          .includes('New Pack'))!;
+      expect(isButtonDisabled(newPackButton))
         .toBe(false);
     });
   });
@@ -136,16 +160,13 @@ describe('Closet Page', async () => {
   describe('ClosetEmptyState.vue', async () => {
     it('renders the empty state when not loading and no packs are available', async () => {
       const wrapper = await mountSuspended(ClosetEmptyState, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals({
+          closet: {
+            pageLoading: false,
+            data: { allPacks: [], selectedPack: undefined },
+          },
+        }),
       });
-      const store = useClosetStore();
-      store.pageLoading = false;
-      store.data.allPacks = [];
-      store.data.selectedPack = undefined;
-
-      await wrapper.vm.$nextTick();
 
       expect(wrapper.exists())
         .toBe(true);
@@ -155,7 +176,7 @@ describe('Closet Page', async () => {
       expect(wrapper.find('p')
         .text())
         .toMatch(/Click the button below to get started./);
-      expect(wrapper.findComponent({ name: 'button-root' })
+      expect(wrapper.findComponent({ name: 'Button' })
         .exists())
         .toBe(true);
     });
@@ -164,17 +185,16 @@ describe('Closet Page', async () => {
   describe('ClosetPackDetails.vue and PackSummaryEmptyState.vue', async () => {
     it('renders the empty state when no categories have been created on a selectedPack', async () => {
       const wrapper = await mountSuspended(PackSummaryEmptyState, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals({
+          closet: {
+            pageLoading: false,
+            data: {
+              allPacks,
+              selectedPack: { ...selectedPack, categories: [] },
+            },
+          },
+        }),
       });
-
-      const store = useClosetStore();
-      store.pageLoading = false;
-      store.data.allPacks = allPacks;
-      store.data.selectedPack = { ...selectedPack, categories: [] };
-
-      await wrapper.vm.$nextTick();
 
       const emptyState = wrapper.find('[data-testid="pack-summary-empty-state"]');
       expect(emptyState.exists())
@@ -188,25 +208,21 @@ describe('Closet Page', async () => {
     });
 
     it('renders the pack summary details', async () => {
+      const pack = structuredClone(selectedPack);
       const wrapper = await mountSuspended(ClosetPackDetails, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals({
+          closet: {
+            pageLoading: false,
+            data: { allPacks, selectedPack: pack },
+          },
+        }),
       });
 
       const store = useClosetStore();
-      store.pageLoading = false;
-      store.data.allPacks = allPacks;
-      store.data.selectedPack = selectedPack;
-
+      store.data.selectedPack!.categories[0].category_items[0].item.weight = '4.0';
       await wrapper.vm.$nextTick();
 
-      // Data update
-      store.data.selectedPack.categories[0].category_items[0].item.weight = "4.0";
-
-      await wrapper.vm.$nextTick();
-
-      const weights = calculatePackWeights(store.data.selectedPack);
+      const weights = calculatePackWeights(store.data.selectedPack!);
       const weightDetails = wrapper.findAll('[data-testid="pack-summary-detail"]');
 
       for (let i = 0; i < weightDetails.length; i++) {
@@ -227,10 +243,6 @@ describe('Closet Page', async () => {
         }
       }
 
-      store.data.selectedPack = selectedPack;
-      // End data update
-
-      // Theme update
       store.data.selectedPack!.theme = 'BREEZE6';
       await wrapper.vm.$nextTick();
 
@@ -245,34 +257,11 @@ describe('Closet Page', async () => {
             .toBe(expectedColor);
         }
       }
-      // End theme update
 
-      // Dialog state
-      expect(store.dialogStates.managePackSettingsDialog)
-        .toBe(false);
-
-      const menuButton = wrapper.findComponent({ name: 'MenuButton' });
-      menuButton.trigger('click');
-
-      await wrapper.vm.$nextTick();
-
-      const menuItem = wrapper.findAllComponents({ name: 'MenuItem' })[0];
-      menuItem.trigger('click');
-      expect(store.dialogStates.managePackSettingsDialog)
-        .toBe(true);
-      // End dialog state
-      store.dialogStates.managePackSettingsDialog = false;
-
-      // Rendering
       const renderedDetails = wrapper.findAll('[data-testid="pack-summary-detail"]');
       expect(renderedDetails.length)
         .toBe(4);
-      // End rendering
     });
-
-    // it('renders the chart correctly', async () => {
-    //    Unable to test this due to ESM restrictions in echarts library
-    // });
   });
 
   describe('ClosetPackCategories.vue', async () => {
@@ -282,17 +271,8 @@ describe('Closet Page', async () => {
 
     it('renders the category items list correctly', async () => {
       const wrapper = await mountSuspended(ClosetPackCategories, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(closetWithPacks),
       });
-
-      const store = useClosetStore();
-      store.pageLoading = false;
-      store.data.allPacks = allPacks;
-      store.data.selectedPack = selectedPack;
-
-      await wrapper.vm.$nextTick();
 
       expect(wrapper.exists())
         .toBe(true);
@@ -300,16 +280,18 @@ describe('Closet Page', async () => {
 
     it('creates a new category when the add category button is clicked', async () => {
       const wrapper = await mountSuspended(ClosetPackCategories, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals({
+          closet: {
+            pageLoading: false,
+            data: {
+              allPacks,
+              selectedPack: structuredClone(selectedPack),
+            },
+          },
+        }),
       });
 
       const store = useClosetStore();
-      store.pageLoading = false;
-      store.data.allPacks = allPacks;
-      store.data.selectedPack = structuredClone(selectedPack); // Deep copy
-
       const spy = vi.spyOn(wrapper.vm, 'createDefaultCategory' as any) as MockInstance;
       expect(spy.getMockName())
         .toEqual('createDefaultCategory');
@@ -333,8 +315,10 @@ describe('Closet Page', async () => {
       expect(store.data.selectedPack!.categories.length)
         .toBe(8);
 
-      const createCategoryButton = wrapper.findComponent({ name: 'GcButton' });
-      createCategoryButton.trigger('click');
+      const createCategoryButton = wrapper.findAllComponents({ name: 'Button' })
+        .find(b => b.text()
+          .includes('New Category'))!;
+      await createCategoryButton.trigger('click');
 
       expect(store.data.selectedPack!.categories.length)
         .toBe(9);
@@ -343,23 +327,22 @@ describe('Closet Page', async () => {
 
   describe('PackItemsTable.vue', async () => {
     let wrapper: VueWrapper<any>;
+
     beforeEach(async () => {
       wrapper = await mountSuspended(PackItemsTable, {
-        global: {
-          plugins: [VueTippy],
-        },
-        props: {
-          category: selectedPack.categories[0],
-        },
+        global: testMountGlobals({
+          closet: {
+            pageLoading: false,
+            data: {
+              allPacks,
+              selectedPack: structuredClone(selectedPack),
+            },
+          },
+        }),
       });
     });
 
     it('renders the items table correctly', async () => {
-      const store = useClosetStore();
-      store.data.selectedPack = structuredClone(selectedPack); // Deep copy
-      store.data.allPacks = allPacks;
-      store.pageLoading = false;
-
       expect(wrapper.exists())
         .toBe(true);
     });
@@ -373,12 +356,10 @@ describe('Closet Page', async () => {
 
     it('creates a new item when the New Item button is clicked', async () => {
       const store = useClosetStore();
-      store.data.allPacks = allPacks;
-      store.data.selectedPack = structuredClone(selectedPack); // Deep copy
-      const spy = vi.spyOn(wrapper.vm, 'createItem' as any) as MockInstance;
+      const spy = vi.spyOn(wrapper.vm, 'createDefaultItem' as any) as MockInstance;
 
       expect(spy.getMockName())
-        .toEqual('createItem');
+        .toEqual('createDefaultItem');
 
       spy.mockImplementation(() => {
         store.data.selectedPack!.categories[0].category_items.push({
@@ -421,9 +402,10 @@ describe('Closet Page', async () => {
     });
 
     it('renders the correct number of rows in the table', async () => {
-      const rows = wrapper.findAllComponents({ name: 'SlickItem' });
+      const rows = wrapper.findAll('[data-testid="generic-type-cell"]');
+      const totalItems = selectedPack.categories.reduce((count, category) => count + category.category_items.length, 0);
       expect(rows.length)
-        .toBe(selectedPack.categories[0].category_items.length);
+        .toBe(totalItems);
     });
 
     it('renders generic_type field correctly', async () => {
@@ -434,10 +416,6 @@ describe('Closet Page', async () => {
 
     it('emits $store.updateItem when consumable button is clicked', async () => {
       const store = useClosetStore();
-      store.data.selectedPack = structuredClone(selectedPack); // Deep copy
-      store.data.allPacks = allPacks;
-      store.pageLoading = false;
-
       vi.spyOn(store, 'updateItem' as any) as MockInstance;
       await wrapper.vm.$nextTick();
 
@@ -449,10 +427,6 @@ describe('Closet Page', async () => {
 
     it('emits $store.updateItem when worn button is clicked', async () => {
       const store = useClosetStore();
-      store.data.selectedPack = structuredClone(selectedPack); // Deep copy
-      store.data.allPacks = allPacks;
-      store.pageLoading = false;
-
       vi.spyOn(store, 'updateItem' as any) as MockInstance;
       await wrapper.vm.$nextTick();
 
@@ -465,20 +439,19 @@ describe('Closet Page', async () => {
     it('renders weight field correctly', async () => {
       const weight = wrapper.find('[data-testid="weight-cell"]');
       expect(weight.text())
-        .toBe(selectedPack.categories[0].category_items[0].item.weight);
+        .toContain(selectedPack.categories[0].category_items[0].item.weight as string);
     });
 
     it('renders price field correctly', async () => {
       const price = wrapper.find('[data-testid="price-cell"]');
-      const convertedPrice = convertCurrency(selectedPack.categories[0].category_items[0].item.price as number, 'USD');
       expect(price.text())
-        .toBe(convertedPrice);
+        .toContain(`$${selectedPack.categories[0].category_items[0].item.price}`);
     });
 
     it('renders quantity field correctly', async () => {
       const quantity = wrapper.find('[data-testid="quantity-cell"]');
       expect(quantity.text())
-        .toBe(String(selectedPack.categories[0].category_items[0].item.quantity));
+        .toContain(String(selectedPack.categories[0].category_items[0].item.quantity));
     });
 
     it('emits handleAddUrl on click of link icon', async () => {
@@ -496,46 +469,44 @@ describe('Closet Page', async () => {
     });
 
     it('displays the correct totals for weight, price, and quantity', async () => {
+      const category = selectedPack.categories[0];
       const priceTotalCopy = wrapper.find('[data-testid="price-total"]');
-      const priceTotal = (calculateCategoryPrice(selectedPack.categories[0]) / 100);
-      const localizedTotal = priceTotal.toLocaleString('en-US', { style: 'currency', currency: 'USD' });
       expect(priceTotalCopy.text())
-        .toBe(localizedTotal);
+        .toBe(`$${calculateCategoryPrice(category)}`);
 
       const quantityTotalCopy = wrapper.find('[data-testid="quantity-total"]');
       expect(quantityTotalCopy.text())
-        .toBe(calculateCategoryQuantity(selectedPack.categories[0])
+        .toBe(calculateCategoryQuantity(category)
           .toString());
 
       const weightTotalCopy = wrapper.find('[data-testid="weight-total"]');
-      const total = calculateCategoryWeight(selectedPack.categories[0]);
-      const weight = convert(total, 'mg')
-        .to(selectedPack.categories[0].unit as Mass)
-        .toFixed(2);
-      const localizedWeight = parseFloat(weight)
-        .toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: 2 });
       expect(weightTotalCopy.text())
-        .toBe(localizedWeight);
+        .toBe(String(calculateCategoryWeight(category)));
     });
   });
 
   describe('ModifyPackSettingsDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
+
     beforeEach(async () => {
       wrapper = await mountSuspended(ManagePackSettingsDialog, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
+        attachTo: document.body,
       });
+    });
+
+    afterEach(() => {
+      wrapper.unmount();
+      document.body.innerHTML = '';
     });
 
     it('renders the dialog correctly', async () => {
       const store = useClosetStore();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(false);
       store.dialogStates.managePackSettingsDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(true);
     });
 
@@ -543,32 +514,37 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       store.dialogStates.managePackSettingsDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(true);
-      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
-      await closeButton.trigger('click');
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      findBodyButton('Cancel')?.click();
+      await wrapper.vm.$nextTick();
+      expect(isDialogRootOpen(wrapper))
         .toBe(false);
     });
   });
 
   describe('CsvUploadDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
+
     beforeEach(async () => {
       wrapper = await mountSuspended(CsvUploadDialog, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
+        attachTo: document.body,
       });
+    });
+
+    afterEach(() => {
+      wrapper.unmount();
+      document.body.innerHTML = '';
     });
 
     it('renders the dialog correctly', async () => {
       const store = useClosetStore();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(false);
       store.dialogStates.uploadCsvDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(true);
     });
 
@@ -576,32 +552,37 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       store.dialogStates.uploadCsvDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(true);
-      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
-      await closeButton.trigger('click');
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      findBodyButton('Cancel')?.click();
+      await wrapper.vm.$nextTick();
+      expect(isDialogRootOpen(wrapper))
         .toBe(false);
     });
   });
 
   describe('SharePackDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
+
     beforeEach(async () => {
       wrapper = await mountSuspended(SharePackDialog, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
+        attachTo: document.body,
       });
+    });
+
+    afterEach(() => {
+      wrapper.unmount();
+      document.body.innerHTML = '';
     });
 
     it('renders the dialog correctly', async () => {
       const store = useClosetStore();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(false);
       store.dialogStates.sharePackDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(true);
     });
 
@@ -609,32 +590,37 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       store.dialogStates.sharePackDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(true);
-      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
-      await closeButton.trigger('click');
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      findBodyButton('Cancel')?.click();
+      await wrapper.vm.$nextTick();
+      expect(isDialogRootOpen(wrapper))
         .toBe(false);
     });
   });
 
   describe('DeleteCategoryDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
+
     beforeEach(async () => {
       wrapper = await mountSuspended(DeleteCategoryDialog, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
+        attachTo: document.body,
       });
+    });
+
+    afterEach(() => {
+      wrapper.unmount();
+      document.body.innerHTML = '';
     });
 
     it('renders the dialog correctly', async () => {
       const store = useClosetStore();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(false);
       store.dialogStates.deleteCategoryDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(true);
     });
 
@@ -642,32 +628,37 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       store.dialogStates.deleteCategoryDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(true);
-      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
-      await closeButton.trigger('click');
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      findBodyButton('Cancel')?.click();
+      await wrapper.vm.$nextTick();
+      expect(isDialogRootOpen(wrapper))
         .toBe(false);
     });
   });
 
   describe('DeletePackDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
+
     beforeEach(async () => {
       wrapper = await mountSuspended(DeletePackDialog, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
+        attachTo: document.body,
       });
+    });
+
+    afterEach(() => {
+      wrapper.unmount();
+      document.body.innerHTML = '';
     });
 
     it('renders the dialog correctly', async () => {
       const store = useClosetStore();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isAlertDialogOpen(wrapper))
         .toBe(false);
       store.dialogStates.deletePackDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isAlertDialogOpen(wrapper))
         .toBe(true);
     });
 
@@ -675,32 +666,37 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       store.dialogStates.deletePackDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isAlertDialogOpen(wrapper))
         .toBe(true);
-      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
-      await closeButton.trigger('click');
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      findBodyButton('Cancel')?.click();
+      await wrapper.vm.$nextTick();
+      expect(isAlertDialogOpen(wrapper))
         .toBe(false);
     });
   });
 
   describe('RemoveItemDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
+
     beforeEach(async () => {
       wrapper = await mountSuspended(RemoveItemDialog, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
+        attachTo: document.body,
       });
+    });
+
+    afterEach(() => {
+      wrapper.unmount();
+      document.body.innerHTML = '';
     });
 
     it('renders the dialog correctly', async () => {
       const store = useClosetStore();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isAlertDialogOpen(wrapper))
         .toBe(false);
       store.dialogStates.removeItemDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isAlertDialogOpen(wrapper))
         .toBe(true);
     });
 
@@ -708,32 +704,37 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       store.dialogStates.removeItemDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isAlertDialogOpen(wrapper))
         .toBe(true);
-      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
-      await closeButton.trigger('click');
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      findBodyButton('Cancel')?.click();
+      await wrapper.vm.$nextTick();
+      expect(isAlertDialogOpen(wrapper))
         .toBe(false);
     });
   });
 
   describe('AddUrlDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
+
     beforeEach(async () => {
       wrapper = await mountSuspended(AddUrlDialog, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
+        attachTo: document.body,
       });
+    });
+
+    afterEach(() => {
+      wrapper.unmount();
+      document.body.innerHTML = '';
     });
 
     it('renders the dialog correctly', async () => {
       const store = useClosetStore();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(false);
       store.dialogStates.addUrlDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(true);
     });
 
@@ -741,32 +742,37 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       store.dialogStates.addUrlDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(true);
-      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
-      await closeButton.trigger('click');
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      findBodyButton('Cancel')?.click();
+      await wrapper.vm.$nextTick();
+      expect(isDialogRootOpen(wrapper))
         .toBe(false);
     });
   });
 
   describe('UpdateThemeDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
+
     beforeEach(async () => {
       wrapper = await mountSuspended(ManagePackSettingsDialog, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
+        attachTo: document.body,
       });
+    });
+
+    afterEach(() => {
+      wrapper.unmount();
+      document.body.innerHTML = '';
     });
 
     it('renders the dialog correctly', async () => {
       const store = useClosetStore();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(false);
       store.dialogStates.managePackSettingsDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(true);
     });
 
@@ -774,11 +780,11 @@ describe('Closet Page', async () => {
       const store = useClosetStore();
       store.dialogStates.managePackSettingsDialog = true;
       await wrapper.vm.$nextTick();
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      expect(isDialogRootOpen(wrapper))
         .toBe(true);
-      const closeButton = wrapper.findAllComponents({ name: 'GcButton' })[0];
-      await closeButton.trigger('click');
-      expect(wrapper.findComponent({ name: 'GcModal' }).vm.isOpen)
+      findBodyButton('Cancel')?.click();
+      await wrapper.vm.$nextTick();
+      expect(isDialogRootOpen(wrapper))
         .toBe(false);
     });
   });

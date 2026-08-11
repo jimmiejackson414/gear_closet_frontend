@@ -1,5 +1,5 @@
 <script lang="ts" setup="">
-  import type { Stripe, StripeCardElement, StripeElements } from '@stripe/stripe-js';
+  import type { StripeCardElement } from '@stripe/stripe-js';
 
   interface Props {
     isOpen: boolean;
@@ -21,37 +21,34 @@
   const cardValid = ref(false);
   let cardElement: StripeCardElement | null = null;
   const setupCardElement = async () => {
-    if (!stripe.value || !elements.value) return;
+    if (!stripe.value || !elements.value || !cardElementRef.value) return;
 
-    if (stripe) {
-      if (elements && cardElementRef.value) {
-        cardElement  = elements.value.create('card', {
-          classes: {
-            base: 'h-12 py-3.5 px-4 rounded-lg w-full border border-gray-300 focus:border-primary',
-            invalid: 'border-red-500',
+    const created = elements.value.create('card', {
+      classes: {
+        base: 'h-12 py-3.5 px-4 rounded-lg w-full border border-gray-300 focus:border-primary',
+        invalid: 'border-red-500',
+      },
+      style: {
+        base: {
+          color: tailwind.theme.colors.primary.DEFAULT,
+          fontFamily: '"Lato", Helvetica, sans-serif',
+          fontSmoothing: 'antialiased',
+          fontSize: '16px',
+          '::placeholder': {
+            color: '#aab7c4',
           },
-          style: {
-            base: {
-              color: tailwind.theme.colors.primary.DEFAULT,
-              fontFamily: '"Lato", Helvetica, sans-serif',
-              fontSmoothing: 'antialiased',
-              fontSize: '16px',
-              '::placeholder': {
-                color: '#aab7c4',
-              },
-            },
-            invalid: {
-              color: tailwind.theme.colors.destructive.DEFAULT,
-              iconColor: tailwind.theme.colors.destructive.DEFAULT,
-            },
-          },
-        });
-        cardElement.on('change', (event) => {
-          cardValid.value = !event.error;
-        });
-        cardElement.mount(cardElementRef.value);
-      }
-    }
+        },
+        invalid: {
+          color: tailwind.theme.colors.destructive.DEFAULT,
+          iconColor: tailwind.theme.colors.destructive.DEFAULT,
+        },
+      },
+    });
+    cardElement = created;
+    created.on('change', (event) => {
+      cardValid.value = !event.error;
+    });
+    created.mount(cardElementRef.value);
   };
 
   watch(() => props.isOpen, (isOpen) => {

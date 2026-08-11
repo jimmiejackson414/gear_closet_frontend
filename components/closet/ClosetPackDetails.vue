@@ -45,6 +45,7 @@
         data-testid="pack-summary-detail">
         <typography
           class="font-bold"
+          data-testid="detail-title"
           variant="large">
           {{ detail.title }}
         </typography>
