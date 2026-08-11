@@ -37,7 +37,7 @@ module.exports = {
   parser: 'vue-eslint-parser',
 
   rules: {
-    '@kalimahapps/tailwind/sort': 'warn',
+    '@kalimahapps/tailwind/sort': 'off', // crashes on valid arbitrary variants like [&_[cmdk-...]]
     'no-console': process.env.NODE_ENV === 'production' ? 2 : 0,
     'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
     curly: ['off', 'multi'],
