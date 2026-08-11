@@ -99,11 +99,11 @@
           .to('lb'), 2);
         return (`
           <div class="flex flex-col gap-2 w-fit">
-            <p class="text-eyebrow !text-sm">
+            <p class="text-eyebrow text-sm!">
               <span style="margin-right: 4px; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${value.color};"></span>
               ${category?.name}
             </p>
-            <p class="!font-bold text-base-lg text-center">
+            <p class="font-bold! text-base-lg text-center">
               ${weight} lbs
             </p>
           </div>
@@ -118,7 +118,7 @@
     <div class="flex flex-col lg:w-3/5">
       <div class="flex items-center">
         <icon-backpack class="h-6 mr-6 text-primary w-6" />
-        <p class="!font-bold text-base">
+        <p class="font-bold! text-base">
           Pack Summary
         </p>
       </div>
@@ -135,7 +135,7 @@
       <div class="flex justify-between items-center mb-10">
         <div class="flex items-center">
           <icon-bar-chart-3 class="h-6 mr-6 text-primary w-6" />
-          <p class="!font-bold text-base">
+          <p class="font-bold! text-base">
             Stats
           </p>
         </div>

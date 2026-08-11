@@ -15,9 +15,9 @@
   });
 
   const sizeClass = computed(() => {
-    if (props.size === 'sm') return 'h-4 w-4 border-[2px]';
+    if (props.size === 'sm') return 'h-4 w-4 border-2';
     else if (props.size === 'md') return 'h-8 w-8 border-[3px]';
-    else return 'h-12 w-12 border-[4px]';
+    else return 'h-12 w-12 border-4';
   });
 </script>
 

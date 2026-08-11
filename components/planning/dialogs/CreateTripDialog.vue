@@ -181,7 +181,7 @@
                 :action-row="{ showNow: false, showPreview: false, showCancel: false, showSelect: true }"
                 :auto-apply="true"
                 calendar-cell-class-name="gc-dp-cell"
-                class="!w-full gc-dp"
+                class="w-full! gc-dp"
                 :format="format"
                 :hide-navigation="['time']"
                 input-class-name="gc-dp-input"

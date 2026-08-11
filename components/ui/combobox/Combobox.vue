@@ -53,7 +53,7 @@
           :class="cn('h-4 ml-2 opacity-50 transform', open ? 'rotate-180' : 'rotate-0')" />
       </button-root>
     </popover-trigger>
-    <popover-content class="p-0 w-[--reka-popover-trigger-width]">
+    <popover-content class="p-0 w-(--reka-popover-trigger-width)">
       <command :ignore-filter="true">
         <command-input
           class="h-9"

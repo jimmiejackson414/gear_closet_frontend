@@ -59,7 +59,7 @@
       <dialog-header>
         <dialog-title>Manage Subscription</dialog-title>
       </dialog-header>
-      <div class="flex-grow mt-2 w-full overflow-y-auto">
+      <div class="grow mt-2 w-full overflow-y-auto">
         <stepper
           v-model="activeStep"
           class="grid pt-4 w-full">

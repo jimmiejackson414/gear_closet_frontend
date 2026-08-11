@@ -64,11 +64,11 @@
         const weight = calculateCategoryWeight(category as ExtendedCategory);
         return (`
           <div class="flex flex-col gap-2 w-fit">
-            <p class="text-eyebrow !text-sm">
+            <p class="text-eyebrow text-sm!">
               <span style="margin-right: 4px; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${value.color};"></span>
               ${category?.name}
             </p>
-            <p class="!font-bold text-base-lg text-center">
+            <p class="font-bold! text-base-lg text-center">
               ${weight} lbs
             </p>
           </div>
@@ -129,7 +129,7 @@
   <div class="flex flex-col">
     <div class="flex items-center">
       <icon-backpack class="mr-6 w-6 h-6 text-primary dark:text-primary-light" />
-      <typography class="!font-bold">
+      <typography class="font-bold!">
         Pack Summary
       </typography>
     </div>

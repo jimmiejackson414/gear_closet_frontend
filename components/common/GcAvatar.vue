@@ -44,7 +44,7 @@
     :src="url">
   <div
     v-else
-    :class="cn('bg-gray-200 flex-shrink-0 justify-center items-center inline-flex overflow-hidden relative rounded-full', sizeClass, { 'border-2 border-white': props.border }, props.class)">
+    :class="cn('bg-gray-200 shrink-0 justify-center items-center inline-flex overflow-hidden relative rounded-full', sizeClass, { 'border-2 border-white': props.border }, props.class)">
     <span class="font-medium text-gray-600">
       {{ initials }}
     </span>

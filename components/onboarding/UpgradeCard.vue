@@ -32,7 +32,7 @@
           'border-primary': props.tier.value === SubscriptionLevel.ANNUAL,
           'border-accent-alt': props.tier.value === SubscriptionLevel.MONTHLY,
         },
-        props.isSelected ? 'shadow-lg' : 'shadow hover:shadow-lg',
+        props.isSelected ? 'shadow-lg' : 'shadow-sm hover:shadow-lg',
         'border-t-[5px]',
       ]">
       <div class="bg-charlie-brown p-4 text-center">

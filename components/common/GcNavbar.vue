@@ -62,11 +62,11 @@
           @click="toggleColorMode">
           <icon-sun
             v-if="colorMode.value === 'dark'"
-            class="!size-6 text-accent-alt dark:text-card-foreground"
+            class="size-6! text-accent-alt dark:text-card-foreground"
             :size="20" />
           <icon-moon
             v-else
-            class="!size-6 text-accent-alt dark:text-card-foreground"
+            class="size-6! text-accent-alt dark:text-card-foreground"
             :size="40" />
         </button-root>
       </span>
@@ -76,16 +76,16 @@
           size="icon"
           variant="ghost"
           @click="isDropdownOpen = !isDropdownOpen">
-          <icon-bell-ring class="!size-max text-accent-alt dark:text-card-foreground" />
+          <icon-bell-ring class="size-max! text-accent-alt dark:text-card-foreground" />
           <div
             v-if="shouldShowBadge"
-            class="absolute top-1 bg-destructive block border-2 border-white end-1 h-3 rounded-full w-3" />
+            class="absolute top-1 bg-destructive block border-2 border-white inset-e-1 h-3 rounded-full w-3" />
         </button-root>
         <fade-transition>
           <div
             v-if="isDropdownOpen"
             ref="notificationDropdown"
-            class="absolute top-full right-0 bg-white border divide-gray-100 duration-300 max-w-sm min-w-[300px] mt-2 rounded-lg shadow transition-all w-max z-20"
+            class="absolute top-full right-0 bg-white border divide-gray-100 duration-300 max-w-sm min-w-[300px] mt-2 rounded-lg shadow-sm transition-all w-max z-20"
             data-testid="notifications-dropdown">
             <div class="bg-gray-50 block font-bold px-4 py-2 rounded-t-lg text-center text-dark-grey">
               Notifications ({{ $store.unreadNotifications?.length ?? 0 }})

@@ -218,10 +218,10 @@
         </div>
         <div
           v-if="replyingTo"
-          class="flex items-start flex-col max-w-xl mt-4 pb-6 ps-[4.25rem]">
+          class="flex items-start flex-col max-w-xl mt-4 pb-6 ps-17">
           <textarea-root
             v-model="newReplyValue"
-            class="rounded-xl shadow-sm w-full disabled:bg-gray-100 disabled:pointer-events-none"
+            class="rounded-xl shadow-xs w-full disabled:bg-gray-100 disabled:pointer-events-none"
             :disabled="submitting"
             placeholder="Add a reply" />
           <div class="grid grid-cols-[1fr_auto_auto] gap-6 items-center my-2 w-full">
@@ -312,7 +312,7 @@
 
   @container style(--depth: 0) {
     li:has(ul) > .comment {
-      @apply relative before:content-[''] before:absolute before:start-[24px] before:bottom-0 before:w-0.5 before:bg-gray-300;
+      @apply relative before:content-[''] before:absolute before:inset-s-[24px] before:bottom-0 before:w-0.5 before:bg-gray-300;
 
       &:before {
         top: calc(var(--size) + 8px);
@@ -322,7 +322,7 @@
 
   @container style(--depth: 1) {
     li:has(ul) > .comment {
-      @apply relative before:content-[''] before:absolute before:start-[12px] before:bottom-0 before:w-0.5 before:bg-gray-300;
+      @apply relative before:content-[''] before:absolute before:inset-s-[12px] before:bottom-0 before:w-0.5 before:bg-gray-300;
 
       &:before {
         top: calc(var(--size) + 8px);
@@ -332,11 +332,11 @@
 
   @container style(--depth: 1) {
     li:not(:last-child) {
-      @apply relative before:content-[''] before:absolute before:start-[24px] before:top-0 before:bottom-0 before:w-0.5 before:bg-gray-300;
+      @apply relative before:content-[''] before:absolute before:inset-s-[24px] before:top-0 before:bottom-0 before:w-0.5 before:bg-gray-300;
     }
 
     li {
-      @apply relative before:content-[''] after:absolute after:start-[24px] after:top-[0px] after:h-[28px] after:w-[22px] after:bg-gray-300 after:bg-transparent after:border-l-2 after:border-b-2 after:border-gray-300;
+      @apply relative before:content-[''] after:absolute after:inset-s-[24px] after:top-0 after:h-[28px] after:w-[22px] after:bg-gray-300 after:bg-transparent after:border-l-2 after:border-b-2 after:border-gray-300;
 
       &:after {
         border-end-start-radius: 10px;

@@ -9,7 +9,7 @@
 
     .dp__input {
       &.gc-dp-input {
-        @apply flex w-full rounded-md border bg-transparent dark:bg-background px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-10 py-2 border-input ps-9;
+        @apply flex w-full rounded-md border bg-transparent dark:bg-background px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-10 py-2 border-input ps-9;
       }
     }
 
@@ -18,12 +18,12 @@
       .dp__range_start,
       .dp__range_end {
         &.gc-dp-cell {
-          @apply !bg-primary;
+          @apply bg-primary!;
         }
       }
 
       .dp__today .gc-dp-cell {
-        @apply !border-primary;
+        @apply border-primary!;
       }
     }
   }

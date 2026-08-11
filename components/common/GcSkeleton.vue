@@ -14,7 +14,7 @@
   <div class="animate-pulse flex">
     <div
       v-if="avatar"
-      class="flex-shrink-0">
+      class="shrink-0">
       <span class="bg-gray-200 block h-12 rounded-full w-12" />
     </div>
 

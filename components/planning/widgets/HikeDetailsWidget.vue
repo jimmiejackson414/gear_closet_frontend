@@ -62,9 +62,9 @@
 
 <template>
   <card class="px-8 py-4 rounded-3xl">
-    <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center">
+    <div class="grid grid-cols-[auto_auto_1fr] justify-start items-center">
       <icon-mountain class="h-6 mr-6 text-primary w-6" />
-      <typography class="!font-bold">
+      <typography class="font-bold!">
         Hike Details
       </typography>
       <button-root
@@ -99,7 +99,7 @@
           size="sm"
           @update:model-value="updateTrip({ starting_point: $event as string | null })">
           <typography
-            class="!font-black"
+            class="font-black!"
             variant="large">
             {{ $store.selectedTrip?.starting_point }}
           </typography>
@@ -112,7 +112,7 @@
           size="sm"
           @update:model-value="updateTrip({ ending_point: $event as string | null })">
           <typography
-            class="!font-black"
+            class="font-black!"
             variant="large">
             {{ $store.selectedTrip?.ending_point }}
           </typography>
@@ -137,7 +137,7 @@
           class="mb-0">
           <div class="flex items-center gap-4 group space-between">
             <div class="flex justify-between items-center flex-1">
-              <typography class="!font-bold text-grey">
+              <typography class="font-bold! text-grey">
                 {{ detail.title }}
               </typography>
               <a

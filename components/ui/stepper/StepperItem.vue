@@ -21,7 +21,7 @@
   <stepper-item
     v-slot="slotProps"
     v-bind="forwarded"
-    :class="cn('flex items-center gap-2 group data-[disabled]:pointer-events-none', props.class)">
+    :class="cn('flex items-center gap-2 group data-disabled:pointer-events-none', props.class)">
     <slot v-bind="slotProps" />
   </stepper-item>
 </template>

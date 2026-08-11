@@ -46,7 +46,7 @@
       )
       ">
       <select-scroll-up-button />
-      <select-viewport :class="cn('p-1', position === 'popper' && 'h-[--reka-select-trigger-height] w-full min-w-[--reka-select-trigger-width]')">
+      <select-viewport :class="cn('p-1', position === 'popper' && 'h-(--reka-select-trigger-height) w-full min-w-(--reka-select-trigger-width)')">
         <slot />
       </select-viewport>
       <select-scroll-down-button />

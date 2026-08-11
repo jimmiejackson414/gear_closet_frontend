@@ -140,7 +140,7 @@
                         <span
                           v-for="color in theme.colors"
                           :key="color"
-                          class="border-1 border-white rounded-[3px] w-4 h-4"
+                          class="border border-white rounded-[3px] w-4 h-4"
                           :style="{ backgroundColor: color }" />
                       </div>
                       {{ theme.label }}

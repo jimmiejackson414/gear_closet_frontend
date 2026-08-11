@@ -68,7 +68,7 @@
         size="lg"
         :url="buildImageSrc(profile.image)" />
       <div class="flex flex-col">
-        <typography class="!font-bold">
+        <typography class="font-bold!">
           {{ friendlyUsername(profile) }}
         </typography>
         <typography size="sm">

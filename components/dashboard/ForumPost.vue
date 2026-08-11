@@ -29,7 +29,7 @@
       :src="avatarSrc">
     <div class="flex grow flex-col">
       <div class="flex items-center gap-4">
-        <p class="!font-bold text-dark-grey">
+        <p class="font-bold! text-dark-grey">
           {{ truncate(post.topic_title, 25) }}
         </p>
         <p class="text-gray-400 text-right text-sm">

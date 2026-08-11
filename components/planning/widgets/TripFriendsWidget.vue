@@ -10,7 +10,7 @@
   <card class="px-8 py-4 rounded-3xl">
     <div class="flex justify-start items-center py-4">
       <icon-users-round class="h-6 mr-6 text-primary w-6" />
-      <p class="!font-bold text-base">
+      <p class="font-bold! text-base">
         Friends
       </p>
     </div>
