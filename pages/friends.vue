@@ -21,7 +21,7 @@
       const { data: requestsData, error: requestsError } = await supabase
         .from('friend_invitations')
         .select('*, sender:profiles!sender_id(*), recipient:profiles!recipient_id(*)')
-        .eq('recipient_id', user.value!.id)
+        .eq('recipient_id', user.value!.sub)
         .eq('status', FriendRequestStatus.PENDING);
 
       if (requestsData?.length && !requestsError) {
@@ -32,7 +32,7 @@
       const { data: friendsData, error: friendsError } = await supabase
         .from('friends')
         .select('*, friend:profiles!friends_friend_id_fkey(*)')
-        .eq('profile_id', user.value!.id);
+        .eq('profile_id', user.value!.sub);
 
       if (friendsData?.length && !friendsError) {
         currentFriends.value = friendsData as ExtendedFriend[];
@@ -77,7 +77,7 @@
         const tsquery = searchQuery.value.replace(/ /g, '&');
         const { data, error } = await supabase
           .rpc('search_profiles', { search_query: tsquery })
-          .neq('id', user.value?.id ?? '')
+          .neq('id', user.value?.sub ?? '')
           .select();
 
         if (!error) {
@@ -87,7 +87,7 @@
           const { data: invitationsData, error: invitationsError } = await supabase
             .from('friend_invitations')
             .select('recipient_id')
-            .eq('sender_id', user.value!.id)
+            .eq('sender_id', user.value!.sub)
             .in('recipient_id', data.map(profile => profile.id));
 
           if (invitationsData?.length && !invitationsError) {

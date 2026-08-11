@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     // Fetch the user's subscription from your database
     const { data: subscription, error: subscriptionError } = await supabase.from('subscriptions')
       .select('stripe_subscription_id')
-      .eq('profile_id', user!.id)
+      .eq('profile_id', user!.sub)
       .single();
 
     if (subscriptionError || !subscription) {
@@ -69,7 +69,7 @@ export default defineEventHandler(async (event) => {
         cancel_at_period_end: updatedStripeSubscription.cancel_at_period_end,
         stripe_subscription_id: updatedStripeSubscription.id,
       })
-      .eq('profile_id', user!.id)
+      .eq('profile_id', user!.sub)
       .select();
 
     if (updatedSubscriptionError || !updatedSubscription) {

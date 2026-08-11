@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
         notifications!notifications_profile_id_fkey(*, sender:sender_id(*)),
         subscriptions!subscriptions_profile_id_fkey(*, prices!subscriptions_price_id_fkey(*))
       `)
-      .eq('id', user!.id)
+      .eq('id', user!.sub)
       .maybeSingle();
 
     clearTimeout(timeout);

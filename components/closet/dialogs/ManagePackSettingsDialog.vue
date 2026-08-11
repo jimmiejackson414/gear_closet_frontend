@@ -57,7 +57,7 @@
         const { data: createdPack, error } = await supabase.from('packs')
           .insert([{
             ...values,
-            profile_id: user.value?.id as string,
+            profile_id: user.value?.sub as string,
           }])
           .select();
 

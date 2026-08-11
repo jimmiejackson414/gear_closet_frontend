@@ -69,7 +69,7 @@
         ending_point: values.ending_point,
         starting_date: values.dateRange?.[0].toISOString(),
         ending_date: values.dateRange?.[1].toISOString(),
-        profile_id: user.value?.id as string,
+        profile_id: user.value?.sub as string,
       };
       const { data: createdTrip, error } = await supabase.from('trips')
         .insert([payload])

@@ -23,7 +23,7 @@
       const { data: newItem, error } = await supabase.from('shopping_list_items')
         .insert({
           completed: false,
-          profile_id: user.value?.id as string,
+          profile_id: user.value?.sub as string,
           quantity: 1,
           resource_type: activeTab.value,
           title: 'New shopping item',

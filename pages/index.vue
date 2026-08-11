@@ -41,7 +41,7 @@
       // fetch dashboard data from supabase
       const { data: pageData, error } = await supabase
         .rpc('get_dashboard_data', {
-          p_user_id: user.value!.id,
+          p_user_id: user.value!.sub,
         });
 
       if (!pageData || error) {

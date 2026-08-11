@@ -122,7 +122,7 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
           if (!category) throw new Error('Category not found');
 
           // Generate the new item for both server request and optimistic update
-          const newItem = { ...generateItem(), profile_id: user.value?.id } as Tables<'items'>;
+          const newItem = { ...generateItem(), profile_id: user.value?.sub } as Tables<'items'>;
           const optimisticItem = { ...newItem, id: 0 };
 
           // Optimistic update for category item

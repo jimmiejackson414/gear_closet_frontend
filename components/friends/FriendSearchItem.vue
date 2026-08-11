@@ -33,7 +33,7 @@
         .insert([
           {
             recipient_id: props.profile.id,
-            sender_id: user.value!.id,
+            sender_id: user.value!.sub,
             status: FriendRequestStatus.PENDING,
           },
         ])

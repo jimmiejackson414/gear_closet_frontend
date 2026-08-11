@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     // fetch customer from supabase first
     const { data: customer, error } = await supabase.from('customers')
       .select('stripe_customer_id')
-      .eq('profile_id', user!.id)
+      .eq('profile_id', user!.sub)
       .single();
 
     if (error || !customer) {

@@ -60,7 +60,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
               onboarding_steps(*),
               notifications!notifications_profile_id_fkey(*, sender:sender_id(*))
             `)
-            .eq('id', user.value.id)
+            .eq('id', user.value.sub)
             .single();
 
           if (!data || error) {
@@ -116,7 +116,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
             read_on_date: new Date()
               .toISOString(),
           })
-          .eq('profile_id', user.value?.id as string)
+          .eq('profile_id', user.value?.sub as string)
           .select();
 
         if (error) {
@@ -135,14 +135,14 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
           // get the list of files in the user's avatar directory
           const { data: files, error: listError } = await supabase.storage.from('avatars')
-            .list(`${user.value!.id}/`);
+            .list(`${user.value!.sub}/`);
 
           if (listError) return { success: false };
 
           // if there are any files in the directory, delete them
           if (files?.length > 0) {
             const { error: deleteError } = await supabase.storage.from('avatars')
-              .remove([`${user.value!.id}/${files[0].name}`]);
+              .remove([`${user.value!.sub}/${files[0].name}`]);
             if (deleteError) return { success: false };
           }
 
@@ -159,20 +159,20 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
           // get the list of files in the user's avatar directory
           const { data: files, error: listError } = await supabase.storage.from('avatars')
-            .list(`${user.value!.id}/`);
+            .list(`${user.value!.sub}/`);
 
           if (listError) return { success: false };
 
           // if there are any files in the dictory, delete them
           if (files?.length > 0) {
             const { error: deleteError } = await supabase.storage.from('avatars')
-              .remove([`${user.value!.id}/${files[0].name}`]);
+              .remove([`${user.value!.sub}/${files[0].name}`]);
             if (deleteError) return { success: false };
           }
 
           // upload the new file
           const { data, error } = await supabase.storage.from('avatars')
-            .upload(`${user.value!.id}/${file.name}`, file, { upsert: true });
+            .upload(`${user.value!.sub}/${file.name}`, file, { upsert: true });
           return (data && !error) ? { success: true } : { success: false };
         } catch (err) {
           return { success: false };
@@ -186,7 +186,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           const user = useSupabaseUser();
           const { error } = await supabase.from('profiles')
             .update(profile)
-            .eq('id', user.value!.id)
+            .eq('id', user.value!.sub)
             .select();
 
           if (error) {

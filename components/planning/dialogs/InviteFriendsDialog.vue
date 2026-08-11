@@ -68,7 +68,7 @@
         trip_id: Number($store.selectedTripId),
         profile_id: f.id,
         status: TripFriendStatus.PENDING,
-        invited_by_id: user.value?.id as string,
+        invited_by_id: user.value?.sub as string,
       }));
       const { data: invitedFriends, error } = await supabase.from('trip_friends')
         .insert(existingFriendsPayload)
@@ -82,7 +82,7 @@
         content: `${friendlyUsername(inviter)} invited you to a trip!`,
         read_on_date: null,
         profile_id: f.id,
-        sender_id: user.value?.id,
+        sender_id: user.value?.sub,
       })) as TablesInsert<'notifications'>;
 
       await supabase.from('notifications')

@@ -70,7 +70,7 @@
         .from('comments')
         .insert({
           pack_id: $store.data.selectedPack?.id as number,
-          profile_id: user.value?.id as string,
+          profile_id: user.value?.sub as string,
           text,
         })
         .select();
