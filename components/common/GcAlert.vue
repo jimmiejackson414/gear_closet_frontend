@@ -12,7 +12,7 @@
   });
 
   const classList = computed(() => {
-    let classes = ['rounded-2xl', 'py-2', 'px-4', 'w-full', 'text-center'];
+    const classes = ['rounded-2xl', 'py-2', 'px-4', 'w-full', 'text-center'];
 
     if (props.severity === 'error') { classes.push('bg-danger-light', 'text-danger-dark'); }
     if (props.severity === 'warning') { classes.push('bg-warning-light', 'text-warning-dark'); }

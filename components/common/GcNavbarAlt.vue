@@ -10,7 +10,7 @@
   });
 
   const classList = computed(() => {
-    let classes = ['flex'];
+    const classes = ['flex'];
     if (props.alignLogo === 'center') classes.push('justify-center');
     if (props.alignLogo === 'end') classes.push('justify-end');
     if (props.alignLogo === 'start') classes.push('justify-start');
