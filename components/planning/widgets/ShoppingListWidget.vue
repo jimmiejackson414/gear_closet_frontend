@@ -81,8 +81,8 @@
 
 <template>
   <card class="px-8 py-4 rounded-3xl">
-    <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
-      <icon-check-square-2 class="h-6 mr-6 text-primary w-6" />
+    <div class="justify-start items-center grid grid-cols-[auto,auto,1fr] py-4">
+      <icon-check-square-2 class="mr-6 w-6 h-6 text-primary" />
       <p class="!font-bold text-base">
         Shopping Items
       </p>
@@ -127,7 +127,7 @@
                 <table-row no-hover-effect>
                   <table-head class="w-[50px]">
                     <checkbox
-                      :checked="userItems.every(u => u.completed)"
+                      :checked="userItems.every((u: Tables<'shopping_list_items'>) => u.completed)"
                       @update:checked="batchUpdateShoppingItems" />
                   </table-head>
                   <table-head class="font-bold">
@@ -151,7 +151,7 @@
                     <gc-inline-edit
                       :model-value="item.title ?? undefined"
                       name="title"
-                      @update:model-value="updateShoppingItem(item, { title: $event })">
+                      @update:model-value="updateShoppingItem(item, { title: $event as string })">
                       {{ item.title }}
                     </gc-inline-edit>
                   </table-cell>
@@ -159,7 +159,7 @@
                     <gc-inline-edit
                       :model-value="item.quantity ?? undefined"
                       name="quantity"
-                      @update:model-value="updateShoppingItem(item, { quantity: $event })">
+                      @update:model-value="updateShoppingItem(item, { quantity: $event as number })">
                       {{ item.quantity }}
                     </gc-inline-edit>
                   </table-cell>
@@ -180,7 +180,7 @@
                 <table-row no-hover-effect>
                   <table-head class="w-[50px]">
                     <checkbox
-                      :checked="groupItems.every(u => u.completed)"
+                      :checked="groupItems.every((u: Tables<'shopping_list_items'>) => u.completed)"
                       @update:checked="batchUpdateShoppingItems" />
                   </table-head>
                   <table-head class="font-bold">
@@ -204,7 +204,7 @@
                     <gc-inline-edit
                       :model-value="item.title ?? undefined"
                       name="title"
-                      @update:model-value="updateShoppingItem(item, { title: $event })">
+                      @update:model-value="updateShoppingItem(item, { title: $event as string })">
                       {{ item.title }}
                     </gc-inline-edit>
                   </table-cell>
@@ -212,7 +212,7 @@
                     <gc-inline-edit
                       :model-value="item.quantity ?? undefined"
                       name="quantity"
-                      @update:model-value="updateShoppingItem(item, { quantity: $event })">
+                      @update:model-value="updateShoppingItem(item, { quantity: $event as number })">
                       {{ item.quantity }}
                     </gc-inline-edit>
                   </table-cell>

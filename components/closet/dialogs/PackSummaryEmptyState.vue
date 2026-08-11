@@ -13,7 +13,7 @@
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
-      const { data: createdCategory, error } = await supabase
+      const { data: createdCategoryData, error } = await supabase
         .rpc('create_category_and_item', {
           p_name: 'Miscellaneous',
           p_pack_id: $store.data.selectedPack?.id as number,
@@ -26,10 +26,10 @@
             consumable: false,
             worn: false,
           }],
-        })
-        .returns<ExtendedCategory>();
+        });
 
-      if (createdCategory && !error) {
+      if (createdCategoryData && !error) {
+        const createdCategory = createdCategoryData as ExtendedCategory;
         ($store.data.selectedPack as ExtendedPack).categories.push(createdCategory);
         $appStore.notifyPositive('Category created successfully.');
       } else {

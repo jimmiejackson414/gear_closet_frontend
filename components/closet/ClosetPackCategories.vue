@@ -45,15 +45,15 @@
       }];
 
       const supabase = useSupabaseClient<Database>();
-      const { data: createdCategory, error: categoryError } = await supabase.rpc('create_category_and_item', {
+      const { data: createdCategoryData, error: categoryError } = await supabase.rpc('create_category_and_item', {
         p_name: 'Category Name',
         p_pack_id: $store.data.selectedPack?.id as number,
         p_items: itemData,
-      })
-        .returns<ExtendedCategory>();
+      });
       if (categoryError) throw categoryError;
 
       // Update the category with the created category
+      const createdCategory = createdCategoryData as ExtendedCategory;
       $store.data.selectedPack?.categories.splice(0, 1, { ...createdCategory });
     } catch (err) {
       $store.data.selectedPack?.categories.shift();
@@ -86,7 +86,7 @@
         .from('categories')
         .update({
           [field]: value,
-        })
+        } as any)
         .eq('id', $store.activeCategoryId as number)
         .select();
 
@@ -122,7 +122,7 @@
         size="sm"
         variant="outline"
         @click="createDefaultCategory">
-        <icon-plus class="h-4 text-primary dark:text-primary-light w-4" />
+        <icon-plus class="w-4 h-4 text-primary dark:text-primary-light" />
         New Category
       </button-root>
     </div>

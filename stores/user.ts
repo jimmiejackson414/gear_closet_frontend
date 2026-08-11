@@ -82,11 +82,11 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
         const { data } = await supabase.from('notifications')
           .select('*, sender:sender_id(*)')
-          .eq('id', id)
+          .eq('id', Number(id))
           .single();
 
         if (data) {
-          const i = this.profile!.notifications.findIndex((n: Tables<'notifications'>) => n.id === id);
+          const i = this.profile!.notifications.findIndex((n: Tables<'notifications'>) => n.id === Number(id));
           this.profile!.notifications[i] = data as any;
         }
       },
@@ -187,7 +187,6 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           const { error } = await supabase.from('profiles')
             .update(profile)
             .eq('id', user.value!.id)
-            .returns<Tables<'profiles'>>()
             .select();
 
           if (error) {

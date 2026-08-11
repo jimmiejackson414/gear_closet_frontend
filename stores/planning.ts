@@ -64,14 +64,14 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           const supabase = useSupabaseClient<Database>();
 
           const { data: pageData, error } = await supabase
-            .rpc('get_planning_page_data', { p_trip_id: tripId || 0 })
-            .returns<PlanningPageData>();
+            .rpc('get_planning_page_data', { p_trip_id: tripId || 0 });
 
           if (pageData && !error) {
-            this.data = pageData;
+            const data = pageData as unknown as PlanningPageData;
+            this.data = data;
 
             // set selected trip if available
-            const findSelectedTrip = pageData.trips.find(trip => trip.id === (tripId ? tripId : pageData.trips[0].id)) as Tables<'trips'>;
+            const findSelectedTrip = data.trips.find((trip: Tables<'trips'>) => trip.id === (tripId ? tripId : data.trips[0].id)) as Tables<'trips'>;
             this.selectedTripId = String(findSelectedTrip.id);
           }
         } catch (err: any) {

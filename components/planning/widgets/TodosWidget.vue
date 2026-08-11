@@ -80,8 +80,8 @@
 
 <template>
   <card class="px-8 py-4 rounded-3xl">
-    <div class="grid grid-cols-[auto,auto,1fr] justify-start items-center py-4">
-      <icon-list-todo class="h-6 mr-6 text-primary w-6" />
+    <div class="justify-start items-center grid grid-cols-[auto,auto,1fr] py-4">
+      <icon-list-todo class="mr-6 w-6 h-6 text-primary" />
       <p class="!font-bold text-base">
         Todos
       </p>
@@ -126,7 +126,7 @@
                 <table-row no-hover-effect>
                   <table-head class="w-[50px]">
                     <checkbox
-                      :checked="userTodos.every(u => u.completed)"
+                      :checked="userTodos.every((u: Tables<'todos'>) => u.completed)"
                       @update:checked="batchUpdateTodos" />
                   </table-head>
                   <table-head class="font-bold">
@@ -147,7 +147,7 @@
                     <gc-inline-edit
                       :model-value="todo.title ?? undefined"
                       name="title"
-                      @update:model-value="updateTodo(todo, { title: $event })">
+                      @update:model-value="updateTodo(todo, { title: $event as string })">
                       {{ todo.title }}
                     </gc-inline-edit>
                   </table-cell>
@@ -167,7 +167,7 @@
               <table-header>
                 <table-row no-hover-effect>
                   <table-head class="w-[50px]">
-                    <checkbox :checked="groupTodos.every(u => u.completed)" />
+                    <checkbox :checked="groupTodos.every((u: Tables<'todos'>) => u.completed)" />
                   </table-head>
                   <table-head class="font-bold">
                     Title
@@ -187,7 +187,7 @@
                     <gc-inline-edit
                       :model-value="todo.title ?? undefined"
                       name="title"
-                      @update:model-value="updateTodo(todo, { title: $event })">
+                      @update:model-value="updateTodo(todo, { title: $event as string })">
                       {{ todo.title }}
                     </gc-inline-edit>
                   </table-cell>

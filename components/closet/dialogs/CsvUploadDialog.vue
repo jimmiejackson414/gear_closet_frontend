@@ -53,14 +53,14 @@
 
       const parseResults = await parseFile(file.value) as ParsedResults;
       if (parseResults.data?.length) {
-        const { data: createdCategory, error } = await supabase
+        const { data: createdCategoryData, error } = await supabase
           .rpc('import_csv_data', {
             p_pack_id: $store.data.selectedPack?.id as number,
             csv_data: parseResults.data,
-          })
-          .returns<ExtendedCategory[]>();
+          });
 
-        if (createdCategory && !error) {
+        if (createdCategoryData && !error) {
+          const createdCategory = createdCategoryData as ExtendedCategory[];
           ($store.data.selectedPack as ExtendedPack).categories.push(...createdCategory);
           $appStore.notifyPositive('Successfully imported your items!');
         } else {
@@ -96,7 +96,7 @@
 <template>
   <dialog-root :open="$store.dialogStates.uploadCsvDialog">
     <dialog-content
-      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      class="sm:max-w-[450px] lg:max-w-[650px] max-h-[90dvh]"
       @escape-key-down="handleClose"
       @interact-outside="handleClose">
       <dialog-header>
@@ -105,7 +105,7 @@
           Upload a CSV file to automatically add items to your pack. Any items that already exist will not be affected.
         </dialog-description>
       </dialog-header>
-      <div class="flex items-center flex-col gap-6">
+      <div class="flex flex-col items-center gap-6">
         <div class="flex flex-col gap-1.5">
           <label-root for="file-upload">
             Import pack items (optional)

@@ -6,7 +6,7 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
-  import type { SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
+  import type { ProfileApiResponse, SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
 
   dayjs.extend(utc);
 
@@ -109,21 +109,30 @@
   const fetchSubscriptionData = async () => {
     fetchingSubscription.value = true;
     try {
-      const response = await $fetch('/api/stripe/subscription');
+      const response = await $fetch<SubscriptionApiResponse>('/api/stripe/subscription');
       if (!response) {
         $appStore.notifyNegative('An error occurred while fetching your subscription data.');
         return;
       }
       subscriptionData.value = response;
 
-      const supabase = useSupabaseClient<Database>();
-      const { data: subscription } = await supabase.from('subscriptions')
-        .select('*, prices(*)')
-        .eq('profile_id', $store.profile!.id)
-        .returns<SubscriptionType>()
-        .single();
+      const profile = $store.profile as ProfileApiResponse | null;
+      if (!profile) {
+        $appStore.notifyNegative('An error occurred while fetching your subscription data.');
+        return;
+      }
 
-      if (subscription) $store.profile!.subscriptions[0] = subscription;
+      const supabase = useSupabaseClient<Database>();
+      // Nested `prices(*)` select types can exceed TS instantiation depth in the IDE.
+      const result: { data: SubscriptionType | null } = await supabase
+        .from('subscriptions')
+        .select('*, prices(*)')
+        .eq('profile_id', profile.id)
+        .single() as any;
+
+      if (result.data) {
+        profile.subscriptions[0] = result.data;
+      }
 
       // set selectedPlan if the user has a subscription
       if (response.subscriptions.length) {
@@ -199,8 +208,8 @@
 </script>
 
 <template>
-  <div class="max-w-full lg:max-w-5xl mx-auto py-8 w-full">
-    <div class="grid lg:grid-cols-[400px,1fr] grid-cols-1 gap-6 lg:gap-14">
+  <div class="mx-auto py-8 w-full max-w-full lg:max-w-5xl">
+    <div class="gap-6 lg:gap-14 grid grid-cols-1 lg:grid-cols-[400px,1fr]">
       <client-only>
         <gc-avatar-upload
           :file="profileAvatar"
@@ -250,7 +259,7 @@
           <tabs-content value="profile">
             <card class="bg-card p-4 rounded-lg">
               <form
-                class="auto-rows-auto grid grid-cols-1 gap-6"
+                class="gap-6 grid grid-cols-1 auto-rows-auto"
                 @submit.prevent="onProfileSubmit">
                 <form-field
                   v-slot="{ componentField }"
@@ -343,8 +352,8 @@
               </div>
               <div
                 v-else
-                class="auto-rows-auto grid grid-cols-1 gap-12">
-                <div class="flex items-start flex-col gap-2">
+                class="gap-12 grid grid-cols-1 auto-rows-auto">
+                <div class="flex flex-col items-start gap-2">
                   <typography variant="small">
                     Current Subscription: <span class="font-bold">{{ capitalize(subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname) }}</span>
                   </typography>
@@ -355,7 +364,7 @@
                     Manage Subscription
                   </button-root>
                 </div>
-                <div class="flex items-start flex-col gap-2">
+                <div class="flex flex-col items-start gap-2">
                   <typography
                     class="!font-bold"
                     variant="small">
@@ -418,11 +427,11 @@
                             {{ dayjs.utc(invoice.created * 1000).format('MMM DD, YYYY') }} - ${{ (invoice.amount_paid / 100).toFixed(2) }} ({{ invoice.lines.data[0].plan?.nickname || 'N/A' }})
                             <a
                               v-tippy="'Download Invoice'"
-                              class="duration-200 ease-in-out text-gray-400 hover:text-primary transition-colors"
+                              class="text-gray-400 hover:text-primary transition-colors duration-200 ease-in-out"
                               :href="(invoice.invoice_pdf as string)"
                               rel="noopener noreferrer"
                               target="_blank">
-                              <icon-download class="h-4 w-4" />
+                              <icon-download class="w-4 h-4" />
                             </a>
                           </li>
                         </ul>
@@ -437,7 +446,7 @@
           <!-- Settings Tab Content -->
           <tabs-content value="settings">
             <card class="bg-card p-4 rounded-lg">
-              <div class="auto-rows-auto grid grid-cols-1 gap-6">
+              <div class="gap-6 grid grid-cols-1 auto-rows-auto">
                 <form-field
                   v-slot="{ componentField }"
                   name="new_password">
@@ -477,8 +486,8 @@
                   </button-root>
                 </div>
                 <separator />
-                <div class="flex items-start flex-col">
-                  <typography class="!font-bold mb-2 text-destructive">
+                <div class="flex flex-col items-start">
+                  <typography class="mb-2 !font-bold text-destructive">
                     Danger Zone
                   </typography>
                   <button-root

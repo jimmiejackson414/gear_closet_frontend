@@ -27,9 +27,8 @@
       const { data: updatedPoll, error } = await supabase.rpc('update_poll', {
         poll_id: $store.data.poll?.id as number,
         question: localForm.question?.title as string,
-        answers: localForm.answers.map(a => a.content) as string[],
+        answers: localForm.answers.map((a: Tables<'answers'>) => a.content) as string[],
       })
-        .returns<ExtendedPoll>()
         .select();
 
       if (error) { $appStore.notifyNegative('There was an error updating the poll.');}
@@ -52,13 +51,12 @@
       const { data: newPoll, error } = await supabase.rpc('create_poll', {
         trip_id: Number($store.selectedTripId),
         question: localForm.question?.title as string,
-        answers: localForm.answers.map(a => a.content) as string[],
+        answers: localForm.answers.map((a: Tables<'answers'>) => a.content) as string[],
       })
-        .returns<ExtendedPoll>()
         .single();
 
       if (error) { $appStore.notifyNegative('There was an error creating a new poll.');}
-      if (newPoll) { $store.data.poll = newPoll; }
+      if (newPoll) { $store.data.poll = newPoll as ExtendedPoll; }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new poll.');
     } finally {

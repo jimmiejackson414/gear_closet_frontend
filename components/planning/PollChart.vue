@@ -33,7 +33,7 @@
   });
 
   const highestPercentAnswer = computed(() => {
-    return calcAnswers.value.reduce((acc, cur) => {
+    return calcAnswers.value.reduce((acc: Tables<'answers'> & { percent: number }, cur: Tables<'answers'> & { percent: number }) => {
       if (cur.percent > acc.percent) {
         return cur;
       }

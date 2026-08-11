@@ -32,7 +32,6 @@ export default defineEventHandler(async (event) => {
         subscriptions!subscriptions_profile_id_fkey(*, prices!subscriptions_price_id_fkey(*))
       `)
       .eq('id', user!.id)
-      .returns<ProfileApiResponse>()
       .maybeSingle();
 
     clearTimeout(timeout);
@@ -44,7 +43,7 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    return data;
+    return data as ProfileApiResponse;
   } catch (err) {
     throw createError({
       statusCode: 500,

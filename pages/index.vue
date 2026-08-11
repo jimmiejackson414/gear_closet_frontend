@@ -42,8 +42,7 @@
       const { data: pageData, error } = await supabase
         .rpc('get_dashboard_data', {
           p_user_id: user.value!.id,
-        })
-        .returns<DashboardData>();
+        });
 
       if (!pageData || error) {
         $store.notifyNegative('An error occurred while loading your account.');
@@ -51,9 +50,10 @@
         return;
       }
 
-      data.friends = pageData.friends;
-      data.trips = pageData.trips;
-      data.trip_friends = pageData.trip_friends;
+      const typedPageData = pageData as unknown as DashboardData;
+      data.friends = typedPageData.friends;
+      data.trips = typedPageData.trips;
+      data.trip_friends = typedPageData.trip_friends;
 
       // fetch forum data from forums api
       await fetchForumPosts();

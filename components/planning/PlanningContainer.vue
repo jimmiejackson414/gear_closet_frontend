@@ -1,10 +1,10 @@
-<script lang='ts' setup>
+<script lang="ts" setup>
   const $store = usePlanningStore();
   const $route = useRoute();
   const $cookie = useCookie('selectedTripId');
 
   let identifier = 0;
-  watch($cookie, (newValue) => {
+  watch(() => $cookie.value, (newValue) => {
     if (newValue && !$route.query?.trip) {
       identifier = Number(decrypt(newValue)) || 0;
       $store.fetchPlanningPage(identifier);

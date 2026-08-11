@@ -119,7 +119,7 @@
 <template>
   <dialog-root :open="isOpen">
     <dialog-content
-      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      class="sm:max-w-[450px] lg:max-w-[650px] max-h-[90dvh]"
       @escape-key-down="handleClose"
       @interact-outside="handleClose">
       <dialog-header>
@@ -168,7 +168,7 @@
               name="has_url"
               type="checkbox"
               :validate-on-blur="!isFieldDirty">
-              <form-item class="flex items-start flex-row gap-x-3 space-y-0">
+              <form-item class="flex flex-row items-start gap-x-3 space-y-0">
                 <form-control>
                   <checkbox
                     :checked="value"

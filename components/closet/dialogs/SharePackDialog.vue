@@ -23,7 +23,7 @@
 <template>
   <dialog-root :open="$store.dialogStates.sharePackDialog">
     <dialog-content
-      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      class="sm:max-w-[450px] lg:max-w-[650px] max-h-[90dvh]"
       @escape-key-down="$store.dialogStates.sharePackDialog = false"
       @interact-outside="$store.dialogStates.sharePackDialog = false">
       <dialog-header>
@@ -36,7 +36,7 @@
       </dialog-header>
       <div class="flex flex-col gap-6">
         <div class="flex items-end gap-4 w-full">
-          <div class="grid gap-1.5 items-center max-w-sm w-full">
+          <div class="items-center gap-1.5 grid w-full max-w-sm">
             <label-root for="url">
               Shareabe Link
             </label-root>
@@ -48,9 +48,9 @@
           </div>
           <button-root
             v-tippy="{ content: 'Copy link to clipboard' }"
-            class="cursor-pointer duration-150 ease-snap flex justify-center justify-self-end items-center h-8 mb-2 rounded-full transition w-8"
+            class="flex justify-center justify-self-end items-center mb-2 rounded-full w-8 h-8 transition duration-150 ease-snap cursor-pointer"
             @click="copyToClipboard">
-            <icon-copy class="cursor-pointer duration-150 ease-expo h-6 transition w-6" />
+            <icon-copy class="w-6 h-6 transition duration-150 ease-expo cursor-pointer" />
           </button-root>
         </div>
       </div>

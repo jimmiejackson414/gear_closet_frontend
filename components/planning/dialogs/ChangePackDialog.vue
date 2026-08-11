@@ -52,7 +52,7 @@
     }
   };
 
-  watch(() => props.isOpen, async (newValue) => {
+  watch(() => props.isOpen, async (newValue: boolean) => {
     if (newValue) await fetchPacks();
   });
 
@@ -75,11 +75,10 @@
         `,
         )
         .eq('id', selectedPackId.value as number)
-        .returns<ExtendedPack | undefined>()
         .single();
 
       if (pack && !error) {
-        $store.data.pack = pack;
+        $store.data.pack = pack as ExtendedPack;
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error fetching the trip pack.');
@@ -149,7 +148,7 @@
 <template>
   <dialog-root :open="isOpen">
     <dialog-content
-      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      class="sm:max-w-[450px] lg:max-w-[650px] max-h-[90dvh]"
       @escape-key-down="emits('onClose')"
       @interact-outside="emits('onClose')">
       <dialog-header>
@@ -160,7 +159,7 @@
           {{ !fetchingPacks && !packOptions.length ? 'You haven\'t created any packs yet!' : 'Choose one of your existing packs to add to this trip, or create a new pack!' }}
         </dialog-description>
       </dialog-header>
-      <div class="flex items-center flex-col gap-8 mt-4 mx-auto w-full lg:max-w-sm">
+      <div class="flex flex-col items-center gap-8 mx-auto mt-4 w-full lg:max-w-sm">
         <select-root
           :model-value="String(selectedPackId)"
           @update:model-value="selectedPackId = Number($event)">

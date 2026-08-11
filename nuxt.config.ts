@@ -1,4 +1,24 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
+
+/**
+ * TEMP (remove in Phase 4 / shadcn-nuxt 2): shadcn-nuxt@0.11 registers UI via
+ * addComponent() from index barrels (needed for renames like Button→ButtonRoot)
+ * but also scans components/ui with extensions:[], which double-registers.
+ * Strip that scan dir after shadcn runs. Nuxt config `hooks` would run too early.
+ */
+function fixShadcnComponentDirs (_options: unknown, nuxt: any) {
+  nuxt.hook('components:dirs', (dirs: Array<string | { path?: string }>) => {
+    for (let i = dirs.length - 1; i >= 0; i -= 1) {
+      const dir = dirs[i];
+      const rawPath = typeof dir === 'string' ? dir : dir?.path;
+      const dirPath = rawPath?.replace(/\\/g, '/') ?? '';
+      if (dirPath.endsWith('/components/ui') || dirPath.endsWith('/components/ui/')) {
+        dirs.splice(i, 1);
+      }
+    }
+  });
+}
+
 export default defineNuxtConfig({
   app: {
     head: {
@@ -6,7 +26,7 @@ export default defineNuxtConfig({
         // Primary tags
         { "charset": "utf-8" },
         { "name": "viewport", "content": "width=device-width, initial-scale=1" },
-        { "hid": "description", "name": "description", "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!" },
+        { "name": "description", "content": "Ever needed a way to plan the next backpacking trip with your friends? Welcome to Gear Closet! Create pack lists, plan your hike, and share your pack lists with others!" },
         // Open Graph/ Facebook
         { "property": "og:type", "content": "website" },
         { "property": "og:url", "content": "https://app.gearcloset.io/" },
@@ -43,6 +63,9 @@ export default defineNuxtConfig({
     {
       path: '@/components',
       pathPrefix: false,
+      // Ignore patterns are relative to `path`. UI components are registered by
+      // shadcn-nuxt via addComponent() from each folder's index.ts.
+      ignore: ['ui/**'],
     },
   ],
 
@@ -74,6 +97,7 @@ export default defineNuxtConfig({
     "@nuxtjs/color-mode",
     "shadcn-nuxt",
     "nuxt-lucide-icons",
+    fixShadcnComponentDirs,
   ],
 
   postcss: {
@@ -131,13 +155,12 @@ export default defineNuxtConfig({
   typescript: {
     typeCheck: true,
     tsConfig: {
-      include: ['vendor.d.ts'],
+      include: ['vendor.d.ts', 'vitest-globals.d.ts'],
       compilerOptions: {
+        // Vue Official 3.x always typechecks SFCs via ts-plugin; without baseUrl,
+        // `@/` aliases and Nuxt globals fail in the IDE (CLI vue-tsc still works).
         baseUrl: '.',
-        paths: {
-          '@': ['.'],
-          '@/*': ['./*'],
-        },
+        plugins: [{ name: '@vue/typescript-plugin' }],
       },
     },
   },
@@ -148,5 +171,5 @@ export default defineNuxtConfig({
     },
   },
 
-  compatibilityDate: "2024-12-30",
+  compatibilityDate: "2025-07-15",
 });
