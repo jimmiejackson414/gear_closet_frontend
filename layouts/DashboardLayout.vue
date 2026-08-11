@@ -3,7 +3,7 @@
 
 
   const $store = useUserStore();
-  const { profile } = storeToRefs($store);
+  const profile = toRef($store, 'profile');
 
   const { data, error } = await useFetch<Tables<'profiles'> | null>('/api/profile', {
     headers: useRequestHeaders(['cookie']),

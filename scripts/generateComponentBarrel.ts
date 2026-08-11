@@ -8,40 +8,35 @@ const __dirname = path.dirname(__filename);
 
 // Define the fixed directory path
 const componentsDir = path.join(__dirname, '..', 'components', 'ui');
-const barrelFile = path.join(componentsDir, 'index.ts');
 
-// Function to read the components directory and generate the barrel file
+/**
+ * Ensures each UI subdirectory has an index.ts barrel.
+ * A root `components/ui/index.ts` is intentionally NOT generated:
+ * shadcn-nuxt scans that folder and treats every entry as a component
+ * directory, which breaks on a root barrel file (ENOTDIR).
+ */
 const generateBarrelFile = async () => {
   try {
     const subDirs = await fs.promises.readdir(componentsDir, { withFileTypes: true });
     console.log('Subdirectories in components directory:', subDirs);
 
-    const imports = await Promise.all(
-      subDirs
-        .filter(dirent => dirent.isDirectory())
-        .map(async dirent => {
-          const subDirPath = path.join(componentsDir, dirent.name);
-          const subDirBarrelFile = path.join(subDirPath, 'index.ts');
+    const missing: string[] = [];
+    for (const dirent of subDirs) {
+      if (!dirent.isDirectory()) continue;
+      const subDirBarrelFile = path.join(componentsDir, dirent.name, 'index.ts');
+      if (!fs.existsSync(subDirBarrelFile)) {
+        missing.push(dirent.name);
+        console.log(`No barrel file found in ${path.join(componentsDir, dirent.name)}`);
+      }
+    }
 
-          // Check if the subdirectory has a barrel file
-          if (fs.existsSync(subDirBarrelFile)) {
-            return `export * from './${dirent.name}';`;
-          } else {
-            console.log(`No barrel file found in ${subDirPath}`);
-            return null;
-          }
-        }),
-    );
-
-    const filteredImports = imports.filter(Boolean)
-      .join('\n');
-    const importCount = filteredImports ? filteredImports.split('\n').length : 0;
-    console.log(`Generated ${importCount} imports:`, filteredImports);
-
-    await fs.promises.writeFile(barrelFile, filteredImports);
-    console.log('Root barrel file created successfully!');
+    if (missing.length) {
+      console.log(`Missing barrels in: ${missing.join(', ')}`);
+    } else {
+      console.log('All UI subdirectories have barrel files.');
+    }
   } catch (err) {
-    console.error('Error generating barrel file:', err);
+    console.error('Error checking barrel files:', err);
   }
 };
 

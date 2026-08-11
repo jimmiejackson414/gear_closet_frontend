@@ -11,7 +11,7 @@
   const props = defineProps<Props>();
 
   const $store = useUserStore();
-  const { profile } = storeToRefs($store);
+  const profile = toRef($store, 'profile');
 
   const computedBorder = computed(() => {
     const classes = ['border-2', 'transition', 'duration-200', 'ease-snap border-t-8'];

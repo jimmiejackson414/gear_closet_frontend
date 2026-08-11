@@ -1,6 +1,7 @@
 <script lang='ts' setup>
   const $store = usePlanningStore();
-  const { data, pageLoading } = storeToRefs($store);
+  const data = toRef($store, 'data');
+  const pageLoading = toRef($store, 'pageLoading');
 
   const isInviteModalOpen = ref(false);
 </script>
