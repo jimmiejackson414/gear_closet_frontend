@@ -34,7 +34,7 @@
 </script>
 
 <template>
-  <nav class="container flex items-start p-0 z-50">
+  <nav class="z-50 flex items-start p-0 container">
     <div class="page-title">
       <p
         class="text-base-lg"
@@ -62,11 +62,11 @@
           @click="toggleColorMode">
           <icon-sun
             v-if="colorMode.value === 'dark'"
-            class="size-6! text-accent-alt dark:text-card-foreground"
+            class="size-6! dark:text-card-foreground text-accent-alt"
             :size="20" />
           <icon-moon
             v-else
-            class="size-6! text-accent-alt dark:text-card-foreground"
+            class="size-6! dark:text-card-foreground text-accent-alt"
             :size="40" />
         </button-root>
       </span>
@@ -76,28 +76,28 @@
           size="icon"
           variant="ghost"
           @click="isDropdownOpen = !isDropdownOpen">
-          <icon-bell-ring class="size-max! text-accent-alt dark:text-card-foreground" />
+          <icon-bell-ring class="size-max! dark:text-card-foreground text-accent-alt" />
           <div
             v-if="shouldShowBadge"
-            class="absolute top-1 bg-destructive block border-2 border-white inset-e-1 h-3 rounded-full w-3" />
+            class="block top-1 absolute inset-e-1 bg-destructive border-2 border-white rounded-full w-3 h-3" />
         </button-root>
         <fade-transition>
           <div
             v-if="isDropdownOpen"
             ref="notificationDropdown"
-            class="absolute top-full right-0 bg-white border divide-gray-100 duration-300 max-w-sm min-w-[300px] mt-2 rounded-lg shadow-sm transition-all w-max z-20"
+            class="top-full right-0 z-20 absolute bg-white shadow-xs mt-2 border rounded-lg divide-gray-100 w-max min-w-75 max-w-sm transition-all duration-300"
             data-testid="notifications-dropdown">
-            <div class="bg-gray-50 block font-bold px-4 py-2 rounded-t-lg text-center text-dark-grey">
+            <div class="block bg-gray-50 px-4 py-2 rounded-t-lg font-bold text-dark-grey text-center">
               Notifications ({{ $store.unreadNotifications?.length ?? 0 }})
             </div>
             <span v-if="$store.unreadNotifications?.length">
-              <ul class="divide-gray-100 divide-y">
+              <ul class="divide-y divide-gray-100">
                 <notification-item
                   v-for="notification in $store.unreadNotifications"
                   :key="notification.id"
                   :notification="(notification as ExtendedNotification)" />
               </ul>
-              <div class="bg-gray-50 block px-4 py-2 rounded-b-lg text-center text-dark-grey">
+              <div class="block bg-gray-50 px-4 py-2 rounded-b-lg text-dark-grey text-center">
                 <button-root
                   size="sm"
                   variant="ghost"
@@ -109,7 +109,7 @@
             <div
               v-else
               class="py-3">
-              <p class="font-medium text-center text-dark-grey text-sm">
+              <p class="font-medium text-dark-grey text-sm text-center">
                 No new notifications
               </p>
             </div>

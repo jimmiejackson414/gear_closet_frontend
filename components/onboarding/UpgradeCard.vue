@@ -2,9 +2,9 @@
   import { SubscriptionLevel } from '@/types';
 
   interface Props {
-    isSelected: boolean;
-    tier: Tier;
-    submitting: boolean;
+    isSelected?: boolean;
+    tier?: Tier;
+    submitting?: boolean;
   }
 
   const props = withDefaults(defineProps<Props>(), {
@@ -22,17 +22,17 @@
 
 <template>
   <div
-    class="cursor-pointer w-full"
+    class="w-full cursor-pointer"
     @click="handleSelect">
     <div
-      class="duration-200 ease-in-out rounded-lg transition-all"
+      class="rounded-lg transition-all duration-200 ease-in-out"
       :class="[
         {
           'border-tertiary': props.tier.value === SubscriptionLevel.FREE,
           'border-primary': props.tier.value === SubscriptionLevel.ANNUAL,
           'border-accent-alt': props.tier.value === SubscriptionLevel.MONTHLY,
         },
-        props.isSelected ? 'shadow-lg' : 'shadow-sm hover:shadow-lg',
+        props.isSelected ? 'shadow-lg' : 'shadow-xs hover:shadow-lg',
         'border-t-[5px]',
       ]">
       <div class="bg-charlie-brown p-4 text-center">
@@ -43,15 +43,15 @@
             'bg-primary text-white': props.tier.value === SubscriptionLevel.ANNUAL,
             'bg-accent-alt': props.tier.value === SubscriptionLevel.MONTHLY,
           } ]">
-          <p class="font-bold text-base text-white uppercase">
+          <p class="font-bold text-white text-base uppercase">
             {{ tier?.title }}
           </p>
         </div>
         <div>
-          <h4 class="font-black mt-6 text-2xl">
+          <h4 class="mt-6 font-black text-2xl">
             {{ tier?.price }}
           </h4>
-          <p class="mb-4 text-base text-grey">
+          <p class="mb-4 text-grey text-base">
             {{ tier?.priceSubtitle }}
           </p>
         </div>
