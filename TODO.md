@@ -17,10 +17,10 @@ Revive the late-2024 / early-2025 Nuxt 3 stack toward current Nuxt 4. Do this in
 | Supabase module | **2.0.10** | 2.0.10 | Done (Phase 3) |
 | Pinia / `@pinia/nuxt` | **4.0.2 / 1.0.1** | 4.x / 1.x | Done (Phase 3) |
 | VueUse | **14.4.0** | 14.x | Done (Phase 3) |
-| ESLint | 8 + ts-eslint 6 | 9/10 + flat config | Medium |
+| ESLint | **10.8.1** (`@nuxt/eslint` flat) | 10.x | Done (Phase 7) |
 | Stripe | stripe-js 5 / stripe 17 | 9 / 22 | Medium–high |
 | Zod | 3.x | 4.x | Medium |
-| Vitest / `@nuxt/test-utils` | 1.6 / 3.x | 4.x / 4.x | Medium (Phase 7) |
+| Vitest / `@nuxt/test-utils` | **4.1.10 / 4.1.0** | 4.x / 4.x | Done (Phase 7) |
 
 Also notable:
 
@@ -275,12 +275,18 @@ npx nuxt@latest upgrade --dedupe --channel=v3
 ## Phase 7 — Tooling last
 
 **Effort:** included in 2–5 days with Phase 6  
-**Risk:** Medium
+**Risk:** Medium  
+**Status:** Done on branch `phase-7_tooling-updates` (2026-08-11)
 
-- [ ] ESLint 8 → 9+ (flat config); retire `.eslintrc.cjs`; bump `@typescript-eslint/*`, `eslint-plugin-vue`, perfectionist
-- [ ] Vitest 1 → 4 with `@nuxt/test-utils` 4
-- [ ] Keep TypeScript on **5.x** for now (7 is too bleeding-edge for this stack)
-- [ ] Bump `packageManager` pnpm field from 9.1 toward current 9/10 deliberately
+- [x] ESLint **10.8.1** + `@nuxt/eslint` flat config; retired `.eslintrc.cjs` / `.eslintignore`
+  - Kept selective `@stylistic` + Vue rules as **warn** (full Nuxt stylistic preset would fail ~6k errors against existing style)
+  - `eslint-plugin-import` → `eslint-plugin-import-x` (ESLint 10)
+  - Dropped `eslint-plugin-no-relative-import-paths` (incompatible with ESLint 10 `getCwd`) and unused `@kalimahapps/eslint-plugin-tailwind`
+- [x] Vitest **4.1.10** + `@nuxt/test-utils` **4.1.0** + `happy-dom` **20** (unit suite still has pre-existing Pinia/setup failures; Vitest 4 runs)
+- [x] Keep TypeScript on **5.x** (unchanged)
+- [x] Bump `packageManager` `pnpm@9.1.0` → **`pnpm@9.15.0`**
+
+**Exit criteria:** Flat ESLint + Vitest 4 install/run; `pnpm typecheck` / `pnpm lint` 0 errors. ✅
 
 ---
 

@@ -83,10 +83,19 @@ export default defineNuxtConfig({
     '@vueuse/nuxt',
     '@fixers/nuxt-stripe',
     '@nuxt/test-utils/module',
+    '@nuxt/eslint',
     "@nuxtjs/color-mode",
     "shadcn-nuxt",
     "nuxt-lucide-icons",
   ],
+
+  eslint: {
+    config: {
+      // Keep formatting selective (warn-level in eslint.config.mjs) — enabling the
+      // full stylistic preset surfaces ~6k errors against the existing codebase.
+      stylistic: false,
+    },
+  },
 
   runtimeConfig: {
     cloudinaryApiKey: process.env.NUXT_CLOUDINARY_API_KEY,

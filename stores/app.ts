@@ -6,9 +6,7 @@ type State = {
   loading: boolean;
 };
 
-type Getters = {
-  //
-};
+type Getters = Record<string, never>;
 
 type Actions = {
   notifyDefault: (description: string, title?: string) => void;
