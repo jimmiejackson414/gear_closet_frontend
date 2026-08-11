@@ -1,15 +1,15 @@
 <script lang='ts' setup>
   import { SubscriptionLevel } from '@/types';
+  import type { Tier } from '@/utils/tiers';
 
   interface Props {
     isSelected?: boolean;
-    tier?: Tier;
+    tier: Tier;
     submitting?: boolean;
   }
 
   const props = withDefaults(defineProps<Props>(), {
     isSelected: false,
-    tier: undefined,
     submitting: false,
   });
 

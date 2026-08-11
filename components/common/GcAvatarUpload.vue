@@ -7,11 +7,18 @@
   import FilePondPluginImagePreview from 'filepond-plugin-image-preview';
   import FilePondPluginImageResize from 'filepond-plugin-image-resize';
   import FilePondPluginImageTransform from 'filepond-plugin-image-transform';
-  import vueFilePond, { type VueFilePondComponent } from 'vue-filepond';
+  import vueFilePondImport, { type VueFilePondComponent } from 'vue-filepond';
   import { cn } from '@/lib/utils';
 
   import 'filepond/dist/filepond.min.css';
   import 'filepond-plugin-image-preview/dist/filepond-plugin-image-preview.min.css';
+
+  // vue-filepond@8 + Vite 8 may resolve the CJS interop as `{ default, setOptions }`
+  const vueFilePond = (
+    typeof vueFilePondImport === 'function'
+      ? vueFilePondImport
+      : (vueFilePondImport as unknown as { default: typeof vueFilePondImport }).default
+  ) as (...plugins: unknown[]) => VueFilePondComponent;
 
   const FilePond = vueFilePond(
     FilePondPluginFileValidateType,
@@ -21,7 +28,7 @@
     FilePondPluginImageCrop,
     FilePondPluginImageResize,
     FilePondPluginImageTransform,
-  ) as VueFilePondComponent;
+  );
 
   interface Props {
     classes?: string;

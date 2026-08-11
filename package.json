@@ -32,7 +32,6 @@
     "@types/node": "^22.12.0",
     "@types/papaparse": "^5.5.2",
     "@types/sortablejs": "^1.15.8",
-    "@types/uuid": "^9.0.7",
     "@vitejs/plugin-vue": "^6.0.8",
     "@vitest/ui": "^4.1.10",
     "@vue/test-utils": "^2.4.5",
@@ -70,7 +69,7 @@
     "convert": "^4.14.0",
     "dayjs": "^1.11.21",
     "dinero.js": "^1.9.1",
-    "dotenv": "^16.4.7",
+    "dotenv": "^17.4.2",
     "echarts": "^5.6.0",
     "filepond": "^4.32.12",
     "filepond-plugin-file-encode": "^2.1.13",
@@ -85,16 +84,22 @@
     "papaparse": "^5.5.4",
     "pinia": "^4.0.2",
     "reka-ui": "^2.10.3",
-    "sortablejs": "^1.15.6",
+    "sortablejs": "^1.15.7",
     "stripe": "^17.5.0",
     "tailwind-merge": "^2.6.0",
-    "uuid": "^9.0.1",
+    "uuid": "^14.0.1",
     "vee-validate": "^4.15.0",
+    "vue": "^3.5.41",
     "vue-draggable-plus": "^0.6.0",
     "vue-echarts": "^6.7.3",
-    "vue-filepond": "^7.0.4",
+    "vue-filepond": "^8.0.0",
     "vue-tippy": "^6.7.1",
     "zod": "^3.23.8"
   },
-  "packageManager": "pnpm@9.15.0"
+  "packageManager": "pnpm@9.15.0",
+  "pnpm": {
+    "overrides": {
+      "vue": "3.5.41"
+    }
+  }
 }
