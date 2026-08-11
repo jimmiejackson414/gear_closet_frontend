@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import VueDatePicker from '@vuepic/vue-datepicker';
+  import { VueDatePicker } from '@vuepic/vue-datepicker';
   import dayjs from 'dayjs';
   import { IconPencil, IconPlus } from '#components';
   import { usePlanningStore } from '@/stores/planning';
@@ -151,15 +151,14 @@
             ref="datePicker"
             :action-row="{ showNow: false, showPreview: false, showCancel: false, showSelect: true }"
             :auto-apply="true"
-            calendar-cell-class-name="gc-dp-cell"
             class="gc-dp"
-            :format="format"
+            :formats="{ input: format, preview: format }"
             :hide-navigation="['time']"
-            input-class-name="gc-dp-input"
             :model-value="dateRange"
             placeholder="Start and End Dates"
-            :preview-format="format"
             range
+            :time-config="{ enableTimePicker: false }"
+            :ui="{ calendarCell: 'gc-dp-cell', input: 'gc-dp-input' }"
             @update:model-value="
               updateTrip({ starting_date: $event[0], ending_date: $event[1] }),
               editingTripDates = false;

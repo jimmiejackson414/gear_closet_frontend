@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { toTypedSchema } from '@vee-validate/zod';
-  import VueDatePicker from '@vuepic/vue-datepicker';
+  import { VueDatePicker } from '@vuepic/vue-datepicker';
   import dayjs from 'dayjs';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
@@ -50,6 +50,18 @@
     const date2 = dates[1] ? dayjs(dates[1])
       .format('MMM D, YYYY') : '';
     return `${date1} to ${date2}`;
+  };
+
+  /** VueDatePicker v14 types `onBlur` as `() => void`; vee-validate passes `(e: Event) => void`. */
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const datePickerFieldBind = (componentField: any) => {
+    const { onBlur, ...rest } = componentField;
+    return {
+      ...rest,
+      onBlur: () => {
+        onBlur?.();
+      },
+    };
   };
 
   /**
@@ -176,20 +188,19 @@
             <form-item>
               <form-label>Start and End Dates</form-label>
               <vue-date-picker
-                v-bind="componentField"
+                v-bind="datePickerFieldBind(componentField)"
                 ref="datePicker"
                 :action-row="{ showNow: false, showPreview: false, showCancel: false, showSelect: true }"
                 :auto-apply="true"
-                calendar-cell-class-name="gc-dp-cell"
                 class="w-full! gc-dp"
-                :format="format"
+                :formats="{ input: format, preview: format }"
                 :hide-navigation="['time']"
-                input-class-name="gc-dp-input"
+                :input-attrs="{ name: 'datePicker' }"
                 :model-value="dateRange"
-                name="datePicker"
                 placeholder="Start and End Dates"
-                :preview-format="format"
                 range
+                :time-config="{ enableTimePicker: false }"
+                :ui="{ calendarCell: 'gc-dp-cell', input: 'gc-dp-input' }"
                 @update:model-value="dateRange = $event">
                 <template #input-icon>
                   <icon-calendar class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-foreground w-5" />

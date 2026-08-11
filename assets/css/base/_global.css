@@ -3,26 +3,25 @@
     @apply font-sans text-primary text-base hover:text-primary/75 transition-all duration-200 ease-in-out hover:underline underline-offset-4;
   }
 
-  /* Datepicker Styles */
-  .dp__main.gc-dp {
+  /* Datepicker Styles (vue-datepicker v13+ uses dash class names) */
+  .dp--main.gc-dp {
     @apply w-fit;
 
-    .dp__input {
+    .dp--input {
       &.gc-dp-input {
         @apply flex w-full rounded-md border bg-transparent dark:bg-background px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 h-10 py-2 border-input ps-9;
       }
     }
 
-    .dp__calendar_item {
-
-      .dp__range_start,
-      .dp__range_end {
+    .dp--calendar-item {
+      .dp--range-border-start,
+      .dp--range-border-end {
         &.gc-dp-cell {
           @apply bg-primary!;
         }
       }
 
-      .dp__today .gc-dp-cell {
+      .dp--today .gc-dp-cell {
         @apply border-primary!;
       }
     }
