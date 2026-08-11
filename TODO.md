@@ -182,9 +182,9 @@ Do these as **separate PRs** — not one mega upgrade.
 | [ ] `chore: zod 4` | 3 → 4 | Med–High — wait until `@vee-validate/zod` supports zod 4 |
 | [ ] `chore: dinero.js 2` | 1 → 2 | Med — API rewrite (`utils/helpers.ts`, `utils/tiers.ts`) |
 | [ ] `chore: convert 7` | 4 → 7 | Med — weight math call sites |
-| [ ] `chore: uuid 14` | 9 → 14 | Low–Med — `generateUniqueToken` |
+| [x] `chore: uuid 14` | 9 → **14.0.1** | Done on `phase-9_stability-and-safe-bumps` |
 | [ ] `chore: echarts 6 + vue-echarts 8` | 5/6 → 6/8 | Med — chart visual regression |
-| [ ] `chore: vue-filepond 8` | 7 → 8 | Low–Med — `GcAvatarUpload.vue` only |
+| [x] `chore: vue-filepond 8` | 7 → **8.0.0** | Done on `phase-9_stability-and-safe-bumps` (Vite 8 default-export interop) |
 
 ### Optional polish
 
@@ -194,7 +194,20 @@ Do these as **separate PRs** — not one mega upgrade.
 | [ ] `chore: enable noUncheckedIndexedAccess` | Fix ~90+ indexed access errors | Opted out in Phase 2 |
 | [ ] `chore: migrate to Nuxt app/ directory` | Drop `srcDir: '.'` layout | Large move; optional |
 | [ ] `chore: eslint stylistic warn cleanup` | Reduce warn noise / selective `--fix` | Not a blocker (0 errors today) |
-| [ ] Safe patch/minors anytime | dayjs, filepond plugins, papaparse, dotenv, `tailwind-merge` 3, etc. | Low risk, opportunistic |
+| [~] Safe patch/minors anytime | **Phase 9:** `dotenv` 17, `sortablejs` 1.15.7; tippy already current | Remaining: `tailwind-merge` 3, etc. |
+
+---
+
+## Phase 9 — Stability + safe bumps
+
+**Status:** In progress on branch `phase-9_stability-and-safe-bumps` (2026-08-11)
+
+- [x] Pin `vue@3.5.41` (+ `pnpm.overrides`) to fix SSR `currentRenderingInstance.ce` white screen (duplicate Vue)
+- [x] Transpile `reka-ui`
+- [x] `UpgradeCard` required `tier` prop (vue-tsc)
+- [x] `uuid` **14.0.1** (dropped `@types/uuid`; package ships types)
+- [x] `vue-filepond` **8.0.0** + Vite 8 default-export interop in `GcAvatarUpload.vue`
+- [x] Safe minors: `dotenv` **17.4.2**, `sortablejs` **1.15.7**
 
 ### Explicitly out of scope for now
 
@@ -215,6 +228,7 @@ Do these as **separate PRs** — not one mega upgrade.
 7. [x] Domain: crypto-js → noble, datepicker 14
 8. [x] ESLint flat + Vitest 4
 9. [x] Phase 8 wrapup (bugs, dead deps, docs)
+10. [~] Phase 9 stability + uuid/filepond/safe minors (this branch)
 
 ---
 
@@ -230,6 +244,7 @@ Do these as **separate PRs** — not one mega upgrade.
 | 6 Domain libraries | 1–2 days (+ Stripe later) | ✅ / Stripe deferred |
 | 7 Tooling | 1–2 days | ✅ |
 | 8 Wrapup | ~0.5–1 day | ✅ |
+| 9 Stability + safe bumps | ~0.5 day | In progress |
 | Remaining dedicated PRs | 2–5+ days spread | Open |
 
 ---
@@ -238,7 +253,8 @@ Do these as **separate PRs** — not one mega upgrade.
 
 The **Nuxt 4 revival is complete** through tooling and wrapup. Next work is opportunistic or dedicated:
 
-1. Refresh Stripe test key → Stripe majors PR  
-2. Fix unit test Pinia setup  
-3. Isolated library majors (convert / uuid / dinero / echarts / Zod when ready)  
-4. Optional polish (`@theme`, `noUncheckedIndexedAccess`, ESLint warn debt)
+1. Land Phase 9 (Vue pin / reka SSR fix + uuid 14 + filepond 8 + safe minors)
+2. Refresh Stripe test key → Stripe majors PR  
+3. Fix unit test Pinia setup  
+4. Isolated library majors (convert / dinero / echarts / Zod when ready)  
+5. Optional polish (`@theme`, `noUncheckedIndexedAccess`, ESLint warn debt)

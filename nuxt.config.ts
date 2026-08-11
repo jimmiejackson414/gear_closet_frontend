@@ -42,6 +42,7 @@ export default defineNuxtConfig({
       'echarts',
       'zrender',
       'tslib',
+      'reka-ui',
     ],
   },
 
