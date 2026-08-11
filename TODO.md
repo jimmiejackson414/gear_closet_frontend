@@ -24,7 +24,7 @@ Revive the late-2024 / early-2025 Nuxt 3 stack toward current Nuxt 4. Do this in
 
 Also notable:
 
-- `crypto-js` is **deprecated** (used in `utils/encryption.ts`)
+- `crypto-js` replaced in Phase 6 (`@noble/ciphers` / `@noble/hashes` in `utils/encryption.ts`)
 - Stripe test key in `.env` is expired (known; CLI auth 401 on `pnpm dev`)
 - Optional follow-up: enable JWT signing keys in Supabase dashboard and set `NUXT_PUBLIC_SUPABASE_KEY` (publishable) + `NUXT_SUPABASE_SECRET_KEY` (legacy anon key still works)
 
@@ -249,13 +249,14 @@ npx nuxt@latest upgrade --dedupe --channel=v3
 ## Phase 6 — Domain & library majors
 
 **Effort:** 2–5 days (spread across PRs)  
-**Risk:** Medium–high depending on package
+**Risk:** Medium–high depending on package  
+**Status:** In progress on branch `phase-6_domain-and-library-majors` (2026-08-11)
 
 ### Do soon (security / maintenance)
 
-- [ ] Replace **`crypto-js`** (deprecated) — Web Crypto or maintained AES helper; verify existing encrypted cookies still decrypt or migrate values
-- [ ] Stripe: bump server `stripe` and client `@stripe/stripe-js` in a dedicated PR; retest checkout / webhook / payment method dialogs
-- [ ] `@vuepic/vue-datepicker` 8 → 14 (few call sites — good candidate)
+- [x] Replace **`crypto-js`** (deprecated) with `@noble/ciphers` AES-GCM + `@noble/hashes` — new `gc1.` payloads; legacy CryptoJS cookies/query values no longer decrypt (users reselect pack/trip)
+- [ ] Stripe: bump server `stripe` and client `@stripe/stripe-js` in a dedicated PR; retest checkout / webhook / payment method dialogs — **deferred** until a fresh Stripe test key is available
+- [x] `@vuepic/vue-datepicker` 8 → **14.0.0** (named import, `formats` / `ui` / `input-attrs` / `time-config`, dash CSS classes)
 
 ### Defer or isolate
 
