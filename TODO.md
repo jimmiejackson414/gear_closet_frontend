@@ -2,7 +2,7 @@
 
 Nuxt 4 revival (Phases 0–10) is **complete**. This file tracks remaining product, quality, and dependency work.
 
-> **Stack snapshot:** Nuxt **4.5.2** · Vue **3.5.41** · Tailwind **4.3** · reka-ui / shadcn-nuxt **2.8** · Pinia **4** · Vitest **4** · `stripe` **22.5** / `@stripe/stripe-js` **9.13**
+> **Stack snapshot:** Nuxt **4.5.2** · Vue **3.5.41** · Tailwind **4.3** · reka-ui / shadcn-nuxt **2.8** · Pinia **4** · Vitest **4** · `stripe` **22.5** / `@stripe/stripe-js` **9.13** · `convert` **7** · `dinero.js` **2** · `echarts` **6** / `vue-echarts` **8**
 
 
 ---
@@ -87,6 +87,7 @@ Work found while smoking the app after Phases 0–10 (branch `post-update-improv
 ### Still open from visual QA / ops
 
 - [ ] Manual visual regression pass on **closet / planning / auth** dialogs (Phase 5 follow-up)
+- [ ] Manual chart smoke after echarts 6 (closet pack bar, planning pie, public pack summary)
 - [ ] Manual Stripe billing smoke with refreshed test keys (subscribe / update PM / webhook)
 - [x] Asymmetric JWT signing keys — already Active (ECC P-256) on hosted project
 
@@ -105,12 +106,12 @@ Do these as **separate PRs**.
 
 ### Library majors
 
-| PR | Ours → target | Risk |
+| PR | Ours → target | Risk / notes |
 |---|---|---|
-| [ ] `chore: zod 4` | 3 → 4 | Med–High — wait until `@vee-validate/zod` supports zod 4 |
-| [ ] `chore: dinero.js 2` | 1 → 2 | Med — API rewrite (`utils/helpers.ts`, `utils/tiers.ts`) |
-| [ ] `chore: convert 7` | 4 → 7 | Med — weight math call sites |
-| [ ] `chore: echarts 6 + vue-echarts 8` | 5/6 → 6/8 | Med — chart visual regression (pair with Pack chart cleanup) |
+| [ ] `chore: zod 4` | 3 → 4 | **Still blocked** — `@vee-validate/zod@4.15.1` peers `zod: ^3.24` only |
+| [x] `chore: dinero.js 2` | 1 → **2.0.2** | Done on `chore/library-majors-convert-dinero-echarts` — functional API + `toDecimal` / `USD` currency objects; dropped `@types/dinero.js` |
+| [x] `chore: convert 7` | 4 → **7.0.2** | Done on same branch — API compatible (ES2017+ requirement only) |
+| [x] `chore: echarts 6 + vue-echarts 8` | 5/6 → **6.1 / 8.1** | Done on same branch — existing tree-shake `use([...])` imports still valid; **manual chart visual smoke** recommended |
 
 ### Optional polish
 
@@ -151,7 +152,7 @@ Do these as **separate PRs**.
 
 1. **Planning fetch + correctness** (High items 1–6) — biggest functional/perf win  
 2. **Planning mutations / loading / chart** (Medium)  
-3. Closet/auth visual QA leftovers + Stripe smoke  
-4. Isolated library majors when peers allow (Zod / convert / dinero / echarts)  
+3. Closet/auth/chart visual QA leftovers + Stripe smoke  
+4. Zod 4 when `@vee-validate/zod` peers allow  
 5. Optional polish (`@theme`, `noUncheckedIndexedAccess`, ESLint warns)  
 6. Optional: revoke legacy JWT secret after fully off `anon` / `service_role`

@@ -1,4 +1,4 @@
-import dinero from 'dinero.js';
+import { convertCurrency } from '@/utils/helpers';
 import { SubscriptionLevel } from '@/types';
 
 export interface Tier {
@@ -16,8 +16,7 @@ export interface Tier {
 const tiers: Tier[] = [
   {
     title: 'Free',
-    price: dinero({ amount: 0, currency: 'USD' })
-      .toFormat('$0,0.00'),
+    price: convertCurrency(0),
     priceSubtitle: 'for forever',
     description: [
       '1 Pack',
@@ -32,8 +31,7 @@ const tiers: Tier[] = [
   {
     title: 'Annual',
     subheader: 'Most popular',
-    price: dinero({ amount: 1899, currency: 'USD' })
-      .toFormat('$0,0.00'),
+    price: convertCurrency(1899),
     priceSubtitle: 'per year',
     description: [
       'Unlimited Packs',
@@ -49,8 +47,7 @@ const tiers: Tier[] = [
   },
   {
     title: 'Monthly',
-    price: dinero({ amount: 199, currency: 'USD' })
-      .toFormat('$0,0.00'),
+    price: convertCurrency(199),
     priceSubtitle: 'per month',
     description: [
       'Unlimited Packs',
