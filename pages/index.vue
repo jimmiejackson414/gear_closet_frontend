@@ -63,7 +63,7 @@
         const category = fData.value!.categories.find(category => category.id === post.category_id);
         return {
           ...post,
-          categoryColor: category ? category.color : 'bg-info',
+          categoryColor: category ? category.color : '94a3b8',
         };
       });
       forumData.categories = fData.value?.categories || [];
@@ -91,7 +91,7 @@
 <template>
   <div class="container-full mx-auto px-4 lg:px-12 py-6">
     <div class="grid grid-cols-12 gap-8">
-      <card class="bg-charlie-brown col-span-12 md:col-span-9 grow px-6 py-8 rounded-3xl shadow-light">
+      <card class="bg-charlie-brown col-span-12 md:col-span-9 grow px-6 py-8 rounded-3xl shadow-xs">
         <gc-navbar page-title="Dashboard" />
         <div class="grid grid-cols-12 gap-8 mt-8">
           <div class="col-span-12 md:col-span-8">

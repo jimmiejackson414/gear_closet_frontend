@@ -1,4 +1,4 @@
-import { createTestingPinia, type TestingOptions } from '@pinia/testing';
+import { type TestingOptions, createTestingPinia } from '@pinia/testing';
 import type { VueWrapper } from '@vue/test-utils';
 import { vi } from 'vitest';
 import VueTippy from 'vue-tippy';

@@ -132,11 +132,11 @@
             v-if="!editingTripDates"
             class="flex items-center gap-4 group"
             @click="editingTripDates = !editingTripDates">
-            <typography class="cursor-pointer text-grey">
+            <typography class="cursor-pointer text-muted-foreground">
               {{ $store.selectedTrip?.starting_date ? formattedDate($store.selectedTrip?.starting_date) : 'Start Date' }}
             </typography>
-            <icon-move-right class="h-6 text-grey w-6" />
-            <typography class="cursor-pointer text-grey">
+            <icon-move-right class="h-6 text-muted-foreground w-6" />
+            <typography class="cursor-pointer text-muted-foreground">
               {{ $store.selectedTrip?.ending_date ? formattedDate($store.selectedTrip?.ending_date) : 'End Date' }}
             </typography>
             <button-root
@@ -172,7 +172,7 @@
           class="mb-0">
           <div class="flex items-center gap-4 group space-between">
             <div class="flex justify-between items-center flex-1">
-              <typography class="font-bold! text-grey">
+              <typography class="font-bold! text-muted-foreground">
                 {{ detail.title }}
               </typography>
               <a

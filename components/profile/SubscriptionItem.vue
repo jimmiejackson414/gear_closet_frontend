@@ -14,7 +14,7 @@
   const profile = toRef($store, 'profile');
 
   const computedBorder = computed(() => {
-    const classes = ['border-2', 'transition', 'duration-200', 'ease-snap border-t-8'];
+    const classes = ['border-2', 'transition', 'duration-200', 'ease-out border-t-8'];
 
     // define the border top color based on the plan
     if (props.plan.value === SubscriptionLevel.FREE) { classes.push('border-t-tertiary'); }

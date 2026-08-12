@@ -54,7 +54,7 @@
         <typography
           class="font-bold"
           variant="p">
-          Upcoming Trips <span class="font-normal text-grey">({{ data.length || 0 }})</span>
+          Upcoming Trips <span class="font-normal text-muted-foreground">({{ data.length || 0 }})</span>
         </typography>
       </div>
       <div v-if="data.length">
@@ -66,10 +66,10 @@
             @click="handleRouteClick(trip)">
             <div class="duration-150 ease-in-out flex items-stretch p-3 rounded-md space-x-4 hover:bg-gray-100">
               <div class="flex-1 min-w-0">
-                <p class="font-semibold text-base text-dark-grey truncate">
+                <p class="font-semibold text-base text-muted-foreground truncate">
                   {{ trip.name }}
                 </p>
-                <p class="text-grey text-sm truncate">
+                <p class="text-muted-foreground text-sm truncate">
                   {{ trip.description }}
                 </p>
               </div>
@@ -79,7 +79,7 @@
                 </p>
                 <div class="bg-gray-200 h-2.5 rounded-full w-full">
                   <div
-                    class="bg-linear-to-r from-positive-light to-positive h-2.5 rounded-full"
+                    class="bg-linear-to-r from-accent-light to-accent-alt h-2.5 rounded-full"
                     :style="calculatedProgress(trip)" />
                 </div>
               </div>

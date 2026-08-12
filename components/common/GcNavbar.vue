@@ -87,7 +87,7 @@
             ref="notificationDropdown"
             class="top-full right-0 z-20 absolute bg-white shadow-xs mt-2 border rounded-lg divide-gray-100 w-max min-w-75 max-w-sm transition-all duration-300"
             data-testid="notifications-dropdown">
-            <div class="block bg-gray-50 px-4 py-2 rounded-t-lg font-bold text-dark-grey text-center">
+            <div class="block bg-gray-50 px-4 py-2 rounded-t-lg font-bold text-muted-foreground text-center">
               Notifications ({{ $store.unreadNotifications?.length ?? 0 }})
             </div>
             <span v-if="$store.unreadNotifications?.length">
@@ -97,7 +97,7 @@
                   :key="notification.id"
                   :notification="(notification as ExtendedNotification)" />
               </ul>
-              <div class="block bg-gray-50 px-4 py-2 rounded-b-lg text-dark-grey text-center">
+              <div class="block bg-gray-50 px-4 py-2 rounded-b-lg text-muted-foreground text-center">
                 <button-root
                   size="sm"
                   variant="ghost"
@@ -109,7 +109,7 @@
             <div
               v-else
               class="py-3">
-              <p class="font-medium text-dark-grey text-sm text-center">
+              <p class="font-medium text-muted-foreground text-sm text-center">
                 No new notifications
               </p>
             </div>

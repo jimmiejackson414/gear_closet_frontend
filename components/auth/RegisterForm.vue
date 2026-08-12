@@ -94,7 +94,7 @@
         <img src="/images/google.png">
       </button>
     </div>
-    <div clas="flex justify-center">
+    <div class="flex justify-center">
       <separator
         class="max-w-60 mb-6 mt-8 mx-auto"
         force-color-mode="light"

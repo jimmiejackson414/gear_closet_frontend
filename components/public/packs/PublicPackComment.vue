@@ -203,13 +203,13 @@
               v-if="!!user"
               class="flex gap-2 py-1 pl-4 comment__actions">
               <button
-                class="font-semibold text-dark-grey hover:text-dark-grey/75 text-sm transition-colors duration-150 ease-snap"
+                class="font-semibold text-muted-foreground hover:text-muted-foreground/75 text-sm transition-colors duration-150 ease-out"
                 @click="[replyingTo = true]">
                 Reply
               </button>
               <button
                 v-if="user?.sub === comment.profile_id && !comment.deleted_at"
-                class="font-semibold text-danger hover:text-danger/75 text-sm transition-colors duration-150 ease-snap"
+                class="font-semibold text-destructive hover:text-destructive/75 text-sm transition-colors duration-150 ease-out"
                 @click="() => deleteComment(comment)">
                 Delete
               </button>
@@ -291,7 +291,7 @@
                   class="flex gap-2 py-1 pl-4 comment__actions">
                   <button
                     v-if="user?.sub === reply.profile_id"
-                    class="font-bold text-danger hover:text-danger/75 text-sm transition-colors duration-150 ease-snap"
+                    class="font-bold text-destructive hover:text-destructive/75 text-sm transition-colors duration-150 ease-out"
                     @click="() => deleteReply(reply)">
                     Delete
                   </button>

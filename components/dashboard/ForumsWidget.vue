@@ -58,7 +58,7 @@
               <typography class="font-bold!">
                 {{ category.name }}
               </typography>
-              <typography class="text-grey">
+              <typography class="text-muted-foreground">
                 {{ category.topic_count }} topics
               </typography>
             </div>

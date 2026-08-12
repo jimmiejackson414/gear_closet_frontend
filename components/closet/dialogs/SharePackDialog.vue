@@ -47,9 +47,9 @@
           </div>
           <button-root
             v-tippy="{ content: 'Copy link to clipboard' }"
-            class="flex justify-center justify-self-end items-center mb-2 rounded-full w-8 h-8 transition duration-150 ease-snap cursor-pointer"
+            class="flex justify-center justify-self-end items-center mb-2 rounded-full w-8 h-8 transition duration-150 ease-out cursor-pointer"
             @click="copyToClipboard">
-            <icon-copy class="w-6 h-6 transition duration-150 ease-expo cursor-pointer" />
+            <icon-copy class="w-6 h-6 transition duration-150 ease-out cursor-pointer" />
           </button-root>
         </div>
       </div>

@@ -12,12 +12,13 @@
   });
 
   const classList = computed(() => {
-    const classes = ['rounded-2xl', 'py-2', 'px-4', 'w-full', 'text-center'];
+    const classes = ['rounded-md', 'py-2', 'px-4', 'w-full', 'text-center'];
 
-    if (props.severity === 'error') { classes.push('bg-danger-light', 'text-danger-dark'); }
-    if (props.severity === 'warning') { classes.push('bg-warning-light', 'text-warning-dark'); }
-    if (props.severity === 'positive') { classes.push('bg-positive-light', 'text-positive-dark'); }
-    if (props.severity === 'info') { classes.push('bg-info-light', 'text-info-dark'); }
+    // Map legacy Quasar severity names onto current theme tokens
+    if (props.severity === 'error') { classes.push('bg-destructive-light', 'text-destructive'); }
+    if (props.severity === 'warning') { classes.push('bg-amber-50', 'text-amber-800'); }
+    if (props.severity === 'positive') { classes.push('bg-accent-light', 'text-accent-alt'); }
+    if (props.severity === 'info') { classes.push('bg-primary-light', 'text-primary'); }
 
     return classes;
   });
@@ -26,7 +27,7 @@
 <template>
   <div :class="classList">
     <p
-      class="q-mb-none text-body2"
+      class="mb-0 text-sm"
       v-html="message" />
   </div>
 </template>

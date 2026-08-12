@@ -51,14 +51,14 @@
           <h4 class="mt-6 font-black text-2xl">
             {{ tier?.price }}
           </h4>
-          <p class="mb-4 text-grey text-base">
+          <p class="mb-4 text-muted-foreground text-base">
             {{ tier?.priceSubtitle }}
           </p>
         </div>
       </div>
       <hr class="bg-gray-200 border-0 h-px">
       <div class="p-4">
-        <ul class="space-y-4 text-dark-grey text-left">
+        <ul class="space-y-4 text-muted-foreground text-left">
           <li
             v-for="(item, i) in tier?.description"
             :key="i"

@@ -45,7 +45,7 @@
               :url="buildImageSrc(user.image)" />
             <nuxt-link
               v-if="data.length > 5"
-              class="bg-dark-grey hover:bg-dark-grey/75 border-2 border-white flex justify-center items-center shrink-0 font-medium h-12 min-w-12 rounded-full text-white text-xs w-12 z-10"
+              class="bg-muted-foreground hover:bg-muted-foreground/75 border-2 border-white flex justify-center items-center shrink-0 font-medium h-12 min-w-12 rounded-full text-white text-xs w-12 z-10"
               data-testid="friends-widget-more"
               :to="{ name: 'friends' }">
               {{ `+${data.length - 5}` }}

@@ -82,7 +82,6 @@ export default defineNuxtConfig({
     '@nuxtjs/supabase',
     '@pinia/nuxt',
     '@vueuse/nuxt',
-    '@fixers/nuxt-stripe',
     '@nuxt/test-utils/module',
     '@nuxt/eslint',
     "@nuxtjs/color-mode",
@@ -124,10 +123,6 @@ export default defineNuxtConfig({
   shadcn: {
     prefix: '',
     componentDir: './components/ui',
-  },
-
-  stripe: {
-    publishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
   },
 
   supabase: {
