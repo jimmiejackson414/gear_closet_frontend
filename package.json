@@ -14,10 +14,10 @@
     "test:unit": "npx vitest watch",
     "test:e2e": "pnpm playwright test",
     "cert": "mkcert -key-file ./localhost-key.pem -cert-file ./localhost.pem localhost",
-    "barrel": "tsx scripts/generateComponentBarrel.ts"
+    "barrel": "tsx scripts/generateComponentBarrel.ts",
+    "stripe:webhook": "stripe listen --forward-to localhost:8000/api/stripe/webhook"
   },
   "devDependencies": {
-    "@fixers/nuxt-stripe": "^4.1.1",
     "@nuxt/devtools": "^3.4.1",
     "@nuxt/eslint": "^1.17.0",
     "@nuxt/test-utils": "^4.1.0",
@@ -60,7 +60,7 @@
     "@noble/ciphers": "^2.3.0",
     "@noble/hashes": "^2.3.0",
     "@pinia/nuxt": "^1.0.1",
-    "@stripe/stripe-js": "^5.10.0",
+    "@stripe/stripe-js": "^9.13.0",
     "@supabase/supabase-js": "^2.112.2",
     "@vee-validate/zod": "^4.15.0",
     "@vuepic/vue-datepicker": "^14.0.0",
