@@ -18,7 +18,7 @@
 <template>
   <a
     class="bg-white flex items-center gap-4 p-2 rounded-2xl"
-    :class="{ ' hover:bg-gray-100 duration-150 ease-snap transition cursor-pointer': hasForumAccess }"
+    :class="{ ' hover:bg-gray-100 duration-150 ease-out transition cursor-pointer': hasForumAccess }"
     :href="hasForumAccess ? `${$config.public.forumsUrl}/t/${post.topic_slug}` : undefined"
     target="_blank">
     <span
@@ -29,7 +29,7 @@
       :src="avatarSrc">
     <div class="flex grow flex-col">
       <div class="flex items-center gap-4">
-        <p class="font-bold! text-dark-grey">
+        <p class="font-bold! text-muted-foreground">
           {{ truncate(post.topic_title, 25) }}
         </p>
         <p class="text-gray-400 text-right text-sm">
@@ -41,10 +41,10 @@
       </p>
     </div>
     <div class="flex justify-end flex-col">
-      <p class="text-grey text-right text-sm">
+      <p class="text-muted-foreground text-right text-sm">
         {{ post.reply_count }} read{{ post.reply_count !== 1 ? 's' : '' }}
       </p>
-      <p class="text-grey text-right text-sm">
+      <p class="text-muted-foreground text-right text-sm">
         {{ post.username }}
       </p>
     </div>

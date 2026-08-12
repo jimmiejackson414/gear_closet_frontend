@@ -1,5 +1,5 @@
 @utility text-hyperlink {
-  @apply text-base text-primary-yellow hover:text-yellow-500 transition-all;
+  @apply text-base text-primary hover:text-primary/75 transition-all;
 }
 
 @utility text-sm {

@@ -23,7 +23,7 @@
     if (props.variant === 'warning') { classes.push('bg-tertiary text-tertiary-foreground'); }
     else if (props.variant === 'primary') { classes.push('bg-primary text-primary-foreground'); }
     else if (props.variant === 'positive') { classes.push('bg-accent-alt text-accent-light'); }
-    else if (props.variant === 'secondary') { classes.push('bg-gray-300 text-dark-grey'); }
+    else if (props.variant === 'secondary') { classes.push('bg-gray-300 text-muted-foreground'); }
     else if (props.variant === 'danger') { classes.push('bg-destructive text-destructive-foreground'); }
 
     return classes;

@@ -10,7 +10,7 @@
 
 <template>
   <nuxt-link :to="{ name: 'p-friends-slug', params: { slug: friend.friend?.id } }">
-    <card class="duration-200 ease-snap flex justify-center items-center flex-col max-w-[200px] my-4 px-8 py-4 rounded-3xl shadow-light hover:shadow-md transition w-full">
+    <card class="duration-200 ease-out flex justify-center items-center flex-col max-w-[200px] my-4 px-8 py-4 rounded-3xl shadow-xs hover:shadow-md transition w-full">
       <gc-avatar
         :initials="initials(friend.friend)"
         size="xl"

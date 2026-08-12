@@ -62,7 +62,7 @@
             rel="noopener noreferrer"
             target="_blank">
             <icon-external-link
-              class="w-6 h-6 transition duration-150 ease-expo"
+              class="w-6 h-6 transition duration-150 ease-out"
               :class="!isValidUrl ? 'cursor-not-allowed text-gray-300' : 'text-accent-alt cursor-pointer'" />
           </a>
         </div>

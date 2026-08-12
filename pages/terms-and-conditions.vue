@@ -197,7 +197,7 @@
           flags suspect transactions. Every transaction is assigned a
           fraud potential score based on the following criteria:
         </p>
-        <ul class="q-mb-sm">
+        <ul class="mb-2">
           <li>
             <p class="mb-4 text-sm">
               An AVS match of the cardholder's billing address and zip
@@ -264,7 +264,7 @@
           valid telephone number is required for all orders) for the
           purpose of:
         </p>
-        <ol class="q-mb-sm">
+        <ol class="mb-2">
           <li>
             <p class="mb-4 text-sm">
               Confirm your cardholder billing information and CSC/CVC
@@ -384,7 +384,7 @@
           You agree not to submit, upload or post to a chat/message board
           any content which:
         </p>
-        <ol class="q-mb-sm">
+        <ol class="mb-2">
           <li>
             <p class="mb-4 text-sm">
               libels, defames, invades privacy, or is obscene, profane,

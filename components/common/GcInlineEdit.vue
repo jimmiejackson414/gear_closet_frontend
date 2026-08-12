@@ -69,13 +69,13 @@
     <!-- Display Mode -->
     <span
       v-if="!isEditing"
-      class="cursor-pointer duration-100 ease-snap flex items-center group py-1.5 transition-all"
+      class="cursor-pointer duration-100 ease-out flex items-center group py-1.5 transition-all"
       :class="cn(spanClasses, [ 'border border-transparent hover:border-gray-300 min-h-[34px] rounded-lg px-1 -ml-1' ])"
       @click="toggleEditing">
       <slot />
       <icon-pencil
         v-if="!hideEditBtn"
-        class="cursor-pointer group-hover:opacity-100 h-4 ml-4 opacity-0 text-grey hover:text-primary transition w-4" />
+        class="cursor-pointer group-hover:opacity-100 h-4 ml-4 opacity-0 text-muted-foreground hover:text-primary transition w-4" />
     </span>
 
     <!-- Edit Mode -->

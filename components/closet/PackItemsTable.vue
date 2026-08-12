@@ -139,7 +139,7 @@
               <table-head
                 class="p-0 w-8"
                 colspan="1">
-                <!-- <icon-grip-vertical class="size-6! category-handle cursor-move ease-snap group-hover:opacity-100 opacity-0 stroke-1 text-muted-foreground transition" /> -->
+                <!-- <icon-grip-vertical class="size-6! category-handle cursor-move ease-out group-hover:opacity-100 opacity-0 stroke-1 text-muted-foreground transition" /> -->
               </table-head>
               <table-head
                 class="font-bold px-0 py-2"
@@ -176,7 +176,7 @@
                   v-if="!$store.isPublicRoute"
                   class="flex justify-end">
                   <button-root
-                    class="bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8"
+                    class="bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-out h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8"
                     data-testid="remove-category-btn"
                     size="icon"
                     variant="ghost"
@@ -196,7 +196,7 @@
                 :key="column.value"
                 class="font-bold px-0 py-2"
                 :class="cn(
-                  column.visible ? 'opacity-1' : 'opacity-0',
+                  column.visible ? 'opacity-100' : 'opacity-0',
                   column.cellClass,
                   { 'pr-2!': column.value === 'actions', 'w-8': column.value === 'drag' },
                 )">
@@ -230,7 +230,7 @@
               <table-cell class="p-0">
                 <icon-grip-vertical
                   v-if="!$store.isPublicRoute"
-                  class="size-6! cursor-move ease-snap group-hover:opacity-100 opacity-0 row-handle stroke-1 text-muted-foreground transition" />
+                  class="size-6! cursor-move ease-out group-hover:opacity-100 opacity-0 row-handle stroke-1 text-muted-foreground transition" />
               </table-cell>
 
               <table-cell class="pl-0 pr-1 py-1">
@@ -285,21 +285,21 @@
                 <div class="flex place-content-center w-full">
                   <button
                     v-if="!$store.isPublicRoute"
-                    class="cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
+                    class="cursor-pointer duration-150 ease-out flex justify-center items-center h-8 rounded-full transition w-8"
                     :class="catItem.item.consumable ? 'bg-primary hover:bg-primary/70' : 'bg-transparent hover:bg-gray-200'"
                     data-testid="consumable-btn"
                     @click="$store.updateItem(catItem.item, 'consumable', !catItem.item.consumable, category.id)">
                     <icon-apple
                       class="h-5 w-5"
-                      :class="catItem.item.consumable ? 'text-primary-foreground' : 'text-dark-grey'" />
+                      :class="catItem.item.consumable ? 'text-primary-foreground' : 'text-muted-foreground'" />
                   </button>
                   <span
                     v-else
-                    class="cursor-default duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
+                    class="cursor-default duration-150 ease-out flex justify-center items-center h-8 rounded-full transition w-8"
                     :class="catItem.item.consumable ? 'bg-primary' : 'bg-transparent'">
                     <icon-apple
                       class="h-5 w-5"
-                      :class="catItem.item.consumable ? 'text-primary-foreground' : 'text-dark-grey'" />
+                      :class="catItem.item.consumable ? 'text-primary-foreground' : 'text-muted-foreground'" />
                   </span>
                 </div>
               </table-cell>
@@ -309,21 +309,21 @@
                 <div class="flex place-content-center w-full">
                   <button
                     v-if="!$store.isPublicRoute"
-                    class="cursor-pointer duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
+                    class="cursor-pointer duration-150 ease-out flex justify-center items-center h-8 rounded-full transition w-8"
                     :class="catItem.item.worn ? 'bg-accent-alt dark:bg-accent-light hover:bg-accent-alt/70' : 'bg-transparent hover:bg-gray-200'"
                     data-testid="worn-btn"
                     @click="$store.updateItem(catItem.item, 'worn', !catItem.item.worn, category.id)">
                     <icon-shirt
                       class="h-5 w-5"
-                      :class="catItem.item.worn ? 'text-primary-foreground' : 'text-dark-grey'" />
+                      :class="catItem.item.worn ? 'text-primary-foreground' : 'text-muted-foreground'" />
                   </button>
                   <span
                     v-else
-                    class="cursor-default duration-150 ease-expo flex justify-center items-center h-8 rounded-full transition w-8"
+                    class="cursor-default duration-150 ease-out flex justify-center items-center h-8 rounded-full transition w-8"
                     :class="catItem.item.worn ? 'bg-accent-alt dark:bg-accent-light' : 'bg-transparent'">
                     <icon-shirt
                       class="h-5 w-5"
-                      :class="catItem.item.worn ? 'text-primary-foreground' : 'text-dark-grey'" />
+                      :class="catItem.item.worn ? 'text-primary-foreground' : 'text-muted-foreground'" />
                   </span>
                 </div>
               </table-cell>
@@ -430,7 +430,7 @@
                   <button-root
                     v-if="!$store.isPublicRoute"
                     v-tippy="{ content: 'Add/Modify URL', placement: 'top' }"
-                    :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
+                    :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-out h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
                     data-testid="add-url-btn"
                     size="icon"
                     variant="ghost"
@@ -439,7 +439,7 @@
                   </button-root>
                   <button-root
                     v-if="!$store.isPublicRoute"
-                    class="bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8"
+                    class="bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-out h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8"
                     data-testid="remove-item-btn"
                     size="icon"
                     variant="ghost"
@@ -449,7 +449,7 @@
                   <button-root
                     v-if="$store.isPublicRoute"
                     v-tippy="{ content: 'Visit URL', placement: 'top' }"
-                    :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-snap h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
+                    :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-out h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
                     :disabled="!catItem.item.url"
                     size="icon"
                     variant="ghost"

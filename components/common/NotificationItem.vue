@@ -48,7 +48,7 @@
       </div>
     </div>
     <div class="ps-3 w-full">
-      <div class="mb-1.5 text-dark-grey text-sm">
+      <div class="mb-1.5 text-muted-foreground text-sm">
         New message from <span class="font-semibold text-gray-900">{{ friendlyUsername(notification?.sender) }}</span>: "{{ notification?.content }}"
       </div>
       <div class="font-bold text-primary text-xs">

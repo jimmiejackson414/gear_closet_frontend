@@ -154,7 +154,7 @@
         </div>
       </SlideUpTransition>
     </div>
-    <typography class="font-bold text-grey text-right text-sm">
+    <typography class="font-bold text-muted-foreground text-right text-sm">
       {{ poll.votes.length }} {{ poll.votes.length === 1 ? 'vote' : 'votes' }}
     </typography>
   </div>

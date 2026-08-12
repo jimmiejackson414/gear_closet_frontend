@@ -50,7 +50,7 @@
           {{ detail.title }}
         </typography>
         <typography
-          class="duration-300 ease-snap font-bold transition-colors"
+          class="duration-300 ease-out font-bold transition-colors"
           data-testid="detail-weight"
           :style="{ color: detail.color }"
           variant="large">

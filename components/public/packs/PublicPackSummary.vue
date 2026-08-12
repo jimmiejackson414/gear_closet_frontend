@@ -145,11 +145,11 @@
           v-for="detail in details"
           :key="detail.title"
           class="border border-dashed border-gray-400 p-4 rounded-2xl">
-          <span class="font-bold text-eyebrow text-grey-8">
+          <span class="font-bold text-eyebrow text-muted-foreground">
             {{ detail.title }}
           </span>
           <h6
-            class="duration-300 ease-snap font-bold text-lg transition-colors"
+            class="duration-300 ease-out font-bold text-lg transition-colors"
             :style="{ color: detail.color }">
             {{ detail.weight || '' }} lbs
           </h6>

@@ -104,7 +104,7 @@
             {{ $store.selectedTrip?.starting_point }}
           </typography>
         </gc-inline-edit>
-        <icon-move-right class="h-6 text-grey w-6" />
+        <icon-move-right class="h-6 text-muted-foreground w-6" />
         <gc-inline-edit
           :model-value="$store.selectedTrip?.ending_point"
           name="ending_point"
@@ -125,7 +125,7 @@
           placeholder="Trip description"
           size="sm"
           @update:model-value="updateTrip({ description: $event as string | null })">
-          <typography class="cursor-pointer text-grey">
+          <typography class="cursor-pointer text-muted-foreground">
             {{ $store.selectedTrip?.description }}
           </typography>
         </gc-inline-edit>
@@ -137,7 +137,7 @@
           class="mb-0">
           <div class="flex items-center gap-4 group space-between">
             <div class="flex justify-between items-center flex-1">
-              <typography class="font-bold! text-grey">
+              <typography class="font-bold! text-muted-foreground">
                 {{ detail.title }}
               </typography>
               <a
