@@ -1,7 +1,7 @@
 import convert from 'convert';
 import type { Mass } from 'convert';
-import Dinero from 'dinero.js';
-import type { Currency } from 'dinero.js';
+import { dinero, toDecimal, type DineroCurrency } from 'dinero.js';
+import { USD } from 'dinero.js/currencies';
 import { v4 as uuidv4 } from 'uuid';
 import { type Database, ItemUnit, MeasuringSystem, type Tables, type TablesInsert } from '@/types';
 import type { ExtendedCategory, ExtendedPack, ExtendedUser } from '@/types/helpers';
@@ -187,17 +187,29 @@ export const completedOnboarding = (user: ExtendedUser | null | undefined, page:
   return user.onboarding_steps.some(step => step?.page === page);
 };
 
+const isoCurrencies: Record<string, DineroCurrency<number>> = {
+  USD,
+};
+
 /**
- * Converts a number to a currency format.
- * @param num
- * @param currency
- * @returns string
+ * Converts a minor-unit amount to a currency format string.
+ * @param num - amount in the currency's minor units (e.g. cents)
+ * @param currencyCode - ISO 4217 code (default USD)
  */
 export const convertCurrency = (
   num: number,
-  currency = 'USD' as Currency,
-) => Dinero({ amount: Number(num), currency })
-  .toFormat('$0,0.00');
+  currencyCode = 'USD',
+) => {
+  const currency = isoCurrencies[currencyCode] ?? USD;
+  const amount = dinero({ amount: Number(num), currency });
+  return toDecimal(amount, ({ value, currency: c }) =>
+    Number(value).toLocaleString('en-US', {
+      style: 'currency',
+      currency: c.code,
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    }));
+};
 
 /**
  * Debounces a function.
