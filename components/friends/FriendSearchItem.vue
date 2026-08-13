@@ -12,10 +12,6 @@
 
   const props = defineProps<Props>();
 
-  const mutualFriends = computed(() => {
-    return '2 mutual friends';
-  });
-
   /**
    * Add friend request
    */
@@ -23,6 +19,13 @@
   const $store = useUserStore();
   const submitting = ref(false);
   const submittedRequest = ref(props.requestPending);
+
+  watch(
+    () => props.requestPending,
+    (pending) => {
+      submittedRequest.value = pending;
+    },
+  );
   const handleAddFriend = async () => {
     try {
       submitting.value = true;
@@ -70,9 +73,6 @@
       <div class="flex flex-col">
         <typography class="font-bold!">
           {{ friendlyUsername(profile) }}
-        </typography>
-        <typography size="sm">
-          {{ mutualFriends }}
         </typography>
       </div>
       <button-root
