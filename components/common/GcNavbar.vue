@@ -14,6 +14,9 @@
   onMounted(() => {
     $store.subscribeToNotifications();
   });
+  onUnmounted(() => {
+    $store.unsubscribeFromNotifications();
+  });
 
   const shouldShowBadge = computed(() => ( $store.unreadNotifications?.length ?? 0 ) > 0);
   const welcomeMessage = computed(() => {
