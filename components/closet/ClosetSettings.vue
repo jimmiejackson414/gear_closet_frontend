@@ -4,15 +4,32 @@
 
   const $store = useClosetStore();
   const $userStore = useUserStore();
+  const $router = useRouter();
+  const $route = useRoute();
 
   const packOptions = computed(() => $store.data.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
 
   const defaultMode = ref<'create' | 'update'>('create');
   const mode = inject<Ref<'create' | 'update'>>('dialogMode', defaultMode);
+
+  /**
+   * Persist cookie, clear pinned ?pack=, refetch.
+   * Cookie-only updates previously relied on a container watcher (removed).
+   */
   const handleSelectPack = async (val: AcceptableValue) => {
+    if (val == null || val === '') return;
+
+    const packId = Number(val);
     const cookie = useCookie('selectedPackId');
-    const foundPack = $store.data.allPacks.find(p => p.id === Number(val));
-    cookie.value = encrypt(foundPack?.id);
+    cookie.value = encrypt(String(packId));
+
+    if ($route.query.pack != null) {
+      const nextQuery = { ...$route.query };
+      delete nextQuery.pack;
+      await $router.replace({ query: nextQuery });
+    }
+
+    await $store.fetchClosetPage(packId);
   };
 </script>
 

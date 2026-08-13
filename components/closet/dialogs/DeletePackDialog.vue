@@ -10,23 +10,49 @@
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
+      const packId = $store.data.selectedPack?.id;
+      if (packId == null) throw new Error('No pack selected');
+
+      // Capture item ids before pack delete (categories may cascade)
+      const itemIds = ($store.data.selectedPack?.categories ?? [])
+        .flatMap((c) => c.category_items.map((ci) => ci.item_id))
+        .filter((id): id is number => id != null);
+
       const { error } = await supabase
         .from('packs')
         .delete()
-        .eq('id', $store.data.selectedPack?.id as number);
+        .eq('id', packId);
 
-      if (!error) {
+      let itemsError = null;
+      if (!error && removeItemCheckbox.value && itemIds.length) {
+        const { error: deleteItemsError } = await supabase
+          .from('items')
+          .delete()
+          .in('id', itemIds);
+        itemsError = deleteItemsError;
+      }
+
+      if (!error && !itemsError) {
         // Find the index of the pack in the allPacks array
-        const packIndex = $store.data.allPacks.findIndex(p => p.id === $store.data.selectedPack?.id);
+        const packIndex = $store.data.allPacks.findIndex(p => p.id === packId);
 
         // Remove the pack from the allPacks array
         if (packIndex !== -1) {
           $store.data.allPacks.splice(packIndex, 1);
         }
 
-        // Remove the pack from the selectedPack
+        // Remove the pack from the selectedPack and clear cookie
         $store.data.selectedPack = undefined;
-        $appStore.notifyPositive('Pack deleted successfully.');
+        const cookie = useCookie('selectedPackId');
+        cookie.value = null;
+
+        $appStore.notifyPositive(
+          removeItemCheckbox.value
+            ? 'Pack and its items deleted successfully.'
+            : 'Pack deleted successfully.',
+        );
+        $store.dialogStates.deletePackDialog = false;
+        removeItemCheckbox.value = false;
       } else {
         $appStore.notifyNegative('There was an error deleting the pack.');
       }
@@ -34,7 +60,6 @@
       $appStore.notifyNegative('There was an error deleting the pack.');
     } finally {
       submitting.value = false;
-      $store.dialogStates.deletePackDialog = false;
     }
   };
 </script>

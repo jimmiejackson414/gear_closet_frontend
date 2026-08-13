@@ -3,7 +3,6 @@
 
   const $store = useClosetStore();
   const shareLink = ref('');
-  const submitting = ref(false);
 
   const $appStore = useAppStore();
   const { copy } = useClipboard();
@@ -54,9 +53,7 @@
         </div>
       </div>
       <dialog-footer>
-        <dialog-close
-          :disabled="submitting"
-          @click="$store.dialogStates.sharePackDialog = false">
+        <dialog-close @click="$store.dialogStates.sharePackDialog = false">
           Cancel
         </dialog-close>
       </dialog-footer>

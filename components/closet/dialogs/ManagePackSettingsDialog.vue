@@ -61,13 +61,21 @@
           }])
           .select();
 
-        if (createdPack?.length && !error) {
-          const pack = createdPack[0];
-          if (!pack) return;
-          $store.data.allPacks.push({ id: pack.id, name: pack.name as string, slug: pack.slug as string });
-          $store.data.selectedPack = pack as ExtendedPack;
-          $appStore.notifyPositive('Pack created successfully.');
+        if (error || !createdPack?.length) {
+          throw error || new Error('Failed to create pack');
         }
+
+        const pack = createdPack[0];
+        if (!pack) throw new Error('Failed to create pack');
+
+        $store.data.allPacks.push({ id: pack.id, name: pack.name as string, slug: pack.slug as string });
+        $store.data.selectedPack = { ...pack, categories: [] } as ExtendedPack;
+
+        const cookie = useCookie('selectedPackId');
+        cookie.value = encrypt(String(pack.id));
+
+        $appStore.notifyPositive('Pack created successfully.');
+        $store.dialogStates.managePackSettingsDialog = false;
       } else {
         // update mode
         const { data: updatedPack, error } = await supabase
@@ -81,11 +89,11 @@
           $store.data.selectedPack = { ...$store.data.selectedPack, ...pack } as ExtendedPack;
         }
         $appStore.notifyPositive('Successfully updated your pack theme.');
+        $store.dialogStates.managePackSettingsDialog = false;
       }
     } catch (error) {
       $appStore.notifyNegative(`There was an error ${mode.value === 'create' ? 'creating' : 'updating'} your pack.`);
     } finally {
-      $store.dialogStates.managePackSettingsDialog = false;
       submitting.value = false;
     }
   });
