@@ -1,7 +1,6 @@
 <script lang='ts' setup>
-  import { type Database, type Tables, type TablesUpdate, TripDetailsType } from '@/types';
+  import { type Tables, type TablesUpdate, TripDetailsType } from '@/types';
 
-  const $appStore = useAppStore();
   const $store = usePlanningStore();
   const activeDetail = ref<Tables<'trip_details'> | undefined>(undefined);
   const isModifyDetailDialogOpen = ref(false);
@@ -12,53 +11,8 @@
     }) || [];
   });
 
-  /**
-   * Creates a new detail for the selected trip.
-   */
-  const createNewDetail = async () => {
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const { data: newDetail, error } = await supabase.from('trip_details')
-        .insert({
-          trip_id: Number($store.selectedTripId),
-          title: 'New detail',
-          type: TripDetailsType.HIKE,
-          value: 'New hike detail description',
-        })
-        .select();
-
-      if (newDetail?.length && !error) {
-        const detail = newDetail[0];
-        if (detail) $store.data.trip_details.push(detail);
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error creating a new detail.');
-    }
-  };
-
-  /**
-   * Updates a trip
-   * @param payload
-   */
-  const updateTrip = async (payload: TablesUpdate<'trips'>) => {
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const { data: updatedTrip, error } = await supabase.from('trips')
-        .update(payload)
-        .eq('id', Number($store.selectedTripId))
-        .select();
-
-      // Update the trip in the store.
-      if (updatedTrip?.length && $store.selectedTripId && !error) {
-        const tripToUpdate = $store.data.trips.find((t) => t.id === Number($store.selectedTripId));
-        if (tripToUpdate) {
-          Object.assign(tripToUpdate, updatedTrip[0]);
-        }
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error updating the trip.');
-    }
-  };
+  const createNewDetail = () => $store.createTripDetail(TripDetailsType.HIKE);
+  const updateTrip = (payload: TablesUpdate<'trips'>) => $store.updateTrip(payload);
 </script>
 
 <template>
@@ -131,40 +85,9 @@
           </typography>
         </gc-inline-edit>
       </div>
-      <ul>
-        <li
-          v-for="detail in hikeDetails"
-          :key="detail.id"
-          class="mb-0">
-          <div class="flex items-center gap-4 group space-between">
-            <div class="flex justify-between items-center flex-1">
-              <typography class="font-bold! text-muted-foreground">
-                {{ detail.title }}
-              </typography>
-              <a
-                v-if="detail.url"
-                class="text-hyperlink"
-                :href="detail.url"
-                rel="noopener noreferrer"
-                target="_blank">
-                {{ detail.value }}
-              </a>
-              <typography
-                v-else
-                class="text-muted-foreground">
-                {{ detail.value }}
-              </typography>
-            </div>
-            <button-root
-              class="group-hover:opacity-100 opacity-0 rounded-full"
-              size="sm"
-              variant="ghost"
-              @click="[activeDetail = detail, isModifyDetailDialogOpen = true]">
-              <icon-pencil />
-            </button-root>
-          </div>
-        </li>
-      </ul>
+      <details-list
+        :details="hikeDetails"
+        @edit="[activeDetail = $event, isModifyDetailDialogOpen = true]" />
     </div>
   </card>
 

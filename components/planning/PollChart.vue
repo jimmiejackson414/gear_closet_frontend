@@ -15,7 +15,7 @@
   const emits = defineEmits(['createAnswer', 'createVote']);
 
   const hasVoted = computed(() => props.poll.votes.some(v => v.profile_id === user.value?.sub));
-  const totalVotes = computed(() => props.poll.votes.reduce((acc) => acc + 1, 0));
+  const totalVotes = computed(() => props.poll.votes.length);
   const calcAnswers = computed(() => {
     if (totalVotes.value === 0) {
       return props.poll.answers.map(a => {
@@ -43,8 +43,11 @@
     }, first);
   });
 
+  const votingAnswerId = ref<number | null>(null);
   const createVote = async (answer: Tables<'answers'>) => {
     try {
+      submitting.value = true;
+      votingAnswerId.value = answer.id;
       const supabase = useSupabaseClient<Database>();
       const { data: newVote, error } = await supabase.from('profile_answers')
         .insert({
@@ -54,11 +57,19 @@
         })
         .select();
 
-      if (!error && newVote.length) { emits('createVote', newVote[0]); }
+      if (error) {
+        $appStore.notifyNegative(error.message || 'There was an error creating a new vote.');
+        return;
+      }
+
+      if (newVote?.length) {
+        emits('createVote', newVote[0]);
+      }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new vote.');
     } finally {
       submitting.value = false;
+      votingAnswerId.value = null;
     }
   };
 
@@ -71,6 +82,7 @@
 
   const createAnswer = async () => {
     try {
+      submitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const { data, error } = await supabase.from('answers')
         .insert({
@@ -80,13 +92,19 @@
         })
         .select();
 
-      if (!error && data?.length) {
+      if (error) {
+        $appStore.notifyNegative(error.message || 'There was an error creating a new answer.');
+        return;
+      }
+
+      if (data?.length) {
         emits('createAnswer', data[0]);
         resetNewAnswer();
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new answer.');
     } finally {
+      submitting.value = false;
       isAdding.value = false;
     }
   };
@@ -102,12 +120,14 @@
     </typography>
     <div class="grid grid-cols-1-col my-4">
       <div
-        v-for="(answer, i) in calcAnswers"
-        :key="i">
+        v-for="answer in calcAnswers"
+        :key="answer.id">
         <!-- Show buttons if user has not voted yet -->
         <template v-if="!hasVoted">
           <button-root
             class="mb-3 w-full"
+            :disabled="submitting"
+            :loading="votingAnswerId === answer.id"
             variant="outline"
             @click="createVote(answer)">
             {{ answer.content }}
@@ -134,6 +154,7 @@
         <button-root
           v-if="!isAdding"
           class="justify-self-center"
+          :disabled="submitting"
           size="sm"
           @click="isAdding = true">
           <icon-plus class="h-4 mr-2 w-4" />
@@ -150,6 +171,7 @@
             ref="newAnswerInputRef"
             v-model="newAnswer"
             class="mt-2 w-full"
+            :disabled="submitting"
             @blur="createAnswer"
             @keyup.enter="createAnswer"
             @keyup.escape="resetNewAnswer" />
@@ -157,7 +179,7 @@
       </slide-up-transition>
     </div>
     <typography class="font-bold text-muted-foreground text-right text-sm">
-      {{ poll.votes.length }} {{ poll.votes.length === 1 ? 'vote' : 'votes' }}
+      {{ totalVotes }} {{ totalVotes === 1 ? 'vote' : 'votes' }}
     </typography>
   </div>
 </template>

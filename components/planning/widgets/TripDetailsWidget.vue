@@ -3,10 +3,9 @@
   import dayjs from 'dayjs';
   import { IconPencil, IconPlus } from '#components';
   import { usePlanningStore } from '@/stores/planning';
-  import { type Database, type Tables, type TablesUpdate, TripDetailsType } from '@/types';
+  import { type Tables, type TablesUpdate, TripDetailsType } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
-  const $appStore = useAppStore();
   const $store = usePlanningStore();
   const activeDetail = ref<Tables<'trip_details'> | undefined>(undefined);
   const isModifyDetailDialogOpen = ref(false);
@@ -15,59 +14,8 @@
     return $store.data?.trip_details.filter((detail) => detail.type === TripDetailsType.TRIP) || [];
   });
 
-  /**
-   * Creates a new detail for the selected trip.
-   */
-  const createDetail = async () => {
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const { data: newDetail, error } = await supabase.from('trip_details')
-        .insert({
-          trip_id: Number($store.selectedTripId),
-          title: 'New detail',
-          type: TripDetailsType.TRIP,
-          value: 'New trip detail description',
-        })
-        .select();
-
-      if (newDetail?.length && !error) {
-        const detail = newDetail[0];
-        if (detail) $store.data.trip_details.push(detail);
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error creating a new detail.');
-    }
-  };
-
-  /**
-   * Update a trip
-   * @param payload
-   */
-  const updateTrip = async (payload: TablesUpdate<'trips'>) => {
-    console.log(`updateTrip`);
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const { data: updatedTrip, error } = await supabase.from('trips')
-        .update(payload)
-        .eq('id', Number($store.selectedTripId))
-        .select();
-      console.log({ updatedTrip, error });
-
-      if (updatedTrip?.length && $store.selectedTripId && !error) {
-        const trip = updatedTrip[0];
-        if (!trip) return;
-        $store.selectedTripId = String(trip.id);
-
-        // Find the index of the corresponding trip in data.value.trips and update it
-        const tripIndex = $store.data.trips.findIndex(t => t.id === trip.id);
-        if (tripIndex !== -1) {
-          $store.data.trips.splice(tripIndex, 1, trip);
-        }
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error updating the trip.');
-    }
-  };
+  const createDetail = () => $store.createTripDetail(TripDetailsType.TRIP);
+  const updateTrip = (payload: TablesUpdate<'trips'>) => $store.updateTrip(payload);
 
   const datePicker = ref(null);
   const editingTripDates = ref(false);
@@ -168,40 +116,9 @@
             " />
         </div>
       </div>
-      <ul>
-        <li
-          v-for="detail in tripDetails"
-          :key="detail.id"
-          class="mb-0">
-          <div class="flex items-center gap-4 group space-between">
-            <div class="flex justify-between items-center flex-1">
-              <typography class="font-bold! text-muted-foreground">
-                {{ detail.title }}
-              </typography>
-              <a
-                v-if="detail.url"
-                class="text-hyperlink"
-                :href="detail.url"
-                rel="noopener noreferrer"
-                target="_blank">
-                {{ detail.value }}
-              </a>
-              <typography
-                v-else
-                class="text-muted-foreground">
-                {{ detail.value }}
-              </typography>
-            </div>
-            <button-root
-              class="group-hover:opacity-100 opacity-0 rounded-full"
-              size="sm"
-              variant="ghost"
-              @click="[activeDetail = detail, isModifyDetailDialogOpen = true]">
-              <icon-pencil />
-            </button-root>
-          </div>
-        </li>
-      </ul>
+      <details-list
+        :details="tripDetails"
+        @edit="[activeDetail = $event, isModifyDetailDialogOpen = true]" />
     </div>
 
     <!-- Modify Detail Dialog -->

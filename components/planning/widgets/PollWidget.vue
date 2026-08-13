@@ -3,12 +3,13 @@
   import type { Tables } from '@/types';
   import type { ExtendedPoll } from '@/types/helpers';
 
-  const $store = usePlanningStore();
+  type PollForm = {
+    question: Tables<'questions'>;
+    answers: Tables<'answers'>[];
+  };
 
-  const isPollDialogOpen = ref(false);
-  const isDeleteConfirmOpen = ref(false);
-  const modalState = ref<'create' | 'edit'>('create');
-  const blankModalForm: { question: Tables<'questions'>, answers: Tables<'answers'>[]} = {
+  /** Fresh blank form each time — avoid a module-level mutable singleton. */
+  const createBlankModalForm = (): PollForm => ({
     question: {
       id: 0,
       poll_id: 0,
@@ -25,6 +26,32 @@
       profile_id: '',
       content: '',
     }],
+  });
+
+  const clonePollToForm = (poll: ExtendedPoll): PollForm => ({
+    question: { ...poll.question },
+    answers: (poll.answers ?? []).map(answer => ({ ...answer })),
+  });
+
+  const $store = usePlanningStore();
+
+  const isPollDialogOpen = ref(false);
+  const isDeleteConfirmOpen = ref(false);
+  const modalState = ref<'create' | 'edit'>('create');
+  const modalForm = ref<PollForm>(createBlankModalForm());
+
+  const openCreatePoll = () => {
+    modalState.value = 'create';
+    modalForm.value = createBlankModalForm();
+    isPollDialogOpen.value = true;
+  };
+
+  const openEditPoll = () => {
+    modalState.value = 'edit';
+    modalForm.value = $store.data.poll
+      ? clonePollToForm($store.data.poll)
+      : createBlankModalForm();
+    isPollDialogOpen.value = true;
   };
 
   const canAccessSettings = computed(() => {
@@ -52,7 +79,7 @@
           <dropdown-menu-content>
             <dropdown-menu-label>Actions</dropdown-menu-label>
             <dropdown-menu-separator />
-            <dropdown-menu-item @select="[ modalState = 'edit', isPollDialogOpen = true ]">
+            <dropdown-menu-item @select="openEditPoll">
               Edit Poll
             </dropdown-menu-item>
             <dropdown-menu-item @select="isDeleteConfirmOpen = true">
@@ -70,7 +97,7 @@
       <button-root
         size="sm"
         variant="outline"
-        @click="isPollDialogOpen = true">
+        @click="openCreatePoll">
         Get Started
       </button-root>
     </gc-empty-state>
@@ -84,7 +111,7 @@
 
   <!-- Create & Edit Modal -->
   <lazy-modify-poll-dialog
-    :form="$store.data.poll ?? blankModalForm"
+    :form="modalForm"
     :is-open="isPollDialogOpen"
     :state="modalState"
     @on-close="isPollDialogOpen = false" />

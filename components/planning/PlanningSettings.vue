@@ -9,21 +9,26 @@
   const tripOptions = computed(() => $store.data.trips.map((t: Tables<'trips'>) => ({ label: t.name, value: t.id })) as SelectOption[]);
 
   /**
-   * Leaves the current trip.
+   * Handles selecting a trip: persist cookie, clear pinned ?trip=, refetch.
+   * Cookie-only updates previously skipped refetch when ?trip= was present.
    */
-  const isLeaveTripDialogOpen = ref(false);
-  const isSubmitting = ref(false);
-  const leaveTrip = async () => {
-    // TODO: implement
-  };
-
-  /**
-   * Handles selecting a trip and setting the cookie.
-   */
+  const $router = useRouter();
+  const $route = useRoute();
   const handleSelectTrip = async (value: AcceptableValue) => {
+    if (value == null || value === '') return;
+
+    const tripId = Number(value);
     const cookie = useCookie('selectedTripId');
     cookie.value = encrypt(String(value));
     $store.selectedTripId = String(value);
+
+    if ($route.query.trip != null) {
+      const nextQuery = { ...$route.query };
+      delete nextQuery.trip;
+      await $router.replace({ query: nextQuery });
+    }
+
+    await $store.fetchPlanningPage(tripId);
   };
 
   const emits = defineEmits<{
@@ -34,24 +39,6 @@
 <template>
   <div class="flex justify-between lg:justify-end items-center gap-6 mb-8">
     <div class="flex justify-center items-center gap-4">
-      <div class="flex">
-        <dropdown-menu>
-          <dropdown-menu-trigger>
-            <icon-settings
-              class="h-6 w-6"
-              data-testid="settings-icon" />
-          </dropdown-menu-trigger>
-          <dropdown-menu-content>
-            <dropdown-menu-label>
-              Actions
-            </dropdown-menu-label>
-            <dropdown-menu-separator />
-            <dropdown-menu-item @select="isLeaveTripDialogOpen = true">
-              Leave Trip
-            </dropdown-menu-item>
-          </dropdown-menu-content>
-        </dropdown-menu>
-      </div>
       <select-root
         :default-value="String($store.selectedTripId)"
         :model-value="$store.selectedTripId"
@@ -82,49 +69,12 @@
       </select-root>
     </div>
 
-    <div v-tippy="{ content: !$userStore.isPaidMember && $store.data.trips.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : '' }">
+    <div v-tippy="{ content: !$userStore.isPaidMember && $store.data.trips.length >= 1 ? 'Free accounts are limited to one trip. Please upgrade to enjoy unlimited trips!' : '' }">
       <button-root
         :disabled="$store.pageLoading || (!$userStore.isPaidMember && $store.data.trips.length >= 1)"
         @click="emits('openDialog')">
         New Trip
       </button-root>
     </div>
-
-    <alert-dialog :open="isLeaveTripDialogOpen">
-      <alert-dialog-content>
-        <alert-dialog-header>
-          <alert-dialog-title>
-            Leave the "{{ $store.data.trips.find((t: Tables<'trips'>) => t.id === Number($store.selectedTripId))?.name }}" trip?
-          </alert-dialog-title>
-        </alert-dialog-header>
-        <div class="flex items-center mb-4 space-x-2">
-          <div class="flex flex-col">
-            <typography class="mb-2">
-              Are you sure you want to leave this trip?
-            </typography>
-            <typography variant="small">
-              You will lose access to all the data associated with this trip.
-            </typography>
-          </div>
-        </div>
-        <alert-dialog-footer class="items-center w-full sm:justify-between">
-          <button-root
-            :disabled="isSubmitting"
-            :loading="isSubmitting"
-            variant="secondary"
-            @click="isLeaveTripDialogOpen = false"
-            @update:open="isLeaveTripDialogOpen = false">
-            Cancel
-          </button-root>
-          <button-root
-            :disabled="isSubmitting"
-            :loading="isSubmitting"
-            variant="destructive"
-            @click="leaveTrip">
-            Leave Trip
-          </button-root>
-        </alert-dialog-footer>
-      </alert-dialog-content>
-    </alert-dialog>
   </div>
 </template>

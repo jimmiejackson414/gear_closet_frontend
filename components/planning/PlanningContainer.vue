@@ -1,21 +1,37 @@
 <script lang="ts" setup>
-
   const $store = usePlanningStore();
   const $route = useRoute();
   const $cookie = useCookie('selectedTripId');
 
-  let identifier = 0;
-  watch(() => $cookie.value, (newValue) => {
-    if (newValue && !$route.query?.trip) {
-      identifier = Number(decrypt(newValue)) || 0;
-      $store.fetchPlanningPage(identifier);
+  /**
+   * Resolve trip id once: query > cookie > 0 (RPC / store pick first trip).
+   * Cookie watcher + onMounted previously both fetched → double RPC / races.
+   */
+  const resolveTripId = (): number => {
+    const fromQuery = $route.query?.trip;
+    if (fromQuery != null && fromQuery !== '') {
+      return Number(decrypt(fromQuery)) || 0;
     }
-  }, { immediate: true });
+    if ($cookie.value) {
+      return Number(decrypt($cookie.value)) || 0;
+    }
+    return 0;
+  };
 
   onMounted(async () => {
-    identifier = $route.query?.trip ? Number(decrypt($route.query.trip)) || 0 : identifier;
-    await $store.fetchPlanningPage(identifier);
+    await $store.fetchPlanningPage(resolveTripId());
   });
+
+  // Deep-link / browser navigation with ?trip= should refetch that trip.
+  watch(
+    () => $route.query.trip,
+    async (tripQuery, previous) => {
+      if (tripQuery === previous) return;
+      if (tripQuery == null || tripQuery === '') return;
+      const id = Number(decrypt(tripQuery)) || 0;
+      await $store.fetchPlanningPage(id);
+    },
+  );
 
   const isCreateTripDialogOpen = ref(false);
 </script>

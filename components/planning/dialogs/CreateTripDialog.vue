@@ -92,9 +92,15 @@
         $appStore.notifyPositive('Successfully created a new trip!');
         emits('onClose');
         const trip = createdTrip?.[0];
-        if (trip && $store.selectedTripId) {
+        if (trip) {
+          const cookie = useCookie('selectedTripId');
+          cookie.value = encrypt(String(trip.id));
           $store.selectedTripId = String(trip.id);
-          $store.data.trips.push(trip);
+          if (!$store.data.trips.some(t => t.id === trip.id)) {
+            $store.data.trips.push(trip);
+          }
+          // Always load the new trip so widgets don't keep prior pack/todos/poll.
+          await $store.fetchPlanningPage(trip.id);
         }
       }
     } catch (err) {

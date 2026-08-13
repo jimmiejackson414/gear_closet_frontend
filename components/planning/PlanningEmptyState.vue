@@ -1,7 +1,4 @@
 <script lang='ts' setup>
-  const $store = usePlanningStore();
-  const $userStore = useUserStore();
-
   const emits = defineEmits<{
     (event: 'openDialog'): void;
   }>();
@@ -19,7 +16,6 @@
         Click the button below to get started.
       </typography>
       <button-root
-        :disabled="!$userStore.isPaidMember && $store.data.trips.length > 0"
         size="sm"
         variant="outline"
         @click="emits('openDialog')">

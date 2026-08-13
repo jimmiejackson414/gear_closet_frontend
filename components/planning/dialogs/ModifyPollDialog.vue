@@ -3,10 +3,15 @@
   import type { Database, Tables } from '@/types';
   import type { ExtendedPoll } from '@/types/helpers';
 
+  type PollForm = {
+    question: Tables<'questions'>;
+    answers: Tables<'answers'>[];
+  };
+
   interface Props {
     isOpen: boolean;
     state: 'create' | 'edit';
-    form: { question: Tables<'questions'>, answers: Tables<'answers'>[]}
+    form: PollForm;
   }
 
   const props = defineProps<Props>();
@@ -15,7 +20,24 @@
   const $appStore = useAppStore();
   const $store = usePlanningStore();
 
-  let localForm = reactive({ ...props.form });
+  /** Deep clone so edits never share nested question/answers with the live store. */
+  const cloneForm = (form: PollForm): PollForm => ({
+    question: { ...form.question },
+    answers: form.answers.map(answer => ({ ...answer })),
+  });
+
+  const localForm = reactive<PollForm>(cloneForm(props.form));
+
+  watch(
+    () => props.isOpen,
+    (open) => {
+      if (open) {
+        const next = cloneForm(props.form);
+        localForm.question = next.question;
+        localForm.answers = next.answers;
+      }
+    },
+  );
 
   /**
    * Update the selected trip's poll.
@@ -31,13 +53,18 @@
       })
         .select();
 
-      if (error) { $appStore.notifyNegative('There was an error updating the poll.');}
-      if (updatedPoll) { $store.data.poll = updatedPoll as unknown as ExtendedPoll; }
+      if (error) {
+        $appStore.notifyNegative('There was an error updating the poll.');
+        return;
+      }
+      if (updatedPoll) {
+        $store.data.poll = updatedPoll as unknown as ExtendedPoll;
+      }
+      emits('onClose');
     } catch (err) {
       $appStore.notifyNegative('There was an error updating the poll.');
     } finally {
       isSubmitting.value = false;
-      emits('onClose');
     }
   };
 
@@ -55,13 +82,18 @@
       })
         .single();
 
-      if (error) { $appStore.notifyNegative('There was an error creating a new poll.');}
-      if (newPoll) { $store.data.poll = newPoll as ExtendedPoll; }
+      if (error) {
+        $appStore.notifyNegative('There was an error creating a new poll.');
+        return;
+      }
+      if (newPoll) {
+        $store.data.poll = newPoll as ExtendedPoll;
+      }
+      emits('onClose');
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new poll.');
     } finally {
       isSubmitting.value = false;
-      emits('onClose');
     }
   };
 
@@ -87,10 +119,9 @@
   };
 
   /**
-   * Close and reset the form
+   * Close without writing draft edits back to the store.
    */
   const handleClose = () => {
-    localForm = { ...props.form };
     emits('onClose');
   };
 </script>

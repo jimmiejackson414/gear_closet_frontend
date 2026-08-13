@@ -50,120 +50,155 @@
     }
   };
 
-  /* Donut Chart Options */
+  /* Donut Chart Options — stable base; series/legend/theme via setOption */
   const legendTextColor = ref('');
-  const chartRef = ref<typeof VChart | null>(null);
-  const chartOptions = computed<EChartsOption>({
-    get () {
-      return {
-        animationDuration: 300,
-        legend: {
-          orient: 'vertical',
-          left: 'left',
-          top: 'center',
-          textStyle: {
-            color: legendTextColor.value,
-          },
-          data: $store.data.pack?.categories?.map(c => ({
-            name: c.name as string,
-            textStyle: {
-              overflow: 'truncate',
-              width: 180,
-            },
-          })),
-        },
-        grid: {
-          bottom: '30%',
-        },
-        loading: $store.pageLoading,
-        media: [
-          {
-            query: {
-              maxWidth: 600,
-            },
-            option: {
-              legend: {
-                orient: 'horizontal',
-                left: 'center',
-                top: 'bottom',
-              },
-              grid: {
-                bottom: '20%',
-              },
-              series: [
-                {
-                  center: ['50%', '40%'],
-                  radius: ['40%', '120%'],
-                },
-              ],
-            },
-          },
-        ],
-        series: [
-          {
-            name: 'Pack Categories',
-            type: 'pie',
-            radius: ['40%', '90%'],
-            center: ['80%', '50%'],
-            left: 'center',
-            height: '100%',
-            data: $store.data.pack?.categories?.map(c => ({
-              name: c.name ?? 'Unnamed',
-              value: calculateCategoryWeight(c as ExtendedCategory),
-            })) ?? [],
-            label: { show: false },
-            itemStyle: {
-              borderRadius: 8,
-              borderColor: 'white',
-              borderWidth: 2,
-              color: (params: any) => {
-                const theme = findTheme($store.data.pack?.theme as Theme);
-                return theme[params.dataIndex % theme.length] ?? '';
-              },
-            },
-          },
-        ],
-        tooltip: {
-          show: true,
-          trigger: 'item',
-          formatter: (value: any) => {
-            const category = $store.data.pack?.categories?.[value.dataIndex];
-            const categoryWeight = calculateCategoryWeight(category as ExtendedCategory);
-            const weight = round(convert(categoryWeight, 'mg')
-              .to('lb'), 2);
-            return (`
-              <div class="flex flex-col gap-2 w-fit">
-                <p class="text-eyebrow text-sm!">
-                  <span style="margin-right: 4px; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${value.color};"></span>
-                  ${category?.name}
-                </p>
-                <p class="font-bold! text-base-lg text-center">
-                  ${weight} lbs
-                </p>
-              </div>
-            `);
-          },
-        },
-      };
+  const chartRef = ref<InstanceType<typeof VChart> | undefined>(undefined);
+  const chartOptions = ref<EChartsOption>({
+    animationDuration: 300,
+    legend: {
+      orient: 'vertical',
+      left: 'left',
+      top: 'center',
+      textStyle: {
+        color: legendTextColor.value,
+      },
+      data: [],
     },
-    set () {
-      // chartRef.value?.setOption(newOptions);
+    grid: {
+      bottom: '30%',
+    },
+    media: [
+      {
+        query: {
+          maxWidth: 600,
+        },
+        option: {
+          legend: {
+            orient: 'horizontal',
+            left: 'center',
+            top: 'bottom',
+          },
+          grid: {
+            bottom: '20%',
+          },
+          series: [
+            {
+              center: ['50%', '40%'],
+              radius: ['40%', '120%'],
+            },
+          ],
+        },
+      },
+    ],
+    series: [
+      {
+        name: 'Pack Categories',
+        type: 'pie',
+        radius: ['40%', '90%'],
+        center: ['80%', '50%'],
+        left: 'center',
+        height: '100%',
+        data: [],
+        label: { show: false },
+        itemStyle: {
+          borderRadius: 8,
+          borderColor: 'white',
+          borderWidth: 2,
+          color: (params: any) => {
+            const theme = findTheme($store.data.pack?.theme as Theme);
+            return theme[params.dataIndex % theme.length] ?? '';
+          },
+        },
+      },
+    ],
+    tooltip: {
+      show: true,
+      trigger: 'item',
+      formatter: (value: any) => {
+        const category = $store.data.pack?.categories?.[value.dataIndex];
+        const categoryWeight = calculateCategoryWeight(category as ExtendedCategory);
+        const weight = round(convert(categoryWeight, 'mg')
+          .to('lb'), 2);
+        return (`
+          <div class="flex flex-col gap-2 w-fit">
+            <p class="text-eyebrow text-sm!">
+              <span style="margin-right: 4px; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${value.color};"></span>
+              ${category?.name}
+            </p>
+            <p class="font-bold! text-base-lg text-center">
+              ${weight} lbs
+            </p>
+          </div>
+        `);
+      },
     },
   });
+
+  const applyPackSeries = () => {
+    const categories = $store.data.pack?.categories ?? [];
+    chartRef.value?.setOption({
+      legend: {
+        data: categories.map(c => ({
+          name: c.name as string,
+          textStyle: {
+            overflow: 'truncate',
+            width: 180,
+          },
+        })),
+      },
+      series: [{
+        data: categories.map(c => ({
+          name: c.name ?? 'Unnamed',
+          value: calculateCategoryWeight(c as ExtendedCategory),
+        })),
+        itemStyle: {
+          color: (params: any) => {
+            const theme = findTheme($store.data.pack?.theme as Theme);
+            return theme[params.dataIndex % theme.length] ?? '';
+          },
+        },
+      }],
+    });
+  };
 
   /**
    * Dynamically update the legend text color based on the current theme.
    */
   const updateLegendTextColor = async () => {
     await nextTick();
-    await new Promise(resolve => setTimeout(resolve, 100));
+    await new Promise(resolve => setTimeout(resolve, 50));
     legendTextColor.value = await hslVarToHex('hsl(var(--text))');
+
+    chartRef.value?.setOption({
+      legend: {
+        textStyle: {
+          color: legendTextColor.value,
+        },
+      },
+    });
   };
 
   updateLegendTextColor();
 
   const colorMode = useColorMode();
   watch(() => colorMode.value, () => updateLegendTextColor());
+
+  watch(() => $store.data.pack?.theme, (newTheme) => {
+    chartRef.value?.setOption({
+      series: [{
+        itemStyle: {
+          color: (params: any) => {
+            const theme = findTheme(newTheme as Theme);
+            return theme[params.dataIndex % (theme.length || 1)] ?? '';
+          },
+        },
+      }],
+    });
+  });
+
+  watch(() => $store.data.pack?.categories, () => {
+    applyPackSeries();
+  }, { deep: true, immediate: true });
 </script>
 
 <template>
