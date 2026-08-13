@@ -12,6 +12,7 @@
     "typecheck": "npx nuxi typecheck",
     "lint": "npx eslint .",
     "test:unit": "npx vitest watch",
+    "test:unit:run": "npx vitest run",
     "test:e2e": "pnpm playwright test",
     "cert": "mkcert -key-file ./localhost-key.pem -cert-file ./localhost.pem localhost",
     "barrel": "tsx scripts/generateComponentBarrel.ts",

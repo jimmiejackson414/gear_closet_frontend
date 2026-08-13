@@ -21,21 +21,23 @@ Audits of fetch orchestration, write boundaries, and correctness (2026-08-12). P
 
 ---
 
-### Shared / shell
+## Test suite
 
-Cross-cutting store and layout issues used by multiple pages. **Done** (`fix/shared-shell-perf`).
+Prefer Pinia store unit tests for race/optimistic correctness over dialog open/close clones.
 
-#### High
+#### Phase 1 (**Done** — `test/store-correctness`)
 
-- [x] **`fetchProfile` crashes on failure** — `stores/user.ts`  
-  Return after `profile = null`; no write-through on null.
+- [x] `test:unit:run` script; Playwright limited to real e2e specs; remove TodoMVC/example noise
+- [x] Store specs: `user` / `closet` / `planning` (`fetchGeneration`, notifications INSERT, optimistic writes)
 
-- [x] **Realtime notifications never INSERT** — `stores/user.ts`, `GcNavbar.vue`  
-  `fetchNotification` pushes on miss / replaces on hit; subscribe dedupes channel; navbar unsubscribes on unmount.
+#### Phase 2 (follow-up)
 
-#### Low
+- [ ] Helpers: `calculatePackWeights` / `calculatePackPrices`
+- [ ] Friends accept/decline + search pending; ForumsWidget; public pack smoke
 
-- [x] Removed unused `stores/auth.ts`
+#### Phase 3 (later)
+
+- [ ] Auth form smoke; Stripe webhook unit tests; thin closet/planning e2e
 
 ---
 
@@ -83,7 +85,9 @@ Product ideas / enhancements not required for current correctness work.
 
 ## Suggested PR order from here
 
-1. Visual QA leftovers + Stripe smoke
-2. Zod 4 when `@vee-validate/zod` peers allow
-3. Optional: Nuxt `app/` directory; revoke legacy JWT secret
-4. Future features (e.g. mutual friends) when prioritized
+1. **Test suite Phase 1** — store correctness (`test/store-correctness`)
+2. Visual QA leftovers + Stripe smoke
+3. Test suite Phase 2 (helpers / friends / public pack)
+4. Zod 4 when `@vee-validate/zod` peers allow
+5. Optional: Nuxt `app/` directory; revoke legacy JWT secret
+6. Future features (e.g. mutual friends) when prioritized
