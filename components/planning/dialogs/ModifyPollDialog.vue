@@ -137,7 +137,7 @@
             class="flex items-center w-full">
             <input-root
               :id="`Answer-${index}`"
-              v-model="localForm.answers[index].content"
+              v-model="_answer.content"
               :placeholder="`Answer ${index + 1}`"
               :prepend-icon="IconCheck" />
             <button-root

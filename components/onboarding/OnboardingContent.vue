@@ -54,7 +54,10 @@
       inactive: IconHeart,
     },
   };
-  const stepperIcon = (step: keyof typeof icons, state: StepperState) => icons[step][state];
+  const stepperIcon = (step: keyof typeof icons, state: StepperState) => {
+    const stepIcons = icons[step];
+    return stepIcons?.[state] ?? IconCheck;
+  };
 
   /**
    * Define the form schema for each step of the onboarding process
@@ -179,7 +182,7 @@
         class="flex justify-center items-center flex-col relative w-full"
         :step="step.step">
         <stepper-separator
-          v-if="step.step !== steps[steps.length - 1].step"
+          v-if="step.step !== steps[steps.length - 1]?.step"
           class="absolute top-5 right-[calc(-50%+10px)] left-[calc(50%+20px)] bg-muted block group-data-[state=completed]:bg-primary h-0.5 rounded-full shrink-0" />
 
         <stepper-trigger as-child>
@@ -275,7 +278,7 @@
               <form-label>Preferred Measuring System</form-label>
               <select-root
                 v-bind="componentField"
-                :default-value="formattedMeasuringSystem[0].value">
+                :default-value="formattedMeasuringSystem[0]?.value">
                 <form-control>
                   <select-trigger>
                     <select-value placeholder="Select a measuring system" />

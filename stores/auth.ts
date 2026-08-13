@@ -1,21 +1,21 @@
-import { defineStore } from 'pinia';
 import type { JwtPayload } from '@supabase/supabase-js';
+import { defineStore } from 'pinia';
 import type { RouteLocation } from 'vue-router';
 
 type State = {
   redirectRoute: Partial<RouteLocation> | null;
-}
+};
 
 type Getters = {
   isAuthenticated(): boolean;
   currentUser(): JwtPayload | null;
-}
+};
 
 type Actions = {
   saveRedirectRoute(route: Partial<RouteLocation>): void;
   loadRedirectRoute(): void;
   clearRedirectRoute(): void;
-}
+};
 
 export const useAuthStore = defineStore<'auth', State, Getters, Actions>(
   'auth',

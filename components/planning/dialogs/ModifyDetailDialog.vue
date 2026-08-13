@@ -77,8 +77,11 @@
         .select();
 
       if (updatedDetail?.length && !error) {
+        const updated = updatedDetail[0];
         const index = $store.data.trip_details.findIndex((t) => t.id === props.activeDetail?.id);
-        $store.data.trip_details[index] = updatedDetail[0];
+        if (updated && index !== -1) {
+          $store.data.trip_details[index] = updated;
+        }
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error updating the detail.');

@@ -53,7 +53,7 @@
   };
 
   /** VueDatePicker v14 types `onBlur` as `() => void`; vee-validate passes `(e: Event) => void`. */
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+
   const datePickerFieldBind = (componentField: any) => {
     const { onBlur, ...rest } = componentField;
     return {
@@ -79,8 +79,8 @@
         description: values.description,
         starting_point: values.starting_point,
         ending_point: values.ending_point,
-        starting_date: values.dateRange?.[0].toISOString(),
-        ending_date: values.dateRange?.[1].toISOString(),
+        starting_date: values.dateRange?.[0]?.toISOString(),
+        ending_date: values.dateRange?.[1]?.toISOString(),
         profile_id: user.value?.sub as string,
       };
       const { data: createdTrip, error } = await supabase.from('trips')
@@ -91,9 +91,10 @@
       else {
         $appStore.notifyPositive('Successfully created a new trip!');
         emits('onClose');
-        if ($store.selectedTripId) {
-          $store.selectedTripId = String(createdTrip[0].id);
-          $store.data.trips.push(createdTrip[0]);
+        const trip = createdTrip?.[0];
+        if (trip && $store.selectedTripId) {
+          $store.selectedTripId = String(trip.id);
+          $store.data.trips.push(trip);
         }
       }
     } catch (err) {

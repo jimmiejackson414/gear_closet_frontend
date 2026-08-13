@@ -31,7 +31,8 @@
         .select();
 
       if (newTodo?.length && !error) {
-        $store.data.todos.push(newTodo[0]);
+        const todo = newTodo[0];
+        if (todo) $store.data.todos.push(todo);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new todo.');
@@ -51,8 +52,11 @@
         .select();
 
       if (updatedTodo?.length && !error) {
+        const updated = updatedTodo[0];
         const index = $store.data.todos.findIndex((t) => t.id === todo.id);
-        $store.data.todos[index] = updatedTodo[0];
+        if (updated && index !== -1) {
+          $store.data.todos[index] = updated;
+        }
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error updating the todo.');

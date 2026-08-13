@@ -18,10 +18,11 @@
 
       for (let i = 0; i < details.length; i += 1) {
         const detail = details[i];
-        const weight = weights[details[i].title.toLowerCase() as keyof typeof weights];
+        if (!detail) continue;
+        const weight = weights[detail.title.toLowerCase() as keyof typeof weights];
         detail.weight = round(convert(weight, 'mg')
           .to('lb'), 2);
-        detail.color = theme[i];
+        detail.color = theme[i] ?? '';
       }
     }
   });

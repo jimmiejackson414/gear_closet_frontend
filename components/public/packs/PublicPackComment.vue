@@ -52,11 +52,13 @@
 
 
       const newReply = data[0]; // Get the newly created reply
+      if (!newReply) throw new Error('Failed to create reply');
 
       // Find the comment and update its replies
       const commentIndex = ($store.data.selectedPack as PublicPack)?.comments.findIndex((c) => c.id === props.comment.id);
       if (commentIndex !== -1) {
         const targetComment = ($store.data.selectedPack as PublicPack).comments[commentIndex];
+        if (!targetComment) return;
         if (!targetComment.replies) {
           targetComment.replies = []; // Ensure replies array exists
         }

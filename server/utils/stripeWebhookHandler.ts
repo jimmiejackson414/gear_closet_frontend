@@ -1,6 +1,6 @@
 import type { H3Event } from 'h3';
-import type Stripe from 'stripe';
 import { assertMethod, getHeader, readRawBody } from 'h3';
+import type Stripe from 'stripe';
 import { useServerStripe } from './stripeClient';
 
 type WebhookHandler = (

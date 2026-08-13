@@ -4,7 +4,7 @@ export type Json =
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[]
+  | Json[];
 
 export type Database = {
   graphql_public: {
@@ -1660,9 +1660,9 @@ export type Database = {
       [_ in never]: never
     }
   }
-}
+};
 
-type PublicSchema = Database[Extract<keyof Database, "public">]
+type PublicSchema = Database[Extract<keyof Database, "public">];
 
 export type Tables<
   PublicTableNameOrOptions extends
@@ -1687,7 +1687,7 @@ export type Tables<
       }
       ? R
       : never
-    : never
+    : never;
 
 export type TablesInsert<
   PublicTableNameOrOptions extends
@@ -1708,7 +1708,7 @@ export type TablesInsert<
       }
       ? I
       : never
-    : never
+    : never;
 
 export type TablesUpdate<
   PublicTableNameOrOptions extends
@@ -1729,7 +1729,7 @@ export type TablesUpdate<
       }
       ? U
       : never
-    : never
+    : never;
 
 export type Enums<
   PublicEnumNameOrOptions extends
@@ -1742,7 +1742,7 @@ export type Enums<
   ? Database[PublicEnumNameOrOptions["schema"]]["Enums"][EnumName]
   : PublicEnumNameOrOptions extends keyof PublicSchema["Enums"]
     ? PublicSchema["Enums"][PublicEnumNameOrOptions]
-    : never
+    : never;
 
 export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
@@ -1757,49 +1757,49 @@ export type CompositeTypes<
   ? Database[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
   : PublicCompositeTypeNameOrOptions extends keyof PublicSchema["CompositeTypes"]
     ? PublicSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
-    : never
+    : never;
 
 
 export enum FriendRequestStatus {
   PENDING = "PENDING",
   ACCEPTED = "ACCEPTED",
-  DECLINED = "DECLINED"
+  DECLINED = "DECLINED",
 }
 
 export enum ItemUnit {
   g = "g",
   kg = "kg",
   oz = "oz",
-  lb = "lb"
+  lb = "lb",
 }
 
 export enum MeasuringSystem {
   IMPERIAL = "IMPERIAL",
-  METRIC = "METRIC"
+  METRIC = "METRIC",
 }
 
 export enum PricingPlanInterval {
   day = "day",
   week = "week",
   month = "month",
-  year = "year"
+  year = "year",
 }
 
 export enum PricingType {
   one_time = "one_time",
-  recurring = "recurring"
+  recurring = "recurring",
 }
 
 export enum ResourceType {
   USER = "USER",
-  GROUP = "GROUP"
+  GROUP = "GROUP",
 }
 
 export enum SubscriptionLevel {
   FREE = "FREE",
   MONTHLY = "MONTHLY",
   ANNUAL = "ANNUAL",
-  LIFE = "LIFE"
+  LIFE = "LIFE",
 }
 
 export enum SubscriptionStatus {
@@ -1809,7 +1809,7 @@ export enum SubscriptionStatus {
   incomplete = "incomplete",
   incomplete_expired = "incomplete_expired",
   past_due = "past_due",
-  unpaid = "unpaid"
+  unpaid = "unpaid",
 }
 
 export enum Theme {
@@ -1829,21 +1829,21 @@ export enum Theme {
   TABLEAU10 = "TABLEAU10",
   COLORBLIND10 = "COLORBLIND10",
   JEWELBRIGHT9 = "JEWELBRIGHT9",
-  HUECIRCLE19 = "HUECIRCLE19"
+  HUECIRCLE19 = "HUECIRCLE19",
 }
 
 export enum TripDetailsType {
   HIKE = "HIKE",
-  TRIP = "TRIP"
+  TRIP = "TRIP",
 }
 
 export enum TripFriendStatus {
   ACCEPTED = "ACCEPTED",
   DECLINED = "DECLINED",
-  PENDING = "PENDING"
+  PENDING = "PENDING",
 }
 
 export enum UserRole {
   ADMIN = "ADMIN",
-  USER = "USER"
+  USER = "USER",
 }

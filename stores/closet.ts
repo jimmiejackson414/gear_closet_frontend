@@ -153,10 +153,13 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
 
           if (itemError) throw itemError;
 
+          const created = createdItem?.[0];
+          if (!created) throw new Error('Failed to create item');
+
           // Create the new category_item after item is created
           const newCategoryItem = {
             category_id: categoryId,
-            item_id: createdItem[0].id,
+            item_id: created.id,
             position: updatedCategoryItems.length,
           };
 
@@ -166,12 +169,15 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
 
           if (categoryItemError) throw categoryItemError;
 
+          const createdCatItem = createdCategoryItem?.[0];
+          if (!createdCatItem) throw new Error('Failed to create category item');
+
           // Replace the temporary optimistic item with the real item after creation
           const finalCategoryItem = {
             ...optimisticCategoryItem,
-            id: createdCategoryItem[0].id,
-            item_id: createdItem[0].id,
-            item: createdItem[0],
+            id: createdCatItem.id,
+            item_id: created.id,
+            item: created,
           };
 
           // Final optimistic update of category items
@@ -212,20 +218,23 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
           }
 
           const updatedCategoryItems = updatedCategoryItemsData as ExtendedCategoryItem[];
+          const firstUpdated = updatedCategoryItems[0];
+          if (!firstUpdated) return;
 
           // Check if all category_id values are the same (indicating a single category or multiple)
           const isSingleCategory = updatedCategoryItems.every(
-            (item) => item.category_id === updatedCategoryItems[0].category_id,
+            (item) => item.category_id === firstUpdated.category_id,
           );
 
           if (isSingleCategory) {
-            const singleCategoryId = updatedCategoryItems[0].category_id;
+            const singleCategoryId = firstUpdated.category_id;
             const categoryIndex = this.data.selectedPack?.categories.findIndex(
               (c) => c.id === singleCategoryId,
             );
 
             if (categoryIndex !== undefined && categoryIndex !== -1) {
               const category = this.data.selectedPack!.categories[categoryIndex];
+              if (!category) return;
 
               category.category_items = category.category_items.map(item => {
                 const updatedItem = updatedCategoryItems.find(updated => updated.id === item.id) as ExtendedCategoryItem;
@@ -252,6 +261,7 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
               const categoryIndex = this.data.selectedPack?.categories.findIndex((c) => c.id === parseInt(categoryId));
               if (categoryIndex !== undefined && categoryIndex !== -1) {
                 const category = this.data.selectedPack!.categories[categoryIndex];
+                if (!category) continue;
 
                 category.category_items = category.category_items.map(item => {
                   const updatedItem = items.find(updated => updated.id === item.id);
@@ -304,8 +314,17 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
 
           // update item located in store
           const categoryIndex = this.data.selectedPack?.categories.findIndex((c) => c.id === categoryId);
-          const categoryItemIndex = this.data.selectedPack?.categories[categoryIndex as number].category_items.findIndex((ci) => ci.item.id === item.id);
-          this.data.selectedPack!.categories[categoryIndex as number].category_items[categoryItemIndex as number].item = updatedItem[0];
+          if (categoryIndex === undefined || categoryIndex === -1) return;
+
+          const category = this.data.selectedPack?.categories[categoryIndex];
+          if (!category) return;
+
+          const categoryItemIndex = category.category_items.findIndex((ci) => ci.item.id === item.id);
+          const categoryItem = category.category_items[categoryItemIndex];
+          const updated = updatedItem[0];
+          if (!categoryItem || !updated) return;
+
+          categoryItem.item = updated;
         } catch (err) {
           $appStore.notifyNegative('There was an error updating the item.');
         }

@@ -44,26 +44,26 @@ export type ExtendedFriend = Tables<'friends'> & {
 export type ExtendedFriendInvite = Tables<'friend_invitations'> & {
   recipient: Tables<'profiles'>;
   sender: Tables<'profiles'>;
-}
+};
 
 export type ExtendedNotification = Tables<'notifications'> & {
   sender: Tables<'profiles'>;
-}
+};
 
 export type ExtendedPoll = Tables<'polls'> & {
   question: Tables<'questions'>;
   answers: Tables<'answers'>[];
   votes: Tables<'profile_answers'>[];
-}
+};
 
 export type ExtendedReply = Tables<'replies'> & {
   profile: Tables<'profiles'>;
-}
+};
 
 export type ExtendedComment = Tables<'comments'> & {
   profile: Tables<'profiles'>;
   replies: ExtendedReply[];
-}
+};
 
 export interface PublicPack extends ExtendedPack {
   profile: Tables<'profiles'>;
@@ -87,11 +87,11 @@ export type ForumPost = {
   updated_at: string;
   username: string;
   categoryColor?: string;
-}
+};
 
 export type ForumLatestPosts = {
   latest_posts: ForumPost[];
-}
+};
 
 export type ForumCategory = {
   id: number;
@@ -102,19 +102,19 @@ export type ForumCategory = {
   post_count: number;
   description: string;
   topic_url: string;
-}
+};
 
 export type ForumCategories = {
   category_list: {
     categories: ForumCategory[];
   }
-}
+};
 
 export type SelectOption = {
   label: string;
   value: string | number;
   [key: string]: any;
-}
+};
 
 // Closet page CSV import results
 export type ParsedResults = {
@@ -128,8 +128,8 @@ export type ParsedResults = {
     linebreak: string;
     truncated: boolean;
   }
-}
+};
 
 export type ImportClosetCsvResponse = {
   categories: ExtendedCategory[];
-}
+};

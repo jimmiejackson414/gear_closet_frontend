@@ -31,7 +31,8 @@
         .select();
 
       if (newDetail?.length && !error) {
-        $store.data.trip_details.push(newDetail[0]);
+        const detail = newDetail[0];
+        if (detail) $store.data.trip_details.push(detail);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new detail.');
@@ -53,12 +54,14 @@
       console.log({ updatedTrip, error });
 
       if (updatedTrip?.length && $store.selectedTripId && !error) {
-        $store.selectedTripId = String(updatedTrip[0].id);
+        const trip = updatedTrip[0];
+        if (!trip) return;
+        $store.selectedTripId = String(trip.id);
 
         // Find the index of the corresponding trip in data.value.trips and update it
-        const tripIndex = $store.data.trips.findIndex(trip => trip.id === updatedTrip[0].id);
+        const tripIndex = $store.data.trips.findIndex(t => t.id === trip.id);
         if (tripIndex !== -1) {
-          $store.data.trips.splice(tripIndex, 1, updatedTrip[0]);
+          $store.data.trips.splice(tripIndex, 1, trip);
         }
       }
     } catch (err) {

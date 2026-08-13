@@ -33,12 +33,14 @@
   });
 
   const highestPercentAnswer = computed(() => {
+    const first = calcAnswers.value[0];
+    if (!first) return undefined;
     return calcAnswers.value.reduce((acc: Tables<'answers'> & { percent: number }, cur: Tables<'answers'> & { percent: number }) => {
       if (cur.percent > acc.percent) {
         return cur;
       }
       return acc;
-    }, calcAnswers.value[0]);
+    }, first);
   });
 
   const createVote = async (answer: Tables<'answers'>) => {
@@ -120,7 +122,7 @@
               :style="{ width: answer.percent + '%' }" />
             <div
               class="absolute ml-2"
-              :class="[ answer.content === highestPercentAnswer.content ? 'font-bold' : 'font-medium' ]">
+              :class="[ answer.content === highestPercentAnswer?.content ? 'font-bold' : 'font-medium' ]">
               {{ answer.content }} ({{ answer.percent + '%' }})
             </div>
           </div>
@@ -128,7 +130,7 @@
       </div>
 
       <!-- Show the add answer button if user has not voted yet -->
-      <SlideUpTransition v-if="!hasVoted && poll.answers.length < 6">
+      <slide-up-transition v-if="!hasVoted && poll.answers.length < 6">
         <button-root
           v-if="!isAdding"
           class="justify-self-center"
@@ -152,7 +154,7 @@
             @keyup.enter="createAnswer"
             @keyup.escape="resetNewAnswer" />
         </div>
-      </SlideUpTransition>
+      </slide-up-transition>
     </div>
     <typography class="font-bold text-muted-foreground text-right text-sm">
       {{ poll.votes.length }} {{ poll.votes.length === 1 ? 'vote' : 'votes' }}

@@ -150,7 +150,7 @@ export default defineNuxtConfig({
         plugins: [{ name: '@vue/typescript-plugin' }],
         // Nuxt 4 compat enables this by default (~90+ app errors). Opt out for now;
         // re-enable and fix indexed access after the Nuxt 4 upgrade lands.
-        noUncheckedIndexedAccess: false,
+        noUncheckedIndexedAccess: true,
       },
     },
   },

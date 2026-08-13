@@ -36,7 +36,7 @@
             )
           )
         `)
-        .eq('slug', Array.isArray($route.params.slug) ? $route.params.slug[0] : $route.params.slug)
+        .eq('slug', (Array.isArray($route.params.slug) ? $route.params.slug[0] : $route.params.slug) as string)
         .order('created_at', { referencedTable: 'comments', ascending: false })
         .order('created_at', { referencedTable: 'comments.replies', ascending: false })
         .maybeSingle();

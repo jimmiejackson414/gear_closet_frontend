@@ -44,14 +44,14 @@
     grid: { show: false },
     series: [
       {
-        data: $store.data.selectedPack?.categories?.map(category => calculateCategoryWeight(category as ExtendedCategory)),
+        data: $store.data.selectedPack?.categories?.map(category => calculateCategoryWeight(category as ExtendedCategory)) ?? [],
         type: 'bar',
         itemStyle: {
           borderRadius: 5,
           color: (params: any) => {
             const theme = findTheme($store.data.selectedPack?.theme as Theme);
-            const extendedTheme = Array.from({ length: $store.data.selectedPack?.categories?.length || 0 }, (_, i) => theme[i % theme.length]);
-            return extendedTheme[params.dataIndex];
+            const extendedTheme = Array.from({ length: $store.data.selectedPack?.categories?.length || 0 }, (_, i) => theme[i % theme.length] ?? '');
+            return extendedTheme[params.dataIndex] ?? '';
           },
         },
       },

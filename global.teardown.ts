@@ -1,15 +1,17 @@
-import { chromium, type FullConfig } from '@playwright/test';
-import dotenv from 'dotenv';
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import { type FullConfig, chromium } from '@playwright/test';
+import dotenv from 'dotenv';
 
 dotenv.config();
 
 async function globalTeardown (config: FullConfig) {
   console.log('***** Signing out user *****');
 
-  const { baseURL } = config.projects[0].use;
+  const project = config.projects[0];
+  if (!project) throw new Error('No Playwright project configured');
+  const { baseURL } = project.use;
   const browser = await chromium.launch();
   const context = await browser.newContext();
   const page = await context.newPage();

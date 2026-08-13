@@ -137,8 +137,9 @@
       // set selectedPlan if the user has a subscription
       if (response.subscriptions.length) {
         const subscription = response.subscriptions[0];
-        if (subscription.items.data.length) {
-          selectedPlan.value = subscription.items.data[0].price.nickname?.toUpperCase() as SubscriptionLevel;
+        const priceNickname = subscription?.items.data[0]?.price.nickname;
+        if (priceNickname) {
+          selectedPlan.value = priceNickname.toUpperCase() as SubscriptionLevel;
         }
       }
     } catch (err) {
@@ -237,7 +238,7 @@
               [SubscriptionLevel.LIFE]: 'positive' as const,
               [SubscriptionLevel.ANNUAL]: 'positive' as const,
               [SubscriptionLevel.MONTHLY]: 'primary' as const,
-            }[$store.profile!.subscriptions[0].prices.identifier as keyof typeof SubscriptionLevel] || 'primary'" />
+            }[$store.profile!.subscriptions[0]?.prices.identifier as keyof typeof SubscriptionLevel] || 'primary'" />
         </div>
         <tabs
           v-model="activeTab"
@@ -311,7 +312,7 @@
                     <form-label>Preferred Measuring System</form-label>
                     <select-root
                       v-bind="componentField"
-                      :default-value="formattedMeasuringSystem[0].value">
+                      :default-value="formattedMeasuringSystem[0]?.value">
                       <form-control>
                         <select-trigger>
                           <select-value placeholder="Select a measuring system" />

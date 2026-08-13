@@ -71,7 +71,7 @@
               class="relative flex flex-col justify-center items-center w-full"
               :step="step.step">
               <stepper-separator
-                v-if="step.step !== steps[steps.length - 1].step"
+                v-if="step.step !== steps[steps.length - 1]?.step"
                 class="block top-5 right-[calc(-50%+10px)] left-[calc(50%+20px)] absolute bg-muted group-data-[state=completed]:bg-primary rounded-full h-0.5 shrink-0" />
               <stepper-trigger as-child>
                 <button-root

@@ -1,4 +1,4 @@
-import { computed, shallowRef, type Component, type ComputedRef, type VNode } from 'vue';
+import { type Component, type ComputedRef, type VNode, computed, shallowRef } from 'vue';
 import type { ToastProps } from '.';
 
 const TOAST_LIMIT = 5;
@@ -7,7 +7,7 @@ const TOAST_REMOVE_DELAY = 1000000;
 export type StringOrVNode =
   | string
   | VNode
-  | (() => VNode)
+  | (() => VNode);
 
 type ToasterToast = ToastProps & {
   id: string
@@ -15,7 +15,7 @@ type ToasterToast = ToastProps & {
   description?: StringOrVNode
   action?: Component
   icon?: Component
-}
+};
 
 const actionTypes = {
   ADD_TOAST: 'ADD_TOAST',
@@ -31,7 +31,7 @@ function genId () {
   return count.toString();
 }
 
-type ActionType = typeof actionTypes
+type ActionType = typeof actionTypes;
 
 type Action =
   | {
@@ -49,7 +49,7 @@ type Action =
   | {
     type: ActionType['REMOVE_TOAST']
     toastId?: ToasterToast['id']
-  }
+  };
 
 /**
  * shallowRef (not ref): ToastProps from reka-ui is too deep for Vue's
@@ -132,7 +132,7 @@ function useToast (): {
   };
 }
 
-type Toast = Omit<ToasterToast, 'id'>
+type Toast = Omit<ToasterToast, 'id'>;
 
 function toast (props: Toast) {
   const id = genId();

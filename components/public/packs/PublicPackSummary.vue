@@ -45,10 +45,11 @@
     const theme = findTheme(props.pack.theme as Theme);
     for (let i = 0; i < initialDetails.length; i += 1) {
       const detail = initialDetails[i];
-      const weight = weights[initialDetails[i].title.toLowerCase() as keyof typeof weights];
+      if (!detail) continue;
+      const weight = weights[detail.title.toLowerCase() as keyof typeof weights];
       detail.weight = round(convert(weight, 'mg')
         .to('lb'), 2);
-      detail.color = theme[i];
+      detail.color = theme[i] ?? '';
     }
     return initialDetails;
   });
@@ -78,13 +79,13 @@
           const categoryWeight = calculateCategoryWeight(category as ExtendedCategory);
           return round(convert(categoryWeight, 'mg')
             .to((category as ExtendedCategory).unit as Mass), 2);
-        }),
+        }) ?? [],
         type: 'bar',
         itemStyle: {
           borderRadius: 5,
           color: (params: any) => {
             const theme = findTheme(props.pack?.theme as Theme);
-            return theme[params.dataIndex];
+            return theme[params.dataIndex] ?? '';
           },
         },
       },

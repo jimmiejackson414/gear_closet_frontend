@@ -1,4 +1,4 @@
-import { chromium, type FullConfig } from '@playwright/test';
+import { type FullConfig, chromium } from '@playwright/test';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -6,7 +6,9 @@ dotenv.config();
 async function globalSetup (config: FullConfig) {
   console.log('***** Signing in user *****');
 
-  const { baseURL, storageState } = config.projects[0].use;
+  const project = config.projects[0];
+  if (!project) throw new Error('No Playwright project configured');
+  const { baseURL, storageState } = project.use;
   const browser = await chromium.launch();
   const page = await browser.newPage();
 

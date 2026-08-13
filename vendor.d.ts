@@ -37,11 +37,11 @@ declare module 'vue-virtual-scroller' {
       };
     }>;
 
-    getScroll(): { start: number; end: number };
+    getScroll (): { start: number; end: number };
 
-    scrollToItem(index: number): void;
+    scrollToItem (index: number): void;
 
-    scrollToPosition(position: number);
+    scrollToPosition (position: number);
   }
 
   export class DynamicScroller extends RecycleScroller {
@@ -58,17 +58,17 @@ declare module 'vue-virtual-scroller' {
       scroller: RecycleScroller;
     };
 
-    onScrollerResize(): void;
+    onScrollerResize (): void;
 
-    onScrollerVisible(): void;
+    onScrollerVisible (): void;
 
-    forceUpdate(clear?: boolean): void;
+    forceUpdate (clear?: boolean): void;
 
-    scrollToItem(index: number): void;
+    scrollToItem (index: number): void;
 
-    getItemSize(item: object, index?: number): number;
+    getItemSize (item: object, index?: number): number;
 
-    scrollToBottom(): void;
+    scrollToBottom (): void;
   }
 
   export class DynamicScrollerItem extends Vue {

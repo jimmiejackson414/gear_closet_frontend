@@ -10,6 +10,8 @@ export default withNuxt(
       '**/generated/**',
       '**/dist/**',
       '**/*.html',
+      // Local Supabase CLI temp / bundled edge runtime (minified)
+      'supabase/.temp/**',
     ],
   },
   {
@@ -122,4 +124,4 @@ export default withNuxt(
       'vue/multi-word-component-names': 'off',
     },
   },
-)
+);

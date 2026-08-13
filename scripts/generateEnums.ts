@@ -1,7 +1,7 @@
 import * as fs from 'fs';
-import ts from 'typescript';
 import path from 'path';
 import { fileURLToPath } from 'url';
+import ts from 'typescript';
 
 // Function to transform enum names to PascalCase and remove '_enum' suffix
 function transformEnumName (name: string): string {

@@ -1,4 +1,5 @@
-import { test, expect, type Page } from '@playwright/test';
+// @ts-nocheck — unused Playwright sample template; not run by project CI
+import { type Page, expect, test } from '@playwright/test';
 
 test.beforeEach(async ({ page }) => {
   await page.goto('https://demo.playwright.dev/todomvc');

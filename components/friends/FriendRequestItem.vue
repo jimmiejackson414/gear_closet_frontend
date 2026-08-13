@@ -35,12 +35,15 @@
 
       if (!data?.length || error) throw new Error();
 
+      const friendRequest = data[0];
+      if (!friendRequest) throw new Error();
+
       // Insert new records into the 'friends' table
       const { error: insertError } = await supabase
         .from('friends')
         .insert([
-          { profile_id: data[0].recipient_id, friend_id: data[0].sender_id },
-          { profile_id: data[0].sender_id, friend_id: data[0].recipient_id },
+          { profile_id: friendRequest.recipient_id, friend_id: friendRequest.sender_id },
+          { profile_id: friendRequest.sender_id, friend_id: friendRequest.recipient_id },
         ]);
 
       if (insertError) throw new Error();

@@ -173,7 +173,7 @@ describe('Planning Page', async () => {
         }),
         attachTo: document.body,
         props: {
-          activeDetail: tripDetails[0],
+          activeDetail: tripDetails[0]!,
           isOpen: true,
         },
       });
