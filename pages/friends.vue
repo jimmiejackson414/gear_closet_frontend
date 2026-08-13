@@ -24,8 +24,10 @@
         .eq('recipient_id', user.value!.sub)
         .eq('status', FriendRequestStatus.PENDING);
 
-      if (requestsData?.length && !requestsError) {
-        requests.value = requestsData as ExtendedFriendInvite[];
+      if (requestsError) {
+        $appStore.notifyNegative('An error occurred while fetching friend requests.');
+      } else {
+        requests.value = (requestsData as ExtendedFriendInvite[]) ?? [];
       }
 
       // Fetch current friends
@@ -34,23 +36,31 @@
         .select('*, friend:profiles!friends_friend_id_fkey(*)')
         .eq('profile_id', user.value!.sub);
 
-      if (friendsData?.length && !friendsError) {
-        currentFriends.value = friendsData as ExtendedFriend[];
+      if (friendsError) {
+        $appStore.notifyNegative('An error occurred while fetching friends.');
+      } else {
+        currentFriends.value = (friendsData as ExtendedFriend[]) ?? [];
       }
     } catch (err) {
-      $appStore.notifyPositive('An error occurred while fetching the page.');
+      $appStore.notifyNegative('An error occurred while fetching the page.');
     }
   };
   await fetchFriendPage();
 
   const showAllRequests = ref(false);
   const filteredRequests = computed(() => showAllRequests.value ? requests.value : requests.value.slice(0, 5));
-  const handleAcceptRequest = (friend: ExtendedFriend) => {
+
+  const removeRequest = (requestId: number) => {
+    requests.value = requests.value.filter((r: ExtendedFriendInvite) => r.id !== requestId);
+  };
+
+  const handleAcceptRequest = (friend: ExtendedFriend, requestId: number) => {
     currentFriends.value.unshift(friend);
+    removeRequest(requestId);
   };
 
   const handleDeclineRequest = (id: number) => {
-    requests.value.filter((r: ExtendedFriendInvite) => r.id !== id);
+    removeRequest(id);
   };
 
   const showAllFriends = ref(false);
@@ -65,39 +75,72 @@
   const results = ref<Tables<'profiles'>[]>([]);
   const performedSearch = ref(false);
   const filteredResults = computed(() => showAllResults.value ? results.value : results.value.slice(0, 5));
-  let pendingRequestIds: (string | null)[] = [];
+  const pendingRequestIds = ref<(string | null)[]>([]);
+  let searchGeneration = 0;
+
   const fetchSearchResults = async () => {
-    if (searchQuery.value) {
+    const query = searchQuery.value?.trim();
+    if (!query) {
+      results.value = [];
+      pendingRequestIds.value = [];
       performedSearch.value = false;
-      searching.value = true;
-      try {
-        const supabase = useSupabaseClient<Database>();
-        const user = useSupabaseUser();
+      return;
+    }
 
-        const tsquery = searchQuery.value.replace(/ /g, '&');
-        const { data, error } = await supabase
-          .rpc('search_profiles', { search_query: tsquery })
-          .neq('id', user.value?.sub ?? '')
-          .select();
+    const generation = ++searchGeneration;
+    performedSearch.value = false;
+    searching.value = true;
 
-        if (!error) {
-          results.value = data;
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const user = useSupabaseUser();
 
-          // Fetch friend invitations
-          const { data: invitationsData, error: invitationsError } = await supabase
-            .from('friend_invitations')
-            .select('recipient_id')
-            .eq('sender_id', user.value!.sub)
-            .in('recipient_id', data.map(profile => profile.id));
+      const tsquery = query.replace(/ /g, '&');
+      const { data, error } = await supabase
+        .rpc('search_profiles', { search_query: tsquery })
+        .neq('id', user.value?.sub ?? '')
+        .select();
 
-          if (invitationsData?.length && !invitationsError) {
-            // Store recipient IDs of pending friend requests
-            pendingRequestIds = invitationsData.map(invitation => invitation.recipient_id);
-          }
-        }
-      } catch (err) {
-        $appStore.notifyPositive('An error occurred while fetching the page.');
-      } finally {
+      // Ignore stale responses from older keystrokes
+      if (generation !== searchGeneration) return;
+
+      if (error) {
+        $appStore.notifyNegative('An error occurred while searching for friends.');
+        results.value = [];
+        pendingRequestIds.value = [];
+        return;
+      }
+
+      results.value = data ?? [];
+      pendingRequestIds.value = [];
+
+      if (!data?.length) return;
+
+      // Fetch pending invitations for these results
+      const { data: invitationsData, error: invitationsError } = await supabase
+        .from('friend_invitations')
+        .select('recipient_id')
+        .eq('sender_id', user.value!.sub)
+        .eq('status', FriendRequestStatus.PENDING)
+        .in('recipient_id', data.map(profile => profile.id));
+
+      if (generation !== searchGeneration) return;
+
+      if (invitationsError) {
+        pendingRequestIds.value = [];
+        return;
+      }
+
+      pendingRequestIds.value = invitationsData?.length
+        ? invitationsData.map(invitation => invitation.recipient_id)
+        : [];
+    } catch (err) {
+      if (generation !== searchGeneration) return;
+      $appStore.notifyNegative('An error occurred while searching for friends.');
+      results.value = [];
+      pendingRequestIds.value = [];
+    } finally {
+      if (generation === searchGeneration) {
         searching.value = false;
         performedSearch.value = true;
       }
@@ -108,7 +151,11 @@
     if (searchQuery.value) {
       await fetchSearchResults();
     } else {
+      searchGeneration += 1;
+      results.value = [];
+      pendingRequestIds.value = [];
       performedSearch.value = false;
+      searching.value = false;
     }
   }, 500));
 

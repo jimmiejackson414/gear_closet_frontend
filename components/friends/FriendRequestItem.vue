@@ -2,7 +2,7 @@
   import dayjs, { type Dayjs } from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import { type Database, FriendRequestStatus } from '@/types';
-  import type { ExtendedFriendInvite } from '@/types/helpers';
+  import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
 
   dayjs.extend(relativeTime);
 
@@ -11,7 +11,10 @@
   }
 
   const props = defineProps<Props>();
-  const emits = defineEmits(['accept', 'decline']);
+  const emits = defineEmits<{
+    (event: 'accept', friend: ExtendedFriend, requestId: number): void;
+    (event: 'decline', requestId: number): void;
+  }>();
   const $appStore = useAppStore();
 
   /**
@@ -20,6 +23,7 @@
   const submittingAccept = ref(false);
   const acceptFriendRequest = async () => {
     const supabase = useSupabaseClient<Database>();
+    const user = useSupabaseUser();
     try {
       submittingAccept.value = true;
       const acceptedAt = new Date()
@@ -38,26 +42,25 @@
       const friendRequest = data[0];
       if (!friendRequest) throw new Error();
 
-      // Insert new records into the 'friends' table
-      const { error: insertError } = await supabase
+      // Insert friendship rows and return the current user's row with friend profile
+      const { data: insertedFriends, error: insertError } = await supabase
         .from('friends')
         .insert([
           { profile_id: friendRequest.recipient_id, friend_id: friendRequest.sender_id },
           { profile_id: friendRequest.sender_id, friend_id: friendRequest.recipient_id },
-        ]);
+        ])
+        .select('*, friend:profiles!friend_id(*)');
 
-      if (insertError) throw new Error();
+      if (insertError || !insertedFriends?.length) throw new Error();
 
-      // fetch new friend (ExtendedFriend)
-      const { data: newFriend, error: newFriendError } = await supabase.from('friends')
-        .select('*, friend:profiles!friend_id(*)')
-        .eq('friend_id', props.friend.sender.id)
-        .single();
+      const currentUserId = user.value?.sub;
+      const newFriend = insertedFriends.find(row => row.profile_id === currentUserId)
+        ?? insertedFriends.find(row => row.friend_id === props.friend.sender.id);
 
-      if (newFriendError || !newFriend) throw new Error();
+      if (!newFriend) throw new Error();
 
       $appStore.notifyPositive('Friend request accepted.');
-      emits('accept', newFriend);
+      emits('accept', newFriend as ExtendedFriend, props.friend.id);
       madeSelection.value = 'accepted';
       selectionTimestamp.value = dayjs();
     } catch (err) {
@@ -97,10 +100,6 @@
     }
   };
 
-  const mutualFriends = computed(() => {
-    return '2 mutual friends'; // TODO: Implement mutual friends
-  });
-
   const madeSelection = ref<'accepted' | 'declined' | null>(null);
   const selectionTimestamp = ref<Dayjs | null>(null);
 </script>
@@ -115,11 +114,6 @@
       <div class="flex flex-col">
         <typography class="font-bold">
           {{ friendlyUsername(friend.sender, { includeTrailName: true }) }}
-        </typography>
-        <typography
-          class="text-muted-foreground"
-          size="sm">
-          {{ mutualFriends }}
         </typography>
         <div
           v-if="!madeSelection"
