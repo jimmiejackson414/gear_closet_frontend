@@ -1,6 +1,8 @@
 <script lang="ts" setup>
+  import { isResourceLocked } from '@/utils/planLimits';
 
   const $store = useClosetStore();
+  const $userStore = useUserStore();
   const $route = useRoute();
   const $cookie = useCookie('selectedPackId');
 
@@ -20,6 +22,19 @@
   };
 
   await $store.fetchClosetPage(resolvePackId());
+
+  // Free users who land on a locked pack fall back to an unlocked one.
+  if (
+    !$userStore.isPaidMember
+    && $store.data.selectedPack
+    && isResourceLocked($store.data.selectedPack)
+  ) {
+    const unlocked = $store.data.allPacks.find((p) => !isResourceLocked(p));
+    await $store.fetchClosetPage(unlocked?.id ?? 0);
+    if (unlocked) {
+      $cookie.value = encrypt(String(unlocked.id));
+    }
+  }
 
   // Deep-link / browser navigation with ?pack= should refetch that pack.
   watch(

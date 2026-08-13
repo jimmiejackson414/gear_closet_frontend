@@ -82,6 +82,9 @@ Product ideas / enhancements not required for current correctness work.
 - [ ] **Mutual friends** — Friends request/search UI (`FriendRequestItem`, `FriendSearchItem`)  
   Show real mutual-friend counts (and optionally names) instead of hiding the line. Needs a query/RPC over shared `friends` edges for the current user vs the other profile.
 
+- [x] **Free downgrade soft-lock** — Issue #9 (`fix/free-downgrade-soft-lock`)  
+  Excess packs/trips retained and locked when downgrading to Free; user picks 1 pack + 1 trip.
+
 ---
 
 ## Suggested PR order from here

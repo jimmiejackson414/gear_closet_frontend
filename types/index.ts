@@ -464,6 +464,7 @@ export type Database = {
           allow_comments: boolean
           created_at: string | null
           id: number
+          locked_at: string | null
           name: string | null
           private: boolean
           profile_id: string
@@ -475,6 +476,7 @@ export type Database = {
           allow_comments?: boolean
           created_at?: string | null
           id?: number
+          locked_at?: string | null
           name?: string | null
           private?: boolean
           profile_id: string
@@ -486,6 +488,7 @@ export type Database = {
           allow_comments?: boolean
           created_at?: string | null
           id?: number
+          locked_at?: string | null
           name?: string | null
           private?: boolean
           profile_id?: string
@@ -695,6 +698,7 @@ export type Database = {
           measuring_system:
             | Database["public"]["Enums"]["measuring_system"]
             | null
+          needs_free_resource_selection: boolean
           onboard_date: string | null
           role: Database["public"]["Enums"]["user_role"] | null
           slug: string
@@ -719,6 +723,7 @@ export type Database = {
           measuring_system?:
             | Database["public"]["Enums"]["measuring_system"]
             | null
+          needs_free_resource_selection?: boolean
           onboard_date?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           slug: string
@@ -743,6 +748,7 @@ export type Database = {
           measuring_system?:
             | Database["public"]["Enums"]["measuring_system"]
             | null
+          needs_free_resource_selection?: boolean
           onboard_date?: string | null
           role?: Database["public"]["Enums"]["user_role"] | null
           slug?: string
@@ -1165,6 +1171,7 @@ export type Database = {
           ending_date: string | null
           ending_point: string | null
           id: number
+          locked_at: string | null
           name: string | null
           profile_id: string | null
           slug: string | null
@@ -1178,6 +1185,7 @@ export type Database = {
           ending_date?: string | null
           ending_point?: string | null
           id?: number
+          locked_at?: string | null
           name?: string | null
           profile_id?: string | null
           slug?: string | null
@@ -1191,6 +1199,7 @@ export type Database = {
           ending_date?: string | null
           ending_point?: string | null
           id?: number
+          locked_at?: string | null
           name?: string | null
           profile_id?: string | null
           slug?: string | null
@@ -1275,6 +1284,7 @@ export type Database = {
           measuring_system:
             | Database["public"]["Enums"]["measuring_system"]
             | null
+          needs_free_resource_selection: boolean
           onboard_date: string | null
           role: Database["public"]["Enums"]["user_role"] | null
           slug: string
@@ -1675,16 +1685,16 @@ export type Tables<
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? (Database[PublicTableNameOrOptions["schema"]]["Tables"] &
       Database[PublicTableNameOrOptions["schema"]]["Views"])[TableName] extends {
-      Row: infer R
-    }
+    Row: infer R
+  }
     ? R
     : never
   : PublicTableNameOrOptions extends keyof (PublicSchema["Tables"] &
         PublicSchema["Views"])
     ? (PublicSchema["Tables"] &
         PublicSchema["Views"])[PublicTableNameOrOptions] extends {
-        Row: infer R
-      }
+      Row: infer R
+    }
       ? R
       : never
     : never;
@@ -1698,14 +1708,14 @@ export type TablesInsert<
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Insert: infer I
-    }
+    Insert: infer I
+  }
     ? I
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Insert: infer I
-      }
+      Insert: infer I
+    }
       ? I
       : never
     : never;
@@ -1719,14 +1729,14 @@ export type TablesUpdate<
     : never = never,
 > = PublicTableNameOrOptions extends { schema: keyof Database }
   ? Database[PublicTableNameOrOptions["schema"]]["Tables"][TableName] extends {
-      Update: infer U
-    }
+    Update: infer U
+  }
     ? U
     : never
   : PublicTableNameOrOptions extends keyof PublicSchema["Tables"]
     ? PublicSchema["Tables"][PublicTableNameOrOptions] extends {
-        Update: infer U
-      }
+      Update: infer U
+    }
       ? U
       : never
     : never;

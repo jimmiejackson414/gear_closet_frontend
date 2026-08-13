@@ -1,13 +1,13 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import type Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { processStripeWebhookEvent } from '@/server/utils/processStripeWebhookEvent';
+import { getSubscriptionItemPeriod } from '@/server/utils/stripe';
 import {
   createSupabaseMock,
   createThenableQuery,
 } from '@/tests/unit/mocks/supabase.mock';
-import { processStripeWebhookEvent } from '@/server/utils/processStripeWebhookEvent';
-import { getSubscriptionItemPeriod } from '@/server/utils/stripe';
 import type { Database } from '@/types';
-import type { SupabaseClient } from '@supabase/supabase-js';
 
 function asClient (mock: ReturnType<typeof createSupabaseMock>) {
   return mock as unknown as SupabaseClient<Database>;
@@ -27,7 +27,7 @@ function stripeEvent<T extends string> (
     request: null,
     type,
     data: { object },
-  } as Stripe.Event;
+  } as unknown as Stripe.Event;
 }
 
 describe('getSubscriptionItemPeriod', () => {
@@ -177,6 +177,60 @@ describe('processStripeWebhookEvent', () => {
     expect(from)
       .not
       .toHaveBeenCalled();
+  });
+
+  it('marks Free selection needed when subscription updates to a Free price', async () => {
+    const tables: string[] = [];
+    const supabase = createSupabaseMock({
+      from: (table) => {
+        tables.push(table);
+        if (table === 'subscriptions') {
+          return createThenableQuery({ data: [{ id: 1 }], error: null });
+        }
+        if (table === 'prices') {
+          return createThenableQuery({ data: { identifier: 'FREE' }, error: null });
+        }
+        if (table === 'packs') {
+          return createThenableQuery({
+            data: [{ id: 1, locked_at: null }, { id: 2, locked_at: null }],
+            error: null,
+          });
+        }
+        if (table === 'trips') {
+          return createThenableQuery({ data: [{ id: 1, locked_at: null }], error: null });
+        }
+        if (table === 'profiles') {
+          return createThenableQuery({ data: [{ id: 'profile-1' }], error: null });
+        }
+        return createThenableQuery({ data: null, error: null });
+      },
+    });
+
+    await processStripeWebhookEvent(
+      stripeEvent('customer.subscription.updated', {
+        id: 'sub_free',
+        status: 'active',
+        metadata: { profile_id: 'profile-1' },
+        cancel_at_period_end: false,
+        cancel_at: null,
+        items: {
+          data: [
+            {
+              price: { id: 'price_free' },
+              quantity: 1,
+              current_period_start: 1_700_000_000,
+              current_period_end: 1_700_086_400,
+            },
+          ],
+        },
+      }),
+      asClient(supabase),
+    );
+
+    expect(tables)
+      .toContain('profiles');
+    expect(tables)
+      .toContain('packs');
   });
 
   it('rethrows when customer insert fails', async () => {

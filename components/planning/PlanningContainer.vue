@@ -1,5 +1,8 @@
 <script lang="ts" setup>
+  import { isResourceLocked } from '@/utils/planLimits';
+
   const $store = usePlanningStore();
+  const $userStore = useUserStore();
   const $route = useRoute();
   const $cookie = useCookie('selectedTripId');
 
@@ -20,6 +23,17 @@
 
   onMounted(async () => {
     await $store.fetchPlanningPage(resolveTripId());
+
+    if (!$userStore.isPaidMember) {
+      const selected = $store.data.trips.find((t) => String(t.id) === $store.selectedTripId);
+      if (selected && isResourceLocked(selected)) {
+        const unlocked = $store.data.trips.find((t) => !isResourceLocked(t));
+        await $store.fetchPlanningPage(unlocked?.id ?? 0);
+        if (unlocked) {
+          $cookie.value = encrypt(String(unlocked.id));
+        }
+      }
+    }
   });
 
   // Deep-link / browser navigation with ?trip= should refetch that trip.

@@ -13,6 +13,7 @@ export const trips: Tables<'trips'>[] = [
     "ending_point":"Ending point",
     "starting_date":null,
     "starting_point":"Starting point",
+    "locked_at":null,
   },
   {
     "id":3,
@@ -26,6 +27,7 @@ export const trips: Tables<'trips'>[] = [
     "ending_point":"Mount Katahdin",
     "starting_date":"2024-04-01T20:34:00+00:00",
     "starting_point":"Springer Mountain",
+    "locked_at":null,
   },
 ];
 
