@@ -2,8 +2,8 @@
   import type { ExtendedFriend } from '@/types/helpers';
 
   interface Props {
-    data: ExtendedFriend[];
-    loading: boolean;
+    data?: ExtendedFriend[];
+    loading?: boolean;
   }
 
   const props = withDefaults(defineProps<Props>(), {

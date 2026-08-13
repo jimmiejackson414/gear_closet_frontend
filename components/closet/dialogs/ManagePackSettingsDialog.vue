@@ -91,7 +91,7 @@
         $appStore.notifyPositive('Successfully updated your pack theme.');
         $store.dialogStates.managePackSettingsDialog = false;
       }
-    } catch (error) {
+    } catch {
       $appStore.notifyNegative(`There was an error ${mode.value === 'create' ? 'creating' : 'updating'} your pack.`);
     } finally {
       submitting.value = false;
@@ -102,7 +102,7 @@
 <template>
   <dialog-root :open="$store.dialogStates.managePackSettingsDialog">
     <dialog-content
-      class="sm:max-w-[450px] lg:max-w-[650px] max-h-[90dvh]"
+      class="sm:max-w-112.5 lg:max-w-162.5 max-h-[90dvh]"
       @escape-key-down="$store.dialogStates.managePackSettingsDialog = false"
       @interact-outside="$store.dialogStates.managePackSettingsDialog = false">
       <dialog-header>

@@ -3,7 +3,7 @@
   import { TripFriendStatus } from '@/types';
 
   interface Props {
-    data: Tables<'trip_friends'>[];
+    data?: Tables<'trip_friends'>[];
     loading?: boolean;
   }
 
@@ -71,7 +71,7 @@
           inviterProfiles.value = next;
         }
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error loading invitation details.');
     }
   };
@@ -97,7 +97,8 @@
         .update({
           status,
           accepted_invite_on: status === TripFriendStatus.ACCEPTED
-            ? new Date().toISOString()
+            ? new Date()
+              .toISOString()
             : null,
         })
         .eq('id', invite.id);
@@ -113,7 +114,7 @@
           ? 'Invitation accepted!'
           : 'Invitation declined.',
       );
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error updating the invitation.');
     } finally {
       actingId.value = null;
@@ -123,7 +124,7 @@
 
 <template>
   <card
-    class="h-full p-4 rounded-3xl"
+    class="p-4 rounded-3xl h-full"
     data-testid="invitations-widget">
     <gc-skeleton
       v-if="loading"
@@ -131,7 +132,7 @@
       :lines="3" />
     <div v-else>
       <div class="flex justify-start items-center mb-4 py-4">
-        <icon-calendar-check class="h-6 mr-6 text-primary dark:text-primary-foreground w-6" />
+        <icon-calendar-check class="mr-6 w-6 h-6 text-primary dark:text-primary-foreground" />
         <p class="font-bold! text-base">
           Invitations <span class="font-normal text-muted-foreground">({{ pendingInvites.length || 0 }})</span>
         </p>
@@ -147,9 +148,9 @@
             <div class="flex items-start gap-3">
               <gc-avatar
                 class="shrink-0"
+                :initials="initials(inviterProfiles[invite.invited_by_id])"
                 size="sm"
-                :url="buildImageSrc(inviterProfiles[invite.invited_by_id]?.image)"
-                :initials="initials(inviterProfiles[invite.invited_by_id])" />
+                :url="buildImageSrc(inviterProfiles[invite.invited_by_id]?.image)" />
               <div class="min-w-0">
                 <typography class="font-semibold truncate">
                   {{ tripNames[invite.trip_id ?? 0] || (invite.trip_id ? `Trip #${invite.trip_id}` : 'Trip invitation') }}

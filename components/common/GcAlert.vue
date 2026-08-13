@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   interface Props {
     severity?: Severity;
-    message: string;
+    message?: string;
   }
 
   export type Severity = 'error' | 'warning' | 'positive' | 'info';

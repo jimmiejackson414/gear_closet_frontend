@@ -35,7 +35,7 @@
       } else {
         $appStore.notifyNegative('There was an error creating the category.');
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error creating the category.');
     } finally {
       submitting.value = false;

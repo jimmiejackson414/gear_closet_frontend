@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
     }
 
     return data as ProfileApiResponse;
-  } catch (err) {
+  } catch {
     throw createError({
       statusCode: 500,
       statusMessage: 'An error occurred while fetching profile',

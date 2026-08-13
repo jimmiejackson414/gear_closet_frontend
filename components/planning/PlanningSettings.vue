@@ -43,7 +43,7 @@
         :default-value="String($store.selectedTripId)"
         :model-value="$store.selectedTripId"
         @update:model-value="handleSelectTrip">
-        <select-trigger class="min-w-[180px]">
+        <select-trigger class="min-w-45">
           <span v-if="!$store.selectedTripId">Selected Trip</span>
           <select-value placeholder="Selected Trip" />
         </select-trigger>

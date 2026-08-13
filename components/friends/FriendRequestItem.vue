@@ -63,7 +63,7 @@
       emits('accept', newFriend as ExtendedFriend, props.friend.id);
       madeSelection.value = 'accepted';
       selectionTimestamp.value = dayjs();
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('An error occurred while accepting the friend request.');
     } finally {
       submittingAccept.value = false;
@@ -93,7 +93,7 @@
       emits('decline', props.friend.id);
       madeSelection.value = 'declined';
       selectionTimestamp.value = dayjs();
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('An error occurred while declining the friend request.');
     } finally {
       submittingDecline.value = false;

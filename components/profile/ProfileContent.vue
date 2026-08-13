@@ -84,7 +84,7 @@
     try {
       const { success } = await $store.updateProfile(values);
       if (!success) throw Error;
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('An error occurred while updating your profile.');
     }
   });
@@ -142,7 +142,7 @@
           selectedPlan.value = priceNickname.toUpperCase() as SubscriptionLevel;
         }
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('An error occurred while fetching your subscription data.');
     } finally {
       fetchingSubscription.value = false;
@@ -191,7 +191,7 @@
         newPassword.value = '';
         confirmPassword.value = '';
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('An error occurred while updating your password.');
     } finally {
       isSubmittingPassword.value = false;
@@ -210,7 +210,7 @@
 
 <template>
   <div class="mx-auto py-8 w-full max-w-full lg:max-w-5xl">
-    <div class="gap-6 lg:gap-14 grid grid-cols-1 lg:grid-cols-[400px_1fr]">
+    <div class="gap-6 lg:gap-14 grid grid-cols-1 lg:grid-cols-[100_1fr]">
       <client-only>
         <gc-avatar-upload
           :file="profileAvatar"
@@ -242,7 +242,7 @@
         </div>
         <tabs
           v-model="activeTab"
-          class="w-[400px]"
+          class="w-100"
           default-value="profile">
           <tabs-list class="grid grid-cols-3 w-full">
             <tabs-trigger value="profile">

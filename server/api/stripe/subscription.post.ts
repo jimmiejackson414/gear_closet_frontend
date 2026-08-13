@@ -95,7 +95,7 @@ export default defineEventHandler(async (event) => {
     }
 
     return { ok: !!stripeSubscription };
-  } catch (err) {
+  } catch {
     throw createError({
       statusCode: 500,
       statusMessage: 'Error creating subscription',

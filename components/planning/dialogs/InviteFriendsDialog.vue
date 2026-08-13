@@ -63,7 +63,7 @@
       } else {
         searchResults.value = [];
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error searching for friends.');
     } finally {
       searching.value = false;
@@ -113,7 +113,7 @@
       } else if (error) {
         $appStore.notifyNegative(error.message || 'There was an error inviting friends to the trip.');
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error inviting friends to the trip.');
     } finally {
       submitting.value = false;
@@ -138,7 +138,7 @@
 <template>
   <dialog-root :open="isOpen">
     <dialog-content
-      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      class="max-h-[90dvh] sm:max-w-112.5 lg:max-w-162.5"
       @escape-key-down="handleClose"
       @interact-outside="handleClose">
       <dialog-header>

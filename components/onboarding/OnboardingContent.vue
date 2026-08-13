@@ -142,7 +142,7 @@
       if (!response.ok) throw new Error();
 
       await $router.push({ name: 'index' });
-    } catch (error) {
+    } catch {
       toast({
         title: 'Error',
         description: 'There was an error completing the onboarding process. Please try again.',

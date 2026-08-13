@@ -71,7 +71,7 @@
     data-testid="login-form"
     @keydown.enter="onSubmit"
     @submit.prevent="onSubmit">
-    <div class="grid grid-cols-[50px_50px] gap-4 justify-center text-center">
+    <div class="grid grid-cols-[12.5_12.5] gap-4 justify-center text-center">
       <button
         class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
         type="button"

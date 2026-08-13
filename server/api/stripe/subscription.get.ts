@@ -64,7 +64,7 @@ export default defineEventHandler(async (event) => {
       paymentMethods: paymentMethods.data,
       invoices: invoices.data,
     } as SubscriptionApiResponse;
-  } catch (err) {
+  } catch {
     throw createError({
       statusCode: 500,
       statusMessage: 'Catch error fetching stripe subscription',

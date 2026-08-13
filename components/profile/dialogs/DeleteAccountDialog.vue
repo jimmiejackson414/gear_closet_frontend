@@ -37,7 +37,7 @@
 <template>
   <dialog-root :open="isOpen">
     <dialog-content
-      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      class="max-h-[90dvh] sm:max-w-112.5 lg:max-w-162.5"
       @escape-key-down="emits('onClose')"
       @interact-outside="emits('onClose')">
       <dialog-header>

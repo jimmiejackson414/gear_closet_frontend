@@ -50,7 +50,7 @@ export default defineEventHandler(async (event) => {
     return {
       paymentMethods: paymentMethods.data,
     };
-  } catch (err) {
+  } catch {
     throw createError({
       statusCode: 500,
       statusMessage: 'Catch error attaching stripe payment method to customer',

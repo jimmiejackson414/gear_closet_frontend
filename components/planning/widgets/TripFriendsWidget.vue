@@ -49,7 +49,7 @@
         }
         friendProfiles.value = next;
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error loading friend profiles.');
     }
   };

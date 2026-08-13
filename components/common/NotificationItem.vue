@@ -9,9 +9,7 @@
     notification: ExtendedNotification;
   }
 
-  const props = withDefaults(defineProps<Props>(), {
-    notification: undefined,
-  });
+  const props = defineProps<Props>();
 
   const emit = defineEmits(['markAsRead']);
 

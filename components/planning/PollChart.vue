@@ -65,7 +65,7 @@
       if (newVote?.length) {
         emits('createVote', newVote[0]);
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error creating a new vote.');
     } finally {
       submitting.value = false;
@@ -101,7 +101,7 @@
         emits('createAnswer', data[0]);
         resetNewAnswer();
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error creating a new answer.');
     } finally {
       submitting.value = false;

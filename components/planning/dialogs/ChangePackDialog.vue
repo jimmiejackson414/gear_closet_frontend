@@ -45,7 +45,7 @@
           value: p.id as number,
         }));
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error fetching packs.');
     } finally {
       fetchingPacks.value = false;
@@ -80,7 +80,7 @@
       if (pack && !error) {
         $store.data.pack = pack as ExtendedPack;
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error fetching the trip pack.');
     }
   };
@@ -110,7 +110,7 @@
         fetchTripPack();
         emits('onClose');
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error adding the pack to the trip.');
     } finally {
       submitting.value = false;
@@ -139,7 +139,7 @@
         // fetch new trip pack
         fetchTripPack();
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error updating the trip pack.');
     } finally {
       submitting.value = false;
@@ -150,7 +150,7 @@
 <template>
   <dialog-root :open="isOpen">
     <dialog-content
-      class="sm:max-w-[450px] lg:max-w-[650px] max-h-[90dvh]"
+      class="sm:max-w-112.5 lg:max-w-162.5 max-h-[90dvh]"
       @escape-key-down="emits('onClose')"
       @interact-outside="emits('onClose')">
       <dialog-header>

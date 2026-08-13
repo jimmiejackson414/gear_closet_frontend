@@ -55,7 +55,7 @@
         ]);
 
       submittedRequest.value = true;
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('An error occurred while adding the friend.');
     } finally {
       submitting.value = false;

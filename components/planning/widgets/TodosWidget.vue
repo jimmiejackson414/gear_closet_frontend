@@ -67,7 +67,7 @@
             <table-root class="w-full">
               <table-header>
                 <table-row no-hover-effect>
-                  <table-head class="w-[50px]">
+                  <table-head class="w-12.5">
                     <checkbox
                       :checked="userTodos.every((u: Tables<'todos'>) => u.completed)"
                       @update:checked="batchUpdateTodos($event, ResourceType.USER)" />
@@ -109,7 +109,7 @@
             <table-root class="w-full">
               <table-header>
                 <table-row no-hover-effect>
-                  <table-head class="w-[50px]">
+                  <table-head class="w-12.5">
                     <checkbox
                       :checked="groupTodos.every((u: Tables<'todos'>) => u.completed)"
                       @update:checked="batchUpdateTodos($event, ResourceType.GROUP)" />

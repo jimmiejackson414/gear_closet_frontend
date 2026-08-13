@@ -52,7 +52,7 @@
       } else {
         $appStore.notifyNegative('There was an error removing the category or its items.');
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error removing the category.');
     } finally {
       submitting.value = false;
@@ -70,7 +70,7 @@
 <template>
   <dialog-root v-model:open="$store.dialogStates.deleteCategoryDialog">
     <dialog-content
-      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      class="max-h-[90dvh] sm:max-w-112.5 lg:max-w-162.5"
       @escape-key-down="handleClose"
       @interact-outside="handleClose">
       <dialog-header>

@@ -56,7 +56,7 @@
       // Update the category with the created category
       const createdCategory = createdCategoryData as ExtendedCategory;
       $store.data.selectedPack?.categories.splice(0, 1, { ...createdCategory });
-    } catch (err) {
+    } catch {
       $store.data.selectedPack?.categories.shift();
       $appStore.notifyNegative('Error creating category');
     }
@@ -97,7 +97,7 @@
       } else {
         $appStore.notifyNegative('There was an error updating the category.');
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error updating the category.');
     } finally {
       submitting.value = false;

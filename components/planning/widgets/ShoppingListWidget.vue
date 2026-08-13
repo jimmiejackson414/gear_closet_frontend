@@ -68,7 +68,7 @@
             <table-root class="w-full">
               <table-header>
                 <table-row no-hover-effect>
-                  <table-head class="w-[50px]">
+                  <table-head class="w-12.5">
                     <checkbox
                       :checked="userItems.every((u: Tables<'shopping_list_items'>) => u.completed)"
                       @update:checked="batchUpdateShoppingItems($event, ResourceType.USER)" />
@@ -121,7 +121,7 @@
             <table-root class="w-full">
               <table-header>
                 <table-row no-hover-effect>
-                  <table-head class="w-[50px]">
+                  <table-head class="w-12.5">
                     <checkbox
                       :checked="groupItems.every((u: Tables<'shopping_list_items'>) => u.completed)"
                       @update:checked="batchUpdateShoppingItems($event, ResourceType.GROUP)" />

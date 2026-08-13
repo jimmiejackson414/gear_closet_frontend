@@ -43,7 +43,7 @@
           },
         }],
       });
-    } catch (error) {
+    } catch {
       $appStore.notifyNegative('There was an error updating your pack theme.');
     } finally {
       isChangeThemeModalOpen.value = false;
@@ -249,7 +249,7 @@
         Selected Pack:
         <span class="font-black">{{ $store.data.pack?.name }}</span>
       </h5>
-      <div class="h-[400px] mb-4 mt-0 mx-auto w-full">
+      <div class="h-100 mb-4 mt-0 mx-auto w-full">
         <client-only>
           <v-chart
             ref="chartRef"

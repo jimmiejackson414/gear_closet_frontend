@@ -25,7 +25,7 @@
     <div v-else>
       <gc-drawer />
       <div class="min-h-screen">
-        <div class="pl-[72px] pr-4 lg:pr-9 py-4">
+        <div class="pl-18 pr-4 lg:pr-9 py-4">
           <div class="container">
             <slot />
           </div>

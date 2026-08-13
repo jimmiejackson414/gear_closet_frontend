@@ -144,7 +144,7 @@ export default stripeWebhookHandler(async ( event, context ) => {
         .select();
 
       if (error || !data) throw throwError('An error occurred while updating subscription');
-    } catch (err) {
+    } catch {
       throw throwError('A catch error occurred while updating subscription');
     }
     break;
@@ -320,7 +320,7 @@ export default stripeWebhookHandler(async ( event, context ) => {
         .select();
 
       if (error || !data) throw throwError('An error occurred while updating price');
-    } catch (err) {
+    } catch {
       throw throwError('A catch error occurred while updating price');
     }
     break;
