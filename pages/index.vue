@@ -28,8 +28,28 @@
     latest_posts: [],
   });
 
-  const fetchForumPosts = () => $fetch('/api/forumPosts');
-  const { data: fData, error: fError } = await useAsyncData<ForumResponse>('forumPosts', fetchForumPosts);
+  // Single forum fetch via useAsyncData (avoid a second discarded $fetch).
+  const fetchForumPosts = (): Promise<ForumResponse> =>
+    $fetch<ForumResponse>('/api/forumPosts');
+  const { data: fData, error: fError } = await useAsyncData(
+    'forumPosts',
+    fetchForumPosts,
+  );
+
+  const applyForumData = () => {
+    if (fError.value || !fData.value) {
+      throw new Error('Error fetching forum posts');
+    }
+
+    forumData.latest_posts = fData.value.latest_posts.map((post) => {
+      const category = fData.value!.categories.find(c => c.id === post.category_id);
+      return {
+        ...post,
+        categoryColor: category ? category.color : '94a3b8',
+      };
+    });
+    forumData.categories = fData.value.categories || [];
+  };
 
   const fetchDashboard = async () => {
     const supabase = useSupabaseClient<Database>();
@@ -38,7 +58,6 @@
     try {
       const user = useSupabaseUser();
 
-      // fetch dashboard data from supabase
       const { data: pageData, error } = await supabase
         .rpc('get_dashboard_data', {
           p_user_id: user.value!.sub,
@@ -46,30 +65,18 @@
 
       if (!pageData || error) {
         $store.notifyNegative('An error occurred while loading your account.');
-        loading.value = false;
         return;
       }
 
       const typedPageData = pageData as unknown as DashboardData;
-      data.friends = typedPageData.friends;
-      data.trips = typedPageData.trips;
-      data.trip_friends = typedPageData.trip_friends;
+      data.friends = typedPageData.friends ?? [];
+      data.trips = typedPageData.trips ?? [];
+      data.trip_friends = typedPageData.trip_friends ?? [];
 
-      // fetch forum data from forums api
-      await fetchForumPosts();
-      if (fError.value || !fData.value) throw new Error('Error fetching forum posts');
-
-      forumData.latest_posts = fData.value.latest_posts.map(post => {
-        const category = fData.value!.categories.find(category => category.id === post.category_id);
-        return {
-          ...post,
-          categoryColor: category ? category.color : '94a3b8',
-        };
-      });
-      forumData.categories = fData.value?.categories || [];
+      applyForumData();
     } catch (err) {
-      console.log(`fetchDashboard err: `, err);
       console.error({ err });
+      $store.notifyNegative('An error occurred while loading your dashboard.');
     } finally {
       loading.value = false;
     }
@@ -109,7 +116,8 @@
       <div class="col-span-12 md:col-span-3">
         <invitations-widget
           :data="data.trip_friends"
-          :loading="loading" />
+          :loading="loading"
+          @update:data="data.trip_friends = $event" />
       </div>
       <div class="col-span-12">
         <forums-widget

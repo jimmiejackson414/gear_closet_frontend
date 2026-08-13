@@ -132,18 +132,20 @@ Audits of fetch orchestration, write boundaries, and correctness (2026-08-12). A
 
 #### Medium
 
-- [ ] **Forum double-fetch** — `pages/index.vue`  
-  `useAsyncData('forumPosts')` then `fetchForumPosts()` again (result discarded). Use one path.
+- [x] **Forum double-fetch** — `pages/index.vue`  
+  Single `useAsyncData('forumPosts')` path; removed discarded second `$fetch`.
 
-- [ ] **Invitations widget unfinished** — `InvitationsWidget.vue`  
-  Placeholder `<!-- TODO --> Invite: {{ invite.id }}`. Render details/actions or hide.
+- [x] **Invitations widget unfinished** — `InvitationsWidget.vue`  
+  Renders trip name + inviter (enriched client-side); Accept / Decline actions; pending-only count.
 
-- [ ] **Friends widget “+N more” inside `v-for`** — `FriendsWidget.vue`  
-  More-link repeats per avatar. Move outside loop.
+- [x] **Friends widget “+N more” inside `v-for`** — `FriendsWidget.vue`  
+  More-link moved outside the avatar loop.
 
 #### Low
 
-- [ ] Strip leftover `console.log` in `pages/index.vue`
+- [x] Strip leftover `console.log` in `pages/index.vue`
+
+> Medium + Low done on branch `fix/dashboard-page-perf`.
 
 ---
 
@@ -311,10 +313,11 @@ Do these as **separate PRs**.
 
 1. ~~**Planning High + Medium + Low**~~ — branch `fix/planning-high-priority-perf`
 2. ~~**Closet High + Medium + Low**~~ — branch `fix/closet-page-perf`
-3. **Shared High** — `fetchProfile` crash, notification INSERT
-4. **Auth / billing High** — reset-password page, billing stubs
-5. **Public packs High** — privacy gate; then Medium comments/layout
-6. **Friends High + Medium**
-7. Dashboard Medium; visual QA leftovers + Stripe smoke
-8. Zod 4 when `@vee-validate/zod` peers allow
-9. Optional: Nuxt `app/` directory; revoke legacy JWT secret after fully off `anon` / `service_role`
+3. ~~**Dashboard Medium + Low**~~ — branch `fix/dashboard-page-perf`
+4. **Shared High** — `fetchProfile` crash, notification INSERT
+5. **Auth / billing High** — reset-password page, billing stubs
+6. **Public packs High** — privacy gate; then Medium comments/layout
+7. **Friends High + Medium**
+8. Closet/Dashboard follow-ups; visual QA leftovers + Stripe smoke
+9. Zod 4 when `@vee-validate/zod` peers allow
+10. Optional: Nuxt `app/` directory; revoke legacy JWT secret after fully off `anon` / `service_role`
