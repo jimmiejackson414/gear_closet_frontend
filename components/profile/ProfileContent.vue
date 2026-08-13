@@ -509,11 +509,13 @@
       :is-open="isManageSubscriptionOpen"
       :selected-plan="selectedPlan"
       :subscription-data="( subscriptionData as SubscriptionApiResponse )"
-      @on-close="isManageSubscriptionOpen = false" />
+      @on-close="isManageSubscriptionOpen = false"
+      @on-success="fetchSubscriptionData" />
 
     <lazy-update-payment-method-dialog
       :is-open="isUpdatePaymentDialogOpen"
-      @on-close="isUpdatePaymentDialogOpen = false" />
+      @on-close="isUpdatePaymentDialogOpen = false"
+      @on-success="fetchSubscriptionData" />
 
     <lazy-delete-account-dialog
       :is-open="isDeleteAccountDialogOpen"

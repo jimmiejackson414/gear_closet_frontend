@@ -158,26 +158,37 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         try {
           const supabase = useSupabaseClient<Database>();
           const user = useSupabaseUser();
+          const profileId = user.value!.sub;
 
           // get the list of files in the user's avatar directory
           const { data: files, error: listError } = await supabase.storage.from('avatars')
-            .list(`${user.value!.sub}/`);
+            .list(`${profileId}/`);
 
           if (listError) return { success: false };
 
-          // if there are any files in the dictory, delete them
+          // if there are any files in the directory, delete them
           if (files?.length > 0) {
             const firstFile = files[0];
             if (!firstFile) return { success: false };
             const { error: deleteError } = await supabase.storage.from('avatars')
-              .remove([`${user.value!.sub}/${firstFile.name}`]);
+              .remove([`${profileId}/${firstFile.name}`]);
             if (deleteError) return { success: false };
           }
 
           // upload the new file
           const { data, error } = await supabase.storage.from('avatars')
-            .upload(`${user.value!.sub}/${file.name}`, file, { upsert: true });
-          return (data && !error) ? { success: true } : { success: false };
+            .upload(`${profileId}/${file.name}`, file, { upsert: true });
+
+          if (!data || error) return { success: false };
+
+          const { error: profileError } = await supabase.from('profiles')
+            .update({ image: data.path })
+            .eq('id', profileId);
+
+          if (profileError) return { success: false };
+
+          await this.fetchProfile();
+          return { success: true };
         } catch (err) {
           return { success: false };
         }

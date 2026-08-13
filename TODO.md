@@ -17,7 +17,7 @@ Tracks remaining product, quality, and dependency work.
 
 ## Page quality & performance
 
-Audits of fetch orchestration, write boundaries, and correctness (2026-08-12). Planning, Closet, Dashboard, Friends, and Public packs page passes are done.
+Audits of fetch orchestration, write boundaries, and correctness (2026-08-12). Planning, Closet, Dashboard, Friends, Public packs, and Auth/billing/profile page passes are done.
 
 ---
 
@@ -46,22 +46,21 @@ Audits of fetch orchestration, write boundaries, and correctness (2026-08-12). P
 
 ### Auth / billing / profile
 
+**Done** (`fix/auth-billing-perf`).
+
 #### High
 
-- [ ] **Password reset 404** — `ForgotPasswordForm.vue` → `/reset-password`, `ResetPasswordForm.vue` unused  
-  No `pages/reset-password.vue`. Add page (AuthLayout + form) or fix `redirectTo`.
+- [x] **Password reset 404** — added `pages/reset-password.vue` (AuthLayout + `ResetPasswordForm`); excluded `/reset-password` from Supabase auth redirects.
 
-- [ ] **Billing dialogs are stubs** — `ManageSubscriptionDialog.vue`, `UpdatePaymentMethodDialog.vue`  
-  Confirm/Update only `console.log`; existing `PUT /api/stripe/subscription` and `payment-method` unused. Wire APIs + toasts + refresh.
+- [x] **Billing dialogs are stubs** — `ManageSubscriptionDialog` → `PUT /api/stripe/subscription`; `UpdatePaymentMethodDialog` → Stripe `createPaymentMethod` + `PUT /api/stripe/payment-method`; toasts + subscription refresh.
 
 #### Medium
 
-- [ ] **Avatar upload doesn’t refresh profile** — `stores/user.ts` `updateAvatar`  
-  DB updates image; client never `fetchProfile` / patch. Refresh after upload.
+- [x] **Avatar upload doesn’t refresh profile** — `updateAvatar` writes `profiles.image` from storage path and `fetchProfile()` after upload.
 
 #### Low
 
-- [ ] Strip leftover `console.log`s in billing stubs
+- [x] Strip leftover `console.log`s in billing stubs
 
 ---
 
@@ -128,8 +127,7 @@ Product ideas / enhancements not required for current correctness work.
 ## Suggested PR order from here
 
 1. **Shared High** — `fetchProfile` crash, notification INSERT
-2. **Auth / billing High** — reset-password page, billing stubs
-3. Visual QA leftovers + Stripe smoke
-4. Zod 4 when `@vee-validate/zod` peers allow
-5. Optional: Nuxt `app/` directory; revoke legacy JWT secret
-6. Future features (e.g. mutual friends) when prioritized
+2. Visual QA leftovers + Stripe smoke
+3. Zod 4 when `@vee-validate/zod` peers allow
+4. Optional: Nuxt `app/` directory; revoke legacy JWT secret
+5. Future features (e.g. mutual friends) when prioritized

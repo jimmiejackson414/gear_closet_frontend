@@ -10,14 +10,16 @@
   }
 
   const props = defineProps<Props>();
-  const emits = defineEmits(['onClose']);
+  const emits = defineEmits(['onClose', 'onSuccess']);
 
+  const $appStore = useAppStore();
   const activePlan = ref<SubscriptionLevel | undefined>(props.selectedPlan);
   watch(() => props.selectedPlan, (selectedPlan) => {
     activePlan.value = selectedPlan;
   });
 
   const activeStep = ref(1);
+  const isSubmitting = ref(false);
   const steps = [
     { step: 1, title: 'Subscription', icon: IconCheckCircle },
     { step: 2, title: 'Confirm', icon: IconHeart },
@@ -39,9 +41,26 @@
     }
   });
 
-  // TODO: Finish the implementation of the ManageSubscriptionDialog component
   const handleConfirm = async () => {
-    console.log('handleConfirm') ;
+    if (!activePlan.value || isSubmitting.value) return;
+
+    try {
+      isSubmitting.value = true;
+      const response = await $fetch<{ ok: boolean }>('/api/stripe/subscription', {
+        method: 'PUT',
+        body: { newPlan: activePlan.value },
+      });
+
+      if (!response?.ok) throw new Error('Subscription update failed');
+
+      $appStore.notifyPositive('Subscription updated successfully!');
+      emits('onSuccess');
+      handleClose();
+    } catch {
+      $appStore.notifyNegative('Failed to update subscription. Please try again.');
+    } finally {
+      isSubmitting.value = false;
+    }
   };
 
   const handleClose = () => {
@@ -147,7 +166,10 @@
           @click="handleClose">
           Cancel
         </dialog-close>
-        <button-root @click="activeStep === 1 ? activeStep = 2 : handleConfirm()">
+        <button-root
+          :disabled="isSubmitting || (activeStep === 2 && !activePlan)"
+          :loading="isSubmitting"
+          @click="activeStep === 1 ? activeStep = 2 : handleConfirm()">
           {{ activeStep === 1 ? 'Continue' : 'Confirm' }}
         </button-root>
       </dialog-footer>
