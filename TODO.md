@@ -17,68 +17,25 @@ Tracks remaining product, quality, and dependency work.
 
 ## Page quality & performance
 
-Audits of fetch orchestration, write boundaries, and correctness (2026-08-12). Planning, Closet, Dashboard, Friends, Public packs, and Auth/billing/profile page passes are done.
-
----
-
-### Public packs
-
-`pages/p/packs/[slug].vue` → public pack + comments. **Done** (`fix/public-packs-perf`).
-
-#### High
-
-- [x] **Private-pack gate stuck / wrong** — `pages/p/packs/[slug].vue`  
-  Clear store before fetch; set gate from `fetchedPack.private` / missing row; never flash warm Pinia pack.
-
-#### Medium
-
-- [x] **Public layout always hits `/api/profile`** — `PublicLayout.vue`  
-  Skip profile fetch when anonymous.
-
-- [x] **Public comments gated on auth** — `pages/p/packs/[slug].vue`  
-  Comment list for guests; compose gated; “Commenting as” uses current user (pack page + reply form).
-
-#### Low
-
-- [x] Removed unused `PublicPackSummary.vue`; removed stub `pages/p/friends/[slug].vue` and dead `FriendItem` link
-
----
-
-### Auth / billing / profile
-
-**Done** (`fix/auth-billing-perf`).
-
-#### High
-
-- [x] **Password reset 404** — added `pages/reset-password.vue` (AuthLayout + `ResetPasswordForm`); excluded `/reset-password` from Supabase auth redirects.
-
-- [x] **Billing dialogs are stubs** — `ManageSubscriptionDialog` → `PUT /api/stripe/subscription`; `UpdatePaymentMethodDialog` → Stripe `createPaymentMethod` + `PUT /api/stripe/payment-method`; toasts + subscription refresh.
-
-#### Medium
-
-- [x] **Avatar upload doesn’t refresh profile** — `updateAvatar` writes `profiles.image` from storage path and `fetchProfile()` after upload.
-
-#### Low
-
-- [x] Strip leftover `console.log`s in billing stubs
+Audits of fetch orchestration, write boundaries, and correctness (2026-08-12). Planning, Closet, Dashboard, Friends, Public packs, Auth/billing/profile, and Shared/shell passes are done.
 
 ---
 
 ### Shared / shell
 
-Cross-cutting store and layout issues used by multiple pages.
+Cross-cutting store and layout issues used by multiple pages. **Done** (`fix/shared-shell-perf`).
 
 #### High
 
-- [ ] **`fetchProfile` crashes on failure** — `stores/user.ts`  
-  Sets `profile = null` then `this.profile!.notifications = []` → throw before toast. Return after null; don’t write through null.
+- [x] **`fetchProfile` crashes on failure** — `stores/user.ts`  
+  Return after `profile = null`; no write-through on null.
 
-- [ ] **Realtime notifications never INSERT** — `stores/user.ts`, `GcNavbar.vue`  
-  `fetchNotification` does `notifications[findIndex]` — INSERT finds `-1` and never `push`. Push when missing; replace when found. Unsubscribe / dedupe channel on remount.
+- [x] **Realtime notifications never INSERT** — `stores/user.ts`, `GcNavbar.vue`  
+  `fetchNotification` pushes on miss / replaces on hit; subscribe dedupes channel; navbar unsubscribes on unmount.
 
 #### Low
 
-- [ ] Unused `stores/auth.ts` — remove or start using for redirects
+- [x] Removed unused `stores/auth.ts`
 
 ---
 
@@ -126,8 +83,7 @@ Product ideas / enhancements not required for current correctness work.
 
 ## Suggested PR order from here
 
-1. **Shared High** — `fetchProfile` crash, notification INSERT
-2. Visual QA leftovers + Stripe smoke
-3. Zod 4 when `@vee-validate/zod` peers allow
-4. Optional: Nuxt `app/` directory; revoke legacy JWT secret
-5. Future features (e.g. mutual friends) when prioritized
+1. Visual QA leftovers + Stripe smoke
+2. Zod 4 when `@vee-validate/zod` peers allow
+3. Optional: Nuxt `app/` directory; revoke legacy JWT secret
+4. Future features (e.g. mutual friends) when prioritized

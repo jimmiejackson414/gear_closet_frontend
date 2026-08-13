@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 import { useAppStore } from '@/stores/app';
 import { type Database, SubscriptionLevel, type Tables, type TablesUpdate } from '@/types';
 import type { ProfileApiResponse } from '@/types/helpers';
@@ -16,11 +17,15 @@ type Actions = {
   fetchProfile(): void;
   fetchNotification (id: number | string): void;
   subscribeToNotifications(): void;
+  unsubscribeFromNotifications(): void;
   markAllAsRead(): void;
   deleteAvatar(): Promise<{ success: boolean }>
   updateAvatar(file: File): Promise<{ success: boolean }>;
   updateProfile(profile: TablesUpdate<'profiles'>): Promise<{ success: boolean }>;
 };
+
+/** Module-scoped so remounts can tear down the previous Realtime channel. */
+let notificationsChannel: RealtimeChannel | null = null;
 
 export const useUserStore = defineStore<'user', State, Getters, Actions>(
   'user',
@@ -65,19 +70,20 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
           if (!data || error) {
             this.profile = null;
-            this.profile!.notifications = [];
             $store.notifyNegative('An error occurred while loading your account.');
             return;
           }
 
           this.profile = data as any;
-          this.profile!.notifications = (data as any).notifications;
+          this.profile!.notifications = (data as any).notifications ?? [];
         } catch (err) {
           console.error({ err });
         }
       },
 
       async fetchNotification (id) {
+        if (!this.profile) return;
+
         const supabase = useSupabaseClient<Database>();
 
         const { data } = await supabase.from('notifications')
@@ -85,16 +91,30 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           .eq('id', Number(id))
           .single();
 
-        if (data) {
-          const i = this.profile!.notifications.findIndex((n: Tables<'notifications'>) => n.id === Number(id));
-          this.profile!.notifications[i] = data as any;
+        if (!data) return;
+
+        if (!this.profile.notifications) {
+          this.profile.notifications = [];
+        }
+
+        const i = this.profile.notifications.findIndex((n: Tables<'notifications'>) => n.id === Number(id));
+        if (i === -1) {
+          this.profile.notifications.push(data as any);
+        } else {
+          this.profile.notifications[i] = data as any;
         }
       },
 
       async subscribeToNotifications () {
         const supabase = useSupabaseClient<Database>();
 
-        supabase.channel('notifications')
+        // Dedupe: tear down any prior channel before creating a new one.
+        if (notificationsChannel) {
+          await supabase.removeChannel(notificationsChannel);
+          notificationsChannel = null;
+        }
+
+        notificationsChannel = supabase.channel('notifications')
           .on(
             'postgres_changes',
             { event: '*', schema: 'public', table: 'notifications' },
@@ -105,6 +125,13 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
             },
           )
           .subscribe();
+      },
+
+      async unsubscribeFromNotifications () {
+        if (!notificationsChannel) return;
+        const supabase = useSupabaseClient<Database>();
+        await supabase.removeChannel(notificationsChannel);
+        notificationsChannel = null;
       },
 
       async markAllAsRead () {
@@ -123,8 +150,8 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           $store.notifyNegative('An error occurred while marking notifications as read.');
         }
 
-        if (data) {
-          this.profile!.notifications = data as any;
+        if (data && this.profile) {
+          this.profile.notifications = data as any;
         }
       },
 
