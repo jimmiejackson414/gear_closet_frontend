@@ -58,7 +58,7 @@
 
       $store.data.selectedPack = fetchedPack as PublicPack;
       displayPrivatePackWarning.value = false;
-    } catch (error) {
+    } catch {
       displayPrivatePackWarning.value = true;
       $store.data.selectedPack = undefined;
       $appStore.notifyNegative('Failed to fetch pack data');
@@ -111,7 +111,7 @@
       ($store.data.selectedPack as PublicPack)?.comments?.unshift(comment as ExtendedComment);
       newCommentValue.value = undefined;
       $appStore.notifyPositive('Comment successfully added!');
-    } catch (error) {
+    } catch {
       $appStore.notifyNegative('Failed to add comment');
     } finally {
       submitting.value = false;

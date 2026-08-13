@@ -26,7 +26,7 @@
       else {
         $store.data.poll = undefined;
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error deleting the poll.');
     } finally {
       isSubmitting.value = false;

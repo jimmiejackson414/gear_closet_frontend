@@ -176,7 +176,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           }
 
           return { success: true };
-        } catch (err) {
+        } catch {
           return { success: false };
         }
       },
@@ -216,7 +216,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
           await this.fetchProfile();
           return { success: true };
-        } catch (err) {
+        } catch {
           return { success: false };
         }
       },
@@ -240,7 +240,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
             $appStore.notifyPositive('Successfully updated your profile!');
             return { success: true };
           }
-        } catch (err) {
+        } catch {
           $appStore.notifyNegative('An error occurred while updating your profile.');
           return { success: false };
         }

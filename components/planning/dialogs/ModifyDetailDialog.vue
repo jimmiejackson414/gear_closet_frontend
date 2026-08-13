@@ -102,7 +102,7 @@
 <template>
   <dialog-root :open="isOpen">
     <dialog-content
-      class="sm:max-w-[450px] lg:max-w-[650px] max-h-[90dvh]"
+      class="sm:max-w-112.5 lg:max-w-162.5 max-h-[90dvh]"
       @escape-key-down="handleClose"
       @interact-outside="handleClose">
       <dialog-header>

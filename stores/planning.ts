@@ -173,7 +173,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           } else if (error) {
             $appStore.notifyNegative(error.message || 'There was an error updating the trip.');
           }
-        } catch (err) {
+        } catch {
           $appStore.notifyNegative('There was an error updating the trip.');
         }
       },
@@ -198,7 +198,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           } else if (error) {
             $appStore.notifyNegative(error.message || 'There was an error creating a new detail.');
           }
-        } catch (err) {
+        } catch {
           $appStore.notifyNegative('There was an error creating a new detail.');
         }
       },
@@ -224,7 +224,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
             $appStore.notifyNegative(error.message || 'There was an error updating the detail.');
           }
           return false;
-        } catch (err) {
+        } catch {
           $appStore.notifyNegative('There was an error updating the detail.');
           return false;
         }
@@ -247,7 +247,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           }
           $appStore.notifyNegative(error.message || 'There was an error deleting the detail.');
           return false;
-        } catch (err) {
+        } catch {
           $appStore.notifyNegative('There was an error deleting the detail.');
           return false;
         }
@@ -274,7 +274,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           } else if (error) {
             $appStore.notifyNegative(error.message || 'There was an error creating a new todo.');
           }
-        } catch (err) {
+        } catch {
           $appStore.notifyNegative('There was an error creating a new todo.');
         }
       },
@@ -297,7 +297,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           } else if (error) {
             $appStore.notifyNegative(error.message || 'There was an error updating the todo.');
           }
-        } catch (err) {
+        } catch {
           $appStore.notifyNegative('There was an error updating the todo.');
         }
       },
@@ -322,7 +322,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           } else if (error) {
             $appStore.notifyNegative(error.message || 'There was an error updating the todos.');
           }
-        } catch (err) {
+        } catch {
           $appStore.notifyNegative('There was an error updating the todos.');
         }
       },
@@ -349,7 +349,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           } else if (error) {
             $appStore.notifyNegative(error.message || 'There was an error creating a new shopping item.');
           }
-        } catch (err) {
+        } catch {
           $appStore.notifyNegative('There was an error creating a new shopping item.');
         }
       },
@@ -372,7 +372,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           } else if (error) {
             $appStore.notifyNegative(error.message || 'There was an error updating the shopping item.');
           }
-        } catch (err) {
+        } catch {
           $appStore.notifyNegative('There was an error updating the shopping item.');
         }
       },
@@ -397,7 +397,7 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
           } else if (error) {
             $appStore.notifyNegative(error.message || 'There was an error updating the shopping items.');
           }
-        } catch (err) {
+        } catch {
           $appStore.notifyNegative('There was an error updating the shopping items.');
         }
       },

@@ -80,7 +80,7 @@
         :disabled="$store.pageLoading"
         :model-value="String($store.data.selectedPack?.id)"
         @update:model-value="handleSelectPack">
-        <select-trigger class="min-w-[180px]">
+        <select-trigger class="min-w-45">
           <span v-if="!$store.data.selectedPack?.id">Selected Pack</span>
           <select-value placeholder="Selected Pack" />
         </select-trigger>

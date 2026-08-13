@@ -2,7 +2,7 @@
   import type { ForumCategory, ForumPost } from '@/types/helpers';
 
   interface Props {
-    data: {
+    data?: {
       latest_posts: ForumPost[];
       categories: ForumCategory[];
     };

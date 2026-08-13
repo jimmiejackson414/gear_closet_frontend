@@ -209,7 +209,7 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
               ) }
               : cat,
           );
-        } catch (err) {
+        } catch {
           const category = this.data.selectedPack?.categories.find(cat => cat.id === categoryId);
           if (category) {
             // Rollback the optimistic update by filtering out the temp item
@@ -378,7 +378,7 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
           }
 
           categoryItem.item = updated;
-        } catch (err) {
+        } catch {
           if (itemUpdateGenerations.get(item.id) !== generation) return;
           (categoryItem.item as any)[key] = previousValue;
           $appStore.notifyNegative('There was an error updating the item.');

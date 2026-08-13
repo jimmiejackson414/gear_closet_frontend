@@ -139,7 +139,7 @@
         Pack Summary
       </typography>
     </div>
-    <div class="mt-0 mb-4 w-auto h-[200px] lg:h-[375px]">
+    <div class="mt-0 mb-4 w-auto h-50 lg:h-93.75">
       <client-only>
         <v-chart
           ref="chartRef"

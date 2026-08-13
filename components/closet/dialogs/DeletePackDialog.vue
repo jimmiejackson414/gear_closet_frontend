@@ -56,7 +56,7 @@
       } else {
         $appStore.notifyNegative('There was an error deleting the pack.');
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error deleting the pack.');
     } finally {
       submitting.value = false;
@@ -67,7 +67,7 @@
 <template>
   <alert-dialog v-model:open="$store.dialogStates.deletePackDialog">
     <alert-dialog-content
-      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      class="max-h-[90dvh] sm:max-w-112.5 lg:max-w-162.5"
       @escape-key-down="$store.dialogStates.deletePackDialog = false"
       @interact-outside="$store.dialogStates.deletePackDialog = false">
       <alert-dialog-header>

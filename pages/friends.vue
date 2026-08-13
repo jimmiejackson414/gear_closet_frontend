@@ -41,7 +41,7 @@
       } else {
         currentFriends.value = (friendsData as ExtendedFriend[]) ?? [];
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('An error occurred while fetching the page.');
     }
   };
@@ -134,7 +134,7 @@
       pendingRequestIds.value = invitationsData?.length
         ? invitationsData.map(invitation => invitation.recipient_id)
         : [];
-    } catch (err) {
+    } catch {
       if (generation !== searchGeneration) return;
       $appStore.notifyNegative('An error occurred while searching for friends.');
       results.value = [];

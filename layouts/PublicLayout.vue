@@ -33,7 +33,7 @@
       <div class="min-h-screen pt-5">
         <div
           class="container py-4"
-          :class="!isLoggedIn ? 'px-4' : 'pl-[90px] pr-4 lg:pr-0 2xl:pl-0 py-9'">
+          :class="!isLoggedIn ? 'px-4' : 'pl-22.5 pr-4 lg:pr-0 2xl:pl-0 py-9'">
           <gc-navbar v-if="isLoggedIn" />
           <gc-navbar-alt
             v-else

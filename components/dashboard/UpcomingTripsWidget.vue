@@ -6,8 +6,8 @@
   dayjs.extend(relativeTime);
 
   interface Props {
-    data: Tables<'trips'>[];
-    loading: boolean;
+    data?: Tables<'trips'>[];
+    loading?: boolean;
   }
 
   withDefaults(defineProps<Props>(), {

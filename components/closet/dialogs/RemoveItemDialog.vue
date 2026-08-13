@@ -48,7 +48,7 @@
       } else {
         $appStore.notifyNegative('There was an error removing the item.');
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error removing the item.');
     } finally {
       handleClose();
@@ -67,7 +67,7 @@
 <template>
   <alert-dialog v-model:open="$store.dialogStates.removeItemDialog">
     <alert-dialog-content
-      class="max-h-[90dvh] sm:max-w-[450px] lg:max-w-[650px]"
+      class="max-h-[90dvh] sm:max-w-112.5 lg:max-w-162.5"
       @escape-key-down="handleClose"
       @interact-outside="handleClose">
       <alert-dialog-header>

@@ -79,7 +79,7 @@
           $appStore.notifyNegative('There was an error importing the CSV.');
         }
       }
-    } catch (err) {
+    } catch {
       $appStore.notifyNegative('There was an error uploading the csv.');
     } finally {
       submitting.value = false;
@@ -108,7 +108,7 @@
 <template>
   <dialog-root :open="$store.dialogStates.uploadCsvDialog">
     <dialog-content
-      class="sm:max-w-[450px] lg:max-w-[650px] max-h-[90dvh]"
+      class="sm:max-w-112.5 lg:max-w-162.5 max-h-[90dvh]"
       @escape-key-down="handleClose"
       @interact-outside="handleClose">
       <dialog-header>

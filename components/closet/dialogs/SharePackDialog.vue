@@ -21,7 +21,7 @@
 <template>
   <dialog-root :open="$store.dialogStates.sharePackDialog">
     <dialog-content
-      class="sm:max-w-[450px] lg:max-w-[650px] max-h-[90dvh]"
+      class="sm:max-w-112.5 lg:max-w-162.5 max-h-[90dvh]"
       @escape-key-down="$store.dialogStates.sharePackDialog = false"
       @interact-outside="$store.dialogStates.sharePackDialog = false">
       <dialog-header>

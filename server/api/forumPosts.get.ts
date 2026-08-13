@@ -49,7 +49,7 @@ export default defineEventHandler(async () => {
       statusCode: 400,
       statusMessage: 'No posts found',
     });
-  } catch (error) {
+  } catch {
     throw createError({
       statusCode: 500,
       statusMessage: 'An error occurred while fetching posts',
