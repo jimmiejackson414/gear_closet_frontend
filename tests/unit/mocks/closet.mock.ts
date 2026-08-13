@@ -10,6 +10,7 @@ export const selectedPack: ExtendedPack = {
   "theme": "BLUE6",
   "private": true,
   "allow_comments": true,
+  "locked_at": null,
   "categories": [
     {
       "id": 1,

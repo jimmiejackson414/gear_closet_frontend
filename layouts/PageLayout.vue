@@ -49,6 +49,7 @@
           <div class="py-6">
             <slot />
           </div>
+          <free-resource-selection-dialog />
         </div>
       </div>
       <gc-footer />

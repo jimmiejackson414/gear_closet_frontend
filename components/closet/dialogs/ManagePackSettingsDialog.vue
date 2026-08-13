@@ -68,7 +68,12 @@
         const pack = createdPack[0];
         if (!pack) throw new Error('Failed to create pack');
 
-        $store.data.allPacks.push({ id: pack.id, name: pack.name as string, slug: pack.slug as string });
+        $store.data.allPacks.push({
+          id: pack.id,
+          name: pack.name as string,
+          slug: pack.slug as string,
+          locked_at: pack.locked_at ?? null,
+        });
         $store.data.selectedPack = { ...pack, categories: [] } as ExtendedPack;
 
         const cookie = useCookie('selectedPackId');

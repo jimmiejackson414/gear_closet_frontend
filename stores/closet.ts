@@ -8,6 +8,7 @@ export interface ClosetPageData {
     id: number;
     name: string;
     slug: string;
+    locked_at?: string | null;
   }[];
 
 }
@@ -18,6 +19,7 @@ interface ClosetPageResponse {
     id: number;
     name: string;
     slug: string;
+    locked_at?: string | null;
   }[];
 }
 
@@ -132,6 +134,16 @@ export const useClosetStore = defineStore<"closet", State, Getters, Actions>(
        */
       async createItem (categoryId: number) {
         const $store = useAppStore();
+        const $userStore = useUserStore();
+        if (
+          !$userStore.isPaidMember
+          && this.data.selectedPack
+          && 'locked_at' in this.data.selectedPack
+          && this.data.selectedPack.locked_at
+        ) {
+          $store.notifyNegative('This pack is locked on the Free plan. Upgrade or change your Free selection to edit it.');
+          return;
+        }
         const tempId = nextTempId();
 
         try {

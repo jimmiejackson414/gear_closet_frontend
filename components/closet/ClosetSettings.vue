@@ -1,13 +1,28 @@
 <script lang='ts' setup>
   import type { AcceptableValue } from 'reka-ui';
   import type { SelectOption } from '@/types/helpers';
+  import {
+    FREE_PACK_CREATE_TIP,
+    FREE_PACK_LIMIT,
+    LOCKED_RESOURCE_TIP,
+    isFreeCreateBlocked,
+    isResourceLocked,
+  } from '@/utils/planLimits';
 
   const $store = useClosetStore();
   const $userStore = useUserStore();
+  const $appStore = useAppStore();
   const $router = useRouter();
   const $route = useRoute();
 
-  const packOptions = computed(() => $store.data.allPacks.map(p => ({ label: p.name, value: p.id })) as SelectOption[]);
+  const packOptions = computed(() => $store.data.allPacks.map(p => ({
+    label: p.name,
+    value: p.id,
+    locked: isResourceLocked(p),
+  })) as Array<SelectOption & { locked?: boolean }>);
+
+  const createBlocked = computed(() =>
+    isFreeCreateBlocked($userStore.isPaidMember, $store.data.allPacks, FREE_PACK_LIMIT));
 
   const defaultMode = ref<'create' | 'update'>('create');
   const mode = inject<Ref<'create' | 'update'>>('dialogMode', defaultMode);
@@ -20,6 +35,12 @@
     if (val == null || val === '') return;
 
     const packId = Number(val);
+    const pack = $store.data.allPacks.find((p) => p.id === packId);
+    if (!$userStore.isPaidMember && isResourceLocked(pack)) {
+      $appStore.notifyNegative(LOCKED_RESOURCE_TIP);
+      return;
+    }
+
     const cookie = useCookie('selectedPackId');
     cookie.value = encrypt(String(packId));
 
@@ -40,7 +61,7 @@
         <dropdown-menu>
           <dropdown-menu-trigger>
             <icon-settings
-              class="h-6 w-6"
+              class="w-6 h-6"
               data-testid="settings-icon" />
           </dropdown-menu-trigger>
           <dropdown-menu-content>
@@ -89,9 +110,10 @@
             <select-item
               v-for="pack in packOptions"
               :key="pack.value"
+              :disabled="!$userStore.isPaidMember && pack.locked"
               hide-checkmark
               :value="String(pack.value)">
-              {{ pack.label }}
+              {{ pack.label }}{{ !$userStore.isPaidMember && pack.locked ? ' (Locked)' : '' }}
             </select-item>
           </select-group>
           <select-group v-else>
@@ -108,13 +130,13 @@
 
     <div
       v-tippy="{
-        content: !$userStore.isPaidMember && $store.data.allPacks.length >= 1 ? 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!' : ''
+        content: createBlocked ? FREE_PACK_CREATE_TIP : ''
       }">
       <button-root
         class="self-center"
-        :disabled="!$userStore.isPaidMember && $store.data.allPacks.length >= 1"
+        :disabled="createBlocked"
         @click="[ $store.dialogStates.managePackSettingsDialog = true, mode = 'create' ]">
-        <icon-plus class="h-4 text-primary-foreground w-4" />
+        <icon-plus class="w-4 h-4 text-primary-foreground" />
         New Pack
       </button-root>
     </div>

@@ -66,6 +66,7 @@ const inviteFixture = (): ExtendedFriendInvite => ({
     image: null,
     role: 'USER',
     measuring_system: 'IMPERIAL',
+    needs_free_resource_selection: false,
     onboard_date: null,
     address_1: null,
     address_2: null,

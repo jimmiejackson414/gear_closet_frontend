@@ -1,5 +1,11 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type Stripe from 'stripe';
+import {
+  isPaidPlanIdentifier,
+  markNeedsFreeSelectionIfExcess,
+  resolvePriceIdentifier,
+  unlockAllUserResources,
+} from './planEntitlements';
 import { getSubscriptionItemPeriod } from './stripe';
 import { type Database, SubscriptionLevel, SubscriptionStatus } from '@/types';
 
@@ -143,6 +149,16 @@ export async function processStripeWebhookEvent (
           .select();
 
         if (error || !data) throw throwError('An error occurred while updating subscription');
+
+        const profileId = subscription.metadata.profile_id as string | undefined;
+        if (profileId) {
+          const identifier = await resolvePriceIdentifier(supabase, subscriptionItem.price.id);
+          if (isPaidPlanIdentifier(identifier)) {
+            await unlockAllUserResources(supabase, profileId);
+          } else {
+            await markNeedsFreeSelectionIfExcess(supabase, profileId);
+          }
+        }
       } catch {
         throw throwError('A catch error occurred while updating subscription');
       }
@@ -169,6 +185,11 @@ export async function processStripeWebhookEvent (
           .select();
 
         if (error || !data) throw throwError('An error occurred while deleting subscription');
+
+        const profileId = subscription.metadata.profile_id as string | undefined;
+        if (profileId) {
+          await markNeedsFreeSelectionIfExcess(supabase, profileId);
+        }
       } catch (err) {
         console.error(err);
         throw throwError('A catch error occurred while deleting subscription');
