@@ -15,6 +15,10 @@
   const user = useSupabaseUser();
   const $appStore = useAppStore();
   const $store = useClosetStore();
+  const $userStore = useUserStore();
+  const commentingAsName = computed(() =>
+    friendlyUsername($userStore.profile) || 'you',
+  );
 
   const formattedTime = (time: string | null) => {
     if (!time) return '';
@@ -236,7 +240,7 @@
               Cancel
             </button-root>
             <p class="text-muted-foreground text-sm">
-              Commenting as <span class="font-bold">{{ friendlyUsername(comment.profile) }}</span>
+              Commenting as <span class="font-bold">{{ commentingAsName }}</span>
             </p>
             <button-root
               :disabled="submitting"
