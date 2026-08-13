@@ -16,8 +16,8 @@ async function globalSetup (config: FullConfig) {
   await page.goto(`${baseURL}/login`);
 
   const form = page.getByTestId('login-form');
-  const loginInput = form.locator('[data-testid="login-email"] >> input');
-  const passwordInput = form.locator('[data-testid="login-password"] >> input');
+  const loginInput = form.locator('[data-testid="login-email"] input');
+  const passwordInput = form.locator('[data-testid="login-password"] input');
   const submitButton = form.getByTestId('login-submit');
   await loginInput.fill(process.env.NUXT_PLAYWRIGHT_USERNAME as string);
   await passwordInput.fill(process.env.NUXT_PLAYWRIGHT_PASSWORD as string);
