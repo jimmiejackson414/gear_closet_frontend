@@ -1,0 +1,241 @@
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
+import { createPinia, setActivePinia } from 'pinia';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import FriendRequestItem from '@/components/friends/FriendRequestItem.vue';
+import FriendSearchItem from '@/components/friends/FriendSearchItem.vue';
+import { useAppStore } from '@/stores/app';
+import { friends } from '@/tests/unit/mocks/dashboard.mock';
+import {
+  createSupabaseMock,
+  createThenableQuery,
+} from '@/tests/unit/mocks/supabase.mock';
+import { FriendRequestStatus } from '@/types';
+import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
+
+vi.mock('@/components/ui/toast', () => ({
+  useToast: () => ({ toast: vi.fn() }),
+}));
+
+vi.mock('@/utils/helpers', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/helpers')>();
+  const buildImageSrc = vi.fn((url: string) => url);
+  const initials = vi.fn((user) => (user ? `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}` : 'GC'));
+  const friendlyUsername = vi.fn((user) => {
+    if (!user) return 'a friend';
+    return user.trail_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'a friend';
+  });
+
+  return {
+    ...actual,
+    buildImageSrc,
+    initials,
+    friendlyUsername,
+  };
+});
+
+const CURRENT_USER_ID = '61b66be5-d199-48d5-898a-c521dd6b59cc';
+const SENDER_ID = friends[0]!.friend.id;
+
+const supabaseUser = vi.hoisted(() => ({
+  value: { sub: '61b66be5-d199-48d5-898a-c521dd6b59cc' } as { sub: string } | null,
+}));
+
+const supabaseClient = vi.hoisted(() => ({
+  current: null as ReturnType<typeof createSupabaseMock> | null,
+}));
+
+mockNuxtImport('useSupabaseUser', () => () => supabaseUser);
+mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
+
+const inviteFixture = (): ExtendedFriendInvite => ({
+  id: 42,
+  created_at: '2024-04-25T19:33:50.250318+00:00',
+  updated_at: '2024-04-25T19:33:50.250318+00:00',
+  sender_id: SENDER_ID,
+  recipient_id: CURRENT_USER_ID,
+  status: FriendRequestStatus.PENDING,
+  request_sent_at: '2024-04-25T19:33:50.250318+00:00',
+  request_responded_at: null,
+  sender: friends[0]!.friend,
+  recipient: {
+    id: CURRENT_USER_ID,
+    email: 'me@example.com',
+    first_name: 'Me',
+    last_name: 'User',
+    trail_name: null,
+    image: null,
+    role: 'USER',
+    measuring_system: 'IMPERIAL',
+    onboard_date: null,
+    address_1: null,
+    address_2: null,
+    city: null,
+    state: null,
+    country: null,
+    created_at: null,
+    updated_at: null,
+    deactivated_at: null,
+    location: null,
+    fts: null,
+    slug: null,
+  },
+});
+
+describe('Friends components', () => {
+  beforeEach(() => {
+    setActivePinia(createPinia());
+    supabaseUser.value = { sub: CURRENT_USER_ID };
+    supabaseClient.current = createSupabaseMock();
+  });
+
+  describe('FriendRequestItem', () => {
+    it('accepts a request, toasts, and emits accept', async () => {
+      const invite = inviteFixture();
+      const acceptedInvite = {
+        ...invite,
+        status: FriendRequestStatus.ACCEPTED,
+        request_responded_at: '2024-04-26T00:00:00.000Z',
+      };
+      const friendshipRow = {
+        id: 99,
+        profile_id: CURRENT_USER_ID,
+        friend_id: SENDER_ID,
+        created_at: acceptedInvite.request_responded_at,
+        updated_at: acceptedInvite.request_responded_at,
+        friend: invite.sender,
+      } as ExtendedFriend;
+
+      supabaseClient.current = createSupabaseMock({
+        from: (table) => {
+          if (table === 'friend_invitations') {
+            return createThenableQuery({ data: [acceptedInvite], error: null });
+          }
+          if (table === 'friends') {
+            return createThenableQuery({
+              data: [
+                friendshipRow,
+                {
+                  ...friendshipRow,
+                  id: 100,
+                  profile_id: SENDER_ID,
+                  friend_id: CURRENT_USER_ID,
+                },
+              ],
+              error: null,
+            });
+          }
+          return createThenableQuery({ data: null, error: null });
+        },
+      });
+
+      const wrapper = await mountSuspended(FriendRequestItem, {
+        props: { friend: invite },
+      });
+      const appStore = useAppStore();
+      const positiveSpy = vi.spyOn(appStore, 'notifyPositive');
+
+      const acceptBtn = wrapper.findAllComponents({ name: 'Button' })
+        .find((btn) => btn.text()
+          .includes('Accept'));
+      expect(acceptBtn)
+        .toBeTruthy();
+      await acceptBtn!.trigger('click');
+      await flushPromises();
+      await wrapper.vm.$nextTick();
+
+      expect(positiveSpy)
+        .toHaveBeenCalledWith('Friend request accepted.');
+      expect(wrapper.emitted('accept')?.[0])
+        .toEqual([friendshipRow, invite.id]);
+      expect(wrapper.text())
+        .toMatch(/Accepted/i);
+    });
+
+    it('declines a request, toasts, and emits decline', async () => {
+      const invite = inviteFixture();
+      supabaseClient.current = createSupabaseMock({
+        from: () => createThenableQuery({ data: [{ ...invite, status: FriendRequestStatus.DECLINED }], error: null }),
+      });
+
+      const wrapper = await mountSuspended(FriendRequestItem, {
+        props: { friend: invite },
+      });
+      const appStore = useAppStore();
+      const positiveSpy = vi.spyOn(appStore, 'notifyPositive');
+
+      const declineBtn = wrapper.findAllComponents({ name: 'Button' })
+        .find((btn) => btn.text()
+          .includes('Decline'));
+      expect(declineBtn)
+        .toBeTruthy();
+      await declineBtn!.trigger('click');
+      await flushPromises();
+      await wrapper.vm.$nextTick();
+
+      expect(positiveSpy)
+        .toHaveBeenCalledWith('Friend request declined.');
+      expect(wrapper.emitted('decline')?.[0])
+        .toEqual([invite.id]);
+      expect(wrapper.text())
+        .toMatch(/Declined/i);
+    });
+
+    it('toasts on accept failure', async () => {
+      const invite = inviteFixture();
+      supabaseClient.current = createSupabaseMock({
+        from: () => createThenableQuery({ data: null, error: { message: 'fail' } }),
+      });
+
+      const wrapper = await mountSuspended(FriendRequestItem, {
+        props: { friend: invite },
+      });
+      const appStore = useAppStore();
+      const negativeSpy = vi.spyOn(appStore, 'notifyNegative');
+
+      const acceptBtn = wrapper.findAllComponents({ name: 'Button' })
+        .find((btn) => btn.text()
+          .includes('Accept'));
+      await acceptBtn!.trigger('click');
+      await flushPromises();
+
+      expect(negativeSpy)
+        .toHaveBeenCalledWith('An error occurred while accepting the friend request.');
+      expect(wrapper.emitted('accept'))
+        .toBeUndefined();
+    });
+  });
+
+  describe('FriendSearchItem', () => {
+    it('shows Invite requested when requestPending is true', async () => {
+      const wrapper = await mountSuspended(FriendSearchItem, {
+        props: {
+          profile: friends[0]!.friend,
+          requestPending: true,
+        },
+      });
+
+      expect(wrapper.text())
+        .toContain('Invite requested');
+      expect(wrapper.text())
+        .not
+        .toContain('Add Friend');
+    });
+
+    it('shows Add Friend when no pending request', async () => {
+      const wrapper = await mountSuspended(FriendSearchItem, {
+        props: {
+          profile: friends[0]!.friend,
+          requestPending: false,
+        },
+      });
+
+      expect(wrapper.text())
+        .toContain('Add Friend');
+    });
+  });
+});
+
+async function flushPromises () {
+  await Promise.resolve();
+  await Promise.resolve();
+}

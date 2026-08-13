@@ -10,6 +10,7 @@ import {
   createSupabaseMock,
   createThenableQuery,
 } from '@/tests/unit/mocks/supabase.mock';
+import { ResourceType } from '@/types';
 
 vi.mock('@/components/ui/toast', () => ({
   useToast: () => ({ toast: vi.fn() }),
@@ -206,6 +207,79 @@ describe('stores/planning', () => {
         .toBe(todo.title);
       expect(notifySpy)
         .toHaveBeenCalledWith('nope');
+    });
+  });
+
+  describe('batchUpdateTodos', () => {
+    it('no-ops when completed is indeterminate', async () => {
+      const fromSpy = vi.fn();
+      supabaseClient.current = createSupabaseMock({ from: fromSpy });
+      const store = usePlanningStore();
+      store.data.todos = [{ ...todos[0]! }];
+
+      await store.batchUpdateTodos('indeterminate', ResourceType.USER);
+
+      expect(fromSpy)
+        .not
+        .toHaveBeenCalled();
+    });
+
+    it('upserts and replaces todos for the matching resource type', async () => {
+      const userTodo = { ...todos[0]!, id: 1, resource_type: ResourceType.USER, completed: false };
+      const groupTodo = {
+        ...todos[0]!,
+        id: 2,
+        resource_type: ResourceType.GROUP,
+        completed: false,
+        title: 'Group chore',
+      };
+      const updated = [
+        { ...userTodo, completed: true },
+        groupTodo,
+      ];
+      supabaseClient.current = createSupabaseMock({
+        from: () => createThenableQuery({ data: updated, error: null }),
+      });
+
+      const store = usePlanningStore();
+      store.data.todos = [userTodo, groupTodo];
+
+      await store.batchUpdateTodos(true, ResourceType.USER);
+
+      expect(store.data.todos)
+        .toEqual(updated);
+      expect(store.data.todos.find((t) => t.id === 1)?.completed)
+        .toBe(true);
+      expect(store.data.todos.find((t) => t.id === 2)?.completed)
+        .toBe(false);
+    });
+  });
+
+  describe('batchUpdateShoppingItems', () => {
+    it('upserts completed flags for matching shopping items', async () => {
+      const item = {
+        id: 1,
+        title: 'Socks',
+        completed: false,
+        quantity: 1,
+        trip_id: 2,
+        profile_id: '61b66be5-d199-48d5-898a-c521dd6b59cc',
+        resource_type: ResourceType.USER,
+        created_at: '2024-04-21T01:21:08.285444+00:00',
+        updated_at: '2024-04-21T01:21:08.285444+00:00',
+      };
+      const updated = [{ ...item, completed: true }];
+      supabaseClient.current = createSupabaseMock({
+        from: () => createThenableQuery({ data: updated, error: null }),
+      });
+
+      const store = usePlanningStore();
+      store.data.shopping_items = [item];
+
+      await store.batchUpdateShoppingItems(true, ResourceType.USER);
+
+      expect(store.data.shopping_items[0]?.completed)
+        .toBe(true);
     });
   });
 });

@@ -32,8 +32,9 @@ Prefer Pinia store unit tests for race/optimistic correctness over dialog open/c
 
 #### Phase 2 (follow-up)
 
-- [ ] Helpers: `calculatePackWeights` / `calculatePackPrices`
-- [ ] Friends accept/decline + search pending; ForumsWidget; public pack smoke
+- [x] Helpers: `calculatePackWeights` / `calculatePackPrices`
+- [x] Friends accept/decline + search pending; ForumsWidget; public pack smoke
+- [x] Planning `batchUpdateTodos` / `batchUpdateShoppingItems`
 
 #### Phase 3 (later)
 
@@ -85,9 +86,8 @@ Product ideas / enhancements not required for current correctness work.
 
 ## Suggested PR order from here
 
-1. **Test suite Phase 1** — store correctness (`test/store-correctness`)
-2. Visual QA leftovers + Stripe smoke
-3. Test suite Phase 2 (helpers / friends / public pack)
-4. Zod 4 when `@vee-validate/zod` peers allow
-5. Optional: Nuxt `app/` directory; revoke legacy JWT secret
-6. Future features (e.g. mutual friends) when prioritized
+1. Visual QA leftovers + Stripe smoke
+2. Test suite Phase 3 (auth smoke / Stripe webhook / thin e2e)
+3. Zod 4 when `@vee-validate/zod` peers allow
+4. Optional: Nuxt `app/` directory; revoke legacy JWT secret
+5. Future features (e.g. mutual friends) when prioritized
