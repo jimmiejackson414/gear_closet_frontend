@@ -67,7 +67,7 @@ describe('utils/helpers pack math', () => {
     it('returns zeros for empty / missing categories', () => {
       expect(calculatePackPrices(undefined as any))
         .toEqual({ total: 0, base: 0, worn: 0, consumable: 0 });
-      expect(calculatePackPrices({ categories: [] } as ExtendedPack))
+      expect(calculatePackPrices({ ...packWithItems([]), categories: [] }))
         .toEqual({ total: 0, base: 0, worn: 0, consumable: 0 });
     });
 
@@ -113,7 +113,7 @@ describe('utils/helpers pack math', () => {
     });
 
     it('handles empty pack without throwing', () => {
-      expect(calculatePackWeights({ categories: [] } as ExtendedPack))
+      expect(calculatePackWeights({ ...packWithItems([]), categories: [] }))
         .toEqual({ total: 0, base: 0, worn: 0, consumable: 0 });
     });
   });

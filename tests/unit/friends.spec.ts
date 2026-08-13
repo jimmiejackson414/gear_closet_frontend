@@ -77,7 +77,7 @@ const inviteFixture = (): ExtendedFriendInvite => ({
     deactivated_at: null,
     location: null,
     fts: null,
-    slug: null,
+    slug: 'me-user',
   },
 });
 
