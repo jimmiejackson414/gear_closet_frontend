@@ -8,10 +8,15 @@ import UpcomingTripsWidget from '@/components/dashboard/UpcomingTripsWidget.vue'
 vi.mock('@/utils/helpers', () => {
   const buildImageSrc = vi.fn((url: string) => url);
   const mockInitials = vi.fn((user) => user ? `${user.first_name.charAt(0)}${user.last_name.charAt(0)}` : 'GC');
+  const friendlyUsername = vi.fn((user) => {
+    if (!user) return 'a friend';
+    return user.trail_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'a friend';
+  });
 
   return {
     buildImageSrc,
     initials: mockInitials,
+    friendlyUsername,
   };
 });
 

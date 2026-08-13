@@ -43,14 +43,14 @@
               border
               :initials="initials(user)"
               :url="buildImageSrc(user.image)" />
-            <nuxt-link
-              v-if="data.length > 5"
-              class="bg-muted-foreground hover:bg-muted-foreground/75 border-2 border-white flex justify-center items-center shrink-0 font-medium h-12 min-w-12 rounded-full text-white text-xs w-12 z-10"
-              data-testid="friends-widget-more"
-              :to="{ name: 'friends' }">
-              {{ `+${data.length - 5}` }}
-            </nuxt-link>
           </li>
+          <nuxt-link
+            v-if="data.length > 5"
+            class="bg-muted-foreground hover:bg-muted-foreground/75 border-2 border-white flex justify-center items-center shrink-0 font-medium h-12 min-w-12 rounded-full text-white text-xs w-12 z-10"
+            data-testid="friends-widget-more"
+            :to="{ name: 'friends' }">
+            {{ `+${data.length - 5}` }}
+          </nuxt-link>
         </template>
         <template v-else>
           <div class="flex justify-center items-center flex-col">
