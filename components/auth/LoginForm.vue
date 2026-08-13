@@ -102,6 +102,7 @@
           </form-label>
           <form-control>
             <input-root
+              data-testid="login-email"
               :disabled="isSubmitting"
               force-color-mode="light"
               type="email"
@@ -119,6 +120,7 @@
           </form-label>
           <form-control>
             <input-root
+              data-testid="login-password"
               :disabled="isSubmitting"
               force-color-mode="light"
               password-toggle

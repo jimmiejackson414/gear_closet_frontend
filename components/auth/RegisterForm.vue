@@ -111,6 +111,7 @@
           </form-label>
           <form-control>
             <input-root
+              data-testid="register-email"
               :disabled="isSubmitting"
               force-color-mode="light"
               type="email"
@@ -128,6 +129,7 @@
           </form-label>
           <form-control>
             <input-root
+              data-testid="register-password"
               :disabled="isSubmitting"
               force-color-mode="light"
               password-toggle
@@ -146,6 +148,7 @@
           </form-label>
           <form-control>
             <input-root
+              data-testid="register-password-confirm"
               :disabled="isSubmitting"
               force-color-mode="light"
               password-toggle
@@ -160,6 +163,7 @@
         :severity="submitAction.severity" />
       <button-root
         class="mt-4"
+        data-testid="register-submit"
         :disabled="isSubmitting"
         :loading="isSubmitting"
         type="submit">

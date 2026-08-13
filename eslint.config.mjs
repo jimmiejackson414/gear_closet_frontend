@@ -41,6 +41,7 @@ export default withNuxt(
 
       // Match prior @stylistic/js rules that aren't covered by Nuxt stylistic defaults
       '@stylistic/comma-dangle': ['warn', 'always-multiline'],
+      '@stylistic/indent': ['warn', 2, { SwitchCase: 1, MemberExpression: 1 }],
       '@stylistic/newline-per-chained-call': ['warn', { ignoreChainWithDepth: 1 }],
       '@stylistic/no-trailing-spaces': 'warn',
       '@stylistic/semi': ['warn', 'always'],
@@ -116,6 +117,13 @@ export default withNuxt(
         ],
         alphabetical: true,
       }],
+    },
+  },
+  {
+    files: ['**/*.vue'],
+    rules: {
+      // vue/script-indent (baseIndent: 1) owns <script> indentation; stylistic indent fights it.
+      '@stylistic/indent': 'off',
     },
   },
   {

@@ -13,7 +13,7 @@ dotenv.config();
 export default defineConfig({
   /* Directory to search for tests */
   testDir: './tests/e2e',
-  testMatch: '**/dashboard.spec.ts',
+  testMatch: '**/{dashboard,closet,planning}.spec.ts',
   /* Run tests in files in parallel */
   fullyParallel: true,
   /* Fail the build on CI if you accidentally left test.only in the source code. */
