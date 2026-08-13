@@ -134,7 +134,7 @@ export default defineNuxtConfig({
     redirectOptions: {
       login: '/login',
       callback: '/callback',
-      exclude: ['/register', '/terms-and-conditions', '/forgot-password', '/p/packs/*'],
+      exclude: ['/register', '/terms-and-conditions', '/forgot-password', '/reset-password', '/p/packs/*'],
       saveRedirectToCookie: true,
     },
   },

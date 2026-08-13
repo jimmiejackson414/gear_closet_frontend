@@ -1,27 +1,36 @@
 <script lang="ts" setup="">
   import type { StripeCardElement } from '@stripe/stripe-js';
+  import tailwind from '@/utils/tailwind';
 
   interface Props {
     isOpen: boolean;
   }
 
   const props = defineProps<Props>();
-  const emits = defineEmits(['onClose']);
+  const emits = defineEmits(['onClose', 'onSuccess']);
 
+  const $appStore = useAppStore();
   const acceptsConditions = ref(false);
   const isSubmitting = ref(false);
-  // TODO: Finish the implementation of the UpdatePaymentMethodDialog component
-  const handleUpdate = () => {
-    console.log('handleUpdate');
-  };
 
   const stripe = useStripe();
   const elements = useStripeElements();
   const cardElementRef = ref<HTMLDivElement | null>(null);
   const cardValid = ref(false);
   let cardElement: StripeCardElement | null = null;
+
+  const teardownCardElement = () => {
+    if (cardElement) {
+      cardElement.destroy();
+      cardElement = null;
+    }
+    cardValid.value = false;
+  };
+
   const setupCardElement = async () => {
     if (!stripe.value || !elements.value || !cardElementRef.value) return;
+
+    teardownCardElement();
 
     const created = elements.value.create('card', {
       classes: {
@@ -46,14 +55,56 @@
     });
     cardElement = created;
     created.on('change', (event) => {
-      cardValid.value = !event.error;
+      cardValid.value = event.complete && !event.error;
     });
     created.mount(cardElementRef.value);
   };
 
+  const handleClose = () => {
+    acceptsConditions.value = false;
+    teardownCardElement();
+    emits('onClose');
+  };
+
+  const handleUpdate = async () => {
+    if (!acceptsConditions.value || isSubmitting.value || !stripe.value || !cardElement) return;
+
+    try {
+      isSubmitting.value = true;
+
+      const { paymentMethod, error: createError } = await stripe.value.createPaymentMethod({
+        type: 'card',
+        card: cardElement,
+      });
+
+      if (createError || !paymentMethod) {
+        $appStore.notifyNegative(createError?.message || 'Failed to create payment method.');
+        return;
+      }
+
+      await $fetch('/api/stripe/payment-method', {
+        method: 'PUT',
+        body: { paymentMethodId: paymentMethod.id },
+      });
+
+      $appStore.notifyPositive('Payment method updated successfully!');
+      emits('onSuccess');
+      handleClose();
+    } catch {
+      $appStore.notifyNegative('Failed to update payment method. Please try again.');
+    } finally {
+      isSubmitting.value = false;
+    }
+  };
+
   watch(() => props.isOpen, (isOpen) => {
     if (isOpen) {
-      setupCardElement();
+      nextTick(() => {
+        setupCardElement();
+      });
+    } else {
+      acceptsConditions.value = false;
+      teardownCardElement();
     }
   }, { immediate: true });
 </script>
@@ -62,8 +113,8 @@
   <dialog-root :open="isOpen">
     <dialog-content
       class="sm:max-w-[450px] lg:max-w-[650px] max-h-[90dvh]"
-      @escape-key-down="emits('onClose')"
-      @interact-outside="emits('onClose')">
+      @escape-key-down="handleClose"
+      @interact-outside="handleClose">
       <dialog-header>
         <dialog-title>Update Payment Method</dialog-title>
         <dialog-description>
@@ -90,11 +141,11 @@
         </div>
       </div>
       <dialog-footer>
-        <dialog-close @click="emits('onClose')">
+        <dialog-close @click="handleClose">
           Cancel
         </dialog-close>
         <button-root
-          :disabled="!acceptsConditions || isSubmitting"
+          :disabled="!acceptsConditions || !cardValid || isSubmitting"
           :loading="isSubmitting"
           @click="handleUpdate">
           Update Payment Method
