@@ -5,6 +5,7 @@
   const $store = useClosetStore();
 
   interface UpdateCategoryPayload {
+    id: number;
     field: keyof ExtendedCategory;
     value: string;
   }
@@ -62,23 +63,19 @@
   };
 
   /**
-   * Adds a new URL to a category.
+   * Opens Add URL dialog for a category item.
    */
-  const newUrl = ref('');
   const handleInitialAddUrl = (row: Tables<'items'>, categoryId: number) => {
     $store.dialogStates.addUrlDialog = true;
     $store.activeItem = row;
     $store.activeCategoryId = categoryId;
   };
-  watch(() => $store.dialogStates.addUrlDialog, (newVal) => {
-    newVal ? nextTick(() => newUrl.value = $store.activeItem?.url || '') : newUrl.value = '';
-  });
 
   /**
    * Updates a category.
    */
   const submitting = ref(false);
-  const updateCategory = async ({ field, value }: UpdateCategoryPayload) => {
+  const updateCategory = async ({ id, field, value }: UpdateCategoryPayload) => {
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
@@ -87,11 +84,11 @@
         .update({
           [field]: value,
         } as any)
-        .eq('id', $store.activeCategoryId as number)
+        .eq('id', id)
         .select();
 
       if (updatedCategory && !error) {
-        const category = ($store.data.selectedPack as ExtendedPack).categories.find(c => c.id === Number($store.activeCategoryId));
+        const category = ($store.data.selectedPack as ExtendedPack).categories.find(c => c.id === id);
 
         if (category) {
           category[field] = value;
@@ -138,7 +135,7 @@
         $store.dialogStates.removeItemDialog = true
       ]"
       @handle-update-category="[
-        $store.activeCategoryId = $event,
+        $store.activeCategoryId = $event.id,
         updateCategory($event)
       ]" />
   </div>

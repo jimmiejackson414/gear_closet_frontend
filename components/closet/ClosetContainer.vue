@@ -2,18 +2,35 @@
 
   const $store = useClosetStore();
   const $route = useRoute();
-
-  let identifier = 0;
-  identifier = $route.query?.pack ? Number(decrypt($route.query.pack)) || 0 : identifier;
-  await $store.fetchClosetPage(identifier);
-
   const $cookie = useCookie('selectedPackId');
-  watch(() => $cookie.value, (newValue) => {
-    if (newValue && !$route.query?.pack) {
-      identifier = Number(decrypt(newValue)) || 0;
-      $store.fetchClosetPage(identifier);
+
+  /**
+   * Resolve pack id once: query > cookie > 0 (RPC / store pick first pack).
+   * Cookie watcher previously double-fetched with { immediate: true }.
+   */
+  const resolvePackId = (): number => {
+    const fromQuery = $route.query?.pack;
+    if (fromQuery != null && fromQuery !== '') {
+      return Number(decrypt(fromQuery)) || 0;
     }
-  }, { immediate: true });
+    if ($cookie.value) {
+      return Number(decrypt($cookie.value)) || 0;
+    }
+    return 0;
+  };
+
+  await $store.fetchClosetPage(resolvePackId());
+
+  // Deep-link / browser navigation with ?pack= should refetch that pack.
+  watch(
+    () => $route.query.pack,
+    async (packQuery, previous) => {
+      if (packQuery === previous) return;
+      if (packQuery == null || packQuery === '') return;
+      const id = Number(decrypt(packQuery)) || 0;
+      await $store.fetchClosetPage(id);
+    },
+  );
 
   const packSettingsMode = ref<'create' | 'update'>('create');
   provide('dialogMode', packSettingsMode);

@@ -51,10 +51,13 @@
   const calculateUpdatedPositions = (event: DraggableEvent) => {
     const { oldIndex, newIndex, to, from } = event;
 
-    if (oldIndex === newIndex) return [];
-
     const newCategoryId = parseInt(to?.getAttribute('data-category-id')!);
     const oldCategoryId = parseInt(from?.getAttribute('data-category-id')!);
+
+    // Same index within the same category is a no-op; cross-category moves still persist
+    // even when indexes match (e.g. A[0] → B[0]).
+    if (oldIndex === newIndex && oldCategoryId === newCategoryId) return [];
+
     const movedRow = event.data;
 
     // Find the categories by ID
@@ -112,13 +115,6 @@
     return updatedRows;
   };
 
-  // TODO: Figure out category drag and drop
-  // calculate the updated category positions
-  // const calculatUpdatedCategoryPositions = (event: DraggableEvent) => {
-  //   const { oldIndex, newIndex } = event;
-  //   console.log({ oldIndex, newIndex });
-  // };
-
   const openUrl = (url: string | null) => {
     if (url) window.open(url, '_blank');
   };
@@ -138,9 +134,7 @@
               no-hover-effect>
               <table-head
                 class="p-0 w-8"
-                colspan="1">
-                <!-- <icon-grip-vertical class="size-6! category-handle cursor-move ease-out group-hover:opacity-100 opacity-0 stroke-1 text-muted-foreground transition" /> -->
-              </table-head>
+                colspan="1" />
               <table-head
                 class="font-bold px-0 py-2"
                 :colspan="columns.length - 2">
@@ -205,11 +199,12 @@
             </table-row>
           </table-header>
 
+          <!-- Always render draggable body so empty categories remain drop targets -->
           <table-body
-            v-if="category.category_items.length"
             v-draggable="[category.category_items, {
               animation: 150,
               direction: 'vertical',
+              filter: '.empty-category-row',
               group: {
                 name: 'category_items',
                 put: ['category_items'],
@@ -459,14 +454,15 @@
                 </div>
               </table-cell>
             </table-row>
-          </table-body>
 
-          <!-- Empty Row -->
-          <table-body v-else>
-            <table-row>
-              <table-empty>
+            <table-row
+              v-if="!category.category_items.length"
+              class="empty-category-row">
+              <table-cell
+                class="p-4 text-center text-sm text-muted-foreground"
+                :colspan="columns.length">
                 No items in this category
-              </table-empty>
+              </table-cell>
             </table-row>
           </table-body>
 

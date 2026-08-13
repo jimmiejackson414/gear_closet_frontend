@@ -24,6 +24,14 @@
 
   const $store = useClosetStore();
 
+  /** Derived series in lbs — avoid deep-watching nested category edits. */
+  const seriesData = computed(() =>
+    ($store.data.selectedPack?.categories ?? []).map((category) => ({
+      name: category?.name ? category.name : 'Unnamed',
+      weight: calculateCategoryWeightInUnit(category as ExtendedCategory, 'lb'),
+    })),
+  );
+
   /* Bar Chart Options */
   const legendTextColor = ref('');
   const chartRef = ref<InstanceType<typeof VChart> | undefined>(undefined);
@@ -34,7 +42,7 @@
       axisLine: { lineStyle: { color: legendTextColor.value } },
       axisTick: { alignWithLabel: true },
       axisLabel: { rotate: 30, overflow: 'break', width: 100, margin: 24 },
-      data: $store.data.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
+      data: seriesData.value.map((d) => d.name),
     },
     yAxis: {
       type: 'value',
@@ -44,14 +52,13 @@
     grid: { show: false },
     series: [
       {
-        data: $store.data.selectedPack?.categories?.map(category => calculateCategoryWeight(category as ExtendedCategory)) ?? [],
+        data: seriesData.value.map((d) => d.weight),
         type: 'bar',
         itemStyle: {
           borderRadius: 5,
           color: (params: any) => {
             const theme = findTheme($store.data.selectedPack?.theme as Theme);
-            const extendedTheme = Array.from({ length: $store.data.selectedPack?.categories?.length || 0 }, (_, i) => theme[i % theme.length] ?? '');
-            return extendedTheme[params.dataIndex] ?? '';
+            return theme[params.dataIndex % theme.length] ?? '';
           },
         },
       },
@@ -60,16 +67,15 @@
       show: true,
       trigger: 'item',
       formatter: (value: any) => {
-        const category = $store.data.selectedPack?.categories?.[value.dataIndex];
-        const weight = calculateCategoryWeight(category as ExtendedCategory);
+        const point = seriesData.value[value.dataIndex];
         return (`
           <div class="flex flex-col gap-2 w-fit">
             <p class="text-eyebrow text-sm!">
               <span style="margin-right: 4px; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${value.color};"></span>
-              ${category?.name}
+              ${point?.name ?? ''}
             </p>
             <p class="font-bold! text-base-lg text-center">
-              ${weight} lbs
+              ${point?.weight ?? 0} lbs
             </p>
           </div>
         `);
@@ -98,7 +104,7 @@
   updateLegendTextColor();
 
   const colorMode = useColorMode();
-  watch(() => colorMode.value, () => updateLegendTextColor(), { immediate: true });
+  watch(() => colorMode.value, () => updateLegendTextColor());
 
   watch(() => $store.data.selectedPack?.theme, (newTheme) => {
     chartRef.value?.setOption({
@@ -106,23 +112,23 @@
         itemStyle: {
           color: (params: any) => {
             const theme = findTheme(newTheme as Theme);
-            return theme[params.dataIndex];
+            return theme[params.dataIndex % theme.length] ?? '';
           },
         },
       }],
     });
   });
 
-  watch(() => $store.data.selectedPack?.categories, () => {
+  watch(seriesData, (data) => {
     chartRef.value?.setOption({
       xAxis: {
-        data: $store.data.selectedPack?.categories?.map(category => (category?.name ? category.name : 'Unnamed')),
+        data: data.map((d) => d.name),
       },
       series: [{
-        data: $store.data.selectedPack?.categories?.map(category => calculateCategoryWeight(category as ExtendedCategory)),
+        data: data.map((d) => d.weight),
       }],
     });
-  }, { deep: true, immediate: true });
+  });
 </script>
 
 <template>

@@ -42,6 +42,18 @@
     });
   };
 
+  const onFileChange = async (event: Event) => {
+    const input = event.target as HTMLInputElement;
+    file.value = input.files?.[0];
+    parsingResult.value = { status: undefined, message: undefined };
+    if (!file.value) return;
+    try {
+      await parseFile(file.value);
+    } catch {
+      // parsingResult already set in parseFile error handler
+    }
+  };
+
   /**
    * Upload items to pack from CSV
    */
@@ -114,10 +126,16 @@
             id="file-upload"
             accept=".csv"
             type="file"
-            @change="file = $event.target.files?.[0]" />
+            @change="onFileChange" />
           <a
             class="inline-block text-hyperlink"
             href="gear_closet_template.csv">Download CSV template</a>
+          <typography
+            v-if="parsingResult.message"
+            :class="parsingResult.status === 'failure' ? 'text-destructive' : 'text-muted-foreground'"
+            variant="muted">
+            {{ parsingResult.message }}
+          </typography>
         </div>
       </div>
       <dialog-footer>

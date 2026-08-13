@@ -86,41 +86,43 @@ Audits of fetch orchestration, write boundaries, and correctness (2026-08-12). A
 
 #### High
 
-- [ ] **Single-flight pack load** — `ClosetContainer.vue`, `stores/closet.ts`  
+- [x] **Single-flight pack load** — `ClosetContainer.vue`, `stores/closet.ts`  
   `await fetchClosetPage` then cookie watcher `{ immediate: true }` fetches again; no generation token → race / wrong pack flash. Mirror PlanningContainer pattern (query → cookie → `0`; ignore stale).
 
-- [ ] **Category name/unit update uses wrong id** — `ClosetPackCategories.vue`  
+- [x] **Category name/unit update uses wrong id** — `ClosetPackCategories.vue`  
   `@handle-update-category` sets `activeCategoryId = $event` (payload object) then `updateCategory($event)`. `.eq('id', activeCategoryId)` is wrong. Use `$event.id`.
 
-- [ ] **Cross-category drag not persisted when indexes match** — `PackItemsTable.vue`  
+- [x] **Cross-category drag not persisted when indexes match** — `PackItemsTable.vue`  
   `calculateUpdatedPositions` returns `[]` when `oldIndex === newIndex` even if `from`/`to` categories differ (A[0] → B[0]). UI moves; refresh undoes. Guard on same category + same index.
 
-- [ ] **Empty categories cannot receive drops** — `PackItemsTable.vue`  
+- [x] **Empty categories cannot receive drops** — `PackItemsTable.vue`  
   `v-draggable` only when `category_items.length`; empty bodies are not drop targets. Always render a draggable list (empty OK).
 
 #### Medium
 
-- [ ] **Delete-pack “Remove items?” checkbox is a no-op** — `DeletePackDialog.vue`  
+- [x] **Delete-pack “Remove items?” checkbox is a no-op** — `DeletePackDialog.vue`  
   Bound UI never read in submit. Implement cleanup or remove checkbox.
 
-- [ ] **Chart lbs label vs category units** — `ClosetPackChart.vue`, `helpers.calculateCategoryWeight`  
+- [x] **Chart lbs label vs category units** — `ClosetPackChart.vue`, `helpers.calculateCategoryWeight`  
   Series use each category’s unit; axis/tooltip always say `lbs`. Convert to one unit (match pack stats).
 
-- [ ] **Deep chart rebuild on every nested edit** — `ClosetPackChart.vue`  
+- [x] **Deep chart rebuild on every nested edit** — `ClosetPackChart.vue`  
   Deep `categories` watch + double legend color init. Watch derived series; theme-only for colors.
 
-- [ ] **Optimistic `createItem` id `0` collisions** — `stores/closet.ts`  
+- [x] **Optimistic `createItem` id `0` collisions** — `stores/closet.ts`  
   Rapid “New Item” shares `id: 0` / rollback wipes all pending. Unique temp ids.
 
-- [ ] **Item updates non-optimistic / race-prone** — `updateItem`, drag upserts  
+- [x] **Item updates non-optimistic / race-prone** — `updateItem`, drag upserts  
   Last response wins; drag UI has no rollback on failure. Optimistic + stale ignore / rollback.
 
-- [ ] **New pack create doesn’t set cookie** — `ManagePackSettingsDialog.vue`  
+- [x] **New pack create doesn’t set cookie** — `ManagePackSettingsDialog.vue`  
   Store selects pack but cookie unchanged → refresh reloads previous pack. Set cookie; notify/close only on success.
 
 #### Low
 
-- [ ] Dead leftovers: commented category DnD; unused URL state in `ClosetPackCategories`; unused `submitting` in `SharePackDialog`; CSV parse status unused
+- [x] Dead leftovers: commented category DnD; unused URL state in `ClosetPackCategories`; unused `submitting` in `SharePackDialog`; CSV parse status unused
+
+> High + Medium + Low done on branch `fix/closet-page-perf`.
 
 ---
 
@@ -308,11 +310,11 @@ Do these as **separate PRs**.
 ## Suggested PR order from here
 
 1. ~~**Planning High + Medium + Low**~~ — branch `fix/planning-high-priority-perf`
-2. **Shared High** — `fetchProfile` crash, notification INSERT
-3. **Auth / billing High** — reset-password page, billing stubs
-4. **Closet High** — single-flight load, category id, drag persist / empty drops
+2. ~~**Closet High + Medium + Low**~~ — branch `fix/closet-page-perf`
+3. **Shared High** — `fetchProfile` crash, notification INSERT
+4. **Auth / billing High** — reset-password page, billing stubs
 5. **Public packs High** — privacy gate; then Medium comments/layout
 6. **Friends High + Medium**
-7. Closet/Dashboard Medium; visual QA leftovers + Stripe smoke
+7. Dashboard Medium; visual QA leftovers + Stripe smoke
 8. Zod 4 when `@vee-validate/zod` peers allow
 9. Optional: Nuxt `app/` directory; revoke legacy JWT secret after fully off `anon` / `service_role`

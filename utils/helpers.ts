@@ -24,11 +24,12 @@ export const buildImageSrc = (url: string | undefined | null) => {
 };
 
 /**
- * Calculates the total weight of a category.
+ * Sums category item weights in mg, then converts to the requested unit.
  * @param category
+ * @param unit Target mass unit (e.g. category.unit or 'lb' for charts)
  * @returns number
  */
-export const calculateCategoryWeight = (category: ExtendedCategory) => {
+export const calculateCategoryWeightInUnit = (category: ExtendedCategory, unit: Mass) => {
   const totalWeightInMg = category.category_items.reduce((total, subRow) => {
     const { item } = subRow;
 
@@ -38,8 +39,8 @@ export const calculateCategoryWeight = (category: ExtendedCategory) => {
 
       // If the weight is valid, convert it to mg and add it to the total (multiply by quantity if exists)
       if (!isNaN(weightValue)) {
-        const weightInMg = convert(weightValue, item.unit)
-          .to('mg'); // Convert each item to mg
+        const weightInMg = convert(weightValue, item.unit as Mass)
+          .to('mg');
         total += weightInMg * item.quantity;
       }
     }
@@ -47,12 +48,19 @@ export const calculateCategoryWeight = (category: ExtendedCategory) => {
     return total;
   }, 0);
 
-  // Convert the total weight in mg to the category unit
   const convertedTotalWeight = convert(totalWeightInMg, 'mg')
-    .to(category.unit as Mass);
+    .to(unit);
 
   return parseFloat(convertedTotalWeight.toFixed(2));
 };
+
+/**
+ * Calculates the total weight of a category in the category's unit.
+ * @param category
+ * @returns number
+ */
+export const calculateCategoryWeight = (category: ExtendedCategory) =>
+  calculateCategoryWeightInUnit(category, category.unit as Mass);
 
 /**
  * Calculates the total price of a category.
