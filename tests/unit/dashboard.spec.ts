@@ -1,9 +1,9 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { describe, expect, it, vi } from 'vitest';
 import { friends, invitations, upcomingTrips } from './mocks/dashboard.mock';
-import UpcomingTripsWidget from '@/components/dashboard/UpcomingTripsWidget.vue';
 import FriendsWidget from '@/components/dashboard/FriendsWidget.vue';
 import InvitationsWidget from '@/components/dashboard/InvitationsWidget.vue';
+import UpcomingTripsWidget from '@/components/dashboard/UpcomingTripsWidget.vue';
 
 vi.mock('@/utils/helpers', () => {
   const buildImageSrc = vi.fn((url: string) => url);
@@ -66,10 +66,13 @@ describe('Dashboard', async () => {
         .toContain(`Upcoming Trips (${upcomingTrips.length})`);
 
       tripElements.forEach((tripElement, index) => {
+        const trip = upcomingTrips[index];
+        expect(trip)
+.toBeDefined();
         expect(tripElement.text())
-          .toContain(upcomingTrips[index].name);
+          .toContain(trip!.name);
         expect(tripElement.text())
-          .toContain(upcomingTrips[index].description);
+          .toContain(trip!.description);
       });
     });
   });

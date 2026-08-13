@@ -219,7 +219,11 @@ describe('Closet Page', async () => {
       });
 
       const store = useClosetStore();
-      store.data.selectedPack!.categories[0].category_items[0].item.weight = '4.0';
+      const firstCategory = store.data.selectedPack!.categories[0];
+      const firstCategoryItem = firstCategory?.category_items[0];
+      expect(firstCategoryItem)
+.toBeDefined();
+      firstCategoryItem!.item.weight = '4.0';
       await wrapper.vm.$nextTick();
 
       const weights = calculatePackWeights(store.data.selectedPack!);
@@ -227,6 +231,7 @@ describe('Closet Page', async () => {
 
       for (let i = 0; i < weightDetails.length; i++) {
         const detail = weightDetails[i];
+        if (!detail) continue;
         const title = detail.find('[data-testid="detail-title"]')
           .text()
           .toLowerCase();
@@ -249,6 +254,7 @@ describe('Closet Page', async () => {
       const colorDetails = wrapper.findAll('[data-testid="pack-summary-detail"]');
       for (let i = 0; i < colorDetails.length; i++) {
         const detail = colorDetails[i];
+        if (!detail) continue;
         const colorWrapper = detail.find('[data-testid="detail-weight"]');
         if (colorWrapper.element) {
           const color = (colorWrapper.element as HTMLElement).style.color;
@@ -362,7 +368,7 @@ describe('Closet Page', async () => {
         .toEqual('createDefaultItem');
 
       spy.mockImplementation(() => {
-        store.data.selectedPack!.categories[0].category_items.push({
+        store.data.selectedPack!.categories[0]!.category_items.push({
           id: 0,
           category_id: 1,
           item_id: 0,
@@ -378,20 +384,20 @@ describe('Closet Page', async () => {
         });
       });
 
-      expect(store.data.selectedPack!.categories[0].category_items.length)
+      expect(store.data.selectedPack!.categories[0]!.category_items.length)
         .toBe(7);
 
       const newItemButton = wrapper.find('[data-testid="new-item-btn"]');
       await newItemButton.trigger('click');
 
-      expect(store.data.selectedPack!.categories[0].category_items.length)
+      expect(store.data.selectedPack!.categories[0]!.category_items.length)
         .toBe(8);
     });
 
     it('renders the category name correctly', async () => {
       const categoryName = wrapper.find('[data-testid="category-name"]');
       expect(categoryName.text())
-        .toBe(selectedPack.categories[0].name);
+        .toBe(selectedPack.categories[0]!.name);
     });
 
     it('emits handleRemoveCategory when clicking the remove category button', async () => {
@@ -411,7 +417,7 @@ describe('Closet Page', async () => {
     it('renders generic_type field correctly', async () => {
       const genericType = wrapper.find('[data-testid="generic-type-cell"]');
       expect(genericType.text())
-        .toBe(selectedPack.categories[0].category_items[0].item.generic_type);
+        .toBe(selectedPack.categories[0]!.category_items[0]!.item.generic_type);
     });
 
     it('emits $store.updateItem when consumable button is clicked', async () => {
@@ -439,19 +445,19 @@ describe('Closet Page', async () => {
     it('renders weight field correctly', async () => {
       const weight = wrapper.find('[data-testid="weight-cell"]');
       expect(weight.text())
-        .toContain(selectedPack.categories[0].category_items[0].item.weight as string);
+        .toContain(selectedPack.categories[0]!.category_items[0]!.item.weight as string);
     });
 
     it('renders price field correctly', async () => {
       const price = wrapper.find('[data-testid="price-cell"]');
       expect(price.text())
-        .toContain(`$${selectedPack.categories[0].category_items[0].item.price}`);
+        .toContain(`$${selectedPack.categories[0]!.category_items[0]!.item.price}`);
     });
 
     it('renders quantity field correctly', async () => {
       const quantity = wrapper.find('[data-testid="quantity-cell"]');
       expect(quantity.text())
-        .toContain(String(selectedPack.categories[0].category_items[0].item.quantity));
+        .toContain(String(selectedPack.categories[0]!.category_items[0]!.item.quantity));
     });
 
     it('emits handleAddUrl on click of link icon', async () => {
@@ -469,7 +475,7 @@ describe('Closet Page', async () => {
     });
 
     it('displays the correct totals for weight, price, and quantity', async () => {
-      const category = selectedPack.categories[0];
+      const category = selectedPack.categories[0]!;
       const priceTotalCopy = wrapper.find('[data-testid="price-total"]');
       expect(priceTotalCopy.text())
         .toBe(`$${calculateCategoryPrice(category)}`);
@@ -516,7 +522,8 @@ describe('Closet Page', async () => {
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(true);
-      findBodyButton('Cancel')?.click();
+      findBodyButton('Cancel')
+?.click();
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(false);
@@ -554,7 +561,8 @@ describe('Closet Page', async () => {
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(true);
-      findBodyButton('Cancel')?.click();
+      findBodyButton('Cancel')
+?.click();
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(false);
@@ -592,7 +600,8 @@ describe('Closet Page', async () => {
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(true);
-      findBodyButton('Cancel')?.click();
+      findBodyButton('Cancel')
+?.click();
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(false);
@@ -630,7 +639,8 @@ describe('Closet Page', async () => {
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(true);
-      findBodyButton('Cancel')?.click();
+      findBodyButton('Cancel')
+?.click();
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(false);
@@ -668,7 +678,8 @@ describe('Closet Page', async () => {
       await wrapper.vm.$nextTick();
       expect(isAlertDialogOpen(wrapper))
         .toBe(true);
-      findBodyButton('Cancel')?.click();
+      findBodyButton('Cancel')
+?.click();
       await wrapper.vm.$nextTick();
       expect(isAlertDialogOpen(wrapper))
         .toBe(false);
@@ -706,7 +717,8 @@ describe('Closet Page', async () => {
       await wrapper.vm.$nextTick();
       expect(isAlertDialogOpen(wrapper))
         .toBe(true);
-      findBodyButton('Cancel')?.click();
+      findBodyButton('Cancel')
+?.click();
       await wrapper.vm.$nextTick();
       expect(isAlertDialogOpen(wrapper))
         .toBe(false);
@@ -744,7 +756,8 @@ describe('Closet Page', async () => {
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(true);
-      findBodyButton('Cancel')?.click();
+      findBodyButton('Cancel')
+?.click();
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(false);
@@ -782,7 +795,8 @@ describe('Closet Page', async () => {
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(true);
-      findBodyButton('Cancel')?.click();
+      findBodyButton('Cancel')
+?.click();
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(false);

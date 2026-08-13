@@ -29,7 +29,10 @@
         .select();
 
       if (error || !pack) throw error;
-      $store.data.pack!.theme = pack[0].theme;
+      const updatedPack = pack[0];
+      if (updatedPack) {
+        $store.data.pack!.theme = updatedPack.theme;
+      }
       $appStore.notifyPositive('Successfully updated your pack theme.');
       emits('updateTheme', selectedTheme.value as Theme);
     } catch (error) {

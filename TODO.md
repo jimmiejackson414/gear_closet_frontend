@@ -117,11 +117,11 @@ Do these as **separate PRs**.
 
 | PR | Scope | Notes |
 |---|---|---|
-| [ ] `chore: tailwind @theme migration` | Drop JS `@config` bridge | Visual risk; keep `utils/tailwind.ts` for non-CSS callers |
-| [ ] `chore: enable noUncheckedIndexedAccess` | Fix ~90+ indexed access errors | Opted out in Phase 2 |
-| [ ] `chore: migrate to Nuxt app/ directory` | Drop `srcDir: '.'` layout | Large move; optional |
-| [ ] `chore: eslint stylistic warn cleanup` | Reduce warn noise / selective `--fix` | Not a blocker (0 errors today) |
-| [ ] Safe patch/minors | e.g. `tailwind-merge` 3 | Anytime |
+| [x] `chore: tailwind @theme migration` | Drop JS `@config` bridge | Done on `chore/optional-polish` — theme in `assets/css/tailwind.css` (`@theme inline` + `@utility container`); deleted `tailwind.config.ts`; keep `utils/tailwind.ts` for non-CSS callers |
+| [x] `chore: enable noUncheckedIndexedAccess` | Fix ~130 indexed access errors | Done on `chore/optional-polish` — enabled in `nuxt.config.ts`; guards/`?? []` across stores, components, server, tests |
+| [ ] `chore: migrate to Nuxt app/ directory` | Drop `srcDir: '.'` layout | Large move; **deferred** (own PR) |
+| [x] `chore: eslint stylistic warn cleanup` | Reduce warn noise / selective `--fix` | Done on `chore/optional-polish` — `--fix` on auto-fixable style; ignore `supabase/.temp/**` (0 errors; remaining warns are intentional soft rules) |
+| [x] Safe patch/minors | e.g. `tailwind-merge` 3 | `tailwind-merge` **3.6.0** on `chore/optional-polish` |
 
 ### Explicitly out of scope
 
@@ -154,5 +154,5 @@ Do these as **separate PRs**.
 2. **Planning mutations / loading / chart** (Medium)  
 3. Closet/auth/chart visual QA leftovers + Stripe smoke  
 4. Zod 4 when `@vee-validate/zod` peers allow  
-5. Optional polish (`@theme`, `noUncheckedIndexedAccess`, ESLint warns)  
+5. Optional: migrate to Nuxt `app/` directory (deferred polish)  
 6. Optional: revoke legacy JWT secret after fully off `anon` / `service_role`

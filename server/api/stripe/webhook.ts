@@ -33,7 +33,7 @@ export default stripeWebhookHandler(async ( event, context ) => {
         .from('customers')
         .insert({
           stripe_customer_id: customer.id,
-          profile_id: customer.metadata.profile_id,
+          profile_id: customer.metadata.profile_id as string,
         })
         .select();
 
@@ -81,16 +81,18 @@ export default stripeWebhookHandler(async ( event, context ) => {
       console.log('***** STRIPE EVENT: customer.subscription.created *****');
 
       const period = getSubscriptionItemPeriod(subscription);
+      const subscriptionItem = subscription.items.data[0];
+      if (!subscriptionItem) throw throwError('Subscription item missing');
 
       const { data, error } = await supabase
         .from('subscriptions')
         .insert({
-          profile_id: subscription.metadata.profile_id,
+          profile_id: subscription.metadata.profile_id as string,
           stripe_subscription_id: subscription.id,
           status: subscription.status as SubscriptionStatus,
           metadata: subscription.metadata,
-          price_id: subscription.items.data[0].price.id,
-          quantity: subscription.items.data[0].quantity,
+          price_id: subscriptionItem.price.id,
+          quantity: subscriptionItem.quantity,
           cancel_at_period_end: subscription.cancel_at_period_end,
           current_period_start: new Date(period.current_period_start * 1000)
             .toISOString(),
@@ -120,14 +122,16 @@ export default stripeWebhookHandler(async ( event, context ) => {
       console.log('***** STRIPE EVENT: customer.subscription.updated *****');
 
       const period = getSubscriptionItemPeriod(subscription);
+      const subscriptionItem = subscription.items.data[0];
+      if (!subscriptionItem) throw throwError('Subscription item missing');
 
       const { data, error } = await supabase
         .from('subscriptions')
         .update({
           status: subscription.status as SubscriptionStatus,
           metadata: subscription.metadata,
-          price_id: subscription.items.data[0].price.id,
-          quantity: subscription.items.data[0].quantity,
+          price_id: subscriptionItem.price.id,
+          quantity: subscriptionItem.quantity,
           cancel_at_period_end: subscription.cancel_at_period_end,
           current_period_start: new Date(period.current_period_start * 1000)
             .toISOString(),

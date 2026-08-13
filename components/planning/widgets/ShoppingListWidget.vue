@@ -32,7 +32,8 @@
         .select();
 
       if (newItem?.length && !error) {
-        $store.data.shopping_items.push(newItem[0]);
+        const item = newItem[0];
+        if (item) $store.data.shopping_items.push(item);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new shopping item.');
@@ -52,8 +53,11 @@
         .select();
 
       if (updatedShoppingItem?.length && !error) {
+        const updated = updatedShoppingItem[0];
         const index = $store.data.shopping_items.findIndex((t) => t.id === shoppingItem.id);
-        $store.data.shopping_items[index] = updatedShoppingItem[0];
+        if (updated && index !== -1) {
+          $store.data.shopping_items[index] = updated;
+        }
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error updating the shopping item.');

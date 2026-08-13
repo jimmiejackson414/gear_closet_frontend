@@ -71,8 +71,11 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
             this.data = data;
 
             // set selected trip if available
-            const findSelectedTrip = data.trips.find((trip: Tables<'trips'>) => trip.id === (tripId ? tripId : data.trips[0].id)) as Tables<'trips'>;
-            this.selectedTripId = String(findSelectedTrip.id);
+            const firstTrip = data.trips[0];
+            const findSelectedTrip = data.trips.find((trip: Tables<'trips'>) => trip.id === (tripId ? tripId : firstTrip?.id));
+            if (findSelectedTrip) {
+              this.selectedTripId = String(findSelectedTrip.id);
+            }
           }
         } catch (err: any) {
           $store.notifyNegative(err);

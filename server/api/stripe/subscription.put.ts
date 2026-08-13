@@ -49,7 +49,14 @@ export default defineEventHandler(async (event) => {
     const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripe_subscription_id as string);
 
     // Get the id of the first item
-    const subscriptionItemId = stripeSubscription.items.data[0].id;
+    const subscriptionItem = stripeSubscription.items.data[0];
+    if (!subscriptionItem) {
+      throw createError({
+        statusCode: 500,
+        statusMessage: 'Subscription item missing',
+      });
+    }
+    const subscriptionItemId = subscriptionItem.id;
 
     // Update the subscription in Stripe
     const updatedStripeSubscription = await stripe.subscriptions.update(subscription.stripe_subscription_id as string, {
@@ -67,7 +74,8 @@ export default defineEventHandler(async (event) => {
         current_period_end: new Date(period.current_period_end * 1000)
           .toISOString(),
         ended_at: updatedStripeSubscription.ended_at
-          ? new Date(updatedStripeSubscription.ended_at * 1000).toISOString()
+          ? new Date(updatedStripeSubscription.ended_at * 1000)
+.toISOString()
           : null,
         cancel_at_period_end: updatedStripeSubscription.cancel_at_period_end,
         stripe_subscription_id: updatedStripeSubscription.id,

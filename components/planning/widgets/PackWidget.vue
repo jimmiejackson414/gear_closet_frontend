@@ -108,9 +108,9 @@
             left: 'center',
             height: '100%',
             data: $store.data.pack?.categories?.map(c => ({
-              name: c.name,
+              name: c.name ?? 'Unnamed',
               value: calculateCategoryWeight(c as ExtendedCategory),
-            })) as { name: string, value: number }[],
+            })) ?? [],
             label: { show: false },
             itemStyle: {
               borderRadius: 8,
@@ -118,7 +118,7 @@
               borderWidth: 2,
               color: (params: any) => {
                 const theme = findTheme($store.data.pack?.theme as Theme);
-                return theme[params.dataIndex % theme.length];
+                return theme[params.dataIndex % theme.length] ?? '';
               },
             },
           },

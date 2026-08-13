@@ -62,8 +62,10 @@
           .select();
 
         if (createdPack?.length && !error) {
-          $store.data.allPacks.push({ id: createdPack[0].id, name: createdPack[0].name as string, slug: createdPack[0].slug as string });
-          $store.data.selectedPack = createdPack[0] as ExtendedPack;
+          const pack = createdPack[0];
+          if (!pack) return;
+          $store.data.allPacks.push({ id: pack.id, name: pack.name as string, slug: pack.slug as string });
+          $store.data.selectedPack = pack as ExtendedPack;
           $appStore.notifyPositive('Pack created successfully.');
         }
       } else {
@@ -74,7 +76,10 @@
           .eq('id', $store.data.selectedPack?.id as number)
           .select();
         if (error || !updatedPack) throw error;
-        $store.data.selectedPack = { ...$store.data.selectedPack, ...updatedPack[0] } as ExtendedPack;
+        const pack = updatedPack[0];
+        if (pack) {
+          $store.data.selectedPack = { ...$store.data.selectedPack, ...pack } as ExtendedPack;
+        }
         $appStore.notifyPositive('Successfully updated your pack theme.');
       }
     } catch (error) {

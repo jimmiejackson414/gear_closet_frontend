@@ -141,8 +141,10 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
           // if there are any files in the directory, delete them
           if (files?.length > 0) {
+            const firstFile = files[0];
+            if (!firstFile) return { success: false };
             const { error: deleteError } = await supabase.storage.from('avatars')
-              .remove([`${user.value!.sub}/${files[0].name}`]);
+              .remove([`${user.value!.sub}/${firstFile.name}`]);
             if (deleteError) return { success: false };
           }
 
@@ -165,8 +167,10 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
           // if there are any files in the dictory, delete them
           if (files?.length > 0) {
+            const firstFile = files[0];
+            if (!firstFile) return { success: false };
             const { error: deleteError } = await supabase.storage.from('avatars')
-              .remove([`${user.value!.sub}/${files[0].name}`]);
+              .remove([`${user.value!.sub}/${firstFile.name}`]);
             if (deleteError) return { success: false };
           }
 

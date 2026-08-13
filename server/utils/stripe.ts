@@ -4,7 +4,7 @@ import type Stripe from 'stripe';
  * Billing period lives on SubscriptionItem (Basil+), not Subscription.
  * We only sell single-item subscriptions, so the first item is authoritative.
  */
-export function getSubscriptionItemPeriod(subscription: Stripe.Subscription) {
+export function getSubscriptionItemPeriod (subscription: Stripe.Subscription) {
   const item = subscription.items.data[0];
   if (!item) {
     throw createError({

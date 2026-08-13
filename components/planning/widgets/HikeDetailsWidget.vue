@@ -28,7 +28,8 @@
         .select();
 
       if (newDetail?.length && !error) {
-        $store.data.trip_details.push(newDetail[0]);
+        const detail = newDetail[0];
+        if (detail) $store.data.trip_details.push(detail);
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error creating a new detail.');

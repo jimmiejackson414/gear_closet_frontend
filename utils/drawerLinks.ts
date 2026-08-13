@@ -8,7 +8,7 @@ export type LinkItem = {
   requiresSubscription: boolean;
   requiresSubscriptionCopy?: string;
   external: boolean;
-}
+};
 
 export const drawerLinks = () => {
   const config = useRuntimeConfig();

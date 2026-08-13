@@ -1,4 +1,4 @@
-/* eslint-disable import/order */
+
 import type { ToastRootProps } from 'reka-ui';
 import type { HTMLAttributes } from 'vue';
 
@@ -32,7 +32,7 @@ export const toastVariants = cva(
   },
 );
 
-type ToastVariants = VariantProps<typeof toastVariants>
+type ToastVariants = VariantProps<typeof toastVariants>;
 
 export interface ToastProps extends ToastRootProps {
   class?: HTMLAttributes['class']

@@ -1,6 +1,6 @@
 import convert from 'convert';
 import type { Mass } from 'convert';
-import { dinero, toDecimal, type DineroCurrency } from 'dinero.js';
+import { type DineroCurrency, dinero, toDecimal } from 'dinero.js';
 import { USD } from 'dinero.js/currencies';
 import { v4 as uuidv4 } from 'uuid';
 import { type Database, ItemUnit, MeasuringSystem, type Tables, type TablesInsert } from '@/types';
@@ -203,7 +203,8 @@ export const convertCurrency = (
   const currency = isoCurrencies[currencyCode] ?? USD;
   const amount = dinero({ amount: Number(num), currency });
   return toDecimal(amount, ({ value, currency: c }) =>
-    Number(value).toLocaleString('en-US', {
+    Number(value)
+.toLocaleString('en-US', {
       style: 'currency',
       currency: c.code,
       minimumFractionDigits: 2,
@@ -322,6 +323,9 @@ export const hslVarToHex = async (hslVar: string): Promise<string> => {
   // Get the computed HSL value from the CSS variable
   const root = document.documentElement;
   const computedStyle = getComputedStyle(root);
+  if (!varName) {
+    throw new Error('Invalid HSL variable name');
+  }
   const hslValue = computedStyle.getPropertyValue(varName)
     .trim();
 
@@ -331,6 +335,9 @@ export const hslVarToHex = async (hslVar: string): Promise<string> => {
     throw new Error('Invalid HSL value');
   }
   const [h, s, l] = hslMatch.map(Number);
+  if (h === undefined || s === undefined || l === undefined) {
+    throw new Error('Invalid HSL value');
+  }
 
   // Convert the HSL values to HEX
   const lightness = l / 100;

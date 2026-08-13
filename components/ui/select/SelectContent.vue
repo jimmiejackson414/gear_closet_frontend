@@ -1,6 +1,5 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { computed, type HTMLAttributes } from 'vue';
   import {
     SelectContent,
     type SelectContentEmits,
@@ -9,6 +8,7 @@
     SelectViewport,
     useForwardPropsEmits,
   } from 'reka-ui';
+  import { type HTMLAttributes, computed } from 'vue';
   import { SelectScrollDownButton, SelectScrollUpButton } from '.';
   import { cn } from '@/lib/utils';
 
