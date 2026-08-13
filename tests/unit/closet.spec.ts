@@ -491,7 +491,7 @@ describe('Closet Page', async () => {
     });
   });
 
-  describe('ModifyPackSettingsDialog.vue', async () => {
+  describe('ManagePackSettingsDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
 
     beforeEach(async () => {
@@ -753,45 +753,6 @@ describe('Closet Page', async () => {
     it('closes the dialog correctly', async () => {
       const store = useClosetStore();
       store.dialogStates.addUrlDialog = true;
-      await wrapper.vm.$nextTick();
-      expect(isDialogRootOpen(wrapper))
-        .toBe(true);
-      findBodyButton('Cancel')
-?.click();
-      await wrapper.vm.$nextTick();
-      expect(isDialogRootOpen(wrapper))
-        .toBe(false);
-    });
-  });
-
-  describe('UpdateThemeDialog.vue', async () => {
-    let wrapper: VueWrapper<any>;
-
-    beforeEach(async () => {
-      wrapper = await mountSuspended(ManagePackSettingsDialog, {
-        global: testMountGlobals(),
-        attachTo: document.body,
-      });
-    });
-
-    afterEach(() => {
-      wrapper.unmount();
-      document.body.innerHTML = '';
-    });
-
-    it('renders the dialog correctly', async () => {
-      const store = useClosetStore();
-      expect(isDialogRootOpen(wrapper))
-        .toBe(false);
-      store.dialogStates.managePackSettingsDialog = true;
-      await wrapper.vm.$nextTick();
-      expect(isDialogRootOpen(wrapper))
-        .toBe(true);
-    });
-
-    it('closes the dialog correctly', async () => {
-      const store = useClosetStore();
-      store.dialogStates.managePackSettingsDialog = true;
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(true);

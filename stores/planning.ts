@@ -42,7 +42,7 @@ type Actions = {
   batchUpdateShoppingItems(completed: boolean | 'indeterminate', resourceType: ResourceType): Promise<void>;
 };
 
-function normalizePlanningPageData (raw: PlanningPageData | null | undefined): PlanningPageData {
+export function normalizePlanningPageData (raw: PlanningPageData | null | undefined): PlanningPageData {
   return {
     trips: raw?.trips ?? [],
     pack: raw?.pack ?? undefined,

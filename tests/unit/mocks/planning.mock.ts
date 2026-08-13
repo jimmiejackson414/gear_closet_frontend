@@ -51,3 +51,16 @@ export const tripDetails: Tables<'trip_details'>[] = [
     "updated_at":"2024-05-14T23:44:37.502726+00:00",
   },
 ];
+
+export const todos: Tables<'todos'>[] = [
+  {
+    id: 1,
+    title: 'Pack rain gear',
+    completed: false,
+    trip_id: 2,
+    profile_id: '61b66be5-d199-48d5-898a-c521dd6b59cc',
+    resource_type: 'USER',
+    created_at: '2024-04-21T01:21:08.285444+00:00',
+    updated_at: '2024-04-21T01:21:08.285444+00:00',
+  },
+];
