@@ -17,30 +17,30 @@ Tracks remaining product, quality, and dependency work.
 
 ## Page quality & performance
 
-Audits of fetch orchestration, write boundaries, and correctness (2026-08-12). Planning, Closet, Dashboard, and Friends page passes are done.
+Audits of fetch orchestration, write boundaries, and correctness (2026-08-12). Planning, Closet, Dashboard, Friends, and Public packs page passes are done.
 
 ---
 
 ### Public packs
 
-`pages/p/packs/[slug].vue` → public pack + comments.
+`pages/p/packs/[slug].vue` → public pack + comments. **Done** (`fix/public-packs-perf`).
 
 #### High
 
-- [ ] **Private-pack gate stuck / wrong** — `pages/p/packs/[slug].vue`  
-  `displayPrivatePackWarning` init from prior store (`?? true`) and never updates after fetch → public packs can stay blocked; private packs can flash content if store was warm. Set from `fetchedPack.private` after load; prefer RLS so private rows aren’t returned to anon.
+- [x] **Private-pack gate stuck / wrong** — `pages/p/packs/[slug].vue`  
+  Clear store before fetch; set gate from `fetchedPack.private` / missing row; never flash warm Pinia pack.
 
 #### Medium
 
-- [ ] **Public layout always hits `/api/profile`** — `PublicLayout.vue`  
-  Anon pack views await profile → 401 and block layout. Skip when no session.
+- [x] **Public layout always hits `/api/profile`** — `PublicLayout.vue`  
+  Skip profile fetch when anonymous.
 
-- [ ] **Public comments gated on auth** — `pages/p/packs/[slug].vue`  
-  Guests see Comments tab but empty panel. Show list; gate compose only. Fix “Commenting as” to current user (not pack owner / parent author).
+- [x] **Public comments gated on auth** — `pages/p/packs/[slug].vue`  
+  Comment list for guests; compose gated; “Commenting as” uses current user (pack page + reply form).
 
 #### Low
 
-- [ ] Remove / wire unused `PublicPackSummary.vue`, stub `pages/p/friends/[slug].vue`
+- [x] Removed unused `PublicPackSummary.vue`; removed stub `pages/p/friends/[slug].vue` and dead `FriendItem` link
 
 ---
 
@@ -129,8 +129,7 @@ Product ideas / enhancements not required for current correctness work.
 
 1. **Shared High** — `fetchProfile` crash, notification INSERT
 2. **Auth / billing High** — reset-password page, billing stubs
-3. **Public packs High** — privacy gate; then Medium comments/layout
-4. Visual QA leftovers + Stripe smoke
-5. Zod 4 when `@vee-validate/zod` peers allow
-6. Optional: Nuxt `app/` directory; revoke legacy JWT secret
-7. Future features (e.g. mutual friends) when prioritized
+3. Visual QA leftovers + Stripe smoke
+4. Zod 4 when `@vee-validate/zod` peers allow
+5. Optional: Nuxt `app/` directory; revoke legacy JWT secret
+6. Future features (e.g. mutual friends) when prioritized

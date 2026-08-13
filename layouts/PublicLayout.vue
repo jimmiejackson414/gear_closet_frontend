@@ -10,15 +10,18 @@
 
   const $store = useUserStore();
 
-  const { data, error } = await useFetch<Tables<'profiles'> | null>('/api/profile', {
-    headers: useRequestHeaders(['cookie']),
-  });
+  // Skip /api/profile for anonymous public views (avoids 401 + blocking layout).
+  if (user.value) {
+    const { data, error } = await useFetch<Tables<'profiles'> | null>('/api/profile', {
+      headers: useRequestHeaders(['cookie']),
+    });
 
-  $store.profile = data.value as any;
+    $store.profile = data.value as any;
 
-  const $router = useRouter();
-  if (!error.value && data.value && !data.value.onboard_date) {
-    $router.push('/onboarding');
+    const $router = useRouter();
+    if (!error.value && data.value && !data.value.onboard_date) {
+      $router.push('/onboarding');
+    }
   }
 </script>
 

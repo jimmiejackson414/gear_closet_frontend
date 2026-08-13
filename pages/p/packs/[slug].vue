@@ -4,6 +4,7 @@
   import tailwind from '@/utils/tailwind';
 
   const user = useSupabaseUser();
+  const $userStore = useUserStore();
   // TODO: Figure out way to access user to dynamically set colorMode. Currently causes 500 error.
   definePageMeta({ layout: 'public-layout', public: true });
 
@@ -13,11 +14,16 @@
   const $appStore = useAppStore();
   const $store = useClosetStore();
   const $route = useRoute();
-  const displayPrivatePackWarning = ref($store.data.selectedPack?.private ?? true);
+  /** Set only after fetch from the loaded pack — never from stale Pinia state. */
+  const displayPrivatePackWarning = ref(false);
 
   const fetchPack = async () => {
     try {
       $store.pageLoading = true;
+      // Clear warm closet store so a previous pack can't flash through the gate.
+      $store.data.selectedPack = undefined;
+      displayPrivatePackWarning.value = false;
+
       const supabase = useSupabaseClient<Database>();
       const { data: fetchedPack, error } = await supabase
         .from('packs')
@@ -42,9 +48,19 @@
         .maybeSingle();
 
       if (error) throw error;
-      if (!fetchedPack) throw new Error('No pack data found');
+
+      // Missing row (or RLS) and private packs both stay gated — don't leave pack data in store.
+      if (!fetchedPack || fetchedPack.private) {
+        displayPrivatePackWarning.value = true;
+        $store.data.selectedPack = undefined;
+        return;
+      }
+
       $store.data.selectedPack = fetchedPack as PublicPack;
+      displayPrivatePackWarning.value = false;
     } catch (error) {
+      displayPrivatePackWarning.value = true;
+      $store.data.selectedPack = undefined;
       $appStore.notifyNegative('Failed to fetch pack data');
     } finally {
       $store.pageLoading = false;
@@ -60,7 +76,7 @@
   const submitting = ref(false);
   const addComment = async () => {
     const text = newCommentValue.value?.trim();
-    if (!text) return;
+    if (!text || !user.value?.sub) return;
 
     try {
       submitting.value = true;
@@ -70,7 +86,7 @@
         .from('comments')
         .insert({
           pack_id: $store.data.selectedPack?.id as number,
-          profile_id: user.value?.sub as string,
+          profile_id: user.value.sub,
           text,
         })
         .select();
@@ -107,6 +123,10 @@
     return name.toLowerCase()
       .includes('Pack') ? name : name + ' Pack';
   });
+
+  const commentingAsName = computed(() =>
+    friendlyUsername($userStore.profile) || 'you',
+  );
 
   /**
    * Tabs functionality
@@ -167,27 +187,40 @@
               id="comments"
               aria-labelledby="comments-tab"
               role="tabpanel">
-              <div
-                v-if="user"
-                class="flex items-start flex-col max-w-6xl mx-auto px-6 py-6">
-                <textarea-root
-                  v-model="newCommentValue"
-                  class="rounded-xl shadow-xs w-full disabled:bg-gray-100 disabled:pointer-events-none"
-                  :disabled="submitting"
-                  placeholder="Add a comment" />
-                <div class="flex items-center gap-6 ml-auto my-2">
-                  <typography class="text-muted-foreground dark:text-muted-foreground text-sm">
-                    Commenting as <span class="font-bold">{{ friendlyUsername(($store.data.selectedPack as PublicPack)?.profile) }}</span>
-                  </typography>
-                  <button-root
+              <div class="flex items-start flex-col max-w-6xl mx-auto px-6 py-6">
+                <!-- Compose: logged-in users only -->
+                <template v-if="user">
+                  <textarea-root
+                    v-model="newCommentValue"
+                    class="rounded-xl shadow-xs w-full disabled:bg-gray-100 disabled:pointer-events-none"
                     :disabled="submitting"
-                    :loading="submitting"
-                    size="sm"
-                    @click="addComment">
-                    Submit
-                  </button-root>
-                </div>
-                <separator class="mb-4" />
+                    placeholder="Add a comment" />
+                  <div class="flex items-center gap-6 ml-auto my-2">
+                    <typography class="text-muted-foreground dark:text-muted-foreground text-sm">
+                      Commenting as <span class="font-bold">{{ commentingAsName }}</span>
+                    </typography>
+                    <button-root
+                      :disabled="submitting"
+                      :loading="submitting"
+                      size="sm"
+                      @click="addComment">
+                      Submit
+                    </button-root>
+                  </div>
+                  <separator class="mb-4" />
+                </template>
+                <typography
+                  v-else
+                  class="mb-4 text-muted-foreground text-sm">
+                  <nuxt-link
+                    class="font-semibold text-primary hover:underline"
+                    :to="{ name: 'login' }">
+                    Sign in
+                  </nuxt-link>
+                  to leave a comment.
+                </typography>
+
+                <!-- Comment list: visible to guests and signed-in users -->
                 <gc-empty-state
                   v-if="!($store.data.selectedPack as PublicPack)?.comments?.length"
                   class="mx-auto">
