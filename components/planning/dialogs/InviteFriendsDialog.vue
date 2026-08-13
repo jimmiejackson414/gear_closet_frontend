@@ -20,31 +20,48 @@
   const $userStore = useUserStore();
 
   /**
+   * Escape LIKE wildcards so user input is matched literally.
+   */
+  const escapeIlikeTerm = (term: string) => term.replace(/[%_]/g, '\\$&');
+
+  /**
    * Performs search for existing friends.
    */
-  // const searchQuery = ref('');
   const searching = ref(false);
   const searchResults = ref<SelectOption[]>([]);
   const friendObjects = ref<Tables<'profiles'>[]>([]);
   const searchForFriends = async (searchTerm: string) => {
+    if (!searchTerm?.trim()) {
+      searchResults.value = [];
+      return;
+    }
+
     try {
       searching.value = true;
       const supabase = useSupabaseClient<Database>();
+      const escaped = escapeIlikeTerm(searchTerm.trim());
       // Nested `profile:profiles!profile_id(*)` select depth blows Volar (cascade: missing auto-imports).
       const { data: friendsData, error } = await (supabase
         .from('friends')
         .select('*, profile:profiles!profile_id(*)')
-        .or(`first_name.ilike.%${searchTerm}%,last_name.ilike.%${searchTerm}%,email.ilike.%${searchTerm}%`, { referencedTable: 'profiles' })
+        .or(`first_name.ilike.%${escaped}%,last_name.ilike.%${escaped}%,email.ilike.%${escaped}%`, { referencedTable: 'profiles' })
         .neq('profile_id', $store.selectedTrip?.profile_id ?? null)
         .limit(10) as any) as { data: FriendSearchResult[] | null; error: unknown };
 
-      if (friendsData?.length && !error) {
+      if (error) {
+        $appStore.notifyNegative('There was an error searching for friends.');
+        return;
+      }
+
+      if (friendsData?.length) {
         friendObjects.value = friendsData.map(f => f.profile);
         searchResults.value = friendsData.map(f => ({
           label: friendlyUsername(f.profile),
-          value: f.id,
+          value: f.profile.id,
           image: f.profile.image,
         }));
+      } else {
+        searchResults.value = [];
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error searching for friends.');
@@ -52,6 +69,8 @@
       searching.value = false;
     }
   };
+
+  const debouncedSearchForFriends = useDebounceFn(searchForFriends, 300);
 
   /**
    * Invites friends to the trip
@@ -91,6 +110,8 @@
       if (invitedFriends?.length && !error) {
         $appStore.notifyPositive('Successfully invited friends to trip!');
         $store.data.friends.push(...invitedFriends);
+      } else if (error) {
+        $appStore.notifyNegative(error.message || 'There was an error inviting friends to the trip.');
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error inviting friends to the trip.');
@@ -136,14 +157,14 @@
           :loading="searching"
           :options="searchResults"
           placeholder="Abe Lincoln"
-          @search="searchForFriends"
+          @search="debouncedSearchForFriends"
           @select="setFriendsPayload">
           <template #option="{ option }">
             <div class="flex items-center">
               <gc-avatar
                 class="mr-2"
                 size="xs"
-                :src="buildImageSrc(option.image)" />
+                :url="buildImageSrc(option.image)" />
               <span>{{ option.label }}</span>
             </div>
           </template>

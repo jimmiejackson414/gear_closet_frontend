@@ -3,7 +3,8 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { IconLink, IconType } from '#components';
-  import type { Database, Tables, TablesUpdate } from '@/types';
+  import type { Tables } from '@/types';
+  import { TripDetailsType } from '@/types';
 
   interface Props {
     activeDetail: Tables<'trip_details'>;
@@ -14,8 +15,13 @@
   const emits = defineEmits(['onClose']);
 
   const $store = usePlanningStore();
-  const $appStore = useAppStore();
   const submitting = ref(false);
+
+  const dialogTitle = computed(() => {
+    return props.activeDetail?.type === TripDetailsType.TRIP
+      ? 'Edit Trip Detail'
+      : 'Edit Hike Detail';
+  });
 
   const formSchema = toTypedSchema(z.object({
     title: z.string()
@@ -64,30 +70,14 @@
   const updateDetail = handleSubmit(async (v) => {
     try {
       submitting.value = true;
-      const supabase = useSupabaseClient<Database>();
-      const payload: TablesUpdate<'trip_details'> = {
+      const ok = await $store.updateTripDetail(props.activeDetail?.id as number, {
         title: v.title,
         value: v.value,
         url: v.url ? prependProtocol(v?.url as string) : null,
-      };
-
-      const { data: updatedDetail, error } = await supabase.from('trip_details')
-        .update(payload)
-        .eq('id', props.activeDetail?.id as number)
-        .select();
-
-      if (updatedDetail?.length && !error) {
-        const updated = updatedDetail[0];
-        const index = $store.data.trip_details.findIndex((t) => t.id === props.activeDetail?.id);
-        if (updated && index !== -1) {
-          $store.data.trip_details[index] = updated;
-        }
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error updating the detail.');
+      });
+      if (ok) handleClose();
     } finally {
       submitting.value = false;
-      handleClose();
     }
   });
 
@@ -97,18 +87,8 @@
   const deleteDetail = async () => {
     try {
       submitting.value = true;
-      const supabase = useSupabaseClient<Database>();
-      const { error } = await supabase.from('trip_details')
-        .delete()
-        .eq('id', props.activeDetail?.id as number);
-
-      if (!error) {
-        const index = $store.data.trip_details.findIndex((t) => t.id === props.activeDetail?.id);
-        $store.data.trip_details.splice(index, 1);
-        handleClose();
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error deleting the detail.');
+      const ok = await $store.deleteTripDetail(props.activeDetail?.id as number);
+      if (ok) handleClose();
     } finally {
       submitting.value = false;
     }
@@ -126,7 +106,7 @@
       @escape-key-down="handleClose"
       @interact-outside="handleClose">
       <dialog-header>
-        <dialog-title>Edit Hike Detail</dialog-title>
+        <dialog-title>{{ dialogTitle }}</dialog-title>
       </dialog-header>
       <div class="w-full">
         <form class="flex flex-col gap-6 w-full">

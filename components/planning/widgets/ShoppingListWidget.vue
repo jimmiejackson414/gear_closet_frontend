@@ -1,7 +1,6 @@
 <script lang='ts' setup>
-  import { type Database, ResourceType, type Tables, type TablesUpdate } from '@/types';
+  import { ResourceType, type Tables } from '@/types';
 
-  const $appStore = useAppStore();
   const $store = usePlanningStore();
 
   const activeTab = ref<ResourceType>(ResourceType.USER);
@@ -13,73 +12,13 @@
     return $store.data.shopping_items.filter(t => t.resource_type === ResourceType.GROUP);
   });
 
-  /**
-   * Creates a new shopping item for the selected trip.
-   */
-  const createShoppingItem = async () => {
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const user = useSupabaseUser();
-      const { data: newItem, error } = await supabase.from('shopping_list_items')
-        .insert({
-          completed: false,
-          profile_id: user.value?.sub as string,
-          quantity: 1,
-          resource_type: activeTab.value,
-          title: 'New shopping item',
-          trip_id: Number($store.selectedTripId),
-        })
-        .select();
-
-      if (newItem?.length && !error) {
-        const item = newItem[0];
-        if (item) $store.data.shopping_items.push(item);
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error creating a new shopping item.');
-    }
-  };
-
-  /**
-   *  Updates a shopping item.
-   * @param shoppingItem
-   */
-  const updateShoppingItem = async (shoppingItem: Tables<'shopping_list_items'>, payload: TablesUpdate<'shopping_list_items'>) => {
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const { data: updatedShoppingItem, error } = await supabase.from('shopping_list_items')
-        .update(payload)
-        .eq('id', shoppingItem.id as number)
-        .select();
-
-      if (updatedShoppingItem?.length && !error) {
-        const updated = updatedShoppingItem[0];
-        const index = $store.data.shopping_items.findIndex((t) => t.id === shoppingItem.id);
-        if (updated && index !== -1) {
-          $store.data.shopping_items[index] = updated;
-        }
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error updating the shopping item.');
-    }
-  };
-
-  /**
-   * Batch updates all shopping items.
-   */
-  const batchUpdateShoppingItems = async () => {
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const { data: updatedShoppingItems, error } = await supabase.from('shopping_list_items')
-        .upsert($store.data.shopping_items)
-        .select();
-
-      if (updatedShoppingItems?.length && !error) {
-        $store.data.shopping_items = updatedShoppingItems;
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error updating the shopping items.');
-    }
+  const createShoppingItem = () => $store.createShoppingItem(activeTab.value);
+  const updateShoppingItem = (
+    shoppingItem: Tables<'shopping_list_items'>,
+    payload: Parameters<typeof $store.updateShoppingItem>[1],
+  ) => $store.updateShoppingItem(shoppingItem, payload);
+  const batchUpdateShoppingItems = (completed: boolean | 'indeterminate', resourceType: ResourceType) => {
+    return $store.batchUpdateShoppingItems(completed, resourceType);
   };
 </script>
 
@@ -132,7 +71,7 @@
                   <table-head class="w-[50px]">
                     <checkbox
                       :checked="userItems.every((u: Tables<'shopping_list_items'>) => u.completed)"
-                      @update:checked="batchUpdateShoppingItems" />
+                      @update:checked="batchUpdateShoppingItems($event, ResourceType.USER)" />
                   </table-head>
                   <table-head class="font-bold">
                     Title
@@ -185,7 +124,7 @@
                   <table-head class="w-[50px]">
                     <checkbox
                       :checked="groupItems.every((u: Tables<'shopping_list_items'>) => u.completed)"
-                      @update:checked="batchUpdateShoppingItems" />
+                      @update:checked="batchUpdateShoppingItems($event, ResourceType.GROUP)" />
                   </table-head>
                   <table-head class="font-bold">
                     Title

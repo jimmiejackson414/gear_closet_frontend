@@ -141,6 +141,8 @@
       }
     } catch (err) {
       $appStore.notifyNegative('There was an error updating the trip pack.');
+    } finally {
+      submitting.value = false;
     }
   };
 </script>

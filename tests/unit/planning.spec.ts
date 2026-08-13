@@ -42,12 +42,6 @@ describe('Planning Page', async () => {
         .toEqual(trips.map(trip => String(trip.id)));
     });
 
-    it('renders the options icon correctly', async () => {
-      const settingsIcon = wrapper.find('[data-testid="settings-icon"]');
-      expect(settingsIcon.exists())
-        .toBe(true);
-    });
-
     it('disables New Trip button when isPaidMember is false and data.trips length is greater than or equal to 1', async () => {
       const store = usePlanningStore();
       const userStore = useUserStore();

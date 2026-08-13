@@ -1,7 +1,6 @@
 <script lang='ts' setup>
-  import { type Database, ResourceType, type Tables, type TablesUpdate } from '@/types';
+  import { ResourceType, type Tables } from '@/types';
 
-  const $appStore = useAppStore();
   const $store = usePlanningStore();
 
   const activeTab = ref<ResourceType>(ResourceType.USER);
@@ -13,72 +12,12 @@
     return $store.data.todos.filter(t => t.resource_type === ResourceType.GROUP);
   });
 
-  /**
-   * Creates a new todo for the selected trip.
-   */
-  const createTodo = async () => {
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const user = useSupabaseUser();
-      const { data: newTodo, error } = await supabase.from('todos')
-        .insert({
-          completed: false,
-          profile_id: user.value?.sub as string,
-          resource_type: activeTab.value,
-          title: 'New todo',
-          trip_id: Number($store.selectedTripId),
-        })
-        .select();
-
-      if (newTodo?.length && !error) {
-        const todo = newTodo[0];
-        if (todo) $store.data.todos.push(todo);
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error creating a new todo.');
-    }
+  const createTodo = () => $store.createTodo(activeTab.value);
+  const updateTodo = (todo: Tables<'todos'>, payload: Parameters<typeof $store.updateTodo>[1]) => {
+    return $store.updateTodo(todo, payload);
   };
-
-  /**
-   *  Updates a todo.
-   * @param todo
-   */
-  const updateTodo = async (todo: Tables<'todos'>, payload: TablesUpdate<'todos'>) => {
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const { data: updatedTodo, error } = await supabase.from('todos')
-        .update(payload)
-        .eq('id', todo.id as number)
-        .select();
-
-      if (updatedTodo?.length && !error) {
-        const updated = updatedTodo[0];
-        const index = $store.data.todos.findIndex((t) => t.id === todo.id);
-        if (updated && index !== -1) {
-          $store.data.todos[index] = updated;
-        }
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error updating the todo.');
-    }
-  };
-
-  /**
-   * Batch updates todos.
-   */
-  const batchUpdateTodos = async () => {
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const { data: updatedTodos, error } = await supabase.from('todos')
-        .upsert($store.data.todos)
-        .select();
-
-      if (updatedTodos?.length && !error) {
-        $store.data.todos = updatedTodos;
-      }
-    } catch (err) {
-      $appStore.notifyNegative('There was an error updating the todos.');
-    }
+  const batchUpdateTodos = (completed: boolean | 'indeterminate', resourceType: ResourceType) => {
+    return $store.batchUpdateTodos(completed, resourceType);
   };
 </script>
 
@@ -131,7 +70,7 @@
                   <table-head class="w-[50px]">
                     <checkbox
                       :checked="userTodos.every((u: Tables<'todos'>) => u.completed)"
-                      @update:checked="batchUpdateTodos" />
+                      @update:checked="batchUpdateTodos($event, ResourceType.USER)" />
                   </table-head>
                   <table-head class="font-bold">
                     Title
@@ -171,7 +110,9 @@
               <table-header>
                 <table-row no-hover-effect>
                   <table-head class="w-[50px]">
-                    <checkbox :checked="groupTodos.every((u: Tables<'todos'>) => u.completed)" />
+                    <checkbox
+                      :checked="groupTodos.every((u: Tables<'todos'>) => u.completed)"
+                      @update:checked="batchUpdateTodos($event, ResourceType.GROUP)" />
                   </table-head>
                   <table-head class="font-bold">
                     Title
