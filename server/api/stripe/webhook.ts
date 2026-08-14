@@ -4,10 +4,11 @@
  */
 
 import { processStripeWebhookEvent } from '../../utils/processStripeWebhookEvent';
-import { serverSupabaseClient } from '#supabase/server';
+import { serverSupabaseServiceRole } from '#supabase/server';
 import type { Database } from '@/types';
 
 export default stripeWebhookHandler(async (event, context) => {
-  const supabase = await serverSupabaseClient<Database>(context.$event);
+  // Webhook has no user JWT; billing tables require service_role under RLS.
+  const supabase = serverSupabaseServiceRole<Database>(context.$event);
   await processStripeWebhookEvent(event, supabase);
 });
