@@ -14,13 +14,14 @@ SET default_table_access_method = "heap";
 ALTER SCHEMA "public" OWNER TO "postgres";
 
 -- Create extensions
-CREATE EXTENSION IF NOT EXISTS "pgsodium" WITH SCHEMA "pgsodium";
-CREATE EXTENSION IF NOT EXISTS "address_standardizer" WITH SCHEMA "extensions";
+-- Note: do not CREATE pgsodium — newer Supabase images no longer ship its schema,
+-- and the extension is deprecated. Vault no longer depends on it.
+-- Skip address_standardizer (PostGIS) and pgjwt (deprecated on Postgres 17);
+-- neither is used by this app.
 CREATE EXTENSION IF NOT EXISTS "moddatetime" WITH SCHEMA "extensions";
 CREATE EXTENSION IF NOT EXISTS "pg_graphql" WITH SCHEMA "graphql";
 CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
 CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
-CREATE EXTENSION IF NOT EXISTS "pgjwt" WITH SCHEMA "extensions";
 CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
 
