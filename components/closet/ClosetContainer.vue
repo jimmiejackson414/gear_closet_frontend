@@ -1,10 +1,13 @@
 <script lang="ts" setup>
-  import { isResourceLocked } from '@/utils/planLimits';
+  import { isResourceLocked, lockedDeepLinkMessage, resolveLockedFallback } from '@/utils/planLimits';
 
   const $store = useClosetStore();
   const $userStore = useUserStore();
+  const $appStore = useAppStore();
   const $route = useRoute();
+  const $router = useRouter();
   const $cookie = useCookie('selectedPackId');
+  const showLockedDeepLinkBanner = ref(false);
 
   /**
    * Resolve pack id once: query > cookie > 0 (RPC / store pick first pack).
@@ -21,20 +24,39 @@
     return 0;
   };
 
-  await $store.fetchClosetPage(resolvePackId());
+  const hasPackQuery = () => $route.query.pack != null && $route.query.pack !== '';
 
-  // Free users who land on a locked pack fall back to an unlocked one.
-  if (
-    !$userStore.isPaidMember
-    && $store.data.selectedPack
-    && isResourceLocked($store.data.selectedPack)
-  ) {
-    const unlocked = $store.data.allPacks.find((p) => !isResourceLocked(p));
-    await $store.fetchClosetPage(unlocked?.id ?? 0);
-    if (unlocked) {
-      $cookie.value = encrypt(String(unlocked.id));
+  const stripPackQuery = async () => {
+    if (!hasPackQuery()) return;
+    const nextQuery = { ...$route.query };
+    delete nextQuery.pack;
+    await $router.replace({ query: nextQuery });
+  };
+
+  const fallbackFromLockedPack = async (fromQuery: boolean) => {
+    if ($userStore.isPaidMember) return;
+
+    const fallback = resolveLockedFallback(
+      $store.data.selectedPack,
+      $store.data.allPacks,
+      isResourceLocked,
+    );
+    if (!fallback.needed) return;
+
+    await $store.fetchClosetPage(fallback.unlocked?.id ?? 0);
+    if (fallback.unlocked) {
+      $cookie.value = encrypt(String(fallback.unlocked.id));
     }
-  }
+
+    $appStore.notifyInfo(lockedDeepLinkMessage('pack'));
+    if (fromQuery) {
+      showLockedDeepLinkBanner.value = true;
+      await stripPackQuery();
+    }
+  };
+
+  await $store.fetchClosetPage(resolvePackId());
+  await fallbackFromLockedPack(hasPackQuery());
 
   // Deep-link / browser navigation with ?pack= should refetch that pack.
   watch(
@@ -44,6 +66,7 @@
       if (packQuery == null || packQuery === '') return;
       const id = Number(decrypt(packQuery)) || 0;
       await $store.fetchClosetPage(id);
+      await fallbackFromLockedPack(true);
     },
   );
 
@@ -53,6 +76,11 @@
 
 <template>
   <div>
+    <locked-deep-link-banner
+      v-if="showLockedDeepLinkBanner"
+      kind="pack"
+      @dismiss="showLockedDeepLinkBanner = false" />
+
     <closet-settings />
 
     <closet-empty-state />

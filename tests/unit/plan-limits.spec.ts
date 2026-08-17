@@ -3,10 +3,13 @@ import { SubscriptionLevel } from '@/types';
 import {
   FREE_PACK_LIMIT,
   FREE_TRIP_LIMIT,
+  LOCKED_DEEPLINK_CTA,
   isFreeCreateBlocked,
   isPaidPlanIdentifier,
   isResourceLocked,
+  lockedDeepLinkMessage,
   needsFreeResourcePick,
+  resolveLockedFallback,
   unlockedResources,
 } from '@/utils/planLimits';
 
@@ -67,5 +70,26 @@ describe('utils/planLimits', () => {
       .toBe(false);
     expect(isFreeCreateBlocked(true, [{ id: 1 }, { id: 2 }], 1))
       .toBe(false);
+  });
+
+  it('resolves a locked deep-link fallback to the first unlocked resource', () => {
+    const locked = { id: 1, locked_at: '2026-01-01T00:00:00Z' };
+    const unlocked = { id: 2, locked_at: null };
+    const packs = [locked, unlocked];
+    expect(resolveLockedFallback(locked, packs, isResourceLocked))
+      .toEqual({ needed: true, unlocked });
+    expect(resolveLockedFallback(unlocked, packs, isResourceLocked))
+      .toEqual({ needed: false });
+    expect(resolveLockedFallback(locked, [locked], isResourceLocked))
+      .toEqual({ needed: true, unlocked: undefined });
+  });
+
+  it('explains locked pack and trip deep links', () => {
+    expect(lockedDeepLinkMessage('pack'))
+      .toContain('pack is locked');
+    expect(lockedDeepLinkMessage('trip'))
+      .toContain('trip is locked');
+    expect(LOCKED_DEEPLINK_CTA)
+      .toContain('Free selection');
   });
 });

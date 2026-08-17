@@ -1,4 +1,5 @@
 import { describe, expect, it } from 'vitest';
+import { resolveLockedFallback } from '@/utils/planLimits';
 import { isOwnedTrip, isTripLockedForUser, ownedTrips } from '@/utils/trips';
 
 const owned = { id: 1, profile_id: 'me', locked_at: null };
@@ -28,5 +29,21 @@ describe('utils/trips', () => {
       .toBe(false);
     expect(isTripLockedForUser({ ...invited, locked_at: '2026-01-01T00:00:00Z' }, 'me', false))
       .toBe(false);
+  });
+
+  it('does not fall back from a locked invitee trip', () => {
+    const lockedInvite = { ...invited, locked_at: '2026-01-01T00:00:00Z' };
+    expect(resolveLockedFallback(
+      lockedInvite,
+      [owned, lockedInvite],
+      (trip) => isTripLockedForUser(trip, 'me', false),
+    ))
+      .toEqual({ needed: false });
+    expect(resolveLockedFallback(
+      lockedOwned,
+      [owned, lockedOwned],
+      (trip) => isTripLockedForUser(trip, 'me', false),
+    ))
+      .toEqual({ needed: true, unlocked: owned });
   });
 });
