@@ -205,17 +205,17 @@
   <card class="px-8 py-4 rounded-3xl">
     <div class="flex justify-between items-center py-4">
       <div class="flex items-center">
-        <icon-backpack class="h-6 mr-6 text-primary w-6" />
+        <icon-backpack class="mr-6 w-6 h-6 text-primary" />
         <p class="font-bold! text-base">
           Pack
         </p>
       </div>
       <div
-        v-if="$store.data.pack"
+        v-if="$store.data.pack && $store.isSelectedTripOwner"
         class="flex">
         <dropdown-menu>
           <dropdown-menu-trigger>
-            <icon-ellipsis-vertical class="h-6 w-6" />
+            <icon-ellipsis-vertical class="w-6 h-6" />
           </dropdown-menu-trigger>
           <dropdown-menu-content>
             <dropdown-menu-label>
@@ -238,6 +238,7 @@
         You haven't added a pack to this trip yet!
       </p>
       <button-root
+        v-if="$store.isSelectedTripOwner"
         size="sm"
         variant="outline"
         @click="[modalState = 'insert', isAddPackModalOpen = true]">
@@ -249,7 +250,7 @@
         Selected Pack:
         <span class="font-black">{{ $store.data.pack?.name }}</span>
       </h5>
-      <div class="h-100 mb-4 mt-0 mx-auto w-full">
+      <div class="mx-auto mt-0 mb-4 w-full h-100">
         <client-only>
           <v-chart
             ref="chartRef"

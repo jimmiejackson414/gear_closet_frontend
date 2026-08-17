@@ -26,6 +26,7 @@ type State = {
 
 type Getters = {
   selectedTrip(): Tables<'trips'> | undefined;
+  isSelectedTripOwner(): boolean;
 };
 
 type Actions = {
@@ -79,6 +80,12 @@ export const usePlanningStore = defineStore<"planning", State, Getters, Actions>
     getters: {
       selectedTrip () {
         return this.data.trips.find(trip => String(trip.id) === this.selectedTripId);
+      },
+      isSelectedTripOwner () {
+        const session = useSupabaseUser();
+        const userStore = useUserStore();
+        const userId = session.value?.sub ?? userStore.profile?.id;
+        return Boolean(userId && this.selectedTrip?.profile_id === userId);
       },
     },
 

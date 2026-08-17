@@ -49,6 +49,7 @@ describe('Planning Page', async () => {
       store.$patch({ data: { trips }, pageLoading: false });
       userStore.$patch({
         profile: {
+          id: trips[0]?.profile_id,
           subscriptions: [{ prices: { identifier: 'FREE' } }],
         } as any,
       });
@@ -69,6 +70,30 @@ describe('Planning Page', async () => {
       userStore.$patch({
         profile: {
           subscriptions: [{ prices: { identifier: 'ANNUAL' } }],
+        } as any,
+      });
+      await wrapper.vm.$nextTick();
+
+      const newTripButton = wrapper.findAllComponents({ name: 'Button' })
+        .find(b => b.text()
+          .includes('New Trip'))!;
+      expect(isButtonDisabled(newTripButton))
+        .toBe(false);
+    });
+
+    it('does not block New Trip when the only trips are accepted invites', async () => {
+      const store = usePlanningStore();
+      const userStore = useUserStore();
+      const invitedOnly = trips.map((trip) => ({
+        ...trip,
+        profile_id: 'someone-else',
+      }));
+
+      store.$patch({ data: { trips: invitedOnly }, pageLoading: false });
+      userStore.$patch({
+        profile: {
+          id: 'invitee-user',
+          subscriptions: [{ prices: { identifier: 'FREE' } }],
         } as any,
       });
       await wrapper.vm.$nextTick();
@@ -147,7 +172,15 @@ describe('Planning Page', async () => {
 
     it('renders the Create New Detail icon button if hike details are present', async () => {
       const store = usePlanningStore();
-      store.$patch({ data: { trip_details: tripDetails }, pageLoading: false });
+      const userStore = useUserStore();
+      store.$patch({
+        data: { trips, trip_details: tripDetails },
+        selectedTripId: String(trips[0]?.id),
+        pageLoading: false,
+      });
+      userStore.$patch({
+        profile: { id: trips[0]?.profile_id } as any,
+      });
       await wrapper.vm.$nextTick();
 
       const createDetailButton = wrapper.find('[data-testid="create-new-detail-btn"]');

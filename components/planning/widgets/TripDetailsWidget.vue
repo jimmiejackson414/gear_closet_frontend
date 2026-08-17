@@ -39,13 +39,13 @@
 
 <template>
   <card class="px-8 py-4 rounded-3xl">
-    <div class="grid grid-cols-[auto_auto_1fr] justify-start items-center">
-      <icon-footprints class="h-6 mr-6 text-primary w-6" />
+    <div class="justify-start items-center grid grid-cols-[auto_auto_1fr]">
+      <icon-footprints class="mr-6 w-6 h-6 text-primary" />
       <p class="font-bold! text-base">
         Trip Details
       </p>
       <button-root
-        v-if="!$store.pageLoading && tripDetails.length"
+        v-if="!$store.pageLoading && tripDetails.length && $store.isSelectedTripOwner"
         class="justify-self-end rounded-full"
         size="icon"
         @click="createDetail">
@@ -58,6 +58,7 @@
         You haven't added any trip details yet!
       </p>
       <button-root
+        v-if="$store.isSelectedTripOwner"
         size="sm"
         variant="outline"
         @click="createDetail">
@@ -67,6 +68,7 @@
     <div v-else>
       <div class="flex flex-col mb-6">
         <gc-inline-edit
+          :disabled="!$store.isSelectedTripOwner"
           :model-value="$store.selectedTrip?.name"
           name="trip_name"
           placeholder="Trip Name"
@@ -81,17 +83,18 @@
         <div>
           <div
             v-if="!editingTripDates"
-            class="flex items-center gap-4 group"
-            @click="editingTripDates = !editingTripDates">
-            <typography class="cursor-pointer text-muted-foreground">
+            class="group flex items-center gap-4"
+            @click="$store.isSelectedTripOwner && (editingTripDates = !editingTripDates)">
+            <typography class="text-muted-foreground cursor-pointer">
               {{ $store.selectedTrip?.starting_date ? formattedDate($store.selectedTrip?.starting_date) : 'Start Date' }}
             </typography>
-            <icon-move-right class="h-6 text-muted-foreground w-6" />
-            <typography class="cursor-pointer text-muted-foreground">
+            <icon-move-right class="w-6 h-6 text-muted-foreground" />
+            <typography class="text-muted-foreground cursor-pointer">
               {{ $store.selectedTrip?.ending_date ? formattedDate($store.selectedTrip?.ending_date) : 'End Date' }}
             </typography>
             <button-root
-              class="group-hover:opacity-100 opacity-0 rounded-full"
+              v-if="$store.isSelectedTripOwner"
+              class="opacity-0 group-hover:opacity-100 rounded-full"
               size="sm"
               variant="ghost">
               <icon-pencil />

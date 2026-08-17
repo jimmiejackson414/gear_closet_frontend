@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-  import { isResourceLocked } from '@/utils/planLimits';
+  import { isTripLockedForUser } from '@/utils/trips';
 
   const $store = usePlanningStore();
   const $userStore = useUserStore();
@@ -26,8 +26,9 @@
 
     if (!$userStore.isPaidMember) {
       const selected = $store.data.trips.find((t) => String(t.id) === $store.selectedTripId);
-      if (selected && isResourceLocked(selected)) {
-        const unlocked = $store.data.trips.find((t) => !isResourceLocked(t));
+      const userId = $userStore.profile?.id;
+      if (isTripLockedForUser(selected, userId, false)) {
+        const unlocked = $store.data.trips.find((t) => !isTripLockedForUser(t, userId, false));
         await $store.fetchPlanningPage(unlocked?.id ?? 0);
         if (unlocked) {
           $cookie.value = encrypt(String(unlocked.id));
