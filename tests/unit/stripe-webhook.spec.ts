@@ -233,6 +233,143 @@ describe('processStripeWebhookEvent', () => {
       .toContain('packs');
   });
 
+  it('soft-deletes a customer on customer.deleted by stripe_customer_id', async () => {
+    const query = createThenableQuery({ data: null, error: null });
+    const from = vi.fn(() => query);
+    const supabase = createSupabaseMock({ from });
+
+    await processStripeWebhookEvent(
+      stripeEvent('customer.deleted', {
+        id: 'cus_123',
+        metadata: { profil_id: 'legacy-typo' },
+      }),
+      asClient(supabase),
+    );
+
+    expect(from)
+      .toHaveBeenCalledWith('customers');
+    expect(query.eq)
+      .toHaveBeenCalledWith('stripe_customer_id', 'cus_123');
+    expect(query.match)
+      .not
+      .toHaveBeenCalled();
+  });
+
+  it('treats a missing customer row as success on customer.deleted replay', async () => {
+    const supabase = createSupabaseMock({
+      from: () => createThenableQuery({ data: [], error: null }),
+    });
+
+    await expect(processStripeWebhookEvent(
+      stripeEvent('customer.deleted', {
+        id: 'cus_already_gone',
+        metadata: {},
+      }),
+      asClient(supabase),
+    ))
+      .resolves
+      .toBeUndefined();
+  });
+
+  it('still throws when customer.deleted hits a database error', async () => {
+    const supabase = createSupabaseMock({
+      from: () => createThenableQuery({
+        data: null,
+        error: { message: 'db fail' },
+      }),
+    });
+
+    await expect(processStripeWebhookEvent(
+      stripeEvent('customer.deleted', {
+        id: 'cus_err',
+        metadata: { profile_id: 'profile-1' },
+      }),
+      asClient(supabase),
+    ))
+      .rejects
+      .toMatchObject({
+        statusMessage: expect.stringMatching(/error occurred while deleting a customer|catch error occurred while deleting a customer/),
+      });
+  });
+
+  it('does not 500 when subscription.updated matches zero rows', async () => {
+    const query = createThenableQuery({ data: [], error: null });
+    const from = vi.fn(() => query);
+
+    await expect(processStripeWebhookEvent(
+      stripeEvent('customer.subscription.updated', {
+        id: 'sub_missing',
+        status: 'active',
+        metadata: {},
+        cancel_at_period_end: false,
+        cancel_at: null,
+        items: {
+          data: [
+            {
+              price: { id: 'price_paid' },
+              quantity: 1,
+              current_period_start: 1_700_000_000,
+              current_period_end: 1_700_086_400,
+            },
+          ],
+        },
+      }),
+      asClient(createSupabaseMock({ from })),
+    ))
+      .resolves
+      .toBeUndefined();
+
+    expect(from)
+      .toHaveBeenCalledWith('subscriptions');
+    expect(query.eq)
+      .toHaveBeenCalledWith('stripe_subscription_id', 'sub_missing');
+  });
+
+  it('does not 500 when product.updated matches zero rows', async () => {
+    const supabase = createSupabaseMock({
+      from: () => createThenableQuery({ data: [], error: null }),
+    });
+
+    await expect(processStripeWebhookEvent(
+      stripeEvent('product.updated', {
+        id: 'prod_missing',
+        active: true,
+        name: 'monthly',
+        description: 'Monthly plan',
+        images: [],
+        metadata: {},
+        livemode: false,
+      }),
+      asClient(supabase),
+    ))
+      .resolves
+      .toBeUndefined();
+  });
+
+  it('does not 500 when price.updated matches zero rows', async () => {
+    const supabase = createSupabaseMock({
+      from: () => createThenableQuery({ data: [], error: null }),
+    });
+
+    await expect(processStripeWebhookEvent(
+      stripeEvent('price.updated', {
+        id: 'price_missing',
+        product: 'prod_1',
+        active: true,
+        nickname: 'Monthly',
+        unit_amount: 999,
+        currency: 'usd',
+        type: 'recurring',
+        recurring: { interval: 'month', interval_count: 1 },
+        metadata: {},
+        livemode: false,
+      }),
+      asClient(supabase),
+    ))
+      .resolves
+      .toBeUndefined();
+  });
+
   it('rethrows when customer insert fails', async () => {
     const supabase = createSupabaseMock({
       from: () => createThenableQuery({
