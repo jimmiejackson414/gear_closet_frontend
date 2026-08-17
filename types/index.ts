@@ -1245,9 +1245,7 @@ export type Database = {
         Returns: Json
       }
       get_dashboard_data: {
-        Args: {
-          p_user_id: string
-        }
+        Args: Record<PropertyKey, never>
         Returns: Json
       }
       get_planning_page_data: {

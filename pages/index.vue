@@ -56,12 +56,8 @@
     loading.value = true;
 
     try {
-      const user = useSupabaseUser();
-
       const { data: pageData, error } = await supabase
-        .rpc('get_dashboard_data', {
-          p_user_id: user.value!.sub,
-        });
+        .rpc('get_dashboard_data');
 
       if (!pageData || error) {
         $store.notifyNegative('An error occurred while loading your account.');
