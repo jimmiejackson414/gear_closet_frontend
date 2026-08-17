@@ -2,7 +2,8 @@ import { SubscriptionLevel } from '@/types';
 
 /**
  * Only Life promo subscriptions are created during onboarding. Monthly and
- * Annual billing is deferred to Profile, where the user adds a card first.
+ * Annual billing is deferred to Profile, where the Stripe Card Element attaches
+ * a payment method before subscribe.
  */
 export function requiresOnboardingStripeSubscription (plan: SubscriptionLevel): boolean {
   return plan === SubscriptionLevel.LIFE;
@@ -11,9 +12,9 @@ export function requiresOnboardingStripeSubscription (plan: SubscriptionLevel): 
 /**
  * Completes onboarding for a chosen plan.
  *
- * Free users finish with no Stripe rows. Life promo may POST a subscription
- * without collecting card details. Monthly/Annual selections complete as Free;
- * paid billing happens later from Profile.
+ * Card details are not collected during onboarding. Free users finish with no
+ * Stripe rows. Life promo may POST a subscription without a card. Monthly/Annual
+ * selections complete as Free; paid billing happens later from Profile (#65 / #71).
  */
 export async function completeOnboardingPlan (input: {
   plan: SubscriptionLevel | null;

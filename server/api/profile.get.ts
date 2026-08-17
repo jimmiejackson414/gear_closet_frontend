@@ -3,6 +3,7 @@
  * @apiName GetProfile
  * @summary Fetch the profile details for the current user
  */
+import { isError } from 'h3';
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { ProfileApiResponse } from '~/types/helpers';
 
@@ -43,8 +44,14 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    return data as ProfileApiResponse;
-  } catch {
+    return {
+      ...data,
+      notifications: data.notifications ?? [],
+      subscriptions: data.subscriptions ?? [],
+    } as ProfileApiResponse;
+  } catch (err) {
+    if (isError(err)) throw err;
+
     throw createError({
       statusCode: 500,
       statusMessage: 'An error occurred while fetching profile',
