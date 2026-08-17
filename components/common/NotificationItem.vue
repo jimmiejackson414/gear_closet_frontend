@@ -2,6 +2,7 @@
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import type { ExtendedNotification } from '@/types/helpers';
+  import { notificationRoute } from '@/utils/notifications';
 
   dayjs.extend(relativeTime);
 
@@ -13,6 +14,8 @@
 
   const emit = defineEmits(['markAsRead']);
 
+  const router = useRouter();
+
   const relativeDate = computed(() => dayjs()
     .to(props.notification.created_at as string));
 
@@ -22,21 +25,30 @@
     }
     return { backgroundImage: `url('/gear-closet-icon.svg')` };
   });
+
+  const openNotification = () => {
+    emit('markAsRead', props.notification);
+    const route = notificationRoute(props.notification.title);
+    if (route) {
+      void router.push(route);
+    }
+  };
 </script>
 
 <template>
   <li
-    class="cursor-pointer flex px-4 py-3 hover:bg-gray-100"
+    class="flex hover:bg-gray-100 px-4 py-3 cursor-pointer"
     :class="{ 'bg-primary-light/40': !notification?.read_on_date }"
+    @click="openNotification"
     @mouseover="emit('markAsRead', notification)">
     <div class="shrink-0">
       <div
-        class="bg-center bg-cover bg-no-repeat h-11 rounded-full w-11"
+        class="bg-cover bg-no-repeat bg-center rounded-full w-11 h-11"
         :style="computedImageSrc" />
-      <div class="-mt-5 absolute bg-primary border border-white flex justify-center items-center h-5 ms-6 rounded-full w-5">
+      <div class="absolute flex justify-center items-center bg-primary ms-6 -mt-5 border border-white rounded-full w-5 h-5">
         <svg
           aria-hidden="true"
-          class="h-2 text-white w-2"
+          class="w-2 h-2 text-white"
           fill="currentColor"
           viewBox="0 0 18 18"
           xmlns="http://www.w3.org/2000/svg">
