@@ -20,7 +20,7 @@ export const upcomingTrips: Tables<'trips'>[] = [
   {
     "id": 6,
     "created_at": "2024-04-23 18:59:06.088498+00",
-    "name": "My first trip!",
+    "name": "My first trip",
     "description": "This is my first trip to plan.",
     "starting_point": "Starting point",
     "ending_point": "Ending point",
