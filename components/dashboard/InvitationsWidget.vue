@@ -109,11 +109,15 @@
       }
 
       removeInvite(invite.id);
-      $appStore.notifyPositive(
-        status === TripFriendStatus.ACCEPTED
-          ? 'Invitation accepted!'
-          : 'Invitation declined.',
-      );
+      if (status === TripFriendStatus.ACCEPTED && invite.trip_id) {
+        $appStore.notifyPositive('Invitation accepted! Opening trip…');
+        await navigateTo({
+          name: 'planning',
+          query: { trip: encrypt(invite.trip_id) },
+        });
+        return;
+      }
+      $appStore.notifyPositive('Invitation declined.');
     } catch {
       $appStore.notifyNegative('There was an error updating the invitation.');
     } finally {

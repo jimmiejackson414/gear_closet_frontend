@@ -17,13 +17,13 @@
 
 <template>
   <card class="px-8 py-4 rounded-3xl">
-    <div class="grid grid-cols-[auto_auto_1fr] justify-start items-center">
-      <icon-mountain class="h-6 mr-6 text-primary w-6" />
+    <div class="justify-start items-center grid grid-cols-[auto_auto_1fr]">
+      <icon-mountain class="mr-6 w-6 h-6 text-primary" />
       <typography class="font-bold!">
         Hike Details
       </typography>
       <button-root
-        v-if="!$store.pageLoading && hikeDetails.length"
+        v-if="!$store.pageLoading && hikeDetails.length && $store.isSelectedTripOwner"
         class="justify-self-end rounded-full"
         data-testid="create-new-detail-btn"
         size="icon"
@@ -39,6 +39,7 @@
         You haven't created any hike details yet!
       </typography>
       <button-root
+        v-if="$store.isSelectedTripOwner"
         size="sm"
         variant="outline"
         @click="createNewDetail">
@@ -48,6 +49,7 @@
     <div v-else>
       <div class="flex items-center gap-6">
         <gc-inline-edit
+          :disabled="!$store.isSelectedTripOwner"
           :model-value="$store.selectedTrip?.starting_point"
           name="starting_point"
           placeholder="Ending point"
@@ -59,8 +61,9 @@
             {{ $store.selectedTrip?.starting_point }}
           </typography>
         </gc-inline-edit>
-        <icon-move-right class="h-6 text-muted-foreground w-6" />
+        <icon-move-right class="w-6 h-6 text-muted-foreground" />
         <gc-inline-edit
+          :disabled="!$store.isSelectedTripOwner"
           :model-value="$store.selectedTrip?.ending_point"
           name="ending_point"
           placeholder="Ending point"
@@ -75,12 +78,13 @@
       </div>
       <div class="flex items-center mb-6">
         <gc-inline-edit
+          :disabled="!$store.isSelectedTripOwner"
           :model-value="$store.selectedTrip?.description"
           name="description"
           placeholder="Trip description"
           size="sm"
           @update:model-value="updateTrip({ description: $event as string | null })">
-          <typography class="cursor-pointer text-muted-foreground">
+          <typography class="text-muted-foreground cursor-pointer">
             {{ $store.selectedTrip?.description }}
           </typography>
         </gc-inline-edit>

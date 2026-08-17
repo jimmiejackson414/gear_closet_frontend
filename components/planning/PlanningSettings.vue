@@ -7,21 +7,31 @@
     FREE_TRIP_LIMIT,
     LOCKED_RESOURCE_TIP,
     isFreeCreateBlocked,
-    isResourceLocked,
   } from '@/utils/planLimits';
+  import { isTripLockedForUser, ownedTrips } from '@/utils/trips';
 
   const $store = usePlanningStore();
   const $userStore = useUserStore();
   const $appStore = useAppStore();
+  const sessionUser = useSupabaseUser();
+  const userId = computed(() => $userStore.profile?.id ?? sessionUser.value?.sub);
 
-  const tripOptions = computed(() => $store.data.trips.map((t: Tables<'trips'>) => ({
-    label: t.name,
-    value: t.id,
-    locked: isResourceLocked(t),
-  })) as Array<SelectOption & { locked?: boolean }>);
+  const tripOptions = computed(() => $store.data.trips.map((t: Tables<'trips'>) => {
+    const locked = isTripLockedForUser(t, userId.value, $userStore.isPaidMember);
+    const invited = Boolean(userId.value && t.profile_id && t.profile_id !== userId.value);
+    return {
+      label: locked ? `${t.name} (Locked)` : invited ? `${t.name} (Invited)` : t.name,
+      value: t.id,
+      locked,
+    };
+  }) as Array<SelectOption & { locked?: boolean }>);
 
   const createBlocked = computed(() =>
-    isFreeCreateBlocked($userStore.isPaidMember, $store.data.trips, FREE_TRIP_LIMIT));
+    isFreeCreateBlocked(
+      $userStore.isPaidMember,
+      ownedTrips($store.data.trips, userId.value),
+      FREE_TRIP_LIMIT,
+    ));
 
   /**
    * Handles selecting a trip: persist cookie, clear pinned ?trip=, refetch.
@@ -34,7 +44,7 @@
 
     const tripId = Number(value);
     const trip = $store.data.trips.find((t) => t.id === tripId);
-    if (!$userStore.isPaidMember && isResourceLocked(trip)) {
+    if (isTripLockedForUser(trip, userId.value, $userStore.isPaidMember)) {
       $appStore.notifyNegative(LOCKED_RESOURCE_TIP);
       return;
     }
@@ -73,10 +83,10 @@
             <select-item
               v-for="trip in tripOptions"
               :key="trip.value"
-              :disabled="!$userStore.isPaidMember && trip.locked"
+              :disabled="trip.locked"
               hide-checkmark
               :value="String(trip.value)">
-              {{ trip.label }}{{ !$userStore.isPaidMember && trip.locked ? ' (Locked)' : '' }}
+              {{ trip.label }}
             </select-item>
           </select-group>
           <select-group v-else>

@@ -6,15 +6,17 @@
     name: string;
     placeholder?: string;
     hideEditBtn?: boolean;
+    disabled?: boolean;
     type?: string;
     size?: 'sm' | 'md' | 'lg';
     inputClasses?: string;
     spanClasses?: string;
   }
 
-  withDefaults(defineProps<Props>(), {
+  const props = withDefaults(defineProps<Props>(), {
     placeholder: '',
     hideEditBtn: false,
+    disabled: false,
     type: 'text',
     size: 'md',
     inputClasses: 'w-full',
@@ -41,6 +43,7 @@
   const inlineEditRef = ref<InstanceType<typeof InputRoot> | null>(null);
 
   const toggleEditing = () => {
+    if (props.disabled) return;
     isEditing.value = !isEditing.value;
     nextTick(() => {
       inlineEditRef.value?.focusInput();
@@ -64,18 +67,21 @@
 
 <template>
   <div
-    class="grid grid-cols-[auto] h-full relative"
+    class="relative grid grid-cols-[auto] h-full"
     :class="inputClasses">
     <!-- Display Mode -->
     <span
       v-if="!isEditing"
-      class="cursor-pointer duration-100 ease-out flex items-center group py-1.5 transition-all"
-      :class="cn(spanClasses, [ 'border border-transparent hover:border-gray-300 min-h-8.5 rounded-lg px-1 -ml-1' ])"
+      class="group flex items-center py-1.5 transition-all duration-100 ease-out"
+      :class="cn(spanClasses, [
+        'border border-transparent min-h-8.5 rounded-lg px-1 -ml-1',
+        props.disabled ? '' : 'cursor-pointer hover:border-gray-300',
+      ])"
       @click="toggleEditing">
       <slot />
       <icon-pencil
-        v-if="!hideEditBtn"
-        class="cursor-pointer group-hover:opacity-100 h-4 ml-4 opacity-0 text-muted-foreground hover:text-primary transition w-4" />
+        v-if="!hideEditBtn && !props.disabled"
+        class="opacity-0 group-hover:opacity-100 ml-4 w-4 h-4 text-muted-foreground hover:text-primary transition cursor-pointer" />
     </span>
 
     <!-- Edit Mode -->

@@ -71,7 +71,7 @@
         Friends
       </p>
       <button-root
-        v-if="!pageLoading && data.friends.length"
+        v-if="!pageLoading && data.friends.length && $store.isSelectedTripOwner"
         class="justify-self-end rounded-full"
         size="icon"
         @click="isInviteModalOpen = true">
@@ -81,12 +81,15 @@
     <gc-skeleton v-if="pageLoading" />
     <gc-empty-state v-else-if="!pageLoading && !data.friends.length">
       <p class="mb-4 text-base">
-        You haven't added any friends to this trip yet!
+        {{ $store.isSelectedTripOwner ? "You haven't added any friends to this trip yet!" : 'No friends on this trip yet.' }}
       </p>
-      <p class="mb-4 text-muted-foreground text-sm">
+      <p
+        v-if="$store.isSelectedTripOwner"
+        class="mb-4 text-muted-foreground text-sm">
         Trip invites currently go to people on your Friends list. Add them there first if you haven't already.
       </p>
       <button-root
+        v-if="$store.isSelectedTripOwner"
         size="sm"
         variant="outline"
         @click="isInviteModalOpen = true">

@@ -282,4 +282,24 @@ describe('stores/planning', () => {
         .toBe(true);
     });
   });
+
+  describe('isSelectedTripOwner', () => {
+    it('is true when the selected trip belongs to the session user', () => {
+      const store = usePlanningStore();
+      store.data.trips = [...trips];
+      store.selectedTripId = String(trips[0]!.id);
+
+      expect(store.isSelectedTripOwner)
+        .toBe(true);
+    });
+
+    it('is false for an accepted invite trip', () => {
+      const store = usePlanningStore();
+      store.data.trips = [{ ...trips[0]!, profile_id: 'someone-else' }];
+      store.selectedTripId = String(trips[0]!.id);
+
+      expect(store.isSelectedTripOwner)
+        .toBe(false);
+    });
+  });
 });
