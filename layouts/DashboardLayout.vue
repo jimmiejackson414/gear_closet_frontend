@@ -25,13 +25,14 @@
     <div v-else>
       <gc-drawer />
       <div class="min-h-screen">
-        <div class="pl-18 pr-4 lg:pr-9 py-4">
+        <div class="py-4 pr-4 lg:pr-9 pl-18">
           <div class="container">
             <slot />
           </div>
         </div>
       </div>
       <gc-footer />
+      <free-resource-selection-dialog />
     </div>
   </div>
 </template>

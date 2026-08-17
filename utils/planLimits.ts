@@ -50,6 +50,27 @@ export function isFreeCreateBlocked (
   return unlockedResources(resources).length >= limit;
 }
 
+/**
+ * When the current selection is locked for a Free user, pick the first unlocked
+ * resource to show instead. `unlocked` is undefined if nothing usable remains.
+ */
+export function resolveLockedFallback<T> (
+  selected: T | null | undefined,
+  resources: T[],
+  isLocked: (resource: T | null | undefined) => boolean,
+): { needed: false } | { needed: true; unlocked: T | undefined } {
+  if (!isLocked(selected)) return { needed: false };
+  return {
+    needed: true,
+    unlocked: resources.find((resource) => !isLocked(resource)),
+  };
+}
+
 export const LOCKED_RESOURCE_TIP = 'Upgrade to unlock this item, or change your Free selection from your profile.';
+export const LOCKED_DEEPLINK_CTA = 'Upgrade or change Free selection';
 export const FREE_PACK_CREATE_TIP = 'Free accounts are limited to one pack. Please upgrade to enjoy unlimited packs!';
 export const FREE_TRIP_CREATE_TIP = 'Free accounts are limited to one trip. Please upgrade to enjoy unlimited trips!';
+
+export function lockedDeepLinkMessage (kind: 'pack' | 'trip'): string {
+  return `That ${kind} is locked on the Free plan. Showing your unlocked ${kind} instead.`;
+}

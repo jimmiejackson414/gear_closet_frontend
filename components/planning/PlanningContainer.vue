@@ -1,10 +1,14 @@
 <script lang="ts" setup>
+  import { lockedDeepLinkMessage, resolveLockedFallback } from '@/utils/planLimits';
   import { isTripLockedForUser } from '@/utils/trips';
 
   const $store = usePlanningStore();
   const $userStore = useUserStore();
+  const $appStore = useAppStore();
   const $route = useRoute();
+  const $router = useRouter();
   const $cookie = useCookie('selectedTripId');
+  const showLockedDeepLinkBanner = ref(false);
 
   /**
    * Resolve trip id once: query > cookie > 0 (RPC / store pick first trip).
@@ -21,20 +25,45 @@
     return 0;
   };
 
+  const hasTripQuery = () => $route.query.trip != null && $route.query.trip !== '';
+  const userId = () => $userStore.profile?.id;
+  const isSelectedTripLocked = (
+    trip: (typeof $store.data.trips)[number] | null | undefined,
+  ) => isTripLockedForUser(trip, userId(), false);
+
+  const stripTripQuery = async () => {
+    if (!hasTripQuery()) return;
+    const nextQuery = { ...$route.query };
+    delete nextQuery.trip;
+    await $router.replace({ query: nextQuery });
+  };
+
+  const fallbackFromLockedTrip = async (fromQuery: boolean) => {
+    if ($userStore.isPaidMember) return;
+
+    const selected = $store.data.trips.find((t) => String(t.id) === $store.selectedTripId);
+    const fallback = resolveLockedFallback(
+      selected,
+      $store.data.trips,
+      isSelectedTripLocked,
+    );
+    if (!fallback.needed) return;
+
+    await $store.fetchPlanningPage(fallback.unlocked?.id ?? 0);
+    if (fallback.unlocked) {
+      $cookie.value = encrypt(String(fallback.unlocked.id));
+    }
+
+    $appStore.notifyInfo(lockedDeepLinkMessage('trip'));
+    if (fromQuery) {
+      showLockedDeepLinkBanner.value = true;
+      await stripTripQuery();
+    }
+  };
+
   onMounted(async () => {
     await $store.fetchPlanningPage(resolveTripId());
-
-    if (!$userStore.isPaidMember) {
-      const selected = $store.data.trips.find((t) => String(t.id) === $store.selectedTripId);
-      const userId = $userStore.profile?.id;
-      if (isTripLockedForUser(selected, userId, false)) {
-        const unlocked = $store.data.trips.find((t) => !isTripLockedForUser(t, userId, false));
-        await $store.fetchPlanningPage(unlocked?.id ?? 0);
-        if (unlocked) {
-          $cookie.value = encrypt(String(unlocked.id));
-        }
-      }
-    }
+    await fallbackFromLockedTrip(hasTripQuery());
   });
 
   // Deep-link / browser navigation with ?trip= should refetch that trip.
@@ -45,6 +74,7 @@
       if (tripQuery == null || tripQuery === '') return;
       const id = Number(decrypt(tripQuery)) || 0;
       await $store.fetchPlanningPage(id);
+      await fallbackFromLockedTrip(true);
     },
   );
 
@@ -53,6 +83,11 @@
 
 <template>
   <div class="pb-8">
+    <locked-deep-link-banner
+      v-if="showLockedDeepLinkBanner"
+      kind="trip"
+      @dismiss="showLockedDeepLinkBanner = false" />
+
     <planning-settings @open-dialog="isCreateTripDialogOpen = true" />
 
     <planning-empty-state
