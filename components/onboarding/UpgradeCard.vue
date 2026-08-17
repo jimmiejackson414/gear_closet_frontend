@@ -54,6 +54,11 @@
           <p class="mb-4 text-muted-foreground text-base">
             {{ tier?.priceSubtitle }}
           </p>
+          <p
+            v-if="props.tier.value === SubscriptionLevel.MONTHLY || props.tier.value === SubscriptionLevel.ANNUAL"
+            class="mb-4 text-muted-foreground text-sm">
+            Start on Free — add billing in Profile when you're ready to upgrade.
+          </p>
         </div>
       </div>
       <hr class="bg-gray-200 border-0 h-px">
