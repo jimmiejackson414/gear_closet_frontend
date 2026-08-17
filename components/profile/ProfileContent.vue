@@ -93,6 +93,7 @@
    * Subscription definitions
    */
   const fetchingSubscription = ref(false);
+  const hasStripeBilling = ref(false);
   const subscriptionData = ref<SubscriptionApiResponse>({
     customer: undefined,
     paymentMethods: [],
@@ -106,8 +107,22 @@
    */
   const activeTab = ref<'profile' | 'settings' | 'subscription'>('profile');
   const selectedPlan = ref<SubscriptionLevel | undefined>(undefined);
+  const displayedSubscriptionPlan = computed(() => {
+    const stripePlan = subscriptionData.value.subscriptions[0]?.items?.data[0]?.price?.nickname;
+    if (stripePlan) return capitalize(stripePlan);
+    return capitalize($store.currentPlanIdentifier);
+  });
+
+  const ensureProfileSubscriptions = (profile: ProfileApiResponse) => {
+    if (!profile.subscriptions) {
+      profile.subscriptions = [];
+    }
+    return profile.subscriptions;
+  };
+
   const fetchSubscriptionData = async () => {
     fetchingSubscription.value = true;
+    hasStripeBilling.value = false;
     try {
       const response = await $fetch<SubscriptionApiResponse>('/api/stripe/subscription');
       if (!response) {
@@ -115,6 +130,7 @@
         return;
       }
       subscriptionData.value = response;
+      hasStripeBilling.value = true;
 
       const profile = $store.profile as ProfileApiResponse | null;
       if (!profile) {
@@ -128,10 +144,13 @@
         .from('subscriptions')
         .select('*, prices(*)')
         .eq('profile_id', profile.id)
-        .single() as any;
+        .maybeSingle() as any;
 
+      const subscriptions = ensureProfileSubscriptions(profile);
       if (result.data) {
-        profile.subscriptions[0] = result.data;
+        subscriptions[0] = result.data;
+      } else {
+        subscriptions.length = 0;
       }
 
       // set selectedPlan if the user has a subscription
@@ -141,8 +160,27 @@
         if (priceNickname) {
           selectedPlan.value = priceNickname.toUpperCase() as SubscriptionLevel;
         }
+      } else {
+        selectedPlan.value = $store.currentPlanIdentifier;
       }
-    } catch {
+    } catch (err: any) {
+      if (err?.statusCode === 404) {
+        subscriptionData.value = {
+          customer: undefined,
+          paymentMethods: [],
+          nextBillingDate: null,
+          invoices: [],
+          subscriptions: [],
+        };
+        selectedPlan.value = $store.currentPlanIdentifier;
+
+        const profile = $store.profile as ProfileApiResponse | null;
+        if (profile) {
+          ensureProfileSubscriptions(profile).length = 0;
+        }
+        return;
+      }
+
       $appStore.notifyNegative('An error occurred while fetching your subscription data.');
     } finally {
       fetchingSubscription.value = false;
@@ -356,7 +394,13 @@
                 class="gap-12 grid grid-cols-1 auto-rows-auto">
                 <div class="flex flex-col items-start gap-2">
                   <typography variant="small">
-                    Current Subscription: <span class="font-bold">{{ capitalize(subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname) }}</span>
+                    Current Subscription: <span class="font-bold">{{ displayedSubscriptionPlan }}</span>
+                  </typography>
+                  <typography
+                    v-if="!hasStripeBilling"
+                    class="text-muted-foreground"
+                    variant="small">
+                    Billing details appear here after you subscribe to a paid plan.
                   </typography>
                   <button-root
                     size="sm"

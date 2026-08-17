@@ -72,7 +72,7 @@
       </div>
       <button-root
         class="self-center mt-auto"
-        :disabled="plan.buttonDisabled || (profile?.subscriptions[0]?.prices.identifier === plan.value)"
+        :disabled="plan.buttonDisabled || (profile?.subscriptions?.[0]?.prices?.identifier === plan.value)"
         size="sm"
         variant="secondary"
         @click="emit('handle-select', plan.value)">

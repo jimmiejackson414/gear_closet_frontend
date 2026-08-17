@@ -5,7 +5,9 @@
  * @param { string } subscription.body.required - The subscription value to create
  */
 
+import { isError } from 'h3';
 import Stripe from 'stripe';
+import { resolveSubscriptionBillingAccess } from '../../utils/billingAccess';
 import { updateSubscriptionRecord } from '../../utils/persistStripeBilling';
 import { serverSupabaseClient, serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '@/types';
@@ -28,12 +30,16 @@ export default defineEventHandler(async (event) => {
     const { data: subscription, error: subscriptionError } = await supabase.from('subscriptions')
       .select('stripe_subscription_id')
       .eq('profile_id', user.sub)
-      .single();
+      .maybeSingle();
 
-    if (subscriptionError || !subscription) {
+    const subscriptionAccess = resolveSubscriptionBillingAccess(
+      subscription,
+      Boolean(subscriptionError),
+    );
+    if (!subscriptionAccess.ok) {
       throw createError({
-        statusCode: 500,
-        statusMessage: 'Error fetching subscription',
+        statusCode: subscriptionAccess.statusCode,
+        statusMessage: subscriptionAccess.statusMessage,
       });
     }
 
@@ -46,25 +52,29 @@ export default defineEventHandler(async (event) => {
 
     if (priceError || !price) {
       throw createError({
-        statusCode: 500,
-        statusMessage: 'Error fetching price',
+        statusCode: 400,
+        statusMessage: 'Invalid plan',
       });
     }
 
-    const stripeSubscription = await stripe.subscriptions.retrieve(subscription.stripe_subscription_id as string);
+    const stripeSubscription = await stripe.subscriptions.retrieve(
+      subscriptionAccess.stripeSubscriptionId,
+    );
 
     const subscriptionItem = stripeSubscription.items.data[0];
     if (!subscriptionItem) {
       throw createError({
-        statusCode: 500,
+        statusCode: 400,
         statusMessage: 'Subscription item missing',
       });
     }
-    const subscriptionItemId = subscriptionItem.id;
 
-    const updatedStripeSubscription = await stripe.subscriptions.update(subscription.stripe_subscription_id as string, {
-      items: [{ id: subscriptionItemId, price: price.id }],
-    });
+    const updatedStripeSubscription = await stripe.subscriptions.update(
+      subscriptionAccess.stripeSubscriptionId,
+      {
+        items: [{ id: subscriptionItem.id, price: price.id }],
+      },
+    );
 
     await updateSubscriptionRecord(admin, {
       profileId: user.sub,
@@ -75,7 +85,9 @@ export default defineEventHandler(async (event) => {
     return {
       ok: !!updatedStripeSubscription,
     };
-  } catch {
+  } catch (err) {
+    if (isError(err)) throw err;
+
     throw createError({
       statusCode: 500,
       statusMessage: 'Error updating subscription',
