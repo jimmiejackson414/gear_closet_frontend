@@ -1,6 +1,7 @@
 <script lang="ts" setup>
   import { type Database, type Tables, type TablesInsert, TripFriendStatus } from '@/types';
   import type { SelectOption } from '@/types/helpers';
+  import { NotificationKind } from '@/utils/notifications';
 
   type FriendSearchResult = Tables<'friends'> & {
     profile: Tables<'profiles'>;
@@ -97,7 +98,7 @@
       // Pinia profile state is a deep supabase join type; erase before use.
       const inviter = ($userStore as any).profile as Tables<'profiles'> | null;
       const notificationsPayload = friendsToInvite.value.map((f: Tables<'profiles'>) => ({
-        title: "You've been invited to a trip!",
+        title: NotificationKind.TRIP_INVITE,
         content: `${friendlyUsername(inviter)} invited you to a trip!`,
         read_on_date: null,
         profile_id: f.id,
@@ -138,7 +139,7 @@
 <template>
   <dialog-root :open="isOpen">
     <dialog-content
-      class="max-h-[90dvh] sm:max-w-112.5 lg:max-w-162.5"
+      class="sm:max-w-112.5 lg:max-w-162.5 max-h-[90dvh]"
       @escape-key-down="handleClose"
       @interact-outside="handleClose">
       <dialog-header>
@@ -146,7 +147,7 @@
           Invite Friends
         </dialog-title>
         <dialog-description>
-          Invite existing friends to your trip and get started planning!
+          Search people you already added as friends. To invite someone new, send a friend request on the Friends page first — email invites are coming soon.
         </dialog-description>
       </dialog-header>
       <div class="flex flex-col gap-2 mt-4 w-full lg:max-w-sm">

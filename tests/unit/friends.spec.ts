@@ -4,6 +4,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import FriendRequestItem from '@/components/friends/FriendRequestItem.vue';
 import FriendSearchItem from '@/components/friends/FriendSearchItem.vue';
 import { useAppStore } from '@/stores/app';
+import { useUserStore } from '@/stores/user';
 import { friends } from '@/tests/unit/mocks/dashboard.mock';
 import {
   createSupabaseMock,
@@ -11,6 +12,7 @@ import {
 } from '@/tests/unit/mocks/supabase.mock';
 import { FriendRequestStatus } from '@/types';
 import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
+import { NotificationKind } from '@/utils/notifications';
 
 vi.mock('@/components/ui/toast', () => ({
   useToast: () => ({ toast: vi.fn() }),
@@ -105,26 +107,24 @@ describe('Friends components', () => {
         updated_at: acceptedInvite.request_responded_at,
         friend: invite.sender,
       } as ExtendedFriend;
+      const invitationsQuery = createThenableQuery({ data: [acceptedInvite], error: null });
+      const friendsQuery = createThenableQuery({
+        data: [
+          friendshipRow,
+          {
+            ...friendshipRow,
+            id: 100,
+            profile_id: SENDER_ID,
+            friend_id: CURRENT_USER_ID,
+          },
+        ],
+        error: null,
+      });
 
       supabaseClient.current = createSupabaseMock({
         from: (table) => {
-          if (table === 'friend_invitations') {
-            return createThenableQuery({ data: [acceptedInvite], error: null });
-          }
-          if (table === 'friends') {
-            return createThenableQuery({
-              data: [
-                friendshipRow,
-                {
-                  ...friendshipRow,
-                  id: 100,
-                  profile_id: SENDER_ID,
-                  friend_id: CURRENT_USER_ID,
-                },
-              ],
-              error: null,
-            });
-          }
+          if (table === 'friend_invitations') return invitationsQuery;
+          if (table === 'friends') return friendsQuery;
           return createThenableQuery({ data: null, error: null });
         },
       });
@@ -146,6 +146,11 @@ describe('Friends components', () => {
 
       expect(positiveSpy)
         .toHaveBeenCalledWith('Friend request accepted.');
+      expect(friendsQuery.insert)
+        .toHaveBeenCalledWith([
+          { profile_id: CURRENT_USER_ID, friend_id: SENDER_ID },
+          { profile_id: SENDER_ID, friend_id: CURRENT_USER_ID },
+        ]);
       expect(wrapper.emitted('accept')?.[0])
         .toEqual([friendshipRow, invite.id]);
       expect(wrapper.text())
@@ -232,6 +237,59 @@ describe('Friends components', () => {
 
       expect(wrapper.text())
         .toContain('Add Friend');
+    });
+
+    it('inserts a friend request notification with sender_id', async () => {
+      const invitationQuery = createThenableQuery({ data: [{ id: 1 }], error: null });
+      const notificationQuery = createThenableQuery({ data: [{ id: 2 }], error: null });
+      supabaseClient.current = createSupabaseMock({
+        from: (table) => (
+          table === 'friend_invitations' ? invitationQuery : notificationQuery
+        ),
+      });
+
+      const userStore = useUserStore();
+      userStore.$patch({
+        profile: {
+          first_name: 'Me',
+          last_name: 'User',
+        } as any,
+      });
+
+      const wrapper = await mountSuspended(FriendSearchItem, {
+        props: {
+          profile: friends[0]!.friend,
+          requestPending: false,
+        },
+      });
+
+      const addBtn = wrapper.findAllComponents({ name: 'Button' })
+        .find((btn) => btn.text()
+          .includes('Add Friend'));
+      expect(addBtn)
+        .toBeTruthy();
+      await addBtn!.trigger('click');
+      await flushPromises();
+      await wrapper.vm.$nextTick();
+
+      expect(invitationQuery.insert)
+        .toHaveBeenCalledWith([
+          {
+            recipient_id: friends[0]!.friend.id,
+            sender_id: CURRENT_USER_ID,
+            status: FriendRequestStatus.PENDING,
+          },
+        ]);
+      expect(notificationQuery.insert)
+        .toHaveBeenCalledWith([
+          expect.objectContaining({
+            title: NotificationKind.FRIEND_REQUEST,
+            profile_id: friends[0]!.friend.id,
+            sender_id: CURRENT_USER_ID,
+          }),
+        ]);
+      expect(wrapper.text())
+        .toContain('Invite requested');
     });
   });
 });

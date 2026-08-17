@@ -12,13 +12,13 @@
 
   const statusLabel = (status: string) => {
     switch (status) {
-      case TripFriendStatus.ACCEPTED:
-        return 'Accepted';
-      case TripFriendStatus.DECLINED:
-        return 'Declined';
-      case TripFriendStatus.PENDING:
-      default:
-        return 'Pending';
+    case TripFriendStatus.ACCEPTED:
+      return 'Accepted';
+    case TripFriendStatus.DECLINED:
+      return 'Declined';
+    case TripFriendStatus.PENDING:
+    default:
+      return 'Pending';
     }
   };
 
@@ -66,7 +66,7 @@
 <template>
   <card class="px-8 py-4 rounded-3xl">
     <div class="justify-start items-center grid grid-cols-[auto_auto_1fr] py-4">
-      <icon-users-round class="h-6 mr-6 text-primary w-6" />
+      <icon-users-round class="mr-6 w-6 h-6 text-primary" />
       <p class="font-bold! text-base">
         Friends
       </p>
@@ -82,6 +82,9 @@
     <gc-empty-state v-else-if="!pageLoading && !data.friends.length">
       <p class="mb-4 text-base">
         You haven't added any friends to this trip yet!
+      </p>
+      <p class="mb-4 text-muted-foreground text-sm">
+        Trip invites currently go to people on your Friends list. Add them there first if you haven't already.
       </p>
       <button-root
         size="sm"

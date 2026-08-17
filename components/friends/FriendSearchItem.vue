@@ -2,6 +2,7 @@
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import { type Database, FriendRequestStatus, type Tables } from '@/types';
+  import { NotificationKind } from '@/utils/notifications';
 
   dayjs.extend(relativeTime);
 
@@ -44,15 +45,17 @@
 
       if (!data || error) throw new Error();
 
-      // Insert notification record
-      await supabase.from('notifications')
+      const { error: notificationError } = await supabase.from('notifications')
         .insert([
           {
-            title: 'New Friend Request',
+            title: NotificationKind.FRIEND_REQUEST,
             content: `You have a new friend request from ${$store.profile?.first_name} ${$store.profile?.last_name}.`,
             profile_id: props.profile.id,
+            sender_id: user.value!.sub,
           },
         ]);
+
+      if (notificationError) throw new Error();
 
       submittedRequest.value = true;
     } catch {
@@ -64,7 +67,7 @@
 </script>
 
 <template>
-  <div class="bg-gray-50 duration-200 ease-out my-4 px-8 py-4 rounded-2xl shadow-xs hover:shadow-xl transition w-fit">
+  <div class="bg-gray-50 shadow-xs hover:shadow-xl my-4 px-8 py-4 rounded-2xl w-fit transition duration-200 ease-out">
     <div class="flex items-center gap-4">
       <gc-avatar
         :initials="initials(profile)"
@@ -86,7 +89,7 @@
       <div
         v-else
         class="flex mt-2">
-        <typography class="italic text-muted-foreground text-xs">
+        <typography class="text-muted-foreground text-xs italic">
           Invite requested
         </typography>
       </div>
