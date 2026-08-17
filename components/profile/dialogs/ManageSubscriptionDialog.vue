@@ -52,7 +52,8 @@
   const pickStep = computed(() => (downgradeNeedsPick.value ? 2 : null));
 
   const stepTwoCopy = computed(() => {
-    const currentPlan = props.subscriptionData.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() as SubscriptionLevel;
+    const stripePlan = props.subscriptionData.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() as SubscriptionLevel | undefined;
+    const currentPlan = stripePlan ?? $userStore.currentPlanIdentifier;
     const planLevels = { [SubscriptionLevel.FREE]: 1, [SubscriptionLevel.MONTHLY]: 2, [SubscriptionLevel.ANNUAL]: 3, [SubscriptionLevel.LIFE]: 4 };
     const currentLevel = planLevels[currentPlan];
     const newLevel = planLevels[activePlan.value as SubscriptionLevel];
@@ -241,7 +242,10 @@
                   Here's what you've got.
                 </typography>
                 <typography variant="small">
-                  You're currently subscribed to the <span class="font-bold">{{ capitalize(subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname) }} Plan.</span>
+                  You're currently on the <span class="font-bold">{{ capitalize($userStore.currentPlanIdentifier) }} Plan.</span>
+                  <span v-if="subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname">
+                    Stripe billing is linked to your {{ capitalize(subscriptionData.subscriptions[0].items.data[0].price.nickname) }} subscription.
+                  </span>
                 </typography>
               </div>
               <div class="gap-4 grid grid-cols-1 lg:grid-cols-3">

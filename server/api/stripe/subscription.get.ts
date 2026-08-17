@@ -3,7 +3,10 @@
  * @apiName GetSubscription
  * @summary Fetch the subscription details for the current user
  */
+import { isError } from 'h3';
 import Stripe from 'stripe';
+import { resolveBillingCustomerAccess } from '../../utils/billingAccess';
+import { getSubscriptionItemPeriod } from '../../utils/stripe';
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '@/types';
 import type { SubscriptionApiResponse } from '@/types/helpers';
@@ -14,46 +17,48 @@ const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string);
  * @param event - the H3 event
  */
 export default defineEventHandler(async (event) => {
+  const user = await serverSupabaseUser(event);
+  if (!user?.sub) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+    });
+  }
+
   try {
     const supabase = await serverSupabaseClient<Database>(event);
-    const user = await serverSupabaseUser(event);
 
-    // fetch customer from supabase first
     const { data: customer, error } = await supabase
       .from('customers')
       .select('stripe_customer_id')
-      .eq('profile_id', user!.sub)
+      .eq('profile_id', user.sub)
       .maybeSingle();
 
-    if (error || !customer) {
+    const customerAccess = resolveBillingCustomerAccess(customer, Boolean(error));
+    if (!customerAccess.ok) {
       throw createError({
-        statusCode: 500,
-        statusMessage: 'Error fetching customer',
+        statusCode: customerAccess.statusCode,
+        statusMessage: customerAccess.statusMessage,
       });
     }
 
-    // fetch the customer from stripe
-    const stripeCustomer = await stripe.customers.retrieve(customer.stripe_customer_id as string);
+    const stripeCustomer = await stripe.customers.retrieve(customerAccess.stripeCustomerId);
 
-    // fetch the subscriptions
     const subscriptions = await stripe.subscriptions.list({
-      customer: customer.stripe_customer_id as string,
+      customer: customerAccess.stripeCustomerId,
     });
 
-    // Billing period lives on the subscription item (Basil+), not the subscription
     const nextBillingDate = subscriptions.data[0]
       ? getSubscriptionItemPeriod(subscriptions.data[0]).current_period_end
       : null;
 
-    // fetch the payment methods
     const paymentMethods = await stripe.paymentMethods.list({
-      customer: customer.stripe_customer_id as string,
+      customer: customerAccess.stripeCustomerId,
       type: 'card',
     });
 
-    // fetch the invoices
     const invoices = await stripe.invoices.list({
-      customer: customer.stripe_customer_id as string,
+      customer: customerAccess.stripeCustomerId,
       limit: 15,
     });
 
@@ -64,10 +69,12 @@ export default defineEventHandler(async (event) => {
       paymentMethods: paymentMethods.data,
       invoices: invoices.data,
     } as SubscriptionApiResponse;
-  } catch {
+  } catch (err) {
+    if (isError(err)) throw err;
+
     throw createError({
       statusCode: 500,
-      statusMessage: 'Catch error fetching stripe subscription',
+      statusMessage: 'Error fetching stripe subscription',
     });
   }
 });

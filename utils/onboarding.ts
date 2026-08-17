@@ -2,9 +2,15 @@ import { SubscriptionLevel } from '@/types';
 import { isPaidPlanIdentifier } from '@/utils/planLimits';
 
 /**
- * Completes onboarding for a chosen plan. Paid plans must persist a Stripe
- * subscription before `onboard_date` is set so a failed charge cannot leave
- * the user marked onboarded with no billing row.
+ * Completes onboarding for a chosen plan.
+ *
+ * Card details are not collected during onboarding. Free (and optional Life
+ * promo) finish here; Monthly/Annual billing is deferred to Profile, where
+ * the existing Stripe Card Element attaches a payment method before subscribe.
+ *
+ * Paid plans that call `createPaidSubscription` today should only be used when
+ * no card is required (e.g. Life promo). Monthly/Annual must not rely on this
+ * path until Profile upgrade is wired (#65 / #71).
  */
 export async function completeOnboardingPlan (input: {
   plan: SubscriptionLevel | null;
