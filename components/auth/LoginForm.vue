@@ -4,9 +4,10 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import type { Tables } from '@/types';
+  import { authCallbackUrl, destinationAfterAuth } from '@/utils/authRedirect';
 
   const supabase = useSupabaseClient();
-  const $router = useRouter();
+  const redirectInfo = useSupabaseCookieRedirect();
   const loginError = ref<string | undefined>(undefined);
 
   const formSchema = toTypedSchema(z.object({
@@ -29,17 +30,18 @@
         return;
       }
 
-      // Fetch the user's profile
       const profile = await $fetch<Tables<'profiles'> | null>('/api/profile', {
         headers: useRequestHeaders(['cookie']),
       });
 
-      // If the user has not completed onboarding, redirect them to the onboarding page
-      if (profile && !profile.onboard_date) {
-        $router.push('/onboarding');
-      } else {
-        $router.push({ name: 'index' });
+      const dest = destinationAfterAuth({
+        onboardDate: profile?.onboard_date,
+        savedPath: redirectInfo.path.value,
+      });
+      if (dest.consumeSavedPath) {
+        redirectInfo.pluck();
       }
+      await navigateTo(dest.path);
     } catch (error) {
       if (error instanceof Error) {
         loginError.value = error.message;
@@ -49,14 +51,14 @@
 
   const handleOAuthSignin = async (provider: Provider) => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({ provider });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: authCallbackUrl(window.location.origin) },
+      });
 
       if (error) {
         loginError.value = error.message;
-        return;
       }
-
-      $router.push({ name: 'index' });
     } catch (error) {
       if (error instanceof Error) {
         loginError.value = error.message;
@@ -67,19 +69,19 @@
 
 <template>
   <form
-    class="max-w-md w-full"
+    class="w-full max-w-md"
     data-testid="login-form"
     @keydown.enter="onSubmit"
     @submit.prevent="onSubmit">
-    <div class="grid grid-cols-[12.5_12.5] gap-4 justify-center text-center">
+    <div class="justify-center gap-4 grid grid-cols-[12.5_12.5] text-center">
       <button
-        class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
+        class="flex justify-center items-center gap-2 bg-white disabled:opacity-50 shadow-md hover:shadow-lg p-2 border border-transparent rounded-full w-fit h-fit font-semibold text-white text-sm transition-all duration-100 ease-in-out disabled:pointer-events-none shrink-0"
         type="button"
         @click="handleOAuthSignin('facebook')">
         <img src="/images/facebook.png">
       </button>
       <button
-        class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
+        class="flex justify-center items-center gap-2 bg-white disabled:opacity-50 shadow-md hover:shadow-lg p-2 border border-transparent rounded-full w-fit h-fit font-semibold text-white text-sm transition-all duration-100 ease-in-out disabled:pointer-events-none shrink-0"
         type="button"
         @click="handleOAuthSignin('google')">
         <img src="/images/google.png">
@@ -87,11 +89,11 @@
     </div>
     <div class="flex justify-center">
       <separator
-        class="max-w-60 mb-6 mt-8 mx-auto"
+        class="mx-auto mt-8 mb-6 max-w-60"
         force-color-mode="light"
         label="OR" />
     </div>
-    <div class="auto-rows-auto grid grid-cols-1 gap-4">
+    <div class="gap-4 grid grid-cols-1 auto-rows-auto">
       <form-field
         v-slot="{ componentField }"
         name="email"
@@ -141,7 +143,7 @@
         Sign In
       </button-root>
     </div>
-    <div class="flex items-center flex-col mt-4">
+    <div class="flex flex-col items-center mt-4">
       <typography class="text-gray-800">
         Don't have an account?
         <nuxt-link
@@ -154,7 +156,7 @@
       </typography>
       <typography class="mb-0">
         <nuxt-link
-          class="no-underline text-base"
+          class="text-base no-underline"
           :to="{ name: 'forgot-password' }">
           <button-root variant="link">
             Forgot your password?
@@ -162,7 +164,7 @@
         </nuxt-link>
       </typography>
       <typography
-        class="mt-8 mx-auto text-center lg:max-w-xs"
+        class="mx-auto mt-8 lg:max-w-xs text-center"
         variant="muted">
         By continuing to use GearCloset, you agree to our{{ ' ' }}
         <nuxt-link

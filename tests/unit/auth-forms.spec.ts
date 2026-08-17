@@ -16,6 +16,11 @@ mockNuxtImport('useSupabaseClient', () => () => ({
 
 mockNuxtImport('useRequestHeaders', () => () => ({}));
 
+mockNuxtImport('useSupabaseCookieRedirect', () => () => ({
+  path: { value: null as string | null },
+  pluck: () => null,
+}));
+
 describe('Auth forms', () => {
   beforeEach(() => {
     signInWithPassword.mockReset();
@@ -26,13 +31,17 @@ describe('Auth forms', () => {
     it('renders email, password, and submit controls', async () => {
       const wrapper = await mountSuspended(LoginForm);
 
-      expect(wrapper.find('[data-testid="login-form"]').exists())
+      expect(wrapper.find('[data-testid="login-form"]')
+        .exists())
         .toBe(true);
-      expect(wrapper.find('[data-testid="login-email"]').exists())
+      expect(wrapper.find('[data-testid="login-email"]')
+        .exists())
         .toBe(true);
-      expect(wrapper.find('[data-testid="login-password"]').exists())
+      expect(wrapper.find('[data-testid="login-password"]')
+        .exists())
         .toBe(true);
-      expect(wrapper.find('[data-testid="login-submit"]').exists())
+      expect(wrapper.find('[data-testid="login-submit"]')
+        .exists())
         .toBe(true);
       expect(wrapper.text())
         .toContain('Sign In');
@@ -40,13 +49,15 @@ describe('Auth forms', () => {
 
     it('does not call supabase when submitted empty (validation gate)', async () => {
       const wrapper = await mountSuspended(LoginForm);
-      await wrapper.find('[data-testid="login-form"]').trigger('submit');
+      await wrapper.find('[data-testid="login-form"]')
+        .trigger('submit');
       await flushPromises();
 
       expect(signInWithPassword)
         .not
         .toHaveBeenCalled();
-      expect(wrapper.find('[data-testid="login-error"]').exists())
+      expect(wrapper.find('[data-testid="login-error"]')
+        .exists())
         .toBe(false);
     });
   });
@@ -55,15 +66,20 @@ describe('Auth forms', () => {
     it('renders registration fields and submit', async () => {
       const wrapper = await mountSuspended(RegisterForm);
 
-      expect(wrapper.find('[data-testid="register-form"]').exists())
+      expect(wrapper.find('[data-testid="register-form"]')
+        .exists())
         .toBe(true);
-      expect(wrapper.find('[data-testid="register-email"]').exists())
+      expect(wrapper.find('[data-testid="register-email"]')
+        .exists())
         .toBe(true);
-      expect(wrapper.find('[data-testid="register-password"]').exists())
+      expect(wrapper.find('[data-testid="register-password"]')
+        .exists())
         .toBe(true);
-      expect(wrapper.find('[data-testid="register-password-confirm"]').exists())
+      expect(wrapper.find('[data-testid="register-password-confirm"]')
+        .exists())
         .toBe(true);
-      expect(wrapper.find('[data-testid="register-submit"]').exists())
+      expect(wrapper.find('[data-testid="register-submit"]')
+        .exists())
         .toBe(true);
       expect(wrapper.text())
         .toContain('Create Account');

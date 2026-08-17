@@ -1,18 +1,17 @@
 <script setup lang="ts">
+  import { AUTH_CALLBACK_PATH } from '@/utils/authRedirect';
 
   definePageMeta({ layout: 'auth-layout', colorMode: 'light' });
-  useHead({ title: 'Confirm '});
+  useHead({ title: 'Confirm' });
 
-  const user = useSupabaseUser();
-
-  watch(user, () => {
-    if (user.value) {
-      return navigateTo('/');
-    }
-  }, { immediate: true });
-
+  const route = useRoute();
+  await navigateTo({
+    path: AUTH_CALLBACK_PATH,
+    query: route.query,
+    hash: route.hash,
+  }, { replace: true });
 </script>
 
 <template>
-  <div>Waiting for login...</div>
+  <div>Redirecting…</div>
 </template>
