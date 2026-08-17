@@ -68,11 +68,11 @@ describe('stores/user', () => {
         .toHaveBeenCalledWith('An error occurred while loading your account.');
     });
 
-    it('loads profile and normalizes missing notifications to []', async () => {
-      const { notifications: _n, ...profileWithoutNotifications } = profile as any;
+    it('loads profile and normalizes missing notifications and subscriptions to []', async () => {
+      const { notifications: _n, subscriptions: _s, ...profileWithoutRelations } = profile as any;
       supabaseClient.current = createSupabaseMock({
         from: () => createThenableQuery({
-          data: { ...profileWithoutNotifications, notifications: null },
+          data: { ...profileWithoutRelations, notifications: null, subscriptions: null },
           error: null,
         }),
       });
@@ -84,6 +84,51 @@ describe('stores/user', () => {
         .toBe(profile.id);
       expect(userStore.profile?.notifications)
         .toEqual([]);
+      expect(userStore.profile?.subscriptions)
+        .toEqual([]);
+    });
+  });
+
+  describe('plan getters', () => {
+    it('treats a missing subscription row as Free and not paid', () => {
+      const userStore = useUserStore();
+      userStore.profile = { ...profile, subscriptions: [] } as any;
+
+      expect(userStore.currentPlanIdentifier)
+        .toBe('FREE');
+      expect(userStore.isPaidMember)
+        .toBe(false);
+    });
+
+    it('does not crash when subscriptions is undefined', () => {
+      const userStore = useUserStore();
+      userStore.profile = { ...profile, subscriptions: undefined } as any;
+
+      expect(userStore.currentPlanIdentifier)
+        .toBe('FREE');
+      expect(userStore.isPaidMember)
+        .toBe(false);
+    });
+
+    it('treats Annual as paid', () => {
+      const userStore = useUserStore();
+      const existing = profile.subscriptions[0];
+      if (!existing) {
+        throw new Error('mock profile is missing a subscription');
+      }
+
+      userStore.profile = {
+        ...profile,
+        subscriptions: [{
+          ...existing,
+          prices: { ...existing.prices, identifier: 'ANNUAL' },
+        }],
+      } as any;
+
+      expect(userStore.currentPlanIdentifier)
+        .toBe('ANNUAL');
+      expect(userStore.isPaidMember)
+        .toBe(true);
     });
   });
 

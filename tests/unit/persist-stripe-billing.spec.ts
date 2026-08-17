@@ -2,7 +2,9 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import type Stripe from 'stripe';
 import { describe, expect, it, vi } from 'vitest';
 import {
+  getExistingBilling,
   insertCustomerAndSubscription,
+  insertSubscriptionRow,
   updateSubscriptionRecord,
 } from '@/server/utils/persistStripeBilling';
 import {
@@ -31,6 +33,64 @@ function stripeSubscription (overrides: Partial<Stripe.Subscription> = {}): Stri
     ...overrides,
   } as Stripe.Subscription;
 }
+
+describe('getExistingBilling', () => {
+  it('returns Stripe customer id and whether a subscription row exists', async () => {
+    const from = vi.fn((table: string) => {
+      if (table === 'customers') {
+        return createThenableQuery({
+          data: { stripe_customer_id: 'cus_existing' },
+          error: null,
+        });
+      }
+      return createThenableQuery({ data: { id: 'sub-row' }, error: null });
+    });
+
+    await expect(getExistingBilling(asClient(createSupabaseMock({ from })), 'user-1'))
+      .resolves
+      .toEqual({
+        stripeCustomerId: 'cus_existing',
+        hasSubscription: true,
+      });
+    expect(from)
+      .toHaveBeenCalledWith('customers');
+    expect(from)
+      .toHaveBeenCalledWith('subscriptions');
+  });
+
+  it('treats missing rows as no billing yet', async () => {
+    const from = vi.fn(() => createThenableQuery({ data: null, error: null }));
+
+    await expect(getExistingBilling(asClient(createSupabaseMock({ from })), 'user-1'))
+      .resolves
+      .toEqual({
+        stripeCustomerId: null,
+        hasSubscription: false,
+      });
+  });
+});
+
+describe('insertSubscriptionRow', () => {
+  it('inserts a subscription for the session profile only', async () => {
+    const query = createThenableQuery({ data: [{ id: 's1' }], error: null });
+    const from = vi.fn(() => query);
+
+    await insertSubscriptionRow(asClient(createSupabaseMock({ from })), {
+      profileId: 'user-1',
+      stripeSubscription: stripeSubscription(),
+      priceId: 'price_123',
+    });
+
+    expect(from)
+      .toHaveBeenCalledWith('subscriptions');
+    expect(query.insert)
+      .toHaveBeenCalledWith(expect.objectContaining({
+        profile_id: 'user-1',
+        stripe_subscription_id: 'sub_123',
+        price_id: 'price_123',
+      }));
+  });
+});
 
 describe('insertCustomerAndSubscription', () => {
   it('inserts customers and subscriptions for the session profile only', async () => {

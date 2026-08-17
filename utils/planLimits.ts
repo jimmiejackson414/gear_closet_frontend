@@ -1,5 +1,13 @@
+import { SubscriptionLevel } from '@/types';
+
 export const FREE_PACK_LIMIT = 1;
 export const FREE_TRIP_LIMIT = 1;
+
+export function isPaidPlanIdentifier (identifier: string | null | undefined): boolean {
+  return identifier === SubscriptionLevel.MONTHLY
+    || identifier === SubscriptionLevel.ANNUAL
+    || identifier === SubscriptionLevel.LIFE;
+}
 
 export type LockableResource = {
   id: number;
