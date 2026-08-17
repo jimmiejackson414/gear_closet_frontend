@@ -4,9 +4,9 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { type Severity } from '@/components/common/GcAlert.vue';
+  import { authCallbackUrl } from '@/utils/authRedirect';
 
   const supabase = useSupabaseClient();
-  const $router = useRouter();
   const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
 
   const formSchema = toTypedSchema(z.object({
@@ -31,7 +31,7 @@
       const { error } = await supabase.auth.signUp({
         email: values.email,
         password: values.password,
-        options: { emailRedirectTo: `${window.location.origin}/onboarding` },
+        options: { emailRedirectTo: authCallbackUrl(window.location.origin) },
       });
 
       if (error) {
@@ -55,17 +55,14 @@
 
   const handleOAuthSignUp = async (provider: Provider) => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({ provider, options: { redirectTo: `${window.location.origin}/onboarding` } });
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider,
+        options: { redirectTo: authCallbackUrl(window.location.origin) },
+      });
 
       if (error) {
         submitAction.value = { message: error?.message, severity: 'error' };
-        return;
       }
-
-      submitAction.value = { message: 'Account created successfully!', severity: 'positive' };
-      setTimeout(() => {
-        $router.push({ name: 'index' });
-      }, 1500);
     } catch (error) {
       if (error instanceof Error) {
         submitAction.value = { message: error?.message, severity: 'error' };
@@ -76,19 +73,19 @@
 
 <template>
   <form
-    class="max-w-md w-full"
+    class="w-full max-w-md"
     data-testid="register-form"
     @keydown.enter="onSubmit"
     @submit.prevent.stop="onSubmit">
-    <div class="grid grid-cols-[12.5_12.5] gap-4 justify-center text-center">
+    <div class="justify-center gap-4 grid grid-cols-[12.5_12.5] text-center">
       <button
-        class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
+        class="flex justify-center items-center gap-2 bg-white disabled:opacity-50 shadow-md hover:shadow-lg p-2 border border-transparent rounded-full w-fit h-fit font-semibold text-white text-sm transition-all duration-100 ease-in-out disabled:pointer-events-none shrink-0"
         type="button"
         @click="handleOAuthSignUp('facebook')">
         <img src="/images/facebook.png">
       </button>
       <button
-        class="bg-white border border-transparent duration-100 ease-in-out flex justify-center items-center shrink-0 font-semibold gap-2 h-fit p-2 disabled:pointer-events-none rounded-full shadow-md hover:shadow-lg text-sm text-white transition-all w-fit disabled:opacity-50"
+        class="flex justify-center items-center gap-2 bg-white disabled:opacity-50 shadow-md hover:shadow-lg p-2 border border-transparent rounded-full w-fit h-fit font-semibold text-white text-sm transition-all duration-100 ease-in-out disabled:pointer-events-none shrink-0"
         type="button"
         @click="handleOAuthSignUp('google')">
         <img src="/images/google.png">
@@ -96,11 +93,11 @@
     </div>
     <div class="flex justify-center">
       <separator
-        class="max-w-60 mb-6 mt-8 mx-auto"
+        class="mx-auto mt-8 mb-6 max-w-60"
         force-color-mode="light"
         label="OR" />
     </div>
-    <div class="auto-rows-auto grid grid-cols-1 gap-2">
+    <div class="gap-2 grid grid-cols-1 auto-rows-auto">
       <form-field
         v-slot="{ componentField }"
         name="email"
@@ -170,7 +167,7 @@
         Create Account
       </button-root>
     </div>
-    <div class="flex items-center flex-col mt-4">
+    <div class="flex flex-col items-center mt-4">
       <typography class="text-gray-800">
         Already have an account?
         <nuxt-link
@@ -186,7 +183,7 @@
         variant="muted">
         By continuing to use GearCloset, you agree to our{{ ' ' }}
         <nuxt-link
-          class="no-underline text-primary"
+          class="text-primary no-underline"
           :to="{ name: 'terms-and-conditions' }">
           Terms and Conditions.
         </nuxt-link>

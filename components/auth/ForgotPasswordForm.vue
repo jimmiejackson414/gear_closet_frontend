@@ -3,6 +3,7 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { type Severity } from '@/components/common/GcAlert.vue';
+  import { authCallbackUrl } from '@/utils/authRedirect';
 
   const supabase = useSupabaseClient();
   const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);
@@ -19,7 +20,7 @@
   const onSubmit = handleSubmit(async ({ email }) => {
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: authCallbackUrl(window.location.origin, { type: 'recovery' }),
       });
 
       if (error) {
@@ -41,10 +42,10 @@
 
 <template>
   <form
-    class="max-w-md w-full"
+    class="w-full max-w-md"
     @keydown.enter="onSubmit"
     @submit.prevent="onSubmit">
-    <div class="auto-rows-auto grid grid-cols-1 gap-4">
+    <div class="gap-4 grid grid-cols-1 auto-rows-auto">
       <form-field
         v-slot="{ componentField }"
         name="email"
@@ -75,11 +76,11 @@
         Send Reset Link
       </button-root>
     </div>
-    <div class="flex items-center flex-col mt-4">
+    <div class="flex flex-col items-center mt-4">
       <typography class="text-gray-800">
         Remembered your password?
         <nuxt-link
-          class="no-underline text-primary"
+          class="text-primary no-underline"
           :to="{ name: 'login' }">
           <button-root variant="link">
             Login

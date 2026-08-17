@@ -7,6 +7,7 @@
   import { IconAperture, IconCheck, IconCircleUser, IconHeart } from '#components';
   import { useToast } from '@/components/ui/toast/use-toast';
   import { MeasuringSystem, SubscriptionLevel } from '@/types';
+  import { pathAfterOnboarding } from '@/utils/authRedirect';
   import { completeOnboardingPlan } from '@/utils/onboarding';
   import tiers, { type Tier } from '@/utils/tiers';
 
@@ -131,7 +132,6 @@
   const selectedPlan = ref<Tier | null>(
     tiers.find((tier) => tier.value === SubscriptionLevel.FREE) ?? null,
   );
-  const $router = useRouter();
   const handleCompleteOnboarding = async (plan: SubscriptionLevel | null) => {
     if (!plan) {
       toast({
@@ -156,7 +156,8 @@
         }),
       });
 
-      await $router.push({ name: 'index' });
+      const redirectInfo = useSupabaseCookieRedirect();
+      await navigateTo(pathAfterOnboarding(redirectInfo.pluck()));
     } catch {
       toast({
         title: 'Error',
