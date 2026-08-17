@@ -6,29 +6,35 @@
  */
 
 import Stripe from 'stripe';
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
-import { type Database, SubscriptionStatus } from '~/types';
+import { insertCustomerAndSubscription } from '../../utils/persistStripeBilling';
+import { serverSupabaseClient, serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server';
+import type { Database } from '~/types';
 
 const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string);
 
 export default defineEventHandler(async (event) => {
+  const user = await serverSupabaseUser(event);
+  if (!user?.sub) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+    });
+  }
+
   try {
     const supabase = await serverSupabaseClient<Database>(event);
-    const user = await serverSupabaseUser(event);
+    const admin = serverSupabaseServiceRole<Database>(event);
 
-    // Read the subscription from the request body
     const { subscription } = await readBody(event);
 
-    // Fetch the price ID for the new plan from Supabase
     const { data: price, error: priceError } = await supabase.from('prices')
       .select('id')
       .eq('identifier', subscription)
       .single();
 
-    // Fetch the user's profile from Supabase
     const { data: profile, error: profileError } = await supabase.from('profiles')
       .select('*')
-      .eq('id', user!.sub)
+      .eq('id', user.sub)
       .single();
 
     if (priceError || !price || profileError || !profile) {
@@ -38,61 +44,24 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    // Create the customer in Stripe
     const stripeCustomer = await stripe.customers.create({
-      email: user!.email,
-      name: `${profile.first_name} ${profile!.last_name}`,
-      metadata: { profile_id: user!.sub },
+      email: user.email,
+      name: `${profile.first_name} ${profile.last_name}`,
+      metadata: { profile_id: user.sub },
     });
 
-    // Create the subscription in Stripe
     const stripeSubscription = await stripe.subscriptions.create({
       customer: stripeCustomer.id,
       items: [{ price: price.id }],
+      metadata: { profile_id: user.sub },
     });
 
-    // Save the customer in Supabase
-    const { data: customer, error: customerError } = await supabase.from('customers')
-      .insert({
-        stripe_customer_id: stripeCustomer.id,
-        profile_id: user!.sub,
-      })
-      .select();
-
-    if (customerError || !customer) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Error saving customer',
-      });
-    }
-
-    const period = getSubscriptionItemPeriod(stripeSubscription);
-
-    // Save the subscription ID to your database
-    const { data: sub, error: subscriptionError } = await supabase.from('subscriptions')
-      .insert({
-        profile_id: user!.sub,
-        status: SubscriptionStatus.active,
-        metadata: { profile_id: user!.sub },
-        price_id: price.id,
-        quantity: 1,
-        cancel_at_period_end: false,
-        current_period_start: new Date(period.current_period_start * 1000)
-          .toISOString(),
-        current_period_end: new Date(period.current_period_end * 1000)
-          .toISOString(),
-        ended_at: stripeSubscription.ended_at ? new Date(stripeSubscription.ended_at * 1000)
-          .toISOString() : null,
-        stripe_subscription_id: stripeSubscription.id,
-      })
-      .select();
-
-    if (subscriptionError || !sub) {
-      throw createError({
-        statusCode: 500,
-        statusMessage: 'Error saving subscription',
-      });
-    }
+    await insertCustomerAndSubscription(admin, {
+      profileId: user.sub,
+      stripeCustomerId: stripeCustomer.id,
+      stripeSubscription,
+      priceId: price.id,
+    });
 
     return { ok: !!stripeSubscription };
   } catch {
