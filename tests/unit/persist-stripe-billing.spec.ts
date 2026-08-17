@@ -1,0 +1,122 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type Stripe from 'stripe';
+import { describe, expect, it, vi } from 'vitest';
+import {
+  insertCustomerAndSubscription,
+  updateSubscriptionRecord,
+} from '@/server/utils/persistStripeBilling';
+import {
+  createSupabaseMock,
+  createThenableQuery,
+} from '@/tests/unit/mocks/supabase.mock';
+import type { Database } from '@/types';
+
+function asClient (mock: ReturnType<typeof createSupabaseMock>) {
+  return mock as unknown as SupabaseClient<Database>;
+}
+
+function stripeSubscription (overrides: Partial<Stripe.Subscription> = {}): Stripe.Subscription {
+  return {
+    id: 'sub_123',
+    ended_at: null,
+    cancel_at_period_end: false,
+    items: {
+      data: [
+        {
+          current_period_start: 1_700_000_000,
+          current_period_end: 1_700_086_400,
+        },
+      ],
+    },
+    ...overrides,
+  } as Stripe.Subscription;
+}
+
+describe('insertCustomerAndSubscription', () => {
+  it('inserts customers and subscriptions for the session profile only', async () => {
+    const customerQuery = createThenableQuery({ data: [{ id: 'c1' }], error: null });
+    const subscriptionQuery = createThenableQuery({ data: [{ id: 's1' }], error: null });
+    const from = vi.fn((table: string) => (
+      table === 'customers' ? customerQuery : subscriptionQuery
+    ));
+
+    await insertCustomerAndSubscription(asClient(createSupabaseMock({ from })), {
+      profileId: 'user-1',
+      stripeCustomerId: 'cus_123',
+      stripeSubscription: stripeSubscription(),
+      priceId: 'price_123',
+    });
+
+    expect(from)
+      .toHaveBeenCalledWith('customers');
+    expect(from)
+      .toHaveBeenCalledWith('subscriptions');
+    expect(customerQuery.insert)
+      .toHaveBeenCalledWith({
+        stripe_customer_id: 'cus_123',
+        profile_id: 'user-1',
+      });
+    expect(subscriptionQuery.insert)
+      .toHaveBeenCalledWith(expect.objectContaining({
+        profile_id: 'user-1',
+        stripe_subscription_id: 'sub_123',
+        price_id: 'price_123',
+        metadata: { profile_id: 'user-1' },
+      }));
+    expect(customerQuery.insert)
+      .not
+      .toHaveBeenCalledWith(expect.objectContaining({ profile_id: 'user-2' }));
+    expect(subscriptionQuery.insert)
+      .not
+      .toHaveBeenCalledWith(expect.objectContaining({ profile_id: 'user-2' }));
+  });
+
+  it('throws when the customer insert is rejected', async () => {
+    const supabase = createSupabaseMock({
+      from: (table) => {
+        if (table === 'customers') {
+          return createThenableQuery({
+            data: null,
+            error: { message: 'rls' },
+          });
+        }
+        return createThenableQuery({ data: [{ id: 's1' }], error: null });
+      },
+    });
+
+    await expect(insertCustomerAndSubscription(asClient(supabase), {
+      profileId: 'user-1',
+      stripeCustomerId: 'cus_123',
+      stripeSubscription: stripeSubscription(),
+      priceId: 'price_123',
+    }))
+      .rejects
+      .toMatchObject({ statusMessage: 'Error saving customer' });
+  });
+});
+
+describe('updateSubscriptionRecord', () => {
+  it('updates only the session user subscription row', async () => {
+    const query = createThenableQuery({ data: [{ id: 's1' }], error: null });
+    const from = vi.fn(() => query);
+
+    await updateSubscriptionRecord(asClient(createSupabaseMock({ from })), {
+      profileId: 'user-1',
+      priceId: 'price_new',
+      stripeSubscription: stripeSubscription({ id: 'sub_updated' }),
+    });
+
+    expect(from)
+      .toHaveBeenCalledWith('subscriptions');
+    expect(query.eq)
+      .toHaveBeenCalledWith('profile_id', 'user-1');
+    expect(query.update)
+      .toHaveBeenCalledWith(expect.objectContaining({
+        price_id: 'price_new',
+        stripe_subscription_id: 'sub_updated',
+      }));
+    expect(query.eq)
+      .not
+      .toHaveBeenCalledWith('profile_id', 'user-2');
+  });
+});
