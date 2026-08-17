@@ -1,8 +1,9 @@
-import { defineStore } from 'pinia';
 import type { RealtimeChannel } from '@supabase/supabase-js';
+import { defineStore } from 'pinia';
 import { useAppStore } from '@/stores/app';
 import { type Database, SubscriptionLevel, type Tables, type TablesUpdate } from '@/types';
 import type { ProfileApiResponse } from '@/types/helpers';
+import { isPaidPlanIdentifier } from '@/utils/planLimits';
 
 type State = {
   profile: ProfileApiResponse | null;
@@ -10,6 +11,7 @@ type State = {
 
 type Getters = {
   isPaidMember(): boolean;
+  currentPlanIdentifier(): SubscriptionLevel;
   unreadNotifications(): Tables<'notifications'>[] | undefined;
 };
 
@@ -38,7 +40,11 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
     getters: {
       isPaidMember () {
-        return this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.ANNUAL || this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.MONTHLY || this.profile?.subscriptions[0]?.prices.identifier === SubscriptionLevel.LIFE;
+        return isPaidPlanIdentifier(this.currentPlanIdentifier);
+      },
+      currentPlanIdentifier () {
+        return (this.profile?.subscriptions?.[0]?.prices?.identifier as SubscriptionLevel | undefined)
+          ?? SubscriptionLevel.FREE;
       },
       unreadNotifications () {
         return this.profile?.notifications.filter((n: Tables<'notifications'>) => !n.read_on_date);
@@ -76,6 +82,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
           this.profile = data as any;
           this.profile!.notifications = (data as any).notifications ?? [];
+          this.profile!.subscriptions = (data as any).subscriptions ?? [];
         } catch (err) {
           console.error({ err });
         }

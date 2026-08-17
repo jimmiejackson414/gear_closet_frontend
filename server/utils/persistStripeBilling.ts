@@ -9,30 +9,36 @@ import { type Database, SubscriptionStatus } from '@/types';
  * migration 52. Always pass the session user's id — never a client-supplied
  * profile_id — so a user cannot persist billing for someone else.
  */
-export async function insertCustomerAndSubscription (
+export async function getExistingBilling (
+  admin: SupabaseClient<Database>,
+  profileId: string,
+) {
+  const { data: customer } = await admin
+    .from('customers')
+    .select('stripe_customer_id')
+    .eq('profile_id', profileId)
+    .maybeSingle();
+
+  const { data: subscription } = await admin
+    .from('subscriptions')
+    .select('id')
+    .eq('profile_id', profileId)
+    .maybeSingle();
+
+  return {
+    stripeCustomerId: customer?.stripe_customer_id ?? null,
+    hasSubscription: Boolean(subscription),
+  };
+}
+
+export async function insertSubscriptionRow (
   admin: SupabaseClient<Database>,
   input: {
     profileId: string;
-    stripeCustomerId: string;
     stripeSubscription: Stripe.Subscription;
     priceId: string;
   },
 ) {
-  const { data: customer, error: customerError } = await admin
-    .from('customers')
-    .insert({
-      stripe_customer_id: input.stripeCustomerId,
-      profile_id: input.profileId,
-    })
-    .select();
-
-  if (customerError || !customer?.length) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Error saving customer',
-    });
-  }
-
   const period = getSubscriptionItemPeriod(input.stripeSubscription);
 
   const { data: sub, error: subscriptionError } = await admin
@@ -62,6 +68,37 @@ export async function insertCustomerAndSubscription (
       statusMessage: 'Error saving subscription',
     });
   }
+}
+
+export async function insertCustomerAndSubscription (
+  admin: SupabaseClient<Database>,
+  input: {
+    profileId: string;
+    stripeCustomerId: string;
+    stripeSubscription: Stripe.Subscription;
+    priceId: string;
+  },
+) {
+  const { data: customer, error: customerError } = await admin
+    .from('customers')
+    .insert({
+      stripe_customer_id: input.stripeCustomerId,
+      profile_id: input.profileId,
+    })
+    .select();
+
+  if (customerError || !customer?.length) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Error saving customer',
+    });
+  }
+
+  await insertSubscriptionRow(admin, {
+    profileId: input.profileId,
+    stripeSubscription: input.stripeSubscription,
+    priceId: input.priceId,
+  });
 }
 
 export async function updateSubscriptionRecord (

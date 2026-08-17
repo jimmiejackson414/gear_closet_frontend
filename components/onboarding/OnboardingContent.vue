@@ -7,6 +7,8 @@
   import { IconAperture, IconCheck, IconCircleUser, IconHeart } from '#components';
   import { useToast } from '@/components/ui/toast/use-toast';
   import { MeasuringSystem, SubscriptionLevel } from '@/types';
+  import { completeOnboardingPlan } from '@/utils/onboarding';
+  import tiers, { type Tier } from '@/utils/tiers';
 
   type StepperState = 'completed' | 'active' | 'inactive';
 
@@ -73,6 +75,8 @@
   }));
 
   const $store = useUserStore();
+  const $config = useRuntimeConfig();
+  const showLifetimePromo = computed(() => $config.public.lifetimePromo === true);
   const { meta, values, errorBag } = useForm({
     initialValues: {
       first_name: $store.profile?.first_name ?? '',
@@ -124,22 +128,33 @@
   /**
    * Handle the completion of the onboarding process
    */
-  const selectedPlan = ref<Tier | null>(null);
+  const selectedPlan = ref<Tier | null>(
+    tiers.find((tier) => tier.value === SubscriptionLevel.FREE) ?? null,
+  );
   const $router = useRouter();
-  const handleCompleteOnboarding = async () => {
+  const handleCompleteOnboarding = async (plan: SubscriptionLevel | null) => {
+    if (!plan) {
+      toast({
+        title: 'Select a plan',
+        description: 'Choose Free, Monthly, or Annual to continue.',
+        variant: 'destructive',
+      });
+      return;
+    }
+
     isSubmitting.value = true;
     try {
-      const { success } = await $store.updateProfile({ onboard_date: new Date()
-        .toISOString() });
-
-      if (!success) throw new Error();
-
-      const response = await $fetch('/api/stripe/subscription', {
-        method: 'POST',
-        body: JSON.stringify({ subscription: SubscriptionLevel.LIFE }),
+      await completeOnboardingPlan({
+        plan,
+        createPaidSubscription: (paidPlan) => $fetch('/api/stripe/subscription', {
+          method: 'POST',
+          body: { subscription: paidPlan },
+        }),
+        markOnboarded: () => $store.updateProfile({
+          onboard_date: new Date()
+            .toISOString(),
+        }),
       });
-
-      if (!response.ok) throw new Error();
 
       await $router.push({ name: 'index' });
     } catch {
@@ -172,23 +187,23 @@
 <template>
   <stepper
     v-model="stepIndex"
-    class="block max-w-4xl mt-8 mx-auto w-full">
+    class="block mx-auto mt-8 w-full max-w-4xl">
     <div class="flex flex-start gap-2 w-full">
       <!-- Stepper Navigation -->
       <stepper-item
         v-for="step in steps"
         :key="step.step"
         v-slot="{ state }"
-        class="flex justify-center items-center flex-col relative w-full"
+        class="relative flex flex-col justify-center items-center w-full"
         :step="step.step">
         <stepper-separator
           v-if="step.step !== steps[steps.length - 1]?.step"
-          class="absolute top-5 right-[calc(-50%+10px)] left-[calc(50%+20px)] bg-muted block group-data-[state=completed]:bg-primary h-0.5 rounded-full shrink-0" />
+          class="block top-5 right-[calc(-50%+10px)] left-[calc(50%+20px)] absolute bg-muted group-data-[state=completed]:bg-primary rounded-full h-0.5 shrink-0" />
 
         <stepper-trigger as-child>
           <button-root
             :ref="`step${step.step}Ref`"
-            class="rounded-full shrink-0 z-10"
+            class="z-10 rounded-full shrink-0"
             :class="[state === 'active' && 'ring-2 ring-ring ring-offset-2 ring-offset-background']"
             :disabled="( state !== 'completed' && !meta.valid ) || isNextDisabled || ( step.step === 3 )"
             size="icon"
@@ -198,14 +213,14 @@
           </button-root>
         </stepper-trigger>
 
-        <div class="flex items-center flex-col mt-5 text-center">
+        <div class="flex flex-col items-center mt-5 text-center">
           <stepper-title
             class="font-semibold text-sm lg:text-base transition"
             :class="[state === 'active' && 'text-primary']">
             {{ step.title }}
           </stepper-title>
           <stepper-description
-            class="sr-only text-muted-foreground lg:text-sm text-xs transition md:not-sr-only"
+            class="sr-only md:not-sr-only text-muted-foreground text-xs lg:text-sm transition"
             :class="[state === 'active' && 'text-primary']">
             {{ step.description }}
           </stepper-description>
@@ -214,7 +229,7 @@
     </div>
 
     <!-- Stepper Content -->
-    <div class="flex flex-col gap-4 mt-16 mx-auto w-full">
+    <div class="flex flex-col gap-4 mx-auto mt-16 w-full">
       <!-- Step 1: Upload Avatar -->
       <template v-if="stepIndex === 1">
         <client-only>
@@ -228,7 +243,7 @@
 
       <!-- Step 2: Account Info -->
       <template v-if="stepIndex === 2">
-        <div class="flex flex-col gap-4 max-w-xl mx-auto w-full">
+        <div class="flex flex-col gap-4 mx-auto w-full max-w-xl">
           <form-field
             v-slot="{ componentField }"
             name="first_name">
@@ -303,7 +318,7 @@
 
       <!-- Step 3: Plan Options -->
       <template v-if="stepIndex === 3">
-        <div class="grid lg:grid-cols-3 grid-cols-1 gap-4">
+        <div class="gap-4 grid grid-cols-1 lg:grid-cols-3">
           <upgrade-card
             v-for="tier in tiers"
             :key="tier.title"
@@ -333,19 +348,20 @@
         </button-root>
         <button-root
           v-if="stepIndex === 3"
-          :disabled="isSubmitting"
-          :loading="isSubmitting">
+          :disabled="isSubmitting || !selectedPlan"
+          :loading="isSubmitting"
+          @click="handleCompleteOnboarding(selectedPlan?.value ?? null)">
           Submit
         </button-root>
       </div>
     </div>
   </stepper>
 
-  <alert-dialog :open="stepIndex === 3">
+  <alert-dialog :open="showLifetimePromo && stepIndex === 3">
     <alert-dialog-content>
       <alert-dialog-header>
         <alert-dialog-title class="flex items-center gap-2">
-          <icon-heart class="h-8 text-primary w-8" />
+          <icon-heart class="w-8 h-8 text-primary" />
           Promotional Period
         </alert-dialog-title>
       </alert-dialog-header>
@@ -363,7 +379,7 @@
         <button-root
           :disabled="isSubmitting"
           :loading="isSubmitting"
-          @click="handleCompleteOnboarding">
+          @click="handleCompleteOnboarding(SubscriptionLevel.LIFE)">
           Continue
         </button-root>
       </alert-dialog-footer>

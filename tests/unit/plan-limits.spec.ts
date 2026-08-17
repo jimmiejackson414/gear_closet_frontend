@@ -1,8 +1,10 @@
 import { describe, expect, it } from 'vitest';
+import { SubscriptionLevel } from '@/types';
 import {
   FREE_PACK_LIMIT,
   FREE_TRIP_LIMIT,
   isFreeCreateBlocked,
+  isPaidPlanIdentifier,
   isResourceLocked,
   needsFreeResourcePick,
   unlockedResources,
@@ -38,6 +40,19 @@ describe('utils/planLimits', () => {
       .toBe(1);
     expect(FREE_TRIP_LIMIT)
       .toBe(1);
+  });
+
+  it('treats Monthly, Annual, and Lifetime as paid plans', () => {
+    expect(isPaidPlanIdentifier(SubscriptionLevel.FREE))
+      .toBe(false);
+    expect(isPaidPlanIdentifier(undefined))
+      .toBe(false);
+    expect(isPaidPlanIdentifier(SubscriptionLevel.MONTHLY))
+      .toBe(true);
+    expect(isPaidPlanIdentifier(SubscriptionLevel.ANNUAL))
+      .toBe(true);
+    expect(isPaidPlanIdentifier(SubscriptionLevel.LIFE))
+      .toBe(true);
   });
 
   it('blocks Free create based on unlocked count', () => {

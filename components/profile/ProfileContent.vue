@@ -231,14 +231,14 @@
             {{ friendlyUsername(($store.profile as any), { includeTrailName: false }) }}
           </typography>
           <gc-pill
-            :copy="capitalize($store.profile!.subscriptions[0]?.prices.identifier) + ' Subscription'"
+            :copy="capitalize($store.currentPlanIdentifier) + ' Subscription'"
             size="sm"
             :variant="{
               [SubscriptionLevel.FREE]: 'warning' as const,
               [SubscriptionLevel.LIFE]: 'positive' as const,
               [SubscriptionLevel.ANNUAL]: 'positive' as const,
               [SubscriptionLevel.MONTHLY]: 'primary' as const,
-            }[$store.profile!.subscriptions[0]?.prices.identifier as keyof typeof SubscriptionLevel] || 'primary'" />
+            }[$store.currentPlanIdentifier] || 'warning'" />
         </div>
         <tabs
           v-model="activeTab"

@@ -117,6 +117,7 @@ export default defineNuxtConfig({
       forumsUrl: process.env.NUXT_PUBLIC_FORUMS_URL,
       cookieKey: process.env.NUXT_COOKIE_KEY,
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
+      lifetimePromo: process.env.NUXT_PUBLIC_LIFETIME_PROMO === 'true',
     },
   },
 

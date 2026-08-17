@@ -1,12 +1,13 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { type Database, SubscriptionLevel } from '@/types';
-import { FREE_PACK_LIMIT, FREE_TRIP_LIMIT, needsFreeResourcePick } from '@/utils/planLimits';
+import { type Database } from '@/types';
+import {
+  FREE_PACK_LIMIT,
+  FREE_TRIP_LIMIT,
+  isPaidPlanIdentifier,
+  needsFreeResourcePick,
+} from '@/utils/planLimits';
 
-export function isPaidPlanIdentifier (identifier: string | null | undefined): boolean {
-  return identifier === SubscriptionLevel.MONTHLY
-    || identifier === SubscriptionLevel.ANNUAL
-    || identifier === SubscriptionLevel.LIFE;
-}
+export { isPaidPlanIdentifier };
 
 export async function unlockAllUserResources (
   supabase: SupabaseClient<Database>,

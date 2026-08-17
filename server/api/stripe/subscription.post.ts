@@ -6,8 +6,13 @@
  */
 
 import Stripe from 'stripe';
-import { insertCustomerAndSubscription } from '../../utils/persistStripeBilling';
+import {
+  getExistingBilling,
+  insertCustomerAndSubscription,
+  insertSubscriptionRow,
+} from '../../utils/persistStripeBilling';
 import { serverSupabaseClient, serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server';
+import { isPaidPlanIdentifier } from '@/utils/planLimits';
 import type { Database } from '~/types';
 
 const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string);
@@ -21,11 +26,23 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  const { subscription } = await readBody(event);
+
+  if (!isPaidPlanIdentifier(subscription)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'A paid plan is required',
+    });
+  }
+
   try {
     const supabase = await serverSupabaseClient<Database>(event);
     const admin = serverSupabaseServiceRole<Database>(event);
 
-    const { subscription } = await readBody(event);
+    const existingBilling = await getExistingBilling(admin, user.sub);
+    if (existingBilling.hasSubscription) {
+      return { ok: true };
+    }
 
     const { data: price, error: priceError } = await supabase.from('prices')
       .select('id')
@@ -44,24 +61,36 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    const stripeCustomer = await stripe.customers.create({
-      email: user.email,
-      name: `${profile.first_name} ${profile.last_name}`,
-      metadata: { profile_id: user.sub },
-    });
+    let stripeCustomerId = existingBilling.stripeCustomerId;
+    if (!stripeCustomerId) {
+      const stripeCustomer = await stripe.customers.create({
+        email: user.email,
+        name: `${profile.first_name} ${profile.last_name}`,
+        metadata: { profile_id: user.sub },
+      });
+      stripeCustomerId = stripeCustomer.id;
+    }
 
     const stripeSubscription = await stripe.subscriptions.create({
-      customer: stripeCustomer.id,
+      customer: stripeCustomerId,
       items: [{ price: price.id }],
       metadata: { profile_id: user.sub },
     });
 
-    await insertCustomerAndSubscription(admin, {
-      profileId: user.sub,
-      stripeCustomerId: stripeCustomer.id,
-      stripeSubscription,
-      priceId: price.id,
-    });
+    if (existingBilling.stripeCustomerId) {
+      await insertSubscriptionRow(admin, {
+        profileId: user.sub,
+        stripeSubscription,
+        priceId: price.id,
+      });
+    } else {
+      await insertCustomerAndSubscription(admin, {
+        profileId: user.sub,
+        stripeCustomerId,
+        stripeSubscription,
+        priceId: price.id,
+      });
+    }
 
     return { ok: !!stripeSubscription };
   } catch {
