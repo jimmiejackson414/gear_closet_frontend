@@ -49,7 +49,7 @@
       <typography
         class="font-bold mb-2"
         variant="h5">
-        Successfully created your new {{ $store.data.selectedPack?.name }} pack!
+        {{ $store.data.selectedPack?.name || 'Your pack' }} is ready.
       </typography>
       <typography class="mb-0">
         The next step is to add some items to your pack.

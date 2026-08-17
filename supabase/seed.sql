@@ -414,12 +414,6 @@ INSERT INTO "auth"."refresh_tokens" ("instance_id", "id", "token", "user_id", "r
 
 
 --
--- Data for Name: key; Type: TABLE DATA; Schema: pgsodium; Owner: supabase_admin
---
-
-
-
---
 -- Data for Name: profiles; Type: TABLE DATA; Schema: public; Owner: postgres
 --
 
@@ -433,8 +427,8 @@ INSERT INTO "public"."profiles" ("id", "email", "first_name", "last_name", "trai
 --
 
 INSERT INTO "public"."trips" ("id", "created_at", "name", "description", "starting_point", "ending_point", "starting_date", "ending_date", "slug", "updated_at", "profile_id") VALUES
-	(1, '2024-12-08 20:39:55.426509+00', 'My first trip!', 'This is my first trip to plan.', 'Starting point', 'Ending point', NULL, NULL, '17d0b471-268a-4c75-ab35-abd9c4de3c64', '2024-12-08 20:39:55.426509+00', '00000000-0000-0000-0000-000000000000'),
-	(2, '2024-12-08 20:39:55.426509+00', 'My first trip!', 'This is my first trip to plan.', 'Starting point', 'Ending point', NULL, NULL, 'c3dd98a2-0817-40f3-b075-ee19e14b7174', '2024-12-08 20:39:55.426509+00', '0e803be6-3911-40f7-bdf4-9a4a2bff2ddf');
+	(1, '2024-12-08 20:39:55.426509+00', 'My first trip', 'This is my first trip to plan.', 'Starting point', 'Ending point', NULL, NULL, '17d0b471-268a-4c75-ab35-abd9c4de3c64', '2024-12-08 20:39:55.426509+00', '00000000-0000-0000-0000-000000000000'),
+	(2, '2024-12-08 20:39:55.426509+00', 'My first trip', 'This is my first trip to plan.', 'Starting point', 'Ending point', NULL, NULL, 'c3dd98a2-0817-40f3-b075-ee19e14b7174', '2024-12-08 20:39:55.426509+00', '0e803be6-3911-40f7-bdf4-9a4a2bff2ddf');
 
 
 --
@@ -740,13 +734,6 @@ INSERT INTO "storage"."objects" ("id", "bucket_id", "name", "owner", "created_at
 --
 
 SELECT pg_catalog.setval('"auth"."refresh_tokens_id_seq"', 108, true);
-
-
---
--- Name: key_key_id_seq; Type: SEQUENCE SET; Schema: pgsodium; Owner: supabase_admin
---
-
-SELECT pg_catalog.setval('"pgsodium"."key_key_id_seq"', 1, false);
 
 
 --

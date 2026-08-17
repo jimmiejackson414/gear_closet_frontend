@@ -3,7 +3,7 @@ import type { Tables } from "@/types";
 export const trips: Tables<'trips'>[] = [
   {
     "id":2,
-    "name":"My first trip!",
+    "name":"My first trip",
     "slug":"9ad03979-990f-4551-af13-e8e825f43f54",
     "created_at":"2024-03-02T23:43:33.212812+00:00",
     "profile_id":"61b66be5-d199-48d5-898a-c521dd6b59cc",

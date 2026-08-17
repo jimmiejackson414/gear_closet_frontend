@@ -200,7 +200,7 @@ describe('Closet Page', async () => {
       expect(emptyState.exists())
         .toBe(true);
       expect(emptyState.text())
-        .toMatch(/Successfully created your new .+ pack!/);
+        .toContain('Summer Pack is ready.');
       expect(emptyState.text())
         .toContain('The next step is to add some items to your pack.');
       expect(emptyState.text())
@@ -222,7 +222,7 @@ describe('Closet Page', async () => {
       const firstCategory = store.data.selectedPack!.categories[0];
       const firstCategoryItem = firstCategory?.category_items[0];
       expect(firstCategoryItem)
-.toBeDefined();
+        .toBeDefined();
       firstCategoryItem!.item.weight = '4.0';
       await wrapper.vm.$nextTick();
 
@@ -523,7 +523,7 @@ describe('Closet Page', async () => {
       expect(isDialogRootOpen(wrapper))
         .toBe(true);
       findBodyButton('Cancel')
-?.click();
+        ?.click();
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(false);
@@ -562,7 +562,7 @@ describe('Closet Page', async () => {
       expect(isDialogRootOpen(wrapper))
         .toBe(true);
       findBodyButton('Cancel')
-?.click();
+        ?.click();
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(false);
@@ -601,7 +601,7 @@ describe('Closet Page', async () => {
       expect(isDialogRootOpen(wrapper))
         .toBe(true);
       findBodyButton('Cancel')
-?.click();
+        ?.click();
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(false);
@@ -640,7 +640,7 @@ describe('Closet Page', async () => {
       expect(isDialogRootOpen(wrapper))
         .toBe(true);
       findBodyButton('Cancel')
-?.click();
+        ?.click();
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(false);
@@ -679,7 +679,7 @@ describe('Closet Page', async () => {
       expect(isAlertDialogOpen(wrapper))
         .toBe(true);
       findBodyButton('Cancel')
-?.click();
+        ?.click();
       await wrapper.vm.$nextTick();
       expect(isAlertDialogOpen(wrapper))
         .toBe(false);
@@ -718,7 +718,7 @@ describe('Closet Page', async () => {
       expect(isAlertDialogOpen(wrapper))
         .toBe(true);
       findBodyButton('Cancel')
-?.click();
+        ?.click();
       await wrapper.vm.$nextTick();
       expect(isAlertDialogOpen(wrapper))
         .toBe(false);
@@ -757,7 +757,7 @@ describe('Closet Page', async () => {
       expect(isDialogRootOpen(wrapper))
         .toBe(true);
       findBodyButton('Cancel')
-?.click();
+        ?.click();
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(false);
