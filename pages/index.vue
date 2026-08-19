@@ -31,14 +31,18 @@
   // Single forum fetch via useAsyncData (avoid a second discarded $fetch).
   const fetchForumPosts = (): Promise<ForumResponse> =>
     $fetch<ForumResponse>('/api/forumPosts');
-  const { data: fData, error: fError } = await useAsyncData(
+  const { data: fData, error: fError, pending: forumPending } = await useAsyncData(
     'forumPosts',
     fetchForumPosts,
   );
 
-  const applyForumData = () => {
+  const forumFetchError = computed(() => Boolean(fError.value));
+
+  const syncForumData = () => {
     if (fError.value || !fData.value) {
-      throw new Error('Error fetching forum posts');
+      forumData.latest_posts = [];
+      forumData.categories = [];
+      return;
     }
 
     forumData.latest_posts = fData.value.latest_posts.map((post) => {
@@ -69,7 +73,7 @@
       data.trips = typedPageData.trips ?? [];
       data.trip_friends = typedPageData.trip_friends ?? [];
 
-      applyForumData();
+      syncForumData();
     } catch (err) {
       console.error({ err });
       $store.notifyNegative('An error occurred while loading your dashboard.');
@@ -119,7 +123,8 @@
         <forums-widget
           :data="forumData"
           data-testid="forums-widget"
-          :loading="loading" />
+          :error="forumFetchError"
+          :loading="forumPending" />
       </div>
     </div>
   </div>
