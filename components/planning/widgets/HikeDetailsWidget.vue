@@ -52,7 +52,7 @@
           :disabled="!$store.isSelectedTripOwner"
           :model-value="$store.selectedTrip?.starting_point"
           name="starting_point"
-          placeholder="Ending point"
+          placeholder="Starting point"
           size="sm"
           @update:model-value="updateTrip({ starting_point: $event as string | null })">
           <typography

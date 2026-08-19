@@ -113,7 +113,7 @@
           <typography
             v-else
             class="text-base text-center">
-            No todos found.
+            No shopping items yet.
           </typography>
         </tabs-content>
         <tabs-content :value="ResourceType.GROUP">
@@ -166,7 +166,7 @@
           <typography
             v-else
             class="text-base text-center">
-            No group todos found.
+            No group shopping items yet.
           </typography>
         </tabs-content>
       </tabs>

@@ -22,15 +22,17 @@
         .delete()
         .eq('id', $store.data.poll?.id as number);
 
-      if (error) { $appStore.notifyNegative('There was an error deleting the poll.'); }
-      else {
-        $store.data.poll = undefined;
+      if (error) {
+        $appStore.notifyNegative('There was an error deleting the poll.');
+        return;
       }
+
+      $store.data.poll = undefined;
+      emits('onClose');
     } catch {
       $appStore.notifyNegative('There was an error deleting the poll.');
     } finally {
       isSubmitting.value = false;
-      emits('onClose');
     }
   };
 </script>
