@@ -26,10 +26,28 @@ describe('ForumsWidget', () => {
       .toContain('Error occurred fetching forum posts.');
   });
 
-  it('renders empty/error state when there are no posts', async () => {
+  it('renders an empty community state when there are no posts', async () => {
     const wrapper = await mountSuspended(ForumsWidget, {
       props: {
         loading: false,
+        data: { latest_posts: [], categories: [] },
+      },
+    });
+
+    expect(wrapper.text())
+      .not
+      .toContain('Error occurred fetching forum posts.');
+    expect(wrapper.text())
+      .toContain('Forum previews will show here');
+    expect(wrapper.text())
+      .toContain('Upgrade in Profile');
+  });
+
+  it('renders fetch error separately from empty posts', async () => {
+    const wrapper = await mountSuspended(ForumsWidget, {
+      props: {
+        loading: false,
+        error: true,
         data: { latest_posts: [], categories: [] },
       },
     });

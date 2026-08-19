@@ -11,7 +11,6 @@
   const props = defineProps<Props>();
 
   const $store = useUserStore();
-  const profile = toRef($store, 'profile');
 
   const computedBorder = computed(() => {
     const classes = ['border-2', 'transition', 'duration-200', 'ease-out border-t-8'];
@@ -72,7 +71,7 @@
       </div>
       <button-root
         class="self-center mt-auto"
-        :disabled="plan.buttonDisabled || (profile?.subscriptions?.[0]?.prices?.identifier === plan.value)"
+        :disabled="plan.buttonDisabled || ($store.currentPlanIdentifier === plan.value)"
         size="sm"
         variant="secondary"
         @click="emit('handle-select', plan.value)">

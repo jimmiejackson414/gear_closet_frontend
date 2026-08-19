@@ -4,56 +4,99 @@
  * @summary Attach a new payment method to a customer
  * @param { PaymentMethod } paymentMethod.body.required - The payment method to attach
  */
+import { isError } from 'h3';
 import Stripe from 'stripe';
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
+import { getExistingBilling, insertCustomerRow } from '../../utils/persistStripeBilling';
+import { ensureStripeCustomerId } from '../../utils/stripeSubscriptionCreate';
+import { serverSupabaseClient, serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '@/types';
 
 const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string);
 
 export default defineEventHandler(async (event) => {
+  const user = await serverSupabaseUser(event);
+  if (!user?.sub) {
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthorized',
+    });
+  }
+
+  const { paymentMethodId } = await readBody(event);
+  if (!paymentMethodId) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'Payment method required',
+    });
+  }
+
   try {
     const supabase = await serverSupabaseClient<Database>(event);
-    const user = await serverSupabaseUser(event);
+    const admin = serverSupabaseServiceRole<Database>(event);
 
-    // fetch customer from supabase first
-    const { data: customer, error } = await supabase.from('customers')
-      .select('stripe_customer_id')
-      .eq('profile_id', user!.sub)
+    const { data: profile, error: profileError } = await supabase.from('profiles')
+      .select('first_name, last_name')
+      .eq('id', user.sub)
       .single();
 
-    if (error || !customer) {
+    if (profileError || !profile) {
       throw createError({
         statusCode: 500,
-        statusMessage: 'Error fetching customer',
+        statusMessage: 'Error fetching profile',
       });
     }
 
-    // Attach the payment method to the customer
-    const { paymentMethodId } = await readBody(event);
+    const billing = await getExistingBilling(admin, user.sub);
+    let stripeCustomerId = billing.stripeCustomerId;
+
+    if (!stripeCustomerId) {
+      stripeCustomerId = await ensureStripeCustomerId(stripe, {
+        profileId: user.sub,
+        email: user.email,
+        name: `${profile.first_name} ${profile.last_name}`,
+      });
+
+      try {
+        await insertCustomerRow(admin, {
+          profileId: user.sub,
+          stripeCustomerId,
+        });
+      } catch {
+        const afterInsert = await getExistingBilling(admin, user.sub);
+        if (!afterInsert.stripeCustomerId) {
+          throw createError({
+            statusCode: 500,
+            statusMessage: 'Error creating customer',
+          });
+        }
+        stripeCustomerId = afterInsert.stripeCustomerId;
+      }
+    }
+
     await stripe.paymentMethods.attach(paymentMethodId, {
-      customer: customer.stripe_customer_id as string,
+      customer: stripeCustomerId,
     });
 
-    // set it as the default payment method
-    await stripe.customers.update(customer.stripe_customer_id as string, {
+    await stripe.customers.update(stripeCustomerId, {
       invoice_settings: {
         default_payment_method: paymentMethodId,
       },
     });
 
-    // fetch the payment methods
     const paymentMethods = await stripe.paymentMethods.list({
-      customer: customer.stripe_customer_id as string,
+      customer: stripeCustomerId,
       type: 'card',
     });
 
     return {
       paymentMethods: paymentMethods.data,
     };
-  } catch {
+  } catch (err) {
+    if (isError(err)) throw err;
+
     throw createError({
       statusCode: 500,
-      statusMessage: 'Catch error attaching stripe payment method to customer',
+      statusMessage: 'Error attaching payment method',
     });
   }
 });
