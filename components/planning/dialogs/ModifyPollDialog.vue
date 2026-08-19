@@ -2,6 +2,7 @@
   import { IconCheck, IconCircleHelp } from '#components';
   import type { Database, Tables } from '@/types';
   import type { ExtendedPoll } from '@/types/helpers';
+  import { validatePollForm } from '@/utils/pollFormValidation';
 
   type PollForm = {
     question: Tables<'questions'>;
@@ -20,6 +21,11 @@
   const $appStore = useAppStore();
   const $store = usePlanningStore();
 
+  const validationErrors = reactive({
+    question: '',
+    answers: '',
+  });
+
   /** Deep clone so edits never share nested question/answers with the live store. */
   const cloneForm = (form: PollForm): PollForm => ({
     question: { ...form.question },
@@ -28,6 +34,11 @@
 
   const localForm = reactive<PollForm>(cloneForm(props.form));
 
+  const clearValidationErrors = () => {
+    validationErrors.question = '';
+    validationErrors.answers = '';
+  };
+
   watch(
     () => props.isOpen,
     (open) => {
@@ -35,21 +46,40 @@
         const next = cloneForm(props.form);
         localForm.question = next.question;
         localForm.answers = next.answers;
+        clearValidationErrors();
       }
     },
   );
 
+  const submitPoll = async () => {
+    const validation = validatePollForm({
+      question: localForm.question?.title ?? '',
+      answers: localForm.answers.map((answer) => answer.content ?? ''),
+    });
+
+    validationErrors.question = validation.errors.question ?? '';
+    validationErrors.answers = validation.errors.answers ?? '';
+
+    if (!validation.ok) return;
+
+    if (props.state === 'edit') {
+      await updatePoll(validation.filledAnswers);
+    } else {
+      await createPoll(validation.filledAnswers);
+    }
+  };
+
   /**
    * Update the selected trip's poll.
    */
-  const updatePoll = async () => {
+  const updatePoll = async (answers: string[]) => {
     try {
       isSubmitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const { data: updatedPoll, error } = await supabase.rpc('update_poll', {
         poll_id: $store.data.poll?.id as number,
-        question: localForm.question?.title as string,
-        answers: localForm.answers.map((a: Tables<'answers'>) => a.content) as string[],
+        question: localForm.question.title.trim(),
+        answers,
       })
         .select();
 
@@ -71,14 +101,14 @@
   /**
    * Create a new poll for the selected trip.
    */
-  const createPoll = async () => {
+  const createPoll = async (answers: string[]) => {
     try {
       isSubmitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const { data: newPoll, error } = await supabase.rpc('create_poll', {
         trip_id: Number($store.selectedTripId),
-        question: localForm.question?.title as string,
-        answers: localForm.answers.map((a: Tables<'answers'>) => a.content) as string[],
+        question: localForm.question.title.trim(),
+        answers,
       })
         .single();
 
@@ -115,6 +145,7 @@
    * Removes an answer from the poll.
    */
   const removeAnswer = (index: number) => {
+    if (localForm.answers.length <= 1) return;
     localForm.answers.splice(index, 1);
   };
 
@@ -122,6 +153,7 @@
    * Close without writing draft edits back to the store.
    */
   const handleClose = () => {
+    clearValidationErrors();
     emits('onClose');
   };
 </script>
@@ -155,8 +187,15 @@
           <input-root
             id="question"
             v-model="localForm.question.title"
+            :aria-invalid="Boolean(validationErrors.question)"
             placeholder="Where should we go hiking this year?"
-            :prepend-icon="IconCircleHelp" />
+            :prepend-icon="IconCircleHelp"
+            @update:model-value="validationErrors.question = ''" />
+          <p
+            v-if="validationErrors.question"
+            class="text-destructive text-sm">
+            {{ validationErrors.question }}
+          </p>
         </div>
         <div class="grid grid-cols-1 gap-4">
           <label-root for="answer">
@@ -170,19 +209,28 @@
               :id="`Answer-${index}`"
               v-model="_answer.content"
               :placeholder="`Answer ${index + 1}`"
-              :prepend-icon="IconCheck" />
+              :prepend-icon="IconCheck"
+              @update:model-value="validationErrors.answers = ''" />
             <button-root
               class="justify-self-end ml-2"
+              :disabled="localForm.answers.length <= 1"
               size="sm"
+              type="button"
               variant="ghost"
               @click="removeAnswer(index)">
               <icon-x class="text-destructive" />
             </button-root>
           </div>
+          <p
+            v-if="validationErrors.answers"
+            class="text-destructive text-sm">
+            {{ validationErrors.answers }}
+          </p>
           <button-root
             class="justify-self-start"
             :disabled="localForm.answers.length >= 6"
             size="sm"
+            type="button"
             variant="outline"
             @click="addAnswer">
             Add answer
@@ -198,7 +246,7 @@
         <button-root
           :disabled="isSubmitting"
           :loading="isSubmitting"
-          @click="state === 'edit' ? updatePoll() : createPoll()">
+          @click="submitPoll">
           {{ state === 'edit' ? 'Update' : 'Create' }}
         </button-root>
       </dialog-footer>

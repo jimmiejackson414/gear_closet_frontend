@@ -170,6 +170,20 @@ describe('Planning Page', async () => {
         .toBe(true);
     });
 
+    it('uses distinct starting and ending point placeholders', async () => {
+      const store = usePlanningStore();
+      store.$patch({
+        data: { trips, trip_details: tripDetails },
+        selectedTripId: String(trips[0]?.id),
+        pageLoading: false,
+      });
+      await wrapper.vm.$nextTick();
+
+      const inlineEdits = wrapper.findAllComponents({ name: 'GcInlineEdit' });
+      expect(inlineEdits[0]?.props('placeholder')).toBe('Starting point');
+      expect(inlineEdits[1]?.props('placeholder')).toBe('Ending point');
+    });
+
     it('renders the Create New Detail icon button if hike details are present', async () => {
       const store = usePlanningStore();
       const userStore = useUserStore();
