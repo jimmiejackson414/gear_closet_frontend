@@ -81,14 +81,30 @@ export async function findReusableStripeSubscription (
   ) ?? null;
 }
 
+async function attachDefaultPaymentMethod (
+  stripe: Stripe,
+  customerId: string,
+  paymentMethodId: string,
+) {
+  await stripe.paymentMethods.attach(paymentMethodId, { customer: customerId });
+  await stripe.customers.update(customerId, {
+    invoice_settings: { default_payment_method: paymentMethodId },
+  });
+}
+
 export async function ensureStripeSubscription (
   stripe: Stripe,
   input: {
     profileId: string;
     customerId: string;
     priceId: string;
+    paymentMethodId?: string;
   },
 ): Promise<Stripe.Subscription> {
+  if (input.paymentMethodId) {
+    await attachDefaultPaymentMethod(stripe, input.customerId, input.paymentMethodId);
+  }
+
   const existing = await findReusableStripeSubscription(stripe, input.customerId);
   if (!existing) {
     return stripe.subscriptions.create({
@@ -167,6 +183,7 @@ export async function createOrSyncPaidSubscription (
     email?: string | null;
     name: string;
     priceId: string;
+    paymentMethodId?: string;
   },
 ): Promise<{ ok: true }> {
   const existingBilling = await getExistingBilling(admin, input.profileId);
@@ -185,6 +202,7 @@ export async function createOrSyncPaidSubscription (
     profileId: input.profileId,
     customerId: stripeCustomerId,
     priceId: input.priceId,
+    paymentMethodId: input.paymentMethodId,
   });
 
   await persistBillingRows(admin, {

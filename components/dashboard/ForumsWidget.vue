@@ -7,6 +7,7 @@
       categories: ForumCategory[];
     };
     loading: boolean;
+    error?: boolean;
   }
 
   withDefaults(defineProps<Props>(), {
@@ -14,6 +15,7 @@
       latest_posts: [],
       categories: [],
     }),
+    error: false,
   });
 
   const $store = useUserStore();
@@ -35,10 +37,13 @@
       v-if="loading"
       avatar
       :lines="3" />
-    <div v-else>
-      <div
-        v-if="data.latest_posts.length"
-        class="grid lg:grid-cols-2 grid-cols-1 gap-8 lg:gap-0">
+    <div v-else-if="error">
+      <typography class="text-center">
+        Error occurred fetching forum posts.
+      </typography>
+    </div>
+    <div v-else-if="data.latest_posts.length">
+      <div class="grid lg:grid-cols-2 grid-cols-1 gap-8 lg:gap-0">
         <div class="border-gray-200 border-r pr-8">
           <forum-post
             v-for="post in data.latest_posts"
@@ -65,11 +70,25 @@
           </div>
         </div>
       </div>
-      <div v-else>
-        <typography class="text-center">
-          Error occurred fetching forum posts.
+    </div>
+    <div
+      v-else
+      class="flex flex-col items-center gap-3 py-4 text-center">
+      <template v-if="!$store.isPaidMember">
+        <typography>
+          Forum previews will show here once the community has posts. Upgrade to join the conversation.
         </typography>
-      </div>
+        <nuxt-link to="/profile">
+          <button-root
+            size="sm"
+            variant="outline">
+            Upgrade in Profile
+          </button-root>
+        </nuxt-link>
+      </template>
+      <typography v-else>
+        The community is warming up — be the first to start a discussion on the forums.
+      </typography>
     </div>
   </card>
 </template>
