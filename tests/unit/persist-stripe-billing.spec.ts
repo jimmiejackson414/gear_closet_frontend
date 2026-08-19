@@ -4,6 +4,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   getExistingBilling,
   insertCustomerAndSubscription,
+  insertCustomerRow,
   insertSubscriptionRow,
   updateSubscriptionRecord,
 } from '@/server/utils/persistStripeBilling';
@@ -89,6 +90,26 @@ describe('insertSubscriptionRow', () => {
         stripe_subscription_id: 'sub_123',
         price_id: 'price_123',
       }));
+  });
+});
+
+describe('insertCustomerRow', () => {
+  it('inserts a customer row for the session profile only', async () => {
+    const query = createThenableQuery({ data: [{ id: 'c1' }], error: null });
+    const from = vi.fn(() => query);
+
+    await insertCustomerRow(asClient(createSupabaseMock({ from })), {
+      profileId: 'user-1',
+      stripeCustomerId: 'cus_123',
+    });
+
+    expect(from)
+      .toHaveBeenCalledWith('customers');
+    expect(query.insert)
+      .toHaveBeenCalledWith({
+        stripe_customer_id: 'cus_123',
+        profile_id: 'user-1',
+      });
   });
 });
 

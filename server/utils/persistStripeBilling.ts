@@ -31,6 +31,29 @@ export async function getExistingBilling (
   };
 }
 
+export async function insertCustomerRow (
+  admin: SupabaseClient<Database>,
+  input: {
+    profileId: string;
+    stripeCustomerId: string;
+  },
+) {
+  const { data: customer, error: customerError } = await admin
+    .from('customers')
+    .insert({
+      stripe_customer_id: input.stripeCustomerId,
+      profile_id: input.profileId,
+    })
+    .select();
+
+  if (customerError || !customer?.length) {
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Error saving customer',
+    });
+  }
+}
+
 export async function insertSubscriptionRow (
   admin: SupabaseClient<Database>,
   input: {

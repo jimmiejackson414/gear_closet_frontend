@@ -5,12 +5,9 @@
  * @param { string } subscription.body.required - The subscription value to create
  */
 
+import { isError } from 'h3';
 import Stripe from 'stripe';
-import {
-  getExistingBilling,
-  insertCustomerAndSubscription,
-  insertSubscriptionRow,
-} from '../../utils/persistStripeBilling';
+import { createOrSyncPaidSubscription } from '../../utils/stripeSubscriptionCreate';
 import { serverSupabaseClient, serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server';
 import { isPaidPlanIdentifier } from '@/utils/planLimits';
 import type { Database } from '~/types';
@@ -39,11 +36,6 @@ export default defineEventHandler(async (event) => {
     const supabase = await serverSupabaseClient<Database>(event);
     const admin = serverSupabaseServiceRole<Database>(event);
 
-    const existingBilling = await getExistingBilling(admin, user.sub);
-    if (existingBilling.hasSubscription) {
-      return { ok: true };
-    }
-
     const { data: price, error: priceError } = await supabase.from('prices')
       .select('id')
       .eq('identifier', subscription)
@@ -61,39 +53,15 @@ export default defineEventHandler(async (event) => {
       });
     }
 
-    let stripeCustomerId = existingBilling.stripeCustomerId;
-    if (!stripeCustomerId) {
-      const stripeCustomer = await stripe.customers.create({
-        email: user.email,
-        name: `${profile.first_name} ${profile.last_name}`,
-        metadata: { profile_id: user.sub },
-      });
-      stripeCustomerId = stripeCustomer.id;
-    }
-
-    const stripeSubscription = await stripe.subscriptions.create({
-      customer: stripeCustomerId,
-      items: [{ price: price.id }],
-      metadata: { profile_id: user.sub },
+    return await createOrSyncPaidSubscription(stripe, admin, {
+      profileId: user.sub,
+      email: user.email,
+      name: `${profile.first_name} ${profile.last_name}`,
+      priceId: price.id,
     });
+  } catch (err) {
+    if (isError(err)) throw err;
 
-    if (existingBilling.stripeCustomerId) {
-      await insertSubscriptionRow(admin, {
-        profileId: user.sub,
-        stripeSubscription,
-        priceId: price.id,
-      });
-    } else {
-      await insertCustomerAndSubscription(admin, {
-        profileId: user.sub,
-        stripeCustomerId,
-        stripeSubscription,
-        priceId: price.id,
-      });
-    }
-
-    return { ok: !!stripeSubscription };
-  } catch {
     throw createError({
       statusCode: 500,
       statusMessage: 'Error creating subscription',
