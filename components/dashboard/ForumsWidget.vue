@@ -43,6 +43,20 @@
       </typography>
     </div>
     <div v-else-if="data.latest_posts.length">
+      <div
+        v-if="!$store.isPaidMember"
+        class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 bg-muted/50 mb-6 p-4 rounded-2xl">
+        <typography variant="small">
+          Preview only — upgrade to open threads and post in the Gear Closet forums.
+        </typography>
+        <nuxt-link to="/profile">
+          <button-root
+            size="sm"
+            variant="outline">
+            Upgrade in Profile
+          </button-root>
+        </nuxt-link>
+      </div>
       <div class="grid lg:grid-cols-2 grid-cols-1 gap-8 lg:gap-0">
         <div class="border-gray-200 border-r pr-8">
           <forum-post

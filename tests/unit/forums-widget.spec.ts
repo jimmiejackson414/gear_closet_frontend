@@ -82,4 +82,26 @@ describe('ForumsWidget', () => {
       .not
       .toContain('Error occurred fetching forum posts.');
   });
+
+  it('shows a visible upgrade banner for Free users when posts exist', async () => {
+    const store = useUserStore();
+    store.profile = {
+      subscriptions: [],
+    } as any;
+
+    const wrapper = await mountSuspended(ForumsWidget, {
+      props: {
+        loading: false,
+        data: {
+          latest_posts: forumPosts.latest_posts,
+          categories: forumPosts.categories,
+        },
+      },
+    });
+
+    expect(wrapper.text())
+      .toContain('Preview only');
+    expect(wrapper.text())
+      .toContain('Upgrade in Profile');
+  });
 });

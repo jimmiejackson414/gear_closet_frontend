@@ -63,8 +63,12 @@ describe('Dashboard', async () => {
       });
 
       const tripElements = wrapper.findAll('li');
+      const tripLinks = wrapper.findAllComponents({ name: 'NuxtLink' })
+        .filter((link) => link.props('to')?.name === 'planning' && link.props('to')?.query?.trip);
 
       expect(tripElements.length)
+        .toBe(upcomingTrips.length);
+      expect(tripLinks.length)
         .toBe(upcomingTrips.length);
 
       expect(wrapper.text())

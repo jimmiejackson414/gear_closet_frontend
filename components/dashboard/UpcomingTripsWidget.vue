@@ -31,13 +31,10 @@
     return { width: `${percentage}%` };
   };
 
-  const $router = useRouter();
-  const handleRouteClick = (trip: Tables<'trips'>) => {
-    $router.push({
-      name: 'planning',
-      query: { trip: encrypt(trip.id) },
-    });
-  };
+  const tripLink = (trip: Tables<'trips'>) => ({
+    name: 'planning',
+    query: { trip: encrypt(trip.id) },
+  });
 </script>
 
 <template>
@@ -61,29 +58,31 @@
         <ul class="divide-gray-200 divide-y">
           <li
             v-for="trip in data"
-            :key="trip.id"
-            class="cursor-pointer"
-            @click="handleRouteClick(trip)">
-            <div class="duration-150 ease-in-out flex items-stretch p-3 rounded-md space-x-4 hover:bg-gray-100">
-              <div class="flex-1 min-w-0">
-                <p class="font-semibold text-base text-muted-foreground truncate">
-                  {{ trip.name }}
-                </p>
-                <p class="text-muted-foreground text-sm truncate">
-                  {{ trip.description }}
-                </p>
-              </div>
-              <div class="flex justify-between flex-1 flex-col min-w-0">
-                <p class="font-medium inline-flex items-center text-base text-dark-gray">
-                  Begins {{ formattedRelativeDate(trip.starting_date) }}
-                </p>
-                <div class="bg-gray-200 h-2.5 rounded-full w-full">
-                  <div
-                    class="bg-linear-to-r from-accent-light to-accent-alt h-2.5 rounded-full"
-                    :style="calculatedProgress(trip)" />
+            :key="trip.id">
+            <nuxt-link
+              class="block duration-150 ease-in-out p-3 rounded-md hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+              :to="tripLink(trip)">
+              <div class="flex items-stretch space-x-4">
+                <div class="flex-1 min-w-0">
+                  <p class="font-semibold text-base text-muted-foreground truncate">
+                    {{ trip.name }}
+                  </p>
+                  <p class="text-muted-foreground text-sm truncate">
+                    {{ trip.description }}
+                  </p>
+                </div>
+                <div class="flex justify-between flex-1 flex-col min-w-0">
+                  <p class="font-medium inline-flex items-center text-base text-dark-gray">
+                    Begins {{ formattedRelativeDate(trip.starting_date) }}
+                  </p>
+                  <div class="bg-gray-200 h-2.5 rounded-full w-full">
+                    <div
+                      class="bg-linear-to-r from-accent-light to-accent-alt h-2.5 rounded-full"
+                      :style="calculatedProgress(trip)" />
+                  </div>
                 </div>
               </div>
-            </div>
+            </nuxt-link>
           </li>
         </ul>
       </div>
