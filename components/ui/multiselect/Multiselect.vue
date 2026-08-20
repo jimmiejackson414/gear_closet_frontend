@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script setup lang="ts" generic="T extends SelectOption">
   import {
     ComboboxAnchor,
     ComboboxContent,
@@ -9,7 +9,7 @@
   import type { SelectOption } from '@/types/helpers';
 
   interface Props {
-    options: SelectOption[];
+    options: T[];
     placeholder?: string;
     disabled?: boolean;
     loading?: boolean;
@@ -22,10 +22,11 @@
   });
   const emit = defineEmits<{
     (e: 'search', query: string): void;
-    (e: 'select', options: SelectOption[]): void;
+    (e: 'select', options: T[]): void;
   }>();
 
-  const modelValue = ref<SelectOption[]>([]);
+  // A generic component can't infer through `ref<T[]>`, so assert the ref type.
+  const modelValue = ref([]) as Ref<T[]>;
   const open = ref(false);
   const searchTerm = ref('');
   const isDisabled = computed(() => props.loading || props.disabled || false);
@@ -41,7 +42,7 @@
 
   // Add selected option to `modelValue`
   const inputRef = ref<HTMLElement | undefined>(undefined);
-  const handleSelect = (option: SelectOption) => {
+  const handleSelect = (option: T) => {
     if (!modelValue.value.some((item) => item.value === option.value)) {
       modelValue.value.push(option);
       emit('select', modelValue.value);
@@ -54,7 +55,7 @@
   };
 
   // Remove selected option from `modelValue`
-  const removeOption = (option: SelectOption) => {
+  const removeOption = (option: T) => {
     modelValue.value = modelValue.value.filter((item) => item.value !== option.value);
   };
 </script>

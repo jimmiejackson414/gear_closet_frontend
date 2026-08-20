@@ -1,12 +1,13 @@
 <script lang='ts' setup>
-  import type { Database, Tables } from '@/types';
+  import type { Database, Tables, TablesUpdate } from '@/types';
   import type { ExtendedCategory, ExtendedPack } from '@/types/helpers';
 
   const $store = useClosetStore();
 
+  /** Only the inline-editable category columns are ever emitted from the table. */
   interface UpdateCategoryPayload {
     id: number;
-    field: keyof ExtendedCategory;
+    field: 'name' | 'unit';
     value: string;
   }
 
@@ -79,11 +80,10 @@
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
+      const patch: TablesUpdate<'categories'> = { [field]: value };
       const { data: updatedCategory, error } = await supabase
         .from('categories')
-        .update({
-          [field]: value,
-        } as any)
+        .update(patch)
         .eq('id', id)
         .select();
 

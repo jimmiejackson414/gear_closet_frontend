@@ -1,15 +1,14 @@
-import { Stripe } from 'stripe';
+import type { ProfileWithSubscriptions } from '@/stores/user';
 import type { Tables } from '@/types';
+import type { Stripe } from 'stripe';
 
 export type SubscriptionType = Tables<'subscriptions'> & {
-  prices: Tables<'prices'>;
+  prices: Tables<'prices'> | null;
 };
 
-export type ProfileLayoutResponse = Tables<'profiles'> & {
-  subscriptions: SubscriptionType[];
-};
+export type ProfileLayoutResponse = ProfileWithSubscriptions;
 
-export type ProfileApiResponse = ProfileLayoutResponse & {
+export type ProfileApiResponse = ProfileWithSubscriptions & {
   onboarding_steps?: Tables<'onboarding_steps'>[];
 };
 
@@ -26,7 +25,6 @@ export type ExtendedCategoryItem = Tables<'category_items'> & {
 };
 
 export type ExtendedCategory = Tables<'categories'> & {
-  [key: string]: any;
   category_items: ExtendedCategoryItem[];
 };
 
@@ -128,7 +126,6 @@ export type ForumCategories = {
 export type SelectOption = {
   label: string;
   value: string | number;
-  [key: string]: any;
 };
 
 // Closet page CSV import results
@@ -143,8 +140,4 @@ export type ParsedResults = {
     linebreak: string;
     truncated: boolean;
   }
-};
-
-export type ImportClosetCsvResponse = {
-  categories: ExtendedCategory[];
 };

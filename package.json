@@ -8,7 +8,7 @@
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "typegen": "npx supabase gen types typescript --local public > ./types/index.ts && tsx scripts/generateEnums.ts",
+    "typegen": "npx supabase gen types typescript --local --schema public --schema storage > ./types/index.ts && tsx scripts/generateEnums.ts",
     "typecheck": "npx nuxi typecheck",
     "lint": "npx eslint .",
     "test:unit": "npx vitest watch",

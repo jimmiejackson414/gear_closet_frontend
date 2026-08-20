@@ -69,8 +69,8 @@ export const calculateCategoryWeight = (category: ExtendedCategory) =>
  */
 export const calculateCategoryPrice = (category: ExtendedCategory) => {
   if (!category || !category.category_items.length) return 0;
-  return category.category_items.reduce((allTotal: number, elem: any) => {
-    const sum = elem.item.price * elem.item.quantity;
+  return category.category_items.reduce((allTotal, elem) => {
+    const sum = (elem.item.price ?? 0) * (elem.item.quantity ?? 0);
     return allTotal + sum;
   }, 0);
 };
@@ -82,10 +82,7 @@ export const calculateCategoryPrice = (category: ExtendedCategory) => {
  */
 export const calculateCategoryQuantity = (category: ExtendedCategory) => {
   if (!category || !category.category_items.length) return 0;
-  return category.category_items.reduce((allTotal: number, elem: any) => {
-    const sum = elem.item.quantity;
-    return allTotal + sum;
-  }, 0);
+  return category.category_items.reduce((allTotal, elem) => allTotal + (elem.item.quantity ?? 0), 0);
 };
 
 /**
@@ -225,6 +222,7 @@ export const convertCurrency = (
  * @param func
  * @param waitFor
  */
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) => {
   let timeoutId: NodeJS.Timeout | null = null;
 

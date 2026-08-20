@@ -13,7 +13,8 @@ function transformEnumName (name: string): string {
     .join('');
 }
 
-// Function to parse and extract enums from Database['public']['Enums']
+// Function to parse and extract enums from Database['public']['Enums'].
+// Scoped to the public schema so enums from storage internals aren't emitted.
 function extractEnums (content: string): Record<string, string[]> {
   const sourceFile = ts.createSourceFile('types.ts', content, ts.ScriptTarget.Latest, true);
   const enums: Record<string, string[]> = {};
@@ -46,7 +47,22 @@ function extractEnums (content: string): Record<string, string[]> {
     ts.forEachChild(node, visit);
   }
 
-  visit(sourceFile);
+  function findPublicSchema (node: ts.Node): ts.TypeLiteralNode | undefined {
+    if (ts.isPropertySignature(node) &&
+      node.name.getText() === 'public' &&
+      node.type &&
+      ts.isTypeLiteralNode(node.type)) {
+      return node.type;
+    }
+    return ts.forEachChild(node, findPublicSchema);
+  }
+
+  const publicSchema = findPublicSchema(sourceFile);
+  if (!publicSchema) {
+    throw new Error('Could not locate the public schema in types/index.ts');
+  }
+
+  visit(publicSchema);
 
   return enums;
 }
