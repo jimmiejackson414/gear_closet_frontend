@@ -105,19 +105,20 @@
 </script>
 
 <template>
-  <div class="bg-gray-50 duration-200 ease-out my-4 px-8 py-4 rounded-2xl shadow-xs hover:shadow-xl transition w-fit">
-    <div class="grid grid-cols-[auto_1fr] gap-4 items-center">
+  <div class="bg-gray-50 duration-200 ease-out my-4 px-4 sm:px-8 py-4 rounded-2xl shadow-xs hover:shadow-xl transition w-full min-w-0 sm:w-auto">
+    <div class="flex flex-col gap-4 sm:grid sm:grid-cols-[auto_1fr] sm:items-center">
       <gc-avatar
+        class="shrink-0"
         :initials="initials(friend.sender)"
         size="xl"
         :url="buildImageSrc(friend.sender.image)" />
-      <div class="flex flex-col">
-        <typography class="font-bold">
+      <div class="flex flex-col min-w-0">
+        <typography class="font-bold truncate">
           {{ friendlyUsername(friend.sender, { includeTrailName: true }) }}
         </typography>
         <div
           v-if="!madeSelection"
-          class="flex gap-4 mt-2">
+          class="flex flex-wrap gap-3 mt-2">
           <button-root
             :disabled="submittingDecline || submittingAccept"
             :loading="submittingDecline"

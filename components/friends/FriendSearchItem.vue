@@ -67,32 +67,34 @@
 </script>
 
 <template>
-  <div class="bg-gray-50 shadow-xs hover:shadow-xl my-4 px-8 py-4 rounded-2xl w-fit transition duration-200 ease-out">
-    <div class="flex items-center gap-4">
-      <gc-avatar
-        :initials="initials(profile)"
-        size="lg"
-        :url="buildImageSrc(profile.image)" />
-      <div class="flex flex-col">
-        <typography class="font-bold!">
-          {{ friendlyUsername(profile) }}
-        </typography>
+  <div class="bg-gray-50 shadow-xs hover:shadow-xl my-4 px-4 sm:px-8 py-4 rounded-2xl w-full min-w-0 sm:w-auto transition duration-200 ease-out">
+    <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
+      <div class="flex items-center gap-4 min-w-0">
+        <gc-avatar
+          class="shrink-0"
+          :initials="initials(profile)"
+          size="lg"
+          :url="buildImageSrc(profile.image)" />
+        <div class="flex flex-col min-w-0">
+          <typography class="font-bold! truncate">
+            {{ friendlyUsername(profile) }}
+          </typography>
+        </div>
       </div>
       <button-root
         v-if="!submittedRequest"
+        class="sm:ml-auto shrink-0"
         :disabled="submitting"
         :loading="submitting"
         size="sm"
         @click="handleAddFriend">
         Add Friend
       </button-root>
-      <div
+      <typography
         v-else
-        class="flex mt-2">
-        <typography class="text-muted-foreground text-xs italic">
-          Invite requested
-        </typography>
-      </div>
+        class="text-muted-foreground text-xs italic sm:ml-auto">
+        Invite requested
+      </typography>
     </div>
   </div>
 </template>

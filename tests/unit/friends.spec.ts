@@ -3,6 +3,8 @@ import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import FriendRequestItem from '@/components/friends/FriendRequestItem.vue';
 import FriendSearchItem from '@/components/friends/FriendSearchItem.vue';
+import FriendItem from '@/components/friends/FriendItem.vue';
+import RemoveFriendDialog from '@/components/friends/RemoveFriendDialog.vue';
 import { useAppStore } from '@/stores/app';
 import { useUserStore } from '@/stores/user';
 import { friends } from '@/tests/unit/mocks/dashboard.mock';
@@ -290,6 +292,65 @@ describe('Friends components', () => {
         ]);
       expect(wrapper.text())
         .toContain('Invite requested');
+    });
+  });
+
+  describe('FriendItem', () => {
+    it('shows a remove action', async () => {
+      const wrapper = await mountSuspended(FriendItem, {
+        props: { friend: friends[0]! },
+      });
+
+      expect(wrapper.text())
+        .toContain('Remove');
+    });
+  });
+
+  describe('RemoveFriendDialog', () => {
+    it('deletes both friendship rows and emits removed', async () => {
+      const friendship = friends[0]!;
+      const ownRowQuery = createThenableQuery({ data: null, error: null });
+      const reciprocalRowQuery = createThenableQuery({ data: null, error: null });
+      let deleteCall = 0;
+
+      supabaseClient.current = createSupabaseMock({
+        from: (table) => {
+          if (table !== 'friends') {
+            return createThenableQuery({ data: null, error: null });
+          }
+          deleteCall += 1;
+          return deleteCall === 1 ? ownRowQuery : reciprocalRowQuery;
+        },
+      });
+
+      const wrapper = await mountSuspended(RemoveFriendDialog, {
+        props: {
+          friend: friendship,
+          isOpen: true,
+        },
+      });
+      const appStore = useAppStore();
+      const positiveSpy = vi.spyOn(appStore, 'notifyPositive');
+
+      const removeBtn = wrapper.findAllComponents({ name: 'Button' })
+        .find((btn) => btn.text()
+          .includes('Remove Friend'));
+      expect(removeBtn)
+        .toBeTruthy();
+      await removeBtn!.trigger('click');
+      await flushPromises();
+      await wrapper.vm.$nextTick();
+
+      expect(ownRowQuery.delete)
+        .toHaveBeenCalled();
+      expect(reciprocalRowQuery.delete)
+        .toHaveBeenCalled();
+      expect(positiveSpy)
+        .toHaveBeenCalledWith('Friend removed.');
+      expect(wrapper.emitted('removed')?.[0])
+        .toEqual([friendship.id]);
+      expect(wrapper.emitted('close'))
+        .toBeTruthy();
     });
   });
 });
