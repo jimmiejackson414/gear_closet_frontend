@@ -28,8 +28,11 @@
   /**
    * Performs search for existing friends.
    */
+  /** Friend results carry an avatar, rendered by the multiselect's option slot. */
+  type FriendSelectOption = SelectOption & { image: string | null };
+
   const searching = ref(false);
-  const searchResults = ref<SelectOption[]>([]);
+  const searchResults = ref<FriendSelectOption[]>([]);
   // shallowRef: replaced wholesale, never deeply mutated, and the deep unwrap
   // of a full profiles row otherwise trips TS2589 on assignment.
   const friendObjects = shallowRef<Tables<'profiles'>[]>([]);

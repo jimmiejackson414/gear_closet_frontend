@@ -1,5 +1,8 @@
-import { Stripe } from 'stripe';
 import type { Tables } from '@/types';
+// Fully type-only: under verbatimModuleSyntax, `import { type Stripe }` still
+// emits a bare `import {} from 'stripe'`, which would put the server-side
+// Stripe SDK in the module graph of any client file importing this for a value.
+import type { Stripe } from 'stripe';
 
 export type SubscriptionType = Tables<'subscriptions'> & {
   prices: Tables<'prices'>;
@@ -26,7 +29,6 @@ export type ExtendedCategoryItem = Tables<'category_items'> & {
 };
 
 export type ExtendedCategory = Tables<'categories'> & {
-  [key: string]: any;
   category_items: ExtendedCategoryItem[];
 };
 
@@ -128,7 +130,6 @@ export type ForumCategories = {
 export type SelectOption = {
   label: string;
   value: string | number;
-  [key: string]: any;
 };
 
 // Closet page CSV import results
@@ -143,8 +144,4 @@ export type ParsedResults = {
     linebreak: string;
     truncated: boolean;
   }
-};
-
-export type ImportClosetCsvResponse = {
-  categories: ExtendedCategory[];
 };
