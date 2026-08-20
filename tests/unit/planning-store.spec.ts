@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAppStore } from '@/stores/app';
 import { normalizePlanningPageData, usePlanningStore } from '@/stores/planning';
-import { todos, trips } from '@/tests/unit/mocks/planning.mock';
+import { todos, tripFriends, trips } from '@/tests/unit/mocks/planning.mock';
 import {
   createDeferred,
   createSupabaseMock,
@@ -61,6 +61,17 @@ describe('stores/planning', () => {
         .toEqual([]);
       expect(normalized.shopping_items)
         .toEqual([]);
+    });
+
+    it('keeps nested friend_profile from the RPC payload', () => {
+      const normalized = normalizePlanningPageData({
+        trips,
+        friends: tripFriends,
+      } as any);
+      expect(normalized.friends)
+        .toEqual(tripFriends);
+      expect(normalized.friends[0]?.friend_profile?.first_name)
+        .toBe('Shelly');
     });
   });
 

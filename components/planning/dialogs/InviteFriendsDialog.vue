@@ -107,7 +107,11 @@
 
       if (invitedFriends?.length && !error) {
         $appStore.notifyPositive('Successfully invited friends to trip!');
-        $store.data.friends.push(...invitedFriends);
+        const profilesById = new Map(friendsToInvite.value.map(profile => [profile.id, profile]));
+        $store.data.friends.push(...invitedFriends.map(friend => ({
+          ...friend,
+          friend_profile: profilesById.get(friend.profile_id) ?? null,
+        })));
       } else if (error) {
         $appStore.notifyNegative(error.message || 'There was an error inviting friends to the trip.');
       }
