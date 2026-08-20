@@ -1,14 +1,11 @@
 <script lang='ts' setup>
   import { TripFriendStatus } from '@/types';
-  import type { Database, Tables } from '@/types';
 
   const $store = usePlanningStore();
-  const $appStore = useAppStore();
   const data = toRef($store, 'data');
   const pageLoading = toRef($store, 'pageLoading');
 
   const isInviteModalOpen = ref(false);
-  const friendProfiles = ref<Record<string, Tables<'profiles'>>>({});
 
   const statusLabel = (status: string) => {
     switch (status) {
@@ -21,46 +18,6 @@
       return 'Pending';
     }
   };
-
-  const fetchFriendProfiles = async (friends: Tables<'trip_friends'>[]) => {
-    const missingIds = [...new Set(
-      friends
-        .map(f => f.profile_id)
-        .filter(id => id && !friendProfiles.value[id]),
-    )];
-    if (!missingIds.length) return;
-
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const { data: profiles, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .in('id', missingIds);
-
-      if (error) {
-        $appStore.notifyNegative(error.message || 'There was an error loading friend profiles.');
-        return;
-      }
-
-      if (profiles?.length) {
-        const next = { ...friendProfiles.value };
-        for (const profile of profiles) {
-          next[profile.id] = profile;
-        }
-        friendProfiles.value = next;
-      }
-    } catch {
-      $appStore.notifyNegative('There was an error loading friend profiles.');
-    }
-  };
-
-  watch(
-    () => data.value.friends,
-    (friends) => {
-      void fetchFriendProfiles(friends ?? []);
-    },
-    { immediate: true, deep: true },
-  );
 </script>
 
 <template>
@@ -106,12 +63,12 @@
         :key="friend.id"
         class="flex items-center gap-3">
         <gc-avatar
-          :initials="initials(friendProfiles[friend.profile_id])"
+          :initials="initials(friend.friend_profile)"
           size="sm"
-          :url="buildImageSrc(friendProfiles[friend.profile_id]?.image)" />
+          :url="buildImageSrc(friend.friend_profile?.image)" />
         <div class="flex flex-1 justify-between items-center gap-2 min-w-0">
           <typography class="font-medium truncate">
-            {{ friendlyUsername(friendProfiles[friend.profile_id]) || 'Unknown friend' }}
+            {{ friend.friend_profile ? friendlyUsername(friend.friend_profile) : 'Unknown friend' }}
           </typography>
           <badge
             class="shrink-0"

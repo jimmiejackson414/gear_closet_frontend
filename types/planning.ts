@@ -5,6 +5,11 @@ export type ExtendedFriend = Tables<'friends'> & {
   friend: Tables<'profiles'>;
 };
 
+/** `get_planning_page_data` friend row: trip_friends plus nested `friend_profile`. */
+export type ExtendedTripFriend = Tables<'trip_friends'> & {
+  friend_profile: Tables<'profiles'> | null;
+};
+
 export type ExtendedFriendInvite = Tables<'friend_invitations'> & {
   recipient: Tables<'profiles'>;
   sender: Tables<'profiles'>;
