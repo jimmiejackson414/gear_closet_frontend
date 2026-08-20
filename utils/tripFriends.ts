@@ -58,6 +58,18 @@ export const tripFriendEmailSet = (
   return emails;
 };
 
+export const pendingInviteEmailSet = (
+  invites: Array<{ email?: string | null }>,
+) => {
+  const emails = new Set<string>();
+  for (const invite of invites) {
+    const email = invite.email?.trim()
+      .toLowerCase();
+    if (email) emails.add(email);
+  }
+  return emails;
+};
+
 export const toFriendSelectOptions = <T extends { id: string; image: string | null }>(
   profiles: T[],
   onTripByProfileId: Map<string, string>,

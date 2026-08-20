@@ -21,8 +21,8 @@ describe('authRedirect', () => {
   it('accepts relative app paths and query strings', () => {
     expect(safeInternalPath('/planning?trip=12'))
       .toBe('/planning?trip=12');
-    expect(safeInternalPath('/'))
-      .toBe('/');
+    expect(safeInternalPath('/invite/trip?token=abc'))
+      .toBe('/invite/trip?token=abc');
   });
 
   it('rejects protocol-relative and auth-loop paths', () => {

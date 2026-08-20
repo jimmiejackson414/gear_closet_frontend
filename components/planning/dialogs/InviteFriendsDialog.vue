@@ -3,6 +3,7 @@
   import { NotificationKind } from '@/utils/notifications';
   import {
     parseInviteEmail,
+    pendingInviteEmailSet,
     toFriendSelectOptions,
     tripFriendEmailSet,
     tripFriendStatusByProfileId,
@@ -37,7 +38,13 @@
   const submitting = ref(false);
 
   const onTripByProfileId = computed(() => tripFriendStatusByProfileId($store.data.friends));
-  const onTripEmails = computed(() => tripFriendEmailSet($store.data.friends));
+  const onTripEmails = computed(() => {
+    const emails = tripFriendEmailSet($store.data.friends);
+    for (const email of pendingInviteEmailSet($store.data.pending_invites ?? [])) {
+      emails.add(email);
+    }
+    return emails;
+  });
 
   const canSubmit = computed(() =>
     friendsToInvite.value.length > 0 || emailsToInvite.value.length > 0);
@@ -208,7 +215,7 @@
           Invite to trip
         </dialog-title>
         <dialog-description>
-          Friends on your list get an in-app invite. Anyone else can be invited by email.
+          Friends on your list get an in-app invite. Anyone else can be invited by email — they'll get a link to join even if they don't have an account yet.
         </dialog-description>
       </dialog-header>
       <div class="flex flex-col gap-6 mt-4 w-full">

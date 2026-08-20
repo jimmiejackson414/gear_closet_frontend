@@ -1129,6 +1129,67 @@ export type Database = {
           },
         ]
       }
+      trip_invitations: {
+        Row: {
+          claimed_profile_id: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: number
+          invited_by_id: string
+          status: Database["public"]["Enums"]["trip_invitation_status"]
+          token_hash: string
+          trip_id: number
+          updated_at: string
+        }
+        Insert: {
+          claimed_profile_id?: string | null
+          created_at?: string
+          email: string
+          expires_at: string
+          id?: number
+          invited_by_id: string
+          status?: Database["public"]["Enums"]["trip_invitation_status"]
+          token_hash: string
+          trip_id: number
+          updated_at?: string
+        }
+        Update: {
+          claimed_profile_id?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: number
+          invited_by_id?: string
+          status?: Database["public"]["Enums"]["trip_invitation_status"]
+          token_hash?: string
+          trip_id?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_invitations_claimed_profile_id_fkey"
+            columns: ["claimed_profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_invitations_invited_by_id_fkey"
+            columns: ["invited_by_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_invitations_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trip_packs: {
         Row: {
           created_at: string | null
@@ -1332,6 +1393,7 @@ export type Database = {
         | "HUECIRCLE19"
       trip_details_type: "HIKE" | "TRIP"
       trip_friend_status: "ACCEPTED" | "DECLINED" | "PENDING"
+      trip_invitation_status: "PENDING" | "CLAIMED" | "CANCELED"
       user_role: "ADMIN" | "USER"
     }
     CompositeTypes: {
@@ -2047,6 +2109,7 @@ export const Constants = {
       ],
       trip_details_type: ["HIKE", "TRIP"],
       trip_friend_status: ["ACCEPTED", "DECLINED", "PENDING"],
+      trip_invitation_status: ["PENDING", "CLAIMED", "CANCELED"],
       user_role: ["ADMIN", "USER"],
     },
   },
@@ -2139,6 +2202,12 @@ export enum TripFriendStatus {
   ACCEPTED = "ACCEPTED",
   DECLINED = "DECLINED",
   PENDING = "PENDING"
+}
+
+export enum TripInvitationStatus {
+  PENDING = "PENDING",
+  CLAIMED = "CLAIMED",
+  CANCELED = "CANCELED"
 }
 
 export enum UserRole {

@@ -2,13 +2,45 @@
   import { tripFriendStatusLabel, tripFriendStatusVariant } from '@/utils/tripFriends';
 
   const $store = usePlanningStore();
+  const $appStore = useAppStore();
   const data = toRef($store, 'data');
   const pageLoading = toRef($store, 'pageLoading');
 
   const isInviteModalOpen = ref(false);
+  const resendingEmail = ref<string | null>(null);
 
   const canInvite = computed(() =>
     !pageLoading.value && $store.isSelectedTripOwner);
+
+  const pendingInvites = computed(() => data.value.pending_invites ?? []);
+  const hasPeople = computed(() =>
+    data.value.friends.length > 0 || pendingInvites.value.length > 0);
+
+  const resendInvite = async (email: string) => {
+    const tripId = Number($store.selectedTripId);
+    if (!tripId || resendingEmail.value) return;
+
+    try {
+      resendingEmail.value = email;
+      await $fetch(`/api/trips/${tripId}/invites`, {
+        method: 'POST',
+        body: { emails: [email] },
+      });
+      $appStore.notifyPositive('Invites sent.');
+      void $store.fetchPlanningPage(tripId);
+    } catch (err) {
+      const status = typeof err === 'object' && err && 'statusCode' in err
+        ? Number((err as { statusCode: unknown }).statusCode)
+        : 0;
+      $appStore.notifyNegative(
+        status === 429
+          ? 'Too many invites. Try again later.'
+          : 'There was an error inviting friends to the trip.',
+      );
+    } finally {
+      resendingEmail.value = null;
+    }
+  };
 </script>
 
 <template>
@@ -30,7 +62,7 @@
       </button-root>
     </div>
     <gc-skeleton v-if="pageLoading" />
-    <gc-empty-state v-else-if="!pageLoading && !data.friends.length">
+    <gc-empty-state v-else-if="!hasPeople">
       <p class="mb-4 text-base">
         {{ $store.isSelectedTripOwner ? "You haven't added any friends to this trip yet!" : 'No friends on this trip yet.' }}
       </p>
@@ -53,7 +85,7 @@
       class="flex flex-col gap-3">
       <li
         v-for="friend in data.friends"
-        :key="friend.id"
+        :key="`friend-${friend.id}`"
         class="flex items-center gap-3">
         <gc-avatar
           :initials="initials(friend.friend_profile)"
@@ -68,6 +100,37 @@
             :variant="tripFriendStatusVariant(friend.status)">
             {{ tripFriendStatusLabel(friend.status) }}
           </badge>
+        </div>
+      </li>
+      <li
+        v-for="invite in pendingInvites"
+        :key="`pending-${invite.id}`"
+        class="flex items-center gap-3">
+        <div class="flex justify-center items-center bg-muted rounded-full size-8 text-muted-foreground shrink-0">
+          <icon-mail
+            aria-hidden="true"
+            class="size-4" />
+        </div>
+        <div class="flex flex-1 justify-between items-center gap-2 min-w-0">
+          <typography class="font-medium truncate">
+            {{ invite.email }}
+          </typography>
+          <div class="flex items-center gap-2 shrink-0">
+            <badge variant="secondary">
+              Pending
+            </badge>
+            <button-root
+              v-if="canInvite"
+              data-testid="trip-invite-resend"
+              :disabled="resendingEmail === invite.email"
+              :loading="resendingEmail === invite.email"
+              size="sm"
+              type="button"
+              variant="outline"
+              @click="resendInvite(invite.email)">
+              Resend
+            </button-root>
+          </div>
         </div>
       </li>
     </ul>

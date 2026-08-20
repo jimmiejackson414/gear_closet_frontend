@@ -1,7 +1,7 @@
 /**
  * @api {post} /trips/:id/invites Invite existing users by email
  * @apiName InviteTripByEmail
- * @summary Resolve emails server-side and invite matching profiles. Always returns a generic success payload.
+ * @summary Invite matching profiles, or create a pending claim invitation when no account exists. Always returns a generic success payload.
  */
 import { isError } from 'h3';
 import { serverSupabaseClient, serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server';
