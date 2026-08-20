@@ -159,6 +159,18 @@
     }
   }, 500));
 
+  const searchSectionRef = ref<HTMLElement | null>(null);
+  const searchInputRef = ref<{ focusInput: () => void } | null>(null);
+
+  const focusFriendSearch = () => {
+    searchSectionRef.value?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    searchInputRef.value?.focusInput();
+  };
+
+  const handleRemoveFriend = (friendshipId: number) => {
+    currentFriends.value = currentFriends.value.filter(friend => friend.id !== friendshipId);
+  };
+
   useHead({
     title: 'Friends',
     meta: [
@@ -187,7 +199,7 @@
       </div>
       <div
         v-if="filteredRequests.length"
-        class="flex gap-4">
+        class="flex flex-wrap gap-4">
         <friend-request-item
           v-for="request in filteredRequests"
           :key="request.id"
@@ -204,17 +216,19 @@
 
     <separator class="my-8" />
 
-    <div class="flex justify-center flex-col">
+    <div
+      id="friend-search"
+      ref="searchSectionRef"
+      class="flex justify-center flex-col">
       <div>
-        <div class="grid grid-cols-[auto_1fr] gap-8 justify-start items-center">
-          <typography class="font-bold!">
+        <div class="flex flex-col gap-4 sm:grid sm:grid-cols-[auto_1fr] sm:gap-8 sm:items-center">
+          <typography class="font-bold! shrink-0">
             Find New Friends
           </typography>
           <input-root
+            ref="searchInputRef"
             v-model="searchQuery"
-            class="w-96"
-            :disabled="searching"
-            :loading="searching"
+            class="w-full max-w-md"
             name="friend-search"
             placeholder="Search by name or email"
             :prepend-icon="IconSearch" />
@@ -227,24 +241,25 @@
         <div
           v-else-if="results.length && !searching"
           class="mt-8">
-          <div class="flex justify-start items-center">
+          <div class="flex flex-wrap justify-start items-center gap-2">
             <typography
               class="font-bold uppercase"
               size="sm">
               Results ({{ results.length }})
             </typography>
             <button-root
-              class="ml-4"
+              class="ml-0 sm:ml-4"
               :disabled="!results.length || showAllResults || results.length < 5"
               variant="ghost"
               @click="showAllResults = true">
               See All
             </button-root>
           </div>
-          <div class="flex gap-4">
+          <div class="flex flex-wrap gap-4">
             <friend-search-item
               v-for="result in filteredResults"
               :key="result.id"
+              class="w-full sm:w-auto sm:max-w-md"
               :profile="result"
               :request-pending="pendingRequestIds.includes(result.id)" />
           </div>
@@ -274,17 +289,28 @@
       </div>
       <div
         v-if="filteredFriends.length"
-        class="flex gap-4">
+        class="flex flex-wrap gap-4">
         <friend-item
           v-for="friend in filteredFriends"
           :key="friend.id"
-          :friend="friend" />
+          class="w-full sm:w-auto sm:max-w-50"
+          :friend="friend"
+          @removed="handleRemoveFriend" />
       </div>
-      <typography
-        v-else
-        class="mb-8 text-muted-foreground">
-        You haven't connected with any friends quite yet.
-      </typography>
+      <gc-empty-state v-else>
+        <typography class="mb-4">
+          You haven't connected with any friends quite yet.
+        </typography>
+        <typography class="mb-4 text-sm">
+          Search by name or email to send a friend request.
+        </typography>
+        <button-root
+          size="sm"
+          variant="outline"
+          @click="focusFriendSearch">
+          Find Friends
+        </button-root>
+      </gc-empty-state>
     </div>
   </div>
 </template>
