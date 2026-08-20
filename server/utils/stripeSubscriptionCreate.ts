@@ -1,5 +1,3 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type Stripe from 'stripe';
 import {
   getExistingBilling,
   insertCustomerRow,
@@ -7,6 +5,8 @@ import {
   updateSubscriptionRecord,
 } from './persistStripeBilling';
 import type { Database } from '@/types';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type Stripe from 'stripe';
 
 const REUSABLE_SUBSCRIPTION_STATUSES = new Set<Stripe.Subscription.Status>([
   'active',

@@ -1,12 +1,12 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { computed, type HTMLAttributes } from 'vue';
   import {
     DropdownMenuSubContent,
+    useForwardPropsEmits,
     type DropdownMenuSubContentEmits,
     type DropdownMenuSubContentProps,
-    useForwardPropsEmits,
   } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DropdownMenuSubContentProps & { class?: HTMLAttributes['class'] }>();

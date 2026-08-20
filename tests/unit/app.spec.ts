@@ -1,11 +1,11 @@
-import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
-import type { VueWrapper } from '@vue/test-utils';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
 import VueTippy from 'vue-tippy';
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import app from '@/app.vue';
 import GcDrawer from '@/components/common/GcDrawer.vue';
 import GcNavbar from '@/components/common/GcNavbar.vue';
 import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
+import type { VueWrapper } from '@vue/test-utils';
 
 const { useSupabaseClient } = vi.hoisted(() => {
   return {
@@ -95,7 +95,8 @@ describe('App', async () => {
         .toBe('Open notifications');
 
       const themeToggle = wrapper.findAll('button')
-        .find((btn) => Boolean(btn.attributes('aria-label')?.includes('Switch to')));
+        .find((btn) => Boolean(btn.attributes('aria-label')
+          ?.includes('Switch to')));
       expect(themeToggle?.attributes('aria-label'))
         .toMatch(/Switch to (light|dark) mode/);
     });

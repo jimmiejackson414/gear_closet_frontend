@@ -5,10 +5,10 @@ import { useAppStore } from '@/stores/app';
 import { useClosetStore } from '@/stores/closet';
 import { selectedPack } from '@/tests/unit/mocks/closet.mock';
 import {
-  type QueryResult,
   createDeferred,
   createSupabaseMock,
   createThenableQuery,
+  type QueryResult,
 } from '@/tests/unit/mocks/supabase.mock';
 import type { ExtendedPack } from '@/types/helpers';
 

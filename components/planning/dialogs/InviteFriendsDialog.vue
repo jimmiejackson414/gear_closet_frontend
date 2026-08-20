@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-  import { type Database, type Tables, type TablesInsert, TripFriendStatus } from '@/types';
-  import type { SelectOption } from '@/types/helpers';
+  import { TripFriendStatus, type Database, type Tables, type TablesInsert } from '@/types';
   import { NotificationKind } from '@/utils/notifications';
+  import type { SelectOption } from '@/types/helpers';
 
   type FriendSearchResult = Tables<'friends'> & {
     profile: Tables<'profiles'>;

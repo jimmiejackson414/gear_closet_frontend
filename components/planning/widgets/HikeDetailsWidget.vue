@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { type Tables, type TablesUpdate, TripDetailsType } from '@/types';
+  import { TripDetailsType, type Tables, type TablesUpdate } from '@/types';
 
   const $store = usePlanningStore();
   const activeDetail = ref<Tables<'trip_details'> | undefined>(undefined);

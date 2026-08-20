@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
 import { useAppStore } from '@/stores/app';
-import { type Database, SubscriptionLevel, type Tables, type TablesUpdate } from '@/types';
+import { SubscriptionLevel, type Database, type Tables, type TablesUpdate } from '@/types';
 import { isPaidPlanIdentifier } from '@/utils/planLimits';
 import type { ExtendedNotification, ProfileApiResponse, SubscriptionType } from '@/types/helpers';
 import type { RealtimeChannel } from '@supabase/supabase-js';

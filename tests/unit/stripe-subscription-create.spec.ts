@@ -1,5 +1,3 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type Stripe from 'stripe';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import * as persistStripeBilling from '@/server/utils/persistStripeBilling';
 import {
@@ -16,6 +14,8 @@ import {
   createThenableQuery,
 } from '@/tests/unit/mocks/supabase.mock';
 import type { Database } from '@/types';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type Stripe from 'stripe';
 
 function asClient (mock: ReturnType<typeof createSupabaseMock>) {
   return mock as unknown as SupabaseClient<Database>;

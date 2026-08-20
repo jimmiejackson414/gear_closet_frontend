@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { DropdownMenuLabel, type DropdownMenuLabelProps, useForwardProps } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
+  import { computed, type HTMLAttributes } from 'vue';
+  import { DropdownMenuLabel, useForwardProps, type DropdownMenuLabelProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DropdownMenuLabelProps & { class?: HTMLAttributes['class'], inset?: boolean }>();

@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import dayjs, { type Dayjs } from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
-  import { type Database, FriendRequestStatus } from '@/types';
+  import { FriendRequestStatus, type Database } from '@/types';
   import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
 
   dayjs.extend(relativeTime);

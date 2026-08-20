@@ -1,7 +1,7 @@
+import { SubscriptionStatus, type Database } from '@/types';
+import { getSubscriptionItemPeriod } from './stripe';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type Stripe from 'stripe';
-import { getSubscriptionItemPeriod } from './stripe';
-import { type Database, SubscriptionStatus } from '@/types';
 
 /**
  * Stripe-sourced billing rows. Callers must use the service-role client:

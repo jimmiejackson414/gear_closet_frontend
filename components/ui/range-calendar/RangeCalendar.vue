@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-  import { RangeCalendarRoot, type RangeCalendarRootEmits, type RangeCalendarRootProps, useForwardPropsEmits } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
-  import { RangeCalendarCell, RangeCalendarCellTrigger, RangeCalendarGrid, RangeCalendarGridBody, RangeCalendarGridHead, RangeCalendarGridRow, RangeCalendarHeadCell, RangeCalendarHeader, RangeCalendarHeading, RangeCalendarNextButton, RangeCalendarPrevButton } from '.';
+  import { computed, type HTMLAttributes } from 'vue';
+  import { RangeCalendarRoot, useForwardPropsEmits, type RangeCalendarRootEmits, type RangeCalendarRootProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
+  import { RangeCalendarCell, RangeCalendarCellTrigger, RangeCalendarGrid, RangeCalendarGridBody, RangeCalendarGridHead, RangeCalendarGridRow, RangeCalendarHeadCell, RangeCalendarHeader, RangeCalendarHeading, RangeCalendarNextButton, RangeCalendarPrevButton } from '.';
 
   const props = defineProps<RangeCalendarRootProps & { class?: HTMLAttributes['class'] }>();
 

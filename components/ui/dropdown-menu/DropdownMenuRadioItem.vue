@@ -1,13 +1,13 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { type HTMLAttributes } from 'vue';
   import {
     DropdownMenuItemIndicator,
     DropdownMenuRadioItem,
+    useForwardPropsEmits,
     type DropdownMenuRadioItemEmits,
     type DropdownMenuRadioItemProps,
-    useForwardPropsEmits,
   } from 'reka-ui';
-  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DropdownMenuRadioItemProps & { class?: HTMLAttributes['class'] }>();

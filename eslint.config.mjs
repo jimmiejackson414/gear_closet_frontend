@@ -24,7 +24,10 @@ export default withNuxt(
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
       curly: 'off',
       'object-shorthand': ['warn', 'always'],
-      'no-duplicate-imports': 'warn',
+      // Core no-duplicate-imports isn't type-aware and flags every value + `import type`
+      // pair from the same module, which the types-last grouping below encourages.
+      'no-duplicate-imports': 'off',
+      'import/no-duplicates': 'warn',
 
       'perfectionist/sort-imports': [
         'warn',
@@ -50,7 +53,11 @@ export default withNuxt(
           ],
         },
       ],
-      'perfectionist/sort-named-imports': 'warn',
+      // Keep inline `type` specifiers last, matching the types-last group order above.
+      'perfectionist/sort-named-imports': [
+        'warn',
+        { groups: ['value-import', 'type-import'] },
+      ],
       'perfectionist/sort-exports': 'warn',
 
       // Match prior @stylistic/js rules that aren't covered by Nuxt stylistic defaults

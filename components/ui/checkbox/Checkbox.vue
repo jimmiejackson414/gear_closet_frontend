@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { CheckboxIndicator, CheckboxRoot, useForwardPropsEmits } from 'reka-ui';
-  import type { CheckboxRootEmits, CheckboxRootProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
+  import { CheckboxIndicator, CheckboxRoot, useForwardPropsEmits } from 'reka-ui';
   import { cn } from '@/lib/utils';
+  import type { CheckboxRootEmits, CheckboxRootProps } from 'reka-ui';
 
   const props = defineProps<CheckboxRootProps & {
     class?: HTMLAttributes['class'],

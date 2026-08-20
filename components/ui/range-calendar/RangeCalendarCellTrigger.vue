@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-  import { RangeCalendarCellTrigger, type RangeCalendarCellTriggerProps, useForwardProps } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
+  import { computed, type HTMLAttributes } from 'vue';
+  import { RangeCalendarCellTrigger, useForwardProps, type RangeCalendarCellTriggerProps } from 'reka-ui';
   import { buttonVariants } from '@/components/ui/button';
   import { cn } from '@/lib/utils';
 

@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { DialogTitle, type DialogTitleProps, useForwardProps } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
+  import { computed, type HTMLAttributes } from 'vue';
+  import { DialogTitle, useForwardProps, type DialogTitleProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DialogTitleProps & { class?: HTMLAttributes['class'] }>();

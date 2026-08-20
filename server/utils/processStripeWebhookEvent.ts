@@ -1,5 +1,4 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
-import type Stripe from 'stripe';
+import { SubscriptionLevel, SubscriptionStatus, type Database } from '@/types';
 import {
   isPaidPlanIdentifier,
   markNeedsFreeSelectionIfExcess,
@@ -7,7 +6,8 @@ import {
   unlockAllUserResources,
 } from './planEntitlements';
 import { getSubscriptionItemPeriod } from './stripe';
-import { type Database, SubscriptionLevel, SubscriptionStatus } from '@/types';
+import type { SupabaseClient } from '@supabase/supabase-js';
+import type Stripe from 'stripe';
 
 const throwError = (msg?: string) => {
   throw createError({

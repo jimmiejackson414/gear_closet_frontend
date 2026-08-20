@@ -19,7 +19,7 @@ describe('ForumsWidget', () => {
     });
 
     expect(wrapper.findComponent({ name: 'GcSkeleton' })
-.exists())
+      .exists())
       .toBe(true);
     expect(wrapper.text())
       .not

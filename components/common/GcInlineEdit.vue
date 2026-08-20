@@ -1,6 +1,6 @@
 <script lang="ts" setup>
-  import type { InputRoot } from '@/components/ui/input';
   import { cn } from '@/lib/utils';
+  import type { InputRoot } from '@/components/ui/input';
 
   interface Props {
     name: string;

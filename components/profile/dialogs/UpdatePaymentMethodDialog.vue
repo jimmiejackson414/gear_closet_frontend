@@ -1,6 +1,6 @@
 <script lang="ts" setup="">
-  import type { StripeCardElement } from '@stripe/stripe-js';
   import tailwind from '@/utils/tailwind';
+  import type { StripeCardElement } from '@stripe/stripe-js';
 
   interface Props {
     isOpen: boolean;

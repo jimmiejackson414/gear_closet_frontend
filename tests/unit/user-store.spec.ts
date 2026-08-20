@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAppStore } from '@/stores/app';
 import { useUserStore } from '@/stores/user';
-import { profile, notifications } from '@/tests/unit/mocks/app.mock';
+import { notifications, profile } from '@/tests/unit/mocks/app.mock';
 import { createSupabaseMock, createThenableQuery } from '@/tests/unit/mocks/supabase.mock';
 
 vi.mock('@/components/ui/toast', () => ({

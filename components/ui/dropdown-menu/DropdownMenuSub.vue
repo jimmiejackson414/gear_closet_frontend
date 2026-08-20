@@ -1,9 +1,9 @@
 <script setup lang="ts">
   import {
     DropdownMenuSub,
+    useForwardPropsEmits,
     type DropdownMenuSubEmits,
     type DropdownMenuSubProps,
-    useForwardPropsEmits,
   } from 'reka-ui';
 
   const props = defineProps<DropdownMenuSubProps>();

@@ -1,9 +1,9 @@
 <script setup lang="ts">
   import {
     DropdownMenuRadioGroup,
+    useForwardPropsEmits,
     type DropdownMenuRadioGroupEmits,
     type DropdownMenuRadioGroupProps,
-    useForwardPropsEmits,
   } from 'reka-ui';
 
   const props = defineProps<DropdownMenuRadioGroupProps>();

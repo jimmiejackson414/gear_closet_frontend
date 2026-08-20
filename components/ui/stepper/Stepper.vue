@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-  import { StepperRoot, useForwardPropsEmits } from 'reka-ui';
-  import type { StepperRootEmits, StepperRootProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
+  import { StepperRoot, useForwardPropsEmits } from 'reka-ui';
   import { cn } from '@/lib/utils';
+  import type { StepperRootEmits, StepperRootProps } from 'reka-ui';
 
 
   const props = defineProps<StepperRootProps & { class?: HTMLAttributes['class'] }>();

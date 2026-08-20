@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { ToastClose, type ToastCloseProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
+  import { ToastClose, type ToastCloseProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<ToastCloseProps & {

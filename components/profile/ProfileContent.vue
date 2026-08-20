@@ -2,11 +2,11 @@
   import { toTypedSchema } from '@vee-validate/zod';
   import dayjs from 'dayjs';
   import utc from 'dayjs/plugin/utc';
-  import type { FilePondFile } from 'filepond';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
-  import { type Database, MeasuringSystem, SubscriptionLevel } from '@/types';
+  import { MeasuringSystem, SubscriptionLevel, type Database } from '@/types';
   import type { ProfileApiResponse, SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
+  import type { FilePondFile } from 'filepond';
 
   dayjs.extend(utc);
 

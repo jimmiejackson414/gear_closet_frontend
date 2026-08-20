@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { RadioGroupRoot, type RadioGroupRootEmits, type RadioGroupRootProps, useForwardPropsEmits } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
+  import { computed, type HTMLAttributes } from 'vue';
+  import { RadioGroupRoot, useForwardPropsEmits, type RadioGroupRootEmits, type RadioGroupRootProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<RadioGroupRootProps & { class?: HTMLAttributes['class'] }>();

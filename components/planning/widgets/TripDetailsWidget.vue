@@ -3,7 +3,7 @@
   import dayjs from 'dayjs';
   import { IconPencil, IconPlus } from '#components';
   import { usePlanningStore } from '@/stores/planning';
-  import { type Tables, type TablesUpdate, TripDetailsType } from '@/types';
+  import { TripDetailsType, type Tables, type TablesUpdate } from '@/types';
   import '@vuepic/vue-datepicker/dist/main.css';
 
   const $store = usePlanningStore();

@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { type LabelProps, Label as UiLabel } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
+  import { computed, type HTMLAttributes } from 'vue';
+  import { Label as UiLabel, type LabelProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<LabelProps & { class?: HTMLAttributes['class'] }>();

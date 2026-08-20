@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-  import { StepperDescription, useForwardProps } from 'reka-ui';
-  import type { StepperDescriptionProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
+  import { StepperDescription, useForwardProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
+  import type { StepperDescriptionProps } from 'reka-ui';
 
 
   const props = defineProps<StepperDescriptionProps & { class?: HTMLAttributes['class'] }>();

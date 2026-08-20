@@ -1,5 +1,5 @@
-import type { Stripe, StripeElements } from '@stripe/stripe-js';
 import { loadStripe } from '@stripe/stripe-js/pure';
+import type { Stripe, StripeElements } from '@stripe/stripe-js';
 
 /**
  * Shared client Stripe.js instance (publishable key from runtimeConfig).

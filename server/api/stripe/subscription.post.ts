@@ -7,9 +7,9 @@
 
 import { isError } from 'h3';
 import Stripe from 'stripe';
-import { createOrSyncPaidSubscription } from '../../utils/stripeSubscriptionCreate';
 import { serverSupabaseClient, serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server';
 import { isPaidPlanIdentifier } from '@/utils/planLimits';
+import { createOrSyncPaidSubscription } from '../../utils/stripeSubscriptionCreate';
 import type { Database } from '~/types';
 
 const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string);

@@ -1,10 +1,10 @@
 import convert from 'convert';
-import type { Mass } from 'convert';
-import { type DineroCurrency, dinero, toDecimal } from 'dinero.js';
+import { dinero, toDecimal, type DineroCurrency } from 'dinero.js';
 import { USD } from 'dinero.js/currencies';
 import { v4 as uuidv4 } from 'uuid';
-import { type Database, ItemUnit, MeasuringSystem, type Tables, type TablesInsert } from '@/types';
+import { ItemUnit, MeasuringSystem, type Database, type Tables, type TablesInsert } from '@/types';
 import type { ExtendedCategory, ExtendedPack, ExtendedUser } from '@/types/helpers';
+import type { Mass } from 'convert';
 
 interface FriendlyUsernameOptions {
   includeTrailName?: boolean;
@@ -212,12 +212,12 @@ export const convertCurrency = (
   const amount = dinero({ amount: Number(num), currency });
   return toDecimal(amount, ({ value, currency: c }) =>
     Number(value)
-.toLocaleString('en-US', {
-      style: 'currency',
-      currency: c.code,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }));
+      .toLocaleString('en-US', {
+        style: 'currency',
+        currency: c.code,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }));
 };
 
 /**

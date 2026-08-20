@@ -5,9 +5,9 @@
  */
 import { isError } from 'h3';
 import Stripe from 'stripe';
+import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import { resolveBillingCustomerAccess } from '../../utils/billingAccess';
 import { getSubscriptionItemPeriod } from '../../utils/stripe';
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '@/types';
 import type { SubscriptionApiResponse } from '@/types/helpers';
 
