@@ -1,8 +1,9 @@
-import { mountSuspended } from '@nuxt/test-utils/runtime';
-import { describe, expect, it, vi } from 'vitest';
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import FriendsWidget from '@/components/dashboard/FriendsWidget.vue';
 import InvitationsWidget from '@/components/dashboard/InvitationsWidget.vue';
 import UpcomingTripsWidget from '@/components/dashboard/UpcomingTripsWidget.vue';
+import { createSupabaseMock } from '@/tests/unit/mocks/supabase.mock';
 import { friends, invitations, upcomingTrips } from './mocks/dashboard.mock';
 
 vi.mock('@/utils/avatar', () => ({
@@ -16,6 +17,12 @@ vi.mock('@/utils/displayName', () => ({
     return user.trail_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'a friend';
   }),
 }));
+
+const supabaseClient = vi.hoisted(() => ({
+  current: null as ReturnType<typeof createSupabaseMock> | null,
+}));
+
+mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
 
 describe('Dashboard', async () => {
   describe('UpcomingTripsWidget', async () => {
@@ -161,6 +168,10 @@ describe('Dashboard', async () => {
   // InvitationsWidget states //
   // ************************ //
   describe('InvitationsWidget', async () => {
+    beforeEach(() => {
+      supabaseClient.current = createSupabaseMock();
+    });
+
     it('renders the loading state for the InvitationsWidget', async () => {
       const wrapper = await mountSuspended(InvitationsWidget, {
         props: {
@@ -184,7 +195,7 @@ describe('Dashboard', async () => {
         .toContain('You don\'t currently have any pending invitations.');
     });
 
-    it('renders invitations correctly', async () => {
+    it('renders invitations from nested RPC fields without querying trips or profiles', async () => {
       const wrapper = await mountSuspended(InvitationsWidget, {
         props: {
           data: invitations,
@@ -199,6 +210,13 @@ describe('Dashboard', async () => {
 
       expect(wrapper.text())
         .toContain(`Invitations (${invitations.length})`);
+      expect(wrapper.text())
+        .toContain('Appalachian Trail');
+      expect(wrapper.text())
+        .toContain('Invited by Junebug');
+      expect(supabaseClient.current?.from)
+        .not
+        .toHaveBeenCalled();
     });
   });
 

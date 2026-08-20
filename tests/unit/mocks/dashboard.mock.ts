@@ -1,6 +1,6 @@
 import type { ForumResponse } from '@/pages/index.vue';
 import type { Tables } from "@/types";
-import type { ExtendedFriend } from '@/types/planning';
+import type { DashboardTripInvite, ExtendedFriend } from '@/types/planning';
 
 export const upcomingTrips: Tables<'trips'>[] = [
   {
@@ -216,10 +216,11 @@ export const friends: ExtendedFriend[] = [
   },
 ];
 
-export const invitations: Tables<'trip_friends'>[] = [
+export const invitations: DashboardTripInvite[] = [
   {
     "id": 1,
     "trip_id": 3,
+    "trip_name": "Appalachian Trail",
     "accepted_invite_on": null,
     "created_at": "2024-04-25T19:33:50.250318+00:00",
     "status": "PENDING",
@@ -227,6 +228,14 @@ export const invitations: Tables<'trip_friends'>[] = [
     "invited_by_id": "ea10a57b-54ed-42ee-9462-542bd7f0e760",
     "invite_token": "f7b1b1b4-0b3b-4b3b-8b3b-3b3b3b3b3b3b",
     "updated_at": "2024-04-25T19:33:50.250318+00:00",
+    "inviter_profile": {
+      "id": "ea10a57b-54ed-42ee-9462-542bd7f0e760",
+      "email": "shelly.borga@gmail.com",
+      "first_name": "Shelly",
+      "last_name": "Borga",
+      "trail_name": "Junebug",
+      "image": "ea10a57b-54ed-42ee-9462-542bd7f0e760/3057.jpg",
+    },
   },
 ];
 
