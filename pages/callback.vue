@@ -1,9 +1,9 @@
 <script lang="ts" setup>
-  import type { Tables } from '@/types';
   import {
     destinationAfterAuth,
     isPasswordRecoveryCallback,
   } from '@/utils/authRedirect';
+  import type { ProfileLayoutResponse } from '@/types/helpers';
 
   definePageMeta({ layout: 'auth-layout', colorMode: 'light' });
 
@@ -28,7 +28,7 @@
     }
 
     try {
-      const profile = await $fetch<Tables<'profiles'> | null>('/api/profile', {
+      const profile = await $fetch<ProfileLayoutResponse | null>('/api/profile', {
         headers: useRequestHeaders(['cookie']),
       });
       const dest = destinationAfterAuth({

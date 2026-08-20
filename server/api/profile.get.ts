@@ -5,7 +5,7 @@
  */
 import { isError } from 'h3';
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
-import type { ProfileApiResponse } from '~/types/helpers';
+import type { ProfileLayoutResponse } from '~/types/helpers';
 
 export default defineEventHandler(async (event) => {
   try {
@@ -28,8 +28,6 @@ export default defineEventHandler(async (event) => {
     const { data, error } = await supabase.from('profiles')
       .select(`
         *,
-        onboarding_steps(*),
-        notifications!notifications_profile_id_fkey(*, sender:sender_id(*)),
         subscriptions!subscriptions_profile_id_fkey(*, prices!subscriptions_price_id_fkey(*))
       `)
       .eq('id', user!.sub)
@@ -46,9 +44,8 @@ export default defineEventHandler(async (event) => {
 
     return {
       ...data,
-      notifications: data.notifications ?? [],
       subscriptions: data.subscriptions ?? [],
-    } as ProfileApiResponse;
+    } as ProfileLayoutResponse;
   } catch (err) {
     if (isError(err)) throw err;
 

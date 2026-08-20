@@ -5,10 +5,12 @@ export type SubscriptionType = Tables<'subscriptions'> & {
   prices: Tables<'prices'>;
 };
 
-export type ProfileApiResponse = Tables<'profiles'> & {
-  onboarding_steps: Tables<'onboarding_steps'>[];
-  notifications: ExtendedNotification[];
+export type ProfileLayoutResponse = Tables<'profiles'> & {
   subscriptions: SubscriptionType[];
+};
+
+export type ProfileApiResponse = ProfileLayoutResponse & {
+  onboarding_steps?: Tables<'onboarding_steps'>[];
 };
 
 export type SubscriptionApiResponse = {
@@ -46,8 +48,13 @@ export type ExtendedFriendInvite = Tables<'friend_invitations'> & {
   sender: Tables<'profiles'>;
 };
 
+export type NotificationSender = Pick<
+  Tables<'profiles'>,
+  'id' | 'image' | 'first_name' | 'last_name' | 'slug'
+>;
+
 export type ExtendedNotification = Tables<'notifications'> & {
-  sender: Tables<'profiles'>;
+  sender: NotificationSender | null;
 };
 
 export type ExtendedPoll = Tables<'polls'> & {

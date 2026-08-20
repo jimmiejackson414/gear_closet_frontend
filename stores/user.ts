@@ -1,22 +1,24 @@
-import type { RealtimeChannel } from '@supabase/supabase-js';
 import { defineStore } from 'pinia';
 import { useAppStore } from '@/stores/app';
 import { type Database, SubscriptionLevel, type Tables, type TablesUpdate } from '@/types';
-import type { ProfileApiResponse } from '@/types/helpers';
 import { isPaidPlanIdentifier } from '@/utils/planLimits';
+import type { ExtendedNotification, ProfileApiResponse, SubscriptionType } from '@/types/helpers';
+import type { RealtimeChannel } from '@supabase/supabase-js';
 
 type State = {
   profile: ProfileApiResponse | null;
+  notifications: ExtendedNotification[];
 };
 
 type Getters = {
   isPaidMember(): boolean;
   currentPlanIdentifier(): SubscriptionLevel;
-  unreadNotifications(): Tables<'notifications'>[] | undefined;
+  unreadNotifications(): ExtendedNotification[];
 };
 
 type Actions = {
   fetchProfile(): void;
+  fetchNotifications(): void;
   fetchNotification (id: number | string): void;
   subscribeToNotifications(): void;
   unsubscribeFromNotifications(): void;
@@ -35,6 +37,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
     state () {
       return {
         profile: null,
+        notifications: [],
       };
     },
 
@@ -47,7 +50,7 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
           ?? SubscriptionLevel.FREE;
       },
       unreadNotifications () {
-        return this.profile?.notifications.filter((n: Tables<'notifications'>) => !n.read_on_date);
+        return this.notifications.filter(n => !n.read_on_date);
       },
     },
 
@@ -60,19 +63,24 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
 
           if (!user.value) {
             this.profile = null;
+            this.notifications = [];
             $store.notifyNegative('An error occurred while loading your profile.');
             return;
           }
 
           const supabase = useSupabaseClient<Database>();
-          const { data, error } = await supabase.from('profiles')
+
+          // Nested subscription/price select types exceed TS instantiation depth.
+          const { data, error }: {
+            data: (Tables<'profiles'> & { subscriptions?: SubscriptionType[] | null }) | null;
+            error: { message: string } | null;
+          } = await supabase.from('profiles')
             .select(`
               *,
-              onboarding_steps(*),
-              notifications!notifications_profile_id_fkey(*, sender:sender_id(*))
+              subscriptions!subscriptions_profile_id_fkey(*, prices!subscriptions_price_id_fkey(*))
             `)
             .eq('id', user.value.sub)
-            .single();
+            .single() as any;
 
           if (!data || error) {
             this.profile = null;
@@ -80,35 +88,41 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
             return;
           }
 
-          this.profile = data as any;
-          this.profile!.notifications = (data as any).notifications ?? [];
-          this.profile!.subscriptions = (data as any).subscriptions ?? [];
+          this.profile = {
+            ...data,
+            subscriptions: data.subscriptions ?? [],
+          } as any;
+        } catch (err) {
+          console.error({ err });
+        }
+      },
+
+      async fetchNotifications () {
+        try {
+          const user = useSupabaseUser();
+          if (!user.value) return;
+
+          this.notifications = await $fetch<ExtendedNotification[]>('/api/notifications');
         } catch (err) {
           console.error({ err });
         }
       },
 
       async fetchNotification (id) {
-        if (!this.profile) return;
-
         const supabase = useSupabaseClient<Database>();
 
-        const { data } = await supabase.from('notifications')
+        const { data }: { data: ExtendedNotification | null } = await supabase.from('notifications')
           .select('*, sender:sender_id(*)')
           .eq('id', Number(id))
-          .single();
+          .single() as any;
 
         if (!data) return;
 
-        if (!this.profile.notifications) {
-          this.profile.notifications = [];
-        }
-
-        const i = this.profile.notifications.findIndex((n: Tables<'notifications'>) => n.id === Number(id));
+        const i = this.notifications.findIndex(n => n.id === Number(id));
         if (i === -1) {
-          this.profile.notifications.push(data as any);
+          this.notifications.push(data);
         } else {
-          this.profile.notifications[i] = data as any;
+          this.notifications[i] = data;
         }
       },
 
@@ -145,21 +159,24 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
         const supabase = useSupabaseClient<Database>();
         const user = useSupabaseUser();
         const $store = useAppStore();
-        const { data, error } = await supabase.from('notifications')
+        const { error } = await supabase.from('notifications')
           .update({
             read_on_date: new Date()
               .toISOString(),
           })
-          .eq('profile_id', user.value?.sub as string)
-          .select();
+          .eq('profile_id', user.value?.sub as string);
 
         if (error) {
           $store.notifyNegative('An error occurred while marking notifications as read.');
+          return;
         }
 
-        if (data && this.profile) {
-          this.profile.notifications = data as any;
-        }
+        const readOn = new Date()
+          .toISOString();
+        this.notifications = this.notifications.map(n => ({
+          ...n,
+          read_on_date: n.read_on_date ?? readOn,
+        }));
       },
 
       async deleteAvatar () {

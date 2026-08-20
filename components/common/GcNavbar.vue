@@ -1,6 +1,5 @@
 <script lang='ts' setup>
   import { useUserStore } from '@/stores/user';
-  import type { ExtendedNotification } from '@/types/helpers';
 
   interface Props {
     pageTitle?: string;
@@ -11,12 +10,6 @@
   });
 
   const $store = useUserStore();
-  onMounted(() => {
-    $store.subscribeToNotifications();
-  });
-  onUnmounted(() => {
-    $store.unsubscribeFromNotifications();
-  });
 
   const shouldShowBadge = computed(() => ( $store.unreadNotifications?.length ?? 0 ) > 0);
   const welcomeMessage = computed(() => {
@@ -105,7 +98,7 @@
                 <notification-item
                   v-for="notification in $store.unreadNotifications"
                   :key="notification.id"
-                  :notification="(notification as ExtendedNotification)" />
+                  :notification="notification" />
               </ul>
               <div class="block bg-gray-50 px-4 py-2 rounded-b-lg text-muted-foreground text-center">
                 <button-root

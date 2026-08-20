@@ -3,8 +3,8 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { type Severity } from '@/components/common/GcAlert.vue';
-  import type { Tables } from '@/types';
   import { destinationAfterAuth } from '@/utils/authRedirect';
+  import type { ProfileLayoutResponse } from '@/types/helpers';
 
   const supabase = useSupabaseClient();
   const user = useSupabaseUser();
@@ -51,7 +51,7 @@
       resetForm();
 
       try {
-        const profile = await $fetch<Tables<'profiles'> | null>('/api/profile', {
+        const profile = await $fetch<ProfileLayoutResponse | null>('/api/profile', {
           headers: useRequestHeaders(['cookie']),
         });
         const dest = destinationAfterAuth({

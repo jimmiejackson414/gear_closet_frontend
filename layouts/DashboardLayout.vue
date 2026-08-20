@@ -1,20 +1,21 @@
 <script lang='ts' setup>
-  import type { Tables } from '@/types';
-
+  import type { ProfileLayoutResponse } from '@/types/helpers';
 
   const $store = useUserStore();
   const profile = toRef($store, 'profile');
 
-  const { data, error } = await useFetch<Tables<'profiles'> | null>('/api/profile', {
+  const { data, error } = await useFetch<ProfileLayoutResponse | null>('/api/profile', {
     headers: useRequestHeaders(['cookie']),
   });
 
-  profile.value = data.value as any;
+  profile.value = data.value;
 
   const $router = useRouter();
   if (!error.value && data.value && !data.value.onboard_date) {
     $router.push('/onboarding');
   }
+
+  useNotificationHydration();
 
   const $appStore = useAppStore();
 </script>
