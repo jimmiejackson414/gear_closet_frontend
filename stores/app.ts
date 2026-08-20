@@ -1,70 +1,54 @@
+import type { Component } from 'vue';
 import { IconCircleAlert, IconCircleCheck, IconInfo } from '#components';
 import { useToast } from '@/components/ui/toast';
 
-type State = {
-  drawer: boolean;
-  loading: boolean;
-};
+/*
+ * Setup syntax rather than the options form: the `this`-based options API makes
+ * TypeScript re-instantiate the whole store type on every state write, which
+ * trips TS2589 once state holds wide relational rows. See #112.
+ */
+export const useAppStore = defineStore('app', () => {
+  const drawer = ref(false);
+  const loading = ref(false);
 
-type Getters = Record<string, never>;
+  const notify = (
+    variant: 'default' | 'positive' | 'destructive' | 'info',
+    icon: Component,
+    description: string,
+    title?: string,
+  ) => {
+    const { toast } = useToast();
+    toast({
+      title,
+      description,
+      variant,
+      icon,
+    });
+  };
 
-type Actions = {
-  notifyDefault: (description: string, title?: string) => void;
-  notifyPositive: (description: string, title?: string) => void;
-  notifyNegative: (description: string, title?: string) => void;
-  notifyInfo: (description: string, title?: string) => void;
-  toggleDrawer(): void;
-};
+  const notifyDefault = (description: string, title?: string) =>
+    notify('default', IconInfo, description, title);
 
-export const useAppStore = defineStore<'app', State, Getters, Actions>('app', {
-  state () {
-    return {
-      drawer: false,
-      loading: false,
-    };
-  },
+  const notifyPositive = (description: string, title?: string) =>
+    notify('positive', IconCircleCheck, description, title);
 
-  getters: {},
+  const notifyNegative = (description: string, title?: string) =>
+    notify('destructive', IconCircleAlert, description, title);
 
-  actions: {
-    notifyDefault (description, title) {
-      const { toast } = useToast();
-      toast({
-        title,
-        description,
-        variant: 'default',
-        icon: IconInfo,
-      });
-    },
-    notifyPositive (description, title) {
-      const { toast } = useToast();
-      toast({
-        title,
-        description,
-        variant: 'positive',
-        icon: IconCircleCheck,
-      });
-    },
-    notifyNegative (description, title) {
-      const { toast } = useToast();
-      toast({
-        title,
-        description,
-        variant: 'destructive',
-        icon: IconCircleAlert,
-      });
-    },
-    notifyInfo (description, title) {
-      const { toast } = useToast();
-      toast({
-        title,
-        description,
-        variant: 'info',
-        icon: IconInfo,
-      });
-    },
-    toggleDrawer () {
-      this.drawer = !this.drawer;
-    },
-  },
+  const notifyInfo = (description: string, title?: string) =>
+    notify('info', IconInfo, description, title);
+
+  const toggleDrawer = () => {
+    drawer.value = !drawer.value;
+  };
+
+  return {
+    drawer,
+    loading,
+    notifyDefault,
+    notifyPositive,
+    notifyNegative,
+    notifyInfo,
+    toggleDrawer,
+  };
 });

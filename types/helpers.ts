@@ -1,3 +1,4 @@
+import type { ProfileWithSubscriptions } from '@/queries/profile';
 import type { Tables } from '@/types';
 // Fully type-only: under verbatimModuleSyntax, `import { type Stripe }` still
 // emits a bare `import {} from 'stripe'`, which would put the server-side
@@ -5,14 +6,18 @@ import type { Tables } from '@/types';
 import type { Stripe } from 'stripe';
 
 export type SubscriptionType = Tables<'subscriptions'> & {
-  prices: Tables<'prices'>;
+  // Nullable to match the query: the join to `prices` is optional, and the old
+  // non-null declaration only typechecked because the result was cast.
+  prices: Tables<'prices'> | null;
 };
 
-export type ProfileLayoutResponse = Tables<'profiles'> & {
-  subscriptions: SubscriptionType[];
-};
+/*
+ * Derived from the query rather than hand-written, so the select string in
+ * queries/profile.ts is the single source of truth for this shape. See #112.
+ */
+export type ProfileLayoutResponse = ProfileWithSubscriptions;
 
-export type ProfileApiResponse = ProfileLayoutResponse & {
+export type ProfileApiResponse = ProfileWithSubscriptions & {
   onboarding_steps?: Tables<'onboarding_steps'>[];
 };
 

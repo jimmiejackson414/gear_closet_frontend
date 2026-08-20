@@ -1,282 +1,256 @@
 import { defineStore } from 'pinia';
+import { profileWithSubscriptionsQuery } from '@/queries/profile';
 import { useAppStore } from '@/stores/app';
-import { SubscriptionLevel, type Database, type Tables, type TablesUpdate } from '@/types';
+import { SubscriptionLevel, type Database, type TablesUpdate } from '@/types';
 import { isPaidPlanIdentifier } from '@/utils/planLimits';
-import type { ExtendedNotification, ProfileApiResponse, ProfileLayoutResponse, SubscriptionType } from '@/types/helpers';
+import type { ExtendedNotification, ProfileApiResponse, ProfileLayoutResponse } from '@/types/helpers';
 import type { RealtimeChannel } from '@supabase/supabase-js';
-
-type State = {
-  profile: ProfileApiResponse | null;
-  notifications: ExtendedNotification[];
-};
-
-type Getters = {
-  isPaidMember(): boolean;
-  currentPlanIdentifier(): SubscriptionLevel;
-  unreadNotifications(): ExtendedNotification[];
-};
-
-type Actions = {
-  setProfile(profile: ProfileLayoutResponse | null): void;
-  fetchProfile(): void;
-  fetchNotifications(): void;
-  fetchNotification (id: number | string): void;
-  subscribeToNotifications(): void;
-  unsubscribeFromNotifications(): void;
-  markAllAsRead(): void;
-  deleteAvatar(): Promise<{ success: boolean }>
-  updateAvatar(file: File): Promise<{ success: boolean }>;
-  updateProfile(profile: TablesUpdate<'profiles'>): Promise<{ success: boolean }>;
-};
 
 /** Module-scoped so remounts can tear down the previous Realtime channel. */
 let notificationsChannel: RealtimeChannel | null = null;
 
-export const useUserStore = defineStore<'user', State, Getters, Actions>(
-  'user',
-  {
-    state () {
-      return {
-        profile: null,
-        notifications: [],
-      };
-    },
+/*
+ * Setup syntax rather than the options form. The `this`-based options API made
+ * TypeScript re-instantiate the store type on every state write, which tripped
+ * TS2589 on the nested subscriptions/prices shape and forced `as any` on both
+ * the query results and the state assignments. None of that is needed here. See #112.
+ */
+export const useUserStore = defineStore('user', () => {
+  const profile = ref<ProfileApiResponse | null>(null);
+  const notifications = ref<ExtendedNotification[]>([]);
 
-    getters: {
-      isPaidMember () {
-        return isPaidPlanIdentifier(this.currentPlanIdentifier);
-      },
-      currentPlanIdentifier () {
-        return (this.profile?.subscriptions?.[0]?.prices?.identifier as SubscriptionLevel | undefined)
-          ?? SubscriptionLevel.FREE;
-      },
-      unreadNotifications () {
-        return this.notifications.filter(n => !n.read_on_date);
-      },
-    },
+  const currentPlanIdentifier = computed<SubscriptionLevel>(() =>
+    (profile.value?.subscriptions?.[0]?.prices?.identifier as SubscriptionLevel | undefined)
+      ?? SubscriptionLevel.FREE);
 
-    actions: {
-      // Layouts assign the fetched profile through here so the deep
-      // subscriptions/prices write type is instantiated once, not per call site.
-      // The cast is the same TS2589 workaround as fetchProfile below; see #112.
-      setProfile (profile) {
-        this.profile = profile as any;
-      },
+  const isPaidMember = computed(() => isPaidPlanIdentifier(currentPlanIdentifier.value));
 
-      async fetchProfile () {
-        const $store = useAppStore();
+  const unreadNotifications = computed(() => notifications.value.filter(n => !n.read_on_date));
 
-        try {
-          const user = useSupabaseUser();
+  const setProfile = (next: ProfileLayoutResponse | null) => {
+    profile.value = next;
+  };
 
-          if (!user.value) {
-            this.profile = null;
-            this.notifications = [];
-            $store.notifyNegative('An error occurred while loading your profile.');
-            return;
+  const fetchProfile = async () => {
+    const $store = useAppStore();
+
+    try {
+      const user = useSupabaseUser();
+
+      if (!user.value) {
+        profile.value = null;
+        notifications.value = [];
+        $store.notifyNegative('An error occurred while loading your profile.');
+        return;
+      }
+
+      const supabase = useSupabaseClient<Database>();
+      const { data, error } = await profileWithSubscriptionsQuery(supabase, user.value.sub);
+
+      if (!data || error) {
+        profile.value = null;
+        $store.notifyNegative('An error occurred while loading your account.');
+        return;
+      }
+
+      // PostgREST returns [] for an empty embed, but normalize defensively so
+      // consumers can always iterate. Mutated in place rather than rebuilt: a
+      // fresh object literal makes TS compare two large shapes and hit TS2589.
+      data.subscriptions ??= [];
+      profile.value = data;
+    } catch (err) {
+      console.error({ err });
+    }
+  };
+
+  const fetchNotifications = async () => {
+    try {
+      const user = useSupabaseUser();
+      if (!user.value) return;
+
+      notifications.value = await $fetch<ExtendedNotification[]>('/api/notifications');
+    } catch (err) {
+      console.error({ err });
+    }
+  };
+
+  const fetchNotification = async (id: number | string) => {
+    const supabase = useSupabaseClient<Database>();
+
+    const { data } = await supabase.from('notifications')
+      .select('*, sender:sender_id(*)')
+      .eq('id', Number(id))
+      .single();
+
+    if (!data) return;
+
+    const i = notifications.value.findIndex(n => n.id === Number(id));
+    if (i === -1) {
+      notifications.value.push(data);
+    } else {
+      notifications.value[i] = data;
+    }
+  };
+
+  const subscribeToNotifications = async () => {
+    const supabase = useSupabaseClient<Database>();
+
+    // Dedupe: tear down any prior channel before creating a new one.
+    if (notificationsChannel) {
+      await supabase.removeChannel(notificationsChannel);
+      notificationsChannel = null;
+    }
+
+    notificationsChannel = supabase.channel('notifications')
+      .on(
+        'postgres_changes',
+        { event: '*', schema: 'public', table: 'notifications' },
+        ({ eventType, new: newNotification }) => {
+          if (eventType === 'INSERT' || eventType === 'UPDATE') {
+            fetchNotification(newNotification.id);
           }
+        },
+      )
+      .subscribe();
+  };
 
-          const supabase = useSupabaseClient<Database>();
+  const unsubscribeFromNotifications = async () => {
+    if (!notificationsChannel) return;
+    const supabase = useSupabaseClient<Database>();
+    await supabase.removeChannel(notificationsChannel);
+    notificationsChannel = null;
+  };
 
-          // Nested subscription/price select types exceed TS instantiation depth.
-          const { data, error }: {
-            data: (Tables<'profiles'> & { subscriptions?: SubscriptionType[] | null }) | null;
-            error: { message: string } | null;
-          } = await supabase.from('profiles')
-            .select(`
-              *,
-              subscriptions!subscriptions_profile_id_fkey(*, prices!subscriptions_price_id_fkey(*))
-            `)
-            .eq('id', user.value.sub)
-            .single() as any;
+  const markAllAsRead = async () => {
+    const supabase = useSupabaseClient<Database>();
+    const user = useSupabaseUser();
+    const $store = useAppStore();
+    const { error } = await supabase.from('notifications')
+      .update({
+        read_on_date: new Date()
+          .toISOString(),
+      })
+      .eq('profile_id', user.value?.sub as string);
 
-          if (!data || error) {
-            this.profile = null;
-            $store.notifyNegative('An error occurred while loading your account.');
-            return;
-          }
+    if (error) {
+      $store.notifyNegative('An error occurred while marking notifications as read.');
+      return;
+    }
 
-          this.profile = {
-            ...data,
-            subscriptions: data.subscriptions ?? [],
-          } as any;
-        } catch (err) {
-          console.error({ err });
-        }
-      },
+    const readOn = new Date()
+      .toISOString();
+    notifications.value = notifications.value.map(n => ({
+      ...n,
+      read_on_date: n.read_on_date ?? readOn,
+    }));
+  };
 
-      async fetchNotifications () {
-        try {
-          const user = useSupabaseUser();
-          if (!user.value) return;
+  const deleteAvatar = async () => {
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const user = useSupabaseUser();
 
-          this.notifications = await $fetch<ExtendedNotification[]>('/api/notifications');
-        } catch (err) {
-          console.error({ err });
-        }
-      },
+      // get the list of files in the user's avatar directory
+      const { data: files, error: listError } = await supabase.storage.from('avatars')
+        .list(`${user.value!.sub}/`);
 
-      async fetchNotification (id) {
-        const supabase = useSupabaseClient<Database>();
+      if (listError) return { success: false };
 
-        const { data }: { data: ExtendedNotification | null } = await supabase.from('notifications')
-          .select('*, sender:sender_id(*)')
-          .eq('id', Number(id))
-          .single() as any;
+      // if there are any files in the directory, delete them
+      if (files?.length > 0) {
+        const firstFile = files[0];
+        if (!firstFile) return { success: false };
+        const { error: deleteError } = await supabase.storage.from('avatars')
+          .remove([`${user.value!.sub}/${firstFile.name}`]);
+        if (deleteError) return { success: false };
+      }
 
-        if (!data) return;
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
+  };
 
-        const i = this.notifications.findIndex(n => n.id === Number(id));
-        if (i === -1) {
-          this.notifications.push(data);
-        } else {
-          this.notifications[i] = data;
-        }
-      },
+  const updateAvatar = async (file: File) => {
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const user = useSupabaseUser();
+      const profileId = user.value!.sub;
 
-      async subscribeToNotifications () {
-        const supabase = useSupabaseClient<Database>();
+      // get the list of files in the user's avatar directory
+      const { data: files, error: listError } = await supabase.storage.from('avatars')
+        .list(`${profileId}/`);
 
-        // Dedupe: tear down any prior channel before creating a new one.
-        if (notificationsChannel) {
-          await supabase.removeChannel(notificationsChannel);
-          notificationsChannel = null;
-        }
+      if (listError) return { success: false };
 
-        notificationsChannel = supabase.channel('notifications')
-          .on(
-            'postgres_changes',
-            { event: '*', schema: 'public', table: 'notifications' },
-            ({ eventType, new: newNotification }) => {
-              if (eventType === 'INSERT' || eventType === 'UPDATE') {
-                this.fetchNotification(newNotification.id);
-              }
-            },
-          )
-          .subscribe();
-      },
+      // if there are any files in the directory, delete them
+      if (files?.length > 0) {
+        const firstFile = files[0];
+        if (!firstFile) return { success: false };
+        const { error: deleteError } = await supabase.storage.from('avatars')
+          .remove([`${profileId}/${firstFile.name}`]);
+        if (deleteError) return { success: false };
+      }
 
-      async unsubscribeFromNotifications () {
-        if (!notificationsChannel) return;
-        const supabase = useSupabaseClient<Database>();
-        await supabase.removeChannel(notificationsChannel);
-        notificationsChannel = null;
-      },
+      // upload the new file
+      const { data, error } = await supabase.storage.from('avatars')
+        .upload(`${profileId}/${file.name}`, file, { upsert: true });
 
-      async markAllAsRead () {
-        const supabase = useSupabaseClient<Database>();
-        const user = useSupabaseUser();
-        const $store = useAppStore();
-        const { error } = await supabase.from('notifications')
-          .update({
-            read_on_date: new Date()
-              .toISOString(),
-          })
-          .eq('profile_id', user.value?.sub as string);
+      if (!data || error) return { success: false };
 
-        if (error) {
-          $store.notifyNegative('An error occurred while marking notifications as read.');
-          return;
-        }
+      const { error: profileError } = await supabase.from('profiles')
+        .update({ image: data.path })
+        .eq('id', profileId);
 
-        const readOn = new Date()
-          .toISOString();
-        this.notifications = this.notifications.map(n => ({
-          ...n,
-          read_on_date: n.read_on_date ?? readOn,
-        }));
-      },
+      if (profileError) return { success: false };
 
-      async deleteAvatar () {
-        try {
-          const supabase = useSupabaseClient<Database>();
-          const user = useSupabaseUser();
+      await fetchProfile();
+      return { success: true };
+    } catch {
+      return { success: false };
+    }
+  };
 
-          // get the list of files in the user's avatar directory
-          const { data: files, error: listError } = await supabase.storage.from('avatars')
-            .list(`${user.value!.sub}/`);
+  const updateProfile = async (next: TablesUpdate<'profiles'>) => {
+    const $appStore = useAppStore();
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const user = useSupabaseUser();
+      const { error } = await supabase.from('profiles')
+        .update(next)
+        .eq('id', user.value!.sub)
+        .select();
 
-          if (listError) return { success: false };
+      if (error) {
+        $appStore.notifyNegative('An error occurred while updating your profile.');
+        return { success: false };
+      }
+      else {
+        await fetchProfile();
+        $appStore.notifyPositive('Successfully updated your profile!');
+        return { success: true };
+      }
+    } catch {
+      $appStore.notifyNegative('An error occurred while updating your profile.');
+      return { success: false };
+    }
+  };
 
-          // if there are any files in the directory, delete them
-          if (files?.length > 0) {
-            const firstFile = files[0];
-            if (!firstFile) return { success: false };
-            const { error: deleteError } = await supabase.storage.from('avatars')
-              .remove([`${user.value!.sub}/${firstFile.name}`]);
-            if (deleteError) return { success: false };
-          }
-
-          return { success: true };
-        } catch {
-          return { success: false };
-        }
-      },
-
-      async updateAvatar (file) {
-        try {
-          const supabase = useSupabaseClient<Database>();
-          const user = useSupabaseUser();
-          const profileId = user.value!.sub;
-
-          // get the list of files in the user's avatar directory
-          const { data: files, error: listError } = await supabase.storage.from('avatars')
-            .list(`${profileId}/`);
-
-          if (listError) return { success: false };
-
-          // if there are any files in the directory, delete them
-          if (files?.length > 0) {
-            const firstFile = files[0];
-            if (!firstFile) return { success: false };
-            const { error: deleteError } = await supabase.storage.from('avatars')
-              .remove([`${profileId}/${firstFile.name}`]);
-            if (deleteError) return { success: false };
-          }
-
-          // upload the new file
-          const { data, error } = await supabase.storage.from('avatars')
-            .upload(`${profileId}/${file.name}`, file, { upsert: true });
-
-          if (!data || error) return { success: false };
-
-          const { error: profileError } = await supabase.from('profiles')
-            .update({ image: data.path })
-            .eq('id', profileId);
-
-          if (profileError) return { success: false };
-
-          await this.fetchProfile();
-          return { success: true };
-        } catch {
-          return { success: false };
-        }
-      },
-
-      async updateProfile (profile: TablesUpdate<'profiles'>) {
-        const $appStore = useAppStore();
-        try {
-          const supabase = useSupabaseClient<Database>();
-          const user = useSupabaseUser();
-          const { error } = await supabase.from('profiles')
-            .update(profile)
-            .eq('id', user.value!.sub)
-            .select();
-
-          if (error) {
-            $appStore.notifyNegative('An error occurred while updating your profile.');
-            return { success: false };
-          }
-          else {
-            await this.fetchProfile();
-            $appStore.notifyPositive('Successfully updated your profile!');
-            return { success: true };
-          }
-        } catch {
-          $appStore.notifyNegative('An error occurred while updating your profile.');
-          return { success: false };
-        }
-      },
-    },
-  },
-);
+  return {
+    profile,
+    notifications,
+    isPaidMember,
+    currentPlanIdentifier,
+    unreadNotifications,
+    setProfile,
+    fetchProfile,
+    fetchNotifications,
+    fetchNotification,
+    subscribeToNotifications,
+    unsubscribeFromNotifications,
+    markAllAsRead,
+    deleteAvatar,
+    updateAvatar,
+    updateProfile,
+  };
+});

@@ -4,8 +4,9 @@
   import utc from 'dayjs/plugin/utc';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
+  import { subscriptionWithPriceQuery } from '@/queries/subscription';
   import { MeasuringSystem, SubscriptionLevel, type Database } from '@/types';
-  import type { ProfileApiResponse, SubscriptionApiResponse, SubscriptionType } from '@/types/helpers';
+  import type { ProfileApiResponse, SubscriptionApiResponse } from '@/types/helpers';
   import type { FilePondFile } from 'filepond';
 
   dayjs.extend(utc);
@@ -139,12 +140,7 @@
       }
 
       const supabase = useSupabaseClient<Database>();
-      // Nested `prices(*)` select types can exceed TS instantiation depth in the IDE.
-      const result: { data: SubscriptionType | null } = await supabase
-        .from('subscriptions')
-        .select('*, prices(*)')
-        .eq('profile_id', profile.id)
-        .maybeSingle() as any;
+      const result = await subscriptionWithPriceQuery(supabase, profile.id);
 
       const subscriptions = ensureProfileSubscriptions(profile);
       if (result.data) {
@@ -266,7 +262,7 @@
           <typography
             class="mb-2"
             variant="large">
-            {{ friendlyUsername(($store.profile as any), { includeTrailName: false }) }}
+            {{ friendlyUsername($store.profile, { includeTrailName: false }) }}
           </typography>
           <gc-pill
             :copy="capitalize($store.currentPlanIdentifier) + ' Subscription'"
