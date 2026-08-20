@@ -222,8 +222,6 @@ export const convertCurrency = (
  * @param func
  * @param waitFor
  */
-// `any` in the constraint keeps Parameters<F> inference working for every
-// callable; narrowing it to unknown[] rejects most real callbacks.
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const debounce = <F extends (...args: any[]) => any>(func: F, waitFor: number) => {
   let timeoutId: NodeJS.Timeout | null = null;

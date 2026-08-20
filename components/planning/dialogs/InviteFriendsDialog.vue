@@ -29,8 +29,6 @@
 
   const searching = ref(false);
   const searchResults = ref<FriendSelectOption[]>([]);
-  // shallowRef: replaced wholesale, never deeply mutated. A plain ref makes Vue
-  // deeply unwrap a full profiles row, which trips TS2589 where this is read.
   const friendObjects = shallowRef<Tables<'profiles'>[]>([]);
   const searchForFriends = async (searchTerm: string) => {
     if (!searchTerm?.trim()) {

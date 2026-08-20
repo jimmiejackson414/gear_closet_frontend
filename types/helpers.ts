@@ -1,20 +1,11 @@
 import type { ProfileWithSubscriptions } from '@/stores/user';
 import type { Tables } from '@/types';
-// Fully type-only: under verbatimModuleSyntax, `import { type Stripe }` still
-// emits a bare `import {} from 'stripe'`, which would put the server-side
-// Stripe SDK in the module graph of any client file importing this for a value.
 import type { Stripe } from 'stripe';
 
 export type SubscriptionType = Tables<'subscriptions'> & {
-  // Nullable to match the query: the join to `prices` is optional, and the old
-  // non-null declaration only typechecked because the result was cast.
   prices: Tables<'prices'> | null;
 };
 
-/*
- * Derived from the query in stores/user.ts rather than hand-written, so the
- * select string is the single source of truth for this shape. See #112.
- */
 export type ProfileLayoutResponse = ProfileWithSubscriptions;
 
 export type ProfileApiResponse = ProfileWithSubscriptions & {
