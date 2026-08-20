@@ -3,8 +3,8 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { IconLink, IconType } from '#components';
-  import type { Tables } from '@/types';
   import { TripDetailsType } from '@/types';
+  import type { Tables } from '@/types';
 
   interface Props {
     activeDetail: Tables<'trip_details'>;

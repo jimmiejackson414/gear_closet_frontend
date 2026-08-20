@@ -1,10 +1,10 @@
 <script lang="ts" setup>
-  import type { Tables } from '@/types';
   import {
     FREE_PACK_LIMIT,
     FREE_TRIP_LIMIT,
     needsFreeResourcePick,
   } from '@/utils/planLimits';
+  import type { Tables } from '@/types';
 
   const $userStore = useUserStore();
   const $appStore = useAppStore();

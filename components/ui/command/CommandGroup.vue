@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { ComboboxGroup, ComboboxLabel } from 'reka-ui';
-  import type { ComboboxGroupProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
+  import { ComboboxGroup, ComboboxLabel } from 'reka-ui';
   import { cn } from '@/lib/utils';
+  import type { ComboboxGroupProps } from 'reka-ui';
 
   const props = defineProps<ComboboxGroupProps & {
     class?: HTMLAttributes['class']

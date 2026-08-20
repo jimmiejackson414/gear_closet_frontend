@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { computed, type HTMLAttributes } from 'vue';
   import { ComboboxContent, useForwardPropsEmits } from 'reka-ui';
-  import type { ComboboxContentEmits, ComboboxContentProps } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
   import { cn } from '@/lib/utils';
+  import type { ComboboxContentEmits, ComboboxContentProps } from 'reka-ui';
 
   const props = withDefaults(defineProps<ComboboxContentProps & { class?: HTMLAttributes['class'] }>(), {
     class: '',

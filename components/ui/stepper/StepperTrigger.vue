@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script lang="ts" setup>
-  import { StepperTrigger, useForwardProps } from 'reka-ui';
-  import type { StepperTriggerProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
+  import { StepperTrigger, useForwardProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
+  import type { StepperTriggerProps } from 'reka-ui';
 
 
   const props = defineProps<StepperTriggerProps & { class?: HTMLAttributes['class'] }>();

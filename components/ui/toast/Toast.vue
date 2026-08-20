@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { ToastRoot, type ToastRootEmits, useForwardPropsEmits } from 'reka-ui';
   import { computed } from 'vue';
-  import { type ToastProps, toastVariants } from '.';
+  import { ToastRoot, useForwardPropsEmits, type ToastRootEmits } from 'reka-ui';
   import { cn } from '@/lib/utils';
+  import { toastVariants, type ToastProps } from '.';
 
   const props = defineProps<ToastProps>();
 

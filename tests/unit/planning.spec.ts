@@ -1,13 +1,13 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
 import { beforeEach, describe, expect, it } from 'vitest';
-import { isButtonDisabled, isDialogRootOpen, testMountGlobals } from './helpers';
-import { tripDetails, trips } from './mocks/planning.mock';
 import ModifyDetailDialog from '@/components/planning/dialogs/ModifyDetailDialog.vue';
 import PlanningEmptyState from '@/components/planning/PlanningEmptyState.vue';
 import PlanningSettings from '@/components/planning/PlanningSettings.vue';
 import HikeDetailsWidget from '@/components/planning/widgets/HikeDetailsWidget.vue';
 import { usePlanningStore } from '@/stores/planning';
+import { isButtonDisabled, isDialogRootOpen, testMountGlobals } from './helpers';
+import { tripDetails, trips } from './mocks/planning.mock';
 
 describe('Planning Page', async () => {
   describe('PlanningSettings.vue', async () => {
@@ -180,8 +180,10 @@ describe('Planning Page', async () => {
       await wrapper.vm.$nextTick();
 
       const inlineEdits = wrapper.findAllComponents({ name: 'GcInlineEdit' });
-      expect(inlineEdits[0]?.props('placeholder')).toBe('Starting point');
-      expect(inlineEdits[1]?.props('placeholder')).toBe('Ending point');
+      expect(inlineEdits[0]?.props('placeholder'))
+        .toBe('Starting point');
+      expect(inlineEdits[1]?.props('placeholder'))
+        .toBe('Ending point');
     });
 
     it('renders the Create New Detail icon button if hike details are present', async () => {

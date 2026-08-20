@@ -1,8 +1,8 @@
 import { defineStore } from 'pinia';
 import { useAppStore } from '@/stores/app';
-import { type Database, SubscriptionLevel, type Tables, type TablesUpdate } from '@/types';
+import { SubscriptionLevel, type Database, type Tables, type TablesUpdate } from '@/types';
 import { isPaidPlanIdentifier } from '@/utils/planLimits';
-import type { ExtendedNotification, ProfileApiResponse, SubscriptionType } from '@/types/helpers';
+import type { ExtendedNotification, ProfileApiResponse, ProfileLayoutResponse, SubscriptionType } from '@/types/helpers';
 import type { RealtimeChannel } from '@supabase/supabase-js';
 
 type State = {
@@ -17,6 +17,7 @@ type Getters = {
 };
 
 type Actions = {
+  setProfile(profile: ProfileLayoutResponse | null): void;
   fetchProfile(): void;
   fetchNotifications(): void;
   fetchNotification (id: number | string): void;
@@ -55,6 +56,13 @@ export const useUserStore = defineStore<'user', State, Getters, Actions>(
     },
 
     actions: {
+      // Layouts assign the fetched profile through here so the deep
+      // subscriptions/prices write type is instantiated once, not per call site.
+      // The cast is the same TS2589 workaround as fetchProfile below; see #112.
+      setProfile (profile) {
+        this.profile = profile as any;
+      },
+
       async fetchProfile () {
         const $store = useAppStore();
 

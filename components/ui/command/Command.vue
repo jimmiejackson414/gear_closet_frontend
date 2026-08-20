@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { ComboboxRoot, useForwardPropsEmits } from 'reka-ui';
-  import type { ComboboxRootEmits, ComboboxRootProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
+  import { ComboboxRoot, useForwardPropsEmits } from 'reka-ui';
   import { cn } from '@/lib/utils';
+  import type { ComboboxRootEmits, ComboboxRootProps } from 'reka-ui';
 
   const props = withDefaults(defineProps<ComboboxRootProps & { class?: HTMLAttributes['class'] }>(), {
     open: true,

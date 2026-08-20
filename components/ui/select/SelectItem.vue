@@ -1,13 +1,13 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { type HTMLAttributes } from 'vue';
   import {
     SelectItem,
     SelectItemIndicator,
-    type SelectItemProps,
     SelectItemText,
     useForwardProps,
+    type SelectItemProps,
   } from 'reka-ui';
-  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<SelectItemProps & { class?: HTMLAttributes['class'], hideCheckmark?: boolean }>();

@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { NumberFieldDecrement, useForwardProps } from 'reka-ui';
-  import type { NumberFieldDecrementProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
+  import { NumberFieldDecrement, useForwardProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
+  import type { NumberFieldDecrementProps } from 'reka-ui';
 
   const props = defineProps<NumberFieldDecrementProps & { class?: HTMLAttributes['class'] }>();
 

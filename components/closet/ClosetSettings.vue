@@ -1,13 +1,13 @@
 <script lang='ts' setup>
-  import type { AcceptableValue } from 'reka-ui';
-  import type { SelectOption } from '@/types/helpers';
   import {
     FREE_PACK_CREATE_TIP,
     FREE_PACK_LIMIT,
-    LOCKED_RESOURCE_TIP,
     isFreeCreateBlocked,
     isResourceLocked,
+    LOCKED_RESOURCE_TIP,
   } from '@/utils/planLimits';
+  import type { SelectOption } from '@/types/helpers';
+  import type { AcceptableValue } from 'reka-ui';
 
   const $store = useClosetStore();
   const $userStore = useUserStore();

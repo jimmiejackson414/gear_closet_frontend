@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { IconSearch } from '#components';
-  import { type Database, FriendRequestStatus, type Tables } from '@/types';
+  import { FriendRequestStatus, type Database, type Tables } from '@/types';
   import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
 
   definePageMeta({ layout: 'page-layout' });

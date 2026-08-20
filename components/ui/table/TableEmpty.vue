@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { type HTMLAttributes, computed } from 'vue';
+  import { computed, type HTMLAttributes } from 'vue';
+  import { cn } from '@/lib/utils';
   import TableCell from './TableCell.vue';
   import TableRow from './TableRow.vue';
-  import { cn } from '@/lib/utils';
 
   const props = withDefaults(defineProps<{
     class?: HTMLAttributes['class']

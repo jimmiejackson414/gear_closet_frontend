@@ -1,9 +1,9 @@
 <script setup lang="ts">
-  import { Primitive, type PrimitiveProps } from 'reka-ui';
   import type { HTMLAttributes } from 'vue';
-  import { type ButtonVariants, buttonVariants } from '.';
+  import { Primitive, type PrimitiveProps } from 'reka-ui';
   import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
   import { cn } from '@/lib/utils';
+  import { buttonVariants, type ButtonVariants } from '.';
 
   interface Props extends PrimitiveProps {
     variant?: ButtonVariants['variant'];

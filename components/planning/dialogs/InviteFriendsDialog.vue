@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-  import { type Database, type Tables, type TablesInsert, TripFriendStatus } from '@/types';
-  import type { SelectOption } from '@/types/helpers';
+  import { TripFriendStatus, type Database, type Tables, type TablesInsert } from '@/types';
   import { NotificationKind } from '@/utils/notifications';
+  import type { SelectOption } from '@/types/helpers';
 
   type FriendSearchResult = Tables<'friends'> & {
     profile: Tables<'profiles'>;
@@ -30,7 +30,9 @@
    */
   const searching = ref(false);
   const searchResults = ref<SelectOption[]>([]);
-  const friendObjects = ref<Tables<'profiles'>[]>([]);
+  // shallowRef: replaced wholesale, never deeply mutated, and the deep unwrap
+  // of a full profiles row otherwise trips TS2589 on assignment.
+  const friendObjects = shallowRef<Tables<'profiles'>[]>([]);
   const searchForFriends = async (searchTerm: string) => {
     if (!searchTerm?.trim()) {
       searchResults.value = [];

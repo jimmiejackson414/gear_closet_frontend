@@ -1,6 +1,6 @@
 <script lang='ts' setup>
-  import type { Database, Tables } from '@/types';
   import { TripFriendStatus } from '@/types';
+  import type { Database, Tables } from '@/types';
 
   const $store = usePlanningStore();
   const $appStore = useAppStore();

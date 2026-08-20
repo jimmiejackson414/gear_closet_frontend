@@ -2,17 +2,7 @@ import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
 import convert from 'convert';
 import round from 'lodash.round';
-import { type MockInstance, afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import {
-  findBodyButton,
-  getMenuItemsFromBody,
-  isAlertDialogOpen,
-  isButtonDisabled,
-  isDialogRootOpen,
-  openDropdownMenu,
-  testMountGlobals,
-} from './helpers';
-import { selectedPack } from './mocks/closet.mock';
+import { afterEach, beforeEach, describe, expect, it, vi, type MockInstance } from 'vitest';
 import ClosetEmptyState from '@/components/closet/ClosetEmptyState.vue';
 import ClosetPackCategories from '@/components/closet/ClosetPackCategories.vue';
 import ClosetPackDetails from '@/components/closet/ClosetPackDetails.vue';
@@ -27,6 +17,16 @@ import RemoveItemDialog from '@/components/closet/dialogs/RemoveItemDialog.vue';
 import SharePackDialog from '@/components/closet/dialogs/SharePackDialog.vue';
 import PackItemsTable from '@/components/closet/PackItemsTable.vue';
 import { useClosetStore } from '@/stores/closet';
+import {
+  findBodyButton,
+  getMenuItemsFromBody,
+  isAlertDialogOpen,
+  isButtonDisabled,
+  isDialogRootOpen,
+  openDropdownMenu,
+  testMountGlobals,
+} from './helpers';
+import { selectedPack } from './mocks/closet.mock';
 import type { Tables } from '@/types';
 
 const allPacks = [
@@ -414,15 +414,20 @@ describe('Closet Page', async () => {
     });
 
     it('exposes accessible names on icon-only item controls', async () => {
-      expect(wrapper.find('[data-testid="remove-category-btn"]').attributes('aria-label'))
+      expect(wrapper.find('[data-testid="remove-category-btn"]')
+        .attributes('aria-label'))
         .toBe('Remove category');
-      expect(wrapper.find('[data-testid="consumable-btn"]').attributes('aria-label'))
+      expect(wrapper.find('[data-testid="consumable-btn"]')
+        .attributes('aria-label'))
         .toMatch(/Mark item as (not )?consumable/);
-      expect(wrapper.find('[data-testid="worn-btn"]').attributes('aria-label'))
+      expect(wrapper.find('[data-testid="worn-btn"]')
+        .attributes('aria-label'))
         .toMatch(/Mark item as (not )?worn/);
-      expect(wrapper.find('[data-testid="add-url-btn"]').attributes('aria-label'))
+      expect(wrapper.find('[data-testid="add-url-btn"]')
+        .attributes('aria-label'))
         .toBe('Add or edit item URL');
-      expect(wrapper.find('[data-testid="remove-item-btn"]').attributes('aria-label'))
+      expect(wrapper.find('[data-testid="remove-item-btn"]')
+        .attributes('aria-label'))
         .toBe('Remove item');
     });
 

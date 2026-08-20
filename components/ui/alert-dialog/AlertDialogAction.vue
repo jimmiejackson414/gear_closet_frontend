@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { computed, type HTMLAttributes } from 'vue';
   import { AlertDialogAction, type AlertDialogActionProps } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
   import { buttonVariants } from '@/components/ui/button';
   import { cn } from '@/lib/utils';
 

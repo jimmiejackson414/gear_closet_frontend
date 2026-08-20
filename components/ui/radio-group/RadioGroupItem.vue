@@ -1,12 +1,12 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { type HTMLAttributes } from 'vue';
   import {
     RadioGroupIndicator,
     RadioGroupItem,
-    type RadioGroupItemProps,
     useForwardProps,
+    type RadioGroupItemProps,
   } from 'reka-ui';
-  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<RadioGroupItemProps & { class?: HTMLAttributes['class'] }>();

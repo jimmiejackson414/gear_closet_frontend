@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { TagsInputInput, type TagsInputInputProps, useForwardProps } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
+  import { computed, type HTMLAttributes } from 'vue';
+  import { TagsInputInput, useForwardProps, type TagsInputInputProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<TagsInputInputProps & { class?: HTMLAttributes['class'] }>();

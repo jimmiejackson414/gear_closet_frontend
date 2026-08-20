@@ -1,9 +1,9 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { NumberFieldIncrement, useForwardProps } from 'reka-ui';
-  import type { NumberFieldIncrementProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
+  import { NumberFieldIncrement, useForwardProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
+  import type { NumberFieldIncrementProps } from 'reka-ui';
 
   const props = defineProps<NumberFieldIncrementProps & { class?: HTMLAttributes['class'] }>();
 

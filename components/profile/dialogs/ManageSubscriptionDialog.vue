@@ -1,8 +1,6 @@
 <script lang="ts" setup="">
-  import type { StripeCardElement } from '@stripe/stripe-js';
   import { IconCheckCircle, IconHeart, IconLock } from '#components';
   import { SubscriptionLevel, type Tables } from '@/types';
-  import type { SubscriptionApiResponse } from '@/types/helpers';
   import {
     FREE_PACK_LIMIT,
     FREE_TRIP_LIMIT,
@@ -14,6 +12,8 @@
     subscriptionChangeMethod,
   } from '@/utils/subscriptionUpgrade';
   import tailwind from '@/utils/tailwind';
+  import type { SubscriptionApiResponse } from '@/types/helpers';
+  import type { StripeCardElement } from '@stripe/stripe-js';
 
   interface Props {
     isOpen: boolean;

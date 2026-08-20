@@ -1,8 +1,8 @@
+import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 /**
  * Apply Free-tier pack/trip keepers after downgrade (or pending selection).
  */
 import { applyFreeResourceLocks } from '../../utils/planEntitlements';
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '@/types';
 
 export default defineEventHandler(async (event) => {

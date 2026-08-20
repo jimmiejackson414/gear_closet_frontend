@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import type { EChartsOption } from 'echarts';
+  import VChart from 'vue-echarts';
   import { BarChart } from 'echarts/charts';
   import {
     GridComponent,
@@ -9,9 +9,9 @@
   } from 'echarts/components';
   import { use } from 'echarts/core';
   import { CanvasRenderer } from 'echarts/renderers';
-  import VChart from 'vue-echarts';
   import { Theme } from '@/types';
   import type { ExtendedCategory } from '@/types/helpers';
+  import type { EChartsOption } from 'echarts';
 
   use([
     CanvasRenderer,

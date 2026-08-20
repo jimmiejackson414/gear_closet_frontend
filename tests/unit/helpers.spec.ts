@@ -1,7 +1,7 @@
 import convert, { type Mass } from 'convert';
 import { describe, expect, it } from 'vitest';
-import type { ExtendedPack } from '@/types/helpers';
 import { calculatePackPrices, calculatePackWeights } from '@/utils/helpers';
+import type { ExtendedPack } from '@/types/helpers';
 
 function packWithItems (
   items: Array<{

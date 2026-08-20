@@ -24,7 +24,7 @@
     headers: useRequestHeaders(['cookie']),
   });
 
-  $store.profile = data.value;
+  $store.setProfile(data.value ?? null);
 
   if (!error.value && data.value && !data.value.onboard_date) {
     $router.push('/onboarding');

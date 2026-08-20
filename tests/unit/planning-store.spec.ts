@@ -5,10 +5,10 @@ import { useAppStore } from '@/stores/app';
 import { normalizePlanningPageData, usePlanningStore } from '@/stores/planning';
 import { todos, trips } from '@/tests/unit/mocks/planning.mock';
 import {
-  type QueryResult,
   createDeferred,
   createSupabaseMock,
   createThenableQuery,
+  type QueryResult,
 } from '@/tests/unit/mocks/supabase.mock';
 import { ResourceType } from '@/types';
 

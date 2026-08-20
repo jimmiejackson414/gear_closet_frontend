@@ -1,10 +1,10 @@
 import convert from 'convert';
-import type { Mass } from 'convert';
-import { type DineroCurrency, dinero, toDecimal } from 'dinero.js';
+import { dinero, toDecimal, type DineroCurrency } from 'dinero.js';
 import { USD } from 'dinero.js/currencies';
 import { v4 as uuidv4 } from 'uuid';
-import { type Database, ItemUnit, MeasuringSystem, type Tables, type TablesInsert } from '@/types';
-import type { ExtendedCategory, ExtendedPack, ExtendedUser } from '@/types/helpers';
+import { ItemUnit, MeasuringSystem, type Database, type TablesInsert } from '@/types';
+import type { DisplayNameProfile, ExtendedCategory, ExtendedPack, ExtendedUser } from '@/types/helpers';
+import type { Mass } from 'convert';
 
 interface FriendlyUsernameOptions {
   includeTrailName?: boolean;
@@ -212,12 +212,12 @@ export const convertCurrency = (
   const amount = dinero({ amount: Number(num), currency });
   return toDecimal(amount, ({ value, currency: c }) =>
     Number(value)
-.toLocaleString('en-US', {
-      style: 'currency',
-      currency: c.code,
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }));
+      .toLocaleString('en-US', {
+        style: 'currency',
+        currency: c.code,
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+      }));
 };
 
 /**
@@ -251,7 +251,7 @@ export const formattedMeasuringSystem = [
  * @param options
  * @returns string
  */
-export const friendlyUsername = (user: Tables<'profiles'> | null | undefined, options?: FriendlyUsernameOptions) => {
+export const friendlyUsername = (user: DisplayNameProfile | null | undefined, options?: FriendlyUsernameOptions) => {
   if (!user) return initials(user);
   if (options?.includeTrailName && user.trail_name) {
     return `${user.first_name} "${user.trail_name}" ${user.last_name}`;
@@ -365,7 +365,7 @@ export const hslVarToHex = async (hslVar: string): Promise<string> => {
  * @param user
  * @returns string
  */
-export const initials = (user: Tables<'profiles'>| null | undefined) => {
+export const initials = (user: DisplayNameProfile | null | undefined) => {
   const base = 'GC';
   if (!user) return base;
   const firstInitial = user.first_name?.charAt(0);

@@ -1,14 +1,14 @@
 <script lang='ts' setup>
-  import type { AcceptableValue } from 'reka-ui';
-  import type { Tables } from '@/types';
-  import type { SelectOption } from '@/types/helpers';
   import {
     FREE_TRIP_CREATE_TIP,
     FREE_TRIP_LIMIT,
-    LOCKED_RESOURCE_TIP,
     isFreeCreateBlocked,
+    LOCKED_RESOURCE_TIP,
   } from '@/utils/planLimits';
   import { isTripLockedForUser, ownedTrips } from '@/utils/trips';
+  import type { Tables } from '@/types';
+  import type { SelectOption } from '@/types/helpers';
+  import type { AcceptableValue } from 'reka-ui';
 
   const $store = usePlanningStore();
   const $userStore = useUserStore();

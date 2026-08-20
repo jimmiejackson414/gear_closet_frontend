@@ -1,15 +1,15 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { type HTMLAttributes } from 'vue';
   import {
     DialogClose,
     DialogContent,
-    type DialogContentEmits,
-    type DialogContentProps,
     DialogOverlay,
     DialogPortal,
     useForwardPropsEmits,
+    type DialogContentEmits,
+    type DialogContentProps,
   } from 'reka-ui';
-  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DialogContentProps & { class?: HTMLAttributes['class'] }>();

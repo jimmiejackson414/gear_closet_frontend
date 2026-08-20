@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { TagsInputItemDelete, type TagsInputItemDeleteProps, useForwardProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
+  import { TagsInputItemDelete, useForwardProps, type TagsInputItemDeleteProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<TagsInputItemDeleteProps & { class?: HTMLAttributes['class'] }>();

@@ -1,9 +1,9 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+import FriendItem from '@/components/friends/FriendItem.vue';
 import FriendRequestItem from '@/components/friends/FriendRequestItem.vue';
 import FriendSearchItem from '@/components/friends/FriendSearchItem.vue';
-import FriendItem from '@/components/friends/FriendItem.vue';
 import RemoveFriendDialog from '@/components/friends/RemoveFriendDialog.vue';
 import { useAppStore } from '@/stores/app';
 import { useUserStore } from '@/stores/user';
@@ -13,8 +13,8 @@ import {
   createThenableQuery,
 } from '@/tests/unit/mocks/supabase.mock';
 import { FriendRequestStatus } from '@/types';
-import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
 import { NotificationKind } from '@/utils/notifications';
+import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
 
 vi.mock('@/components/ui/toast', () => ({
   useToast: () => ({ toast: vi.fn() }),

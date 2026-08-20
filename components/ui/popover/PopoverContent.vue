@@ -1,13 +1,13 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { computed, type HTMLAttributes } from 'vue';
   import {
     PopoverContent,
-    type PopoverContentEmits,
-    type PopoverContentProps,
     PopoverPortal,
     useForwardPropsEmits,
+    type PopoverContentEmits,
+    type PopoverContentProps,
   } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
   import { cn } from '@/lib/utils';
 
   defineOptions({

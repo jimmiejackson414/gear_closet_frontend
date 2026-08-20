@@ -1,10 +1,10 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { findBodyButton, isAlertDialogOpen, isDialogRootOpen, testMountGlobals } from './helpers';
 import DeletePollDialog from '@/components/planning/dialogs/DeletePollDialog.vue';
 import ModifyPollDialog from '@/components/planning/dialogs/ModifyPollDialog.vue';
 import { usePlanningStore } from '@/stores/planning';
 import { createSupabaseMock } from '@/tests/unit/mocks/supabase.mock';
+import { findBodyButton, isAlertDialogOpen, isDialogRootOpen, testMountGlobals } from './helpers';
 
 const rpcMock = vi.hoisted(() => vi.fn());
 const deleteEqMock = vi.hoisted(() => vi.fn());
@@ -60,14 +60,18 @@ describe('ModifyPollDialog', () => {
     });
 
     const createButton = findBodyButton('Create');
-    expect(createButton).toBeTruthy();
+    expect(createButton)
+      .toBeTruthy();
     await createButton!.click();
     await wrapper.vm.$nextTick();
 
     expect(rpcMock).not.toHaveBeenCalled();
-    expect(document.body.textContent).toContain('Question is required.');
-    expect(document.body.textContent).toContain('Add at least two answers.');
-    expect(isDialogRootOpen(wrapper)).toBe(true);
+    expect(document.body.textContent)
+      .toContain('Question is required.');
+    expect(document.body.textContent)
+      .toContain('Add at least two answers.');
+    expect(isDialogRootOpen(wrapper))
+      .toBe(true);
   });
 });
 
@@ -107,11 +111,14 @@ describe('DeletePollDialog', () => {
     });
 
     const deleteButton = findBodyButton('Delete Poll');
-    expect(deleteButton).toBeTruthy();
+    expect(deleteButton)
+      .toBeTruthy();
     await deleteButton!.click();
     await wrapper.vm.$nextTick();
 
-    expect(notifyNegative).toHaveBeenCalled();
-    expect(isAlertDialogOpen(wrapper)).toBe(true);
+    expect(notifyNegative)
+      .toHaveBeenCalled();
+    expect(isAlertDialogOpen(wrapper))
+      .toBe(true);
   });
 });

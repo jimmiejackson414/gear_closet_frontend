@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { DialogDescription, type DialogDescriptionProps, useForwardProps } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
+  import { computed, type HTMLAttributes } from 'vue';
+  import { DialogDescription, useForwardProps, type DialogDescriptionProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DialogDescriptionProps & { class?: HTMLAttributes['class'] }>();

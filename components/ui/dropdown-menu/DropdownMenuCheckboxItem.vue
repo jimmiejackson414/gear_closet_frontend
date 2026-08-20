@@ -1,13 +1,13 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { type HTMLAttributes } from 'vue';
   import {
     DropdownMenuCheckboxItem,
-    type DropdownMenuCheckboxItemEmits,
-    type DropdownMenuCheckboxItemProps,
     DropdownMenuItemIndicator,
     useForwardPropsEmits,
+    type DropdownMenuCheckboxItemEmits,
+    type DropdownMenuCheckboxItemProps,
   } from 'reka-ui';
-  import { type HTMLAttributes } from 'vue';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<DropdownMenuCheckboxItemProps & { class?: HTMLAttributes['class'] }>();

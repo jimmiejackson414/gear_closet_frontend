@@ -1,8 +1,8 @@
+import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 /**
  * Unlock all packs/trips for the current user (paid upgrade).
  */
 import { unlockAllUserResources } from '../../utils/planEntitlements';
-import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import type { Database } from '@/types';
 
 export default defineEventHandler(async (event) => {

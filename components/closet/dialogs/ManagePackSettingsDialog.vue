@@ -3,9 +3,9 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { IconBackpack } from '#components';
-  import { type Database, Theme } from '@/types';
-  import type { ExtendedPack } from '@/types/helpers';
+  import { Theme, type Database } from '@/types';
   import generateThemeOptions from '@/utils/chartTheme';
+  import type { ExtendedPack } from '@/types/helpers';
 
   const $store = useClosetStore();
   const $appStore = useAppStore();

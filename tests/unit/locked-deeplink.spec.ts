@@ -1,8 +1,8 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { describe, expect, it } from 'vitest';
-import { testMountGlobals } from './helpers';
 import LockedDeepLinkBanner from '@/components/common/LockedDeepLinkBanner.vue';
 import { LOCKED_DEEPLINK_CTA, lockedDeepLinkMessage } from '@/utils/planLimits';
+import { testMountGlobals } from './helpers';
 
 describe('LockedDeepLinkBanner', () => {
   it('explains the locked pack deep link and links to profile', async () => {

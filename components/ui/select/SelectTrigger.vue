@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { SelectIcon, SelectTrigger, type SelectTriggerProps, useForwardProps } from 'reka-ui';
   import { type HTMLAttributes } from 'vue';
+  import { SelectIcon, SelectTrigger, useForwardProps, type SelectTriggerProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<SelectTriggerProps & { class?: HTMLAttributes['class'], prependIcon?: any }>();

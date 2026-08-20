@@ -1,11 +1,11 @@
 <script lang='ts' setup>
+  import { vDraggable, type DraggableEvent } from 'vue-draggable-plus';
   import { type Mass } from 'convert';
-  import { type DraggableEvent, vDraggable } from 'vue-draggable-plus';
   import { SelectContent , SelectGroup, SelectItem, SelectRoot, SelectTrigger, Typography } from '#components';
   import GcInlineEdit from '@/components/common/GcInlineEdit.vue';
   import { cn } from '@/lib/utils';
-  import type { TablesUpdate } from '@/types';
   import { weightOptions } from '@/utils/helpers';
+  import type { TablesUpdate } from '@/types';
 
   const $store = useClosetStore();
   const emit = defineEmits([
@@ -434,8 +434,8 @@
                 <div class="grid grid-cols-[auto_auto] gap-1 justify-end items-center">
                   <button-root
                     v-if="!$store.isPublicRoute"
-                    aria-label="Add or edit item URL"
                     v-tippy="{ content: 'Add/Modify URL', placement: 'top' }"
+                    aria-label="Add or edit item URL"
                     :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-out h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
                     data-testid="add-url-btn"
                     size="icon"
@@ -461,8 +461,8 @@
                   </button-root>
                   <button-root
                     v-if="$store.isPublicRoute"
-                    aria-label="Visit item URL"
                     v-tippy="{ content: 'Visit URL', placement: 'top' }"
+                    aria-label="Visit item URL"
                     :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-out h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
                     :disabled="!catItem.item.url"
                     size="icon"

@@ -1,8 +1,7 @@
 <script lang='ts' setup>
-  import { toTypedSchema } from '@vee-validate/zod';
-  import type { FilePondFile } from 'filepond';
-  import { useForm } from 'vee-validate';
   import type { FunctionalComponent } from 'vue';
+  import { toTypedSchema } from '@vee-validate/zod';
+  import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { IconAperture, IconCheck, IconCircleUser, IconHeart } from '#components';
   import { useToast } from '@/components/ui/toast/use-toast';
@@ -10,6 +9,7 @@
   import { pathAfterOnboarding } from '@/utils/authRedirect';
   import { completeOnboardingPlan } from '@/utils/onboarding';
   import tiers, { type Tier } from '@/utils/tiers';
+  import type { FilePondFile } from 'filepond';
 
   type StepperState = 'completed' | 'active' | 'inactive';
 

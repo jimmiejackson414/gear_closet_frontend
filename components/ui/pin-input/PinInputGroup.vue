@@ -1,7 +1,7 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
-  import { Primitive, type PrimitiveProps, useForwardProps } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
+  import { computed, type HTMLAttributes } from 'vue';
+  import { Primitive, useForwardProps, type PrimitiveProps } from 'reka-ui';
   import { cn } from '@/lib/utils';
 
   const props = defineProps<PrimitiveProps & { class?: HTMLAttributes['class'] }>();

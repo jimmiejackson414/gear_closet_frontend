@@ -1,10 +1,10 @@
 <script lang='ts' setup>
-  import type { Provider } from '@supabase/supabase-js';
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { type Severity } from '@/components/common/GcAlert.vue';
   import { authCallbackUrl } from '@/utils/authRedirect';
+  import type { Provider } from '@supabase/supabase-js';
 
   const supabase = useSupabaseClient();
   const submitAction = ref<{message: string, severity: Severity} | undefined>(undefined);

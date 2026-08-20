@@ -1,4 +1,3 @@
-import type { SupabaseClient } from '@supabase/supabase-js';
 import { type Database } from '@/types';
 import {
   FREE_PACK_LIMIT,
@@ -6,6 +5,7 @@ import {
   isPaidPlanIdentifier,
   needsFreeResourcePick,
 } from '@/utils/planLimits';
+import type { SupabaseClient } from '@supabase/supabase-js';
 
 export { isPaidPlanIdentifier };
 

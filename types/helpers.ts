@@ -48,9 +48,17 @@ export type ExtendedFriendInvite = Tables<'friend_invitations'> & {
   sender: Tables<'profiles'>;
 };
 
+/**
+ * Minimal profile shape needed to render a display name or initials, so callers
+ * can pass narrow selections instead of a full profile row.
+ */
+export type DisplayNameProfile = Pick<Tables<'profiles'>, 'email' | 'first_name' | 'last_name'> & {
+  trail_name?: string | null;
+};
+
 export type NotificationSender = Pick<
   Tables<'profiles'>,
-  'id' | 'image' | 'first_name' | 'last_name' | 'slug'
+  'id' | 'image' | 'email' | 'first_name' | 'last_name' | 'slug'
 >;
 
 export type ExtendedNotification = Tables<'notifications'> & {

@@ -3,8 +3,8 @@
  * @apiName StripeWebhook
  */
 
-import { processStripeWebhookEvent } from '../../utils/processStripeWebhookEvent';
 import { serverSupabaseServiceRole } from '#supabase/server';
+import { processStripeWebhookEvent } from '../../utils/processStripeWebhookEvent';
 import type { Database } from '@/types';
 
 export default stripeWebhookHandler(async (event, context) => {

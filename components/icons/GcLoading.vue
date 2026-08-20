@@ -1,6 +1,6 @@
 <script lang='ts' setup>
-  import GcLogoIcon from './GcLogoIcon.vue';
   import GcSpinner from '@/components/common/GcSpinner.vue';
+  import GcLogoIcon from './GcLogoIcon.vue';
 
   interface Props {
     iconClass?: string;

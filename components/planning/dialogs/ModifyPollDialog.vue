@@ -1,8 +1,8 @@
 <script lang='ts' setup>
   import { IconCheck, IconCircleHelp } from '#components';
+  import { validatePollForm } from '@/utils/pollFormValidation';
   import type { Database, Tables } from '@/types';
   import type { ExtendedPoll } from '@/types/helpers';
-  import { validatePollForm } from '@/utils/pollFormValidation';
 
   type PollForm = {
     question: Tables<'questions'>;

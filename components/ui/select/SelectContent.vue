@@ -1,16 +1,16 @@
 <!-- eslint-disable @typescript-eslint/no-unused-vars -->
 <script setup lang="ts">
+  import { computed, type HTMLAttributes } from 'vue';
   import {
     SelectContent,
-    type SelectContentEmits,
-    type SelectContentProps,
     SelectPortal,
     SelectViewport,
     useForwardPropsEmits,
+    type SelectContentEmits,
+    type SelectContentProps,
   } from 'reka-ui';
-  import { type HTMLAttributes, computed } from 'vue';
-  import { SelectScrollDownButton, SelectScrollUpButton } from '.';
   import { cn } from '@/lib/utils';
+  import { SelectScrollDownButton, SelectScrollUpButton } from '.';
 
   defineOptions({
     inheritAttrs: false,
