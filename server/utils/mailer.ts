@@ -15,7 +15,7 @@ export type SendMailInput = {
   subject: string;
   html: string;
   text?: string;
-  /** Optional template name for later (#85). Sent as a Resend tag when valid. */
+  /** Template id tagged on the Resend send (`trip-invite`, `trip-invite-claim`, `friend-request`). */
   templateId?: string;
 };
 
@@ -79,11 +79,18 @@ const templateTagValue = (templateId: string | undefined) => {
   return value || undefined;
 };
 
+export const formatMailFrom = (from: string) => {
+  const trimmed = from.trim();
+  if (!trimmed) return trimmed;
+  if (trimmed.includes('<')) return trimmed;
+  return `Gear Closet <${trimmed}>`;
+};
+
 export const readMailerConfig = (): MailerConfig => {
   const config = useRuntimeConfig();
   return {
     apiKey: String(config.resendApiKey ?? ''),
-    from: String(config.mailFrom ?? ''),
+    from: formatMailFrom(String(config.mailFrom ?? '')),
     allowlist: parseMailAllowlist(String(config.mailAllowlist ?? '')),
   };
 };
@@ -120,7 +127,7 @@ export const sendMail = async (
   const tagValue = templateTagValue(input.templateId);
   const mailer = extras?.client ?? useResendClient(config);
   const { data, error } = await mailer.emails.send({
-    from: config.from,
+    from: formatMailFrom(config.from),
     to,
     subject: input.subject,
     html: input.html,

@@ -100,6 +100,7 @@ describe('invite email helpers', () => {
     }))
       .toMatchObject({
         templateId: 'trip-invite-claim',
+        subject: 'Jimmie invited you to a trip',
       });
     expect(claimUrlFromOrigin('https://app.gearcloset.io', 'raw-token'))
       .toBe('https://app.gearcloset.io/invite/trip?token=raw-token');
