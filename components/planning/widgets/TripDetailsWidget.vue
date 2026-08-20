@@ -1,10 +1,14 @@
 <script lang='ts' setup>
-  import { VueDatePicker } from '@vuepic/vue-datepicker';
   import dayjs from 'dayjs';
   import { IconPencil, IconPlus } from '#components';
   import { usePlanningStore } from '@/stores/planning';
   import { TripDetailsType, type Tables, type TablesUpdate } from '@/types';
-  import '@vuepic/vue-datepicker/dist/main.css';
+
+  const VueDatePicker = defineAsyncComponent(async () => {
+    await import('@vuepic/vue-datepicker/dist/main.css');
+    const { VueDatePicker: DatePicker } = await import('@vuepic/vue-datepicker');
+    return DatePicker;
+  });
 
   const $store = usePlanningStore();
   const activeDetail = ref<Tables<'trip_details'> | undefined>(undefined);

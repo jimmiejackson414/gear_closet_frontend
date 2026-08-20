@@ -249,7 +249,7 @@
   <div class="mx-auto py-8 w-full max-w-full lg:max-w-5xl">
     <div class="gap-6 lg:gap-14 grid grid-cols-1 lg:grid-cols-[100_1fr]">
       <client-only>
-        <gc-avatar-upload
+        <lazy-gc-avatar-upload
           :file="profileAvatar"
           @handle-add-file="handleAvatarUpload($event)"
           @handle-error="handleFileError"

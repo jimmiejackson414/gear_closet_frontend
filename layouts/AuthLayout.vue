@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  const { backgroundImage } = await useAuthLayout();
+  const { backgroundImage } = useAuthLayout();
 
   const computedImage = computed(() => {
     return {

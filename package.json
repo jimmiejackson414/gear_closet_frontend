@@ -56,7 +56,6 @@
     "vue-tsc": "^3.3.9"
   },
   "dependencies": {
-    "@cloudinary/url-gen": "^1.21.0",
     "@noble/ciphers": "^2.3.0",
     "@noble/hashes": "^2.3.0",
     "@pinia/nuxt": "^1.0.1",
