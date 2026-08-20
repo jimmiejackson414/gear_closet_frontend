@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import { TripFriendStatus } from '@/types';
+  import { tripFriendStatusLabel, tripFriendStatusVariant } from '@/utils/tripFriends';
 
   const $store = usePlanningStore();
   const data = toRef($store, 'data');
@@ -7,17 +7,8 @@
 
   const isInviteModalOpen = ref(false);
 
-  const statusLabel = (status: string) => {
-    switch (status) {
-    case TripFriendStatus.ACCEPTED:
-      return 'Accepted';
-    case TripFriendStatus.DECLINED:
-      return 'Declined';
-    case TripFriendStatus.PENDING:
-    default:
-      return 'Pending';
-    }
-  };
+  const canInvite = computed(() =>
+    !pageLoading.value && $store.isSelectedTripOwner);
 </script>
 
 <template>
@@ -28,9 +19,10 @@
         Friends
       </p>
       <button-root
-        v-if="!pageLoading && data.friends.length && $store.isSelectedTripOwner"
+        v-if="canInvite"
         aria-label="Invite friends"
         class="justify-self-end rounded-full"
+        data-testid="trip-friends-invite"
         size="icon"
         type="button"
         @click="isInviteModalOpen = true">
@@ -45,10 +37,11 @@
       <p
         v-if="$store.isSelectedTripOwner"
         class="mb-4 text-muted-foreground text-sm">
-        Trip invites currently go to people on your Friends list. Add them there first if you haven't already.
+        Invite people from your Friends list, or enter an email — they'll get an in-app invite if they have an account, or an email to join if they don't.
       </p>
       <button-root
         v-if="$store.isSelectedTripOwner"
+        data-testid="trip-friends-empty-invite"
         size="sm"
         variant="outline"
         @click="isInviteModalOpen = true">
@@ -72,8 +65,8 @@
           </typography>
           <badge
             class="shrink-0"
-            :variant="friend.status === TripFriendStatus.ACCEPTED ? 'default' : 'secondary'">
-            {{ statusLabel(friend.status) }}
+            :variant="tripFriendStatusVariant(friend.status)">
+            {{ tripFriendStatusLabel(friend.status) }}
           </badge>
         </div>
       </li>

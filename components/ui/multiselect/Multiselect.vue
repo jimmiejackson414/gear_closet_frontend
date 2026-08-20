@@ -43,6 +43,7 @@
   // Add selected option to `modelValue`
   const inputRef = ref<HTMLElement | undefined>(undefined);
   const handleSelect = (option: T) => {
+    if (option.disabled) return;
     if (!modelValue.value.some((item) => item.value === option.value)) {
       modelValue.value.push(option);
       emit('select', modelValue.value);
@@ -57,6 +58,7 @@
   // Remove selected option from `modelValue`
   const removeOption = (option: T) => {
     modelValue.value = modelValue.value.filter((item) => item.value !== option.value);
+    emit('select', modelValue.value);
   };
 </script>
 
@@ -124,6 +126,7 @@
               <command-item
                 v-for="option in options"
                 :key="option.value"
+                :disabled="option.disabled"
                 :value="option"
                 @select.prevent="handleSelect(option)">
                 <slot
