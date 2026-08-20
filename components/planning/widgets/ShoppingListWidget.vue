@@ -31,10 +31,12 @@
       </p>
       <button-root
         v-if="!$store.pageLoading && $store.data?.shopping_items.length"
+        aria-label="Add shopping item"
         class="justify-self-end rounded-full"
         size="icon"
+        type="button"
         @click="createShoppingItem">
-        <icon-plus />
+        <icon-plus aria-hidden="true" />
       </button-root>
     </div>
     <gc-skeleton v-if="$store.pageLoading" />

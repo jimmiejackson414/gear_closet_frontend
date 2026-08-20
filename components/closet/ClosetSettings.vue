@@ -59,8 +59,9 @@
     <div class="flex justify-center items-center gap-4">
       <div class="flex">
         <dropdown-menu>
-          <dropdown-menu-trigger>
+          <dropdown-menu-trigger aria-label="Pack actions">
             <icon-settings
+              aria-hidden="true"
               class="w-6 h-6"
               data-testid="settings-icon" />
           </dropdown-menu-trigger>

@@ -30,10 +30,12 @@
       </p>
       <button-root
         v-if="!$store.pageLoading && $store.data?.todos.length"
+        aria-label="Add todo"
         class="justify-self-end rounded-full"
         size="icon"
+        type="button"
         @click="createTodo">
-        <icon-plus />
+        <icon-plus aria-hidden="true" />
       </button-root>
     </div>
     <gc-skeleton v-if="$store.pageLoading" />

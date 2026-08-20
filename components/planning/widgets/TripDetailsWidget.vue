@@ -46,10 +46,12 @@
       </p>
       <button-root
         v-if="!$store.pageLoading && tripDetails.length && $store.isSelectedTripOwner"
+        aria-label="Add trip detail"
         class="justify-self-end rounded-full"
         size="icon"
+        type="button"
         @click="createDetail">
-        <icon-plus />
+        <icon-plus aria-hidden="true" />
       </button-root>
     </div>
     <gc-skeleton v-if="$store.pageLoading" />
@@ -94,10 +96,12 @@
             </typography>
             <button-root
               v-if="$store.isSelectedTripOwner"
+              aria-label="Edit trip dates"
               class="opacity-0 group-hover:opacity-100 rounded-full"
               size="sm"
+              type="button"
               variant="ghost">
-              <icon-pencil />
+              <icon-pencil aria-hidden="true" />
             </button-root>
           </div>
           <vue-date-picker

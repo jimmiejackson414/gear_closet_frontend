@@ -60,7 +60,9 @@
         v-tippy="{ content: 'Toggle color mode' }"
         class="flex">
         <button-root
+          :aria-label="colorMode.value === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'"
           size="icon"
+          type="button"
           variant="ghost"
           @click="toggleColorMode">
           <icon-sun
@@ -75,11 +77,16 @@
       </span>
       <div class="relative">
         <button-root
+          :aria-expanded="isDropdownOpen"
+          aria-label="Open notifications"
           data-testid="notifications-button"
           size="icon"
+          type="button"
           variant="ghost"
           @click="isDropdownOpen = !isDropdownOpen">
-          <icon-bell-ring class="size-max! dark:text-card-foreground text-accent-alt" />
+          <icon-bell-ring
+            aria-hidden="true"
+            class="size-max! dark:text-card-foreground text-accent-alt" />
           <div
             v-if="shouldShowBadge"
             class="block top-1 absolute inset-e-1 bg-destructive border-2 border-white rounded-full w-3 h-3" />

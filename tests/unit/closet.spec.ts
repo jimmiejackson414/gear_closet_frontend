@@ -90,6 +90,12 @@ describe('Closet Page', async () => {
         .toBe(true);
     });
 
+    it('exposes an accessible name on the pack actions trigger', async () => {
+      const trigger = document.querySelector('[aria-label="Pack actions"]');
+      expect(trigger)
+        .toBeTruthy();
+    });
+
     it('disables menu items when no pack is selected', async () => {
       await openDropdownMenu(wrapper);
       const menuItems = getMenuItemsFromBody();
@@ -405,6 +411,19 @@ describe('Closet Page', async () => {
       await removeCategoryButton.trigger('click');
       expect(wrapper.emitted('handleRemoveCategory'))
         .toBeTruthy();
+    });
+
+    it('exposes accessible names on icon-only item controls', async () => {
+      expect(wrapper.find('[data-testid="remove-category-btn"]').attributes('aria-label'))
+        .toBe('Remove category');
+      expect(wrapper.find('[data-testid="consumable-btn"]').attributes('aria-label'))
+        .toMatch(/Mark item as (not )?consumable/);
+      expect(wrapper.find('[data-testid="worn-btn"]').attributes('aria-label'))
+        .toMatch(/Mark item as (not )?worn/);
+      expect(wrapper.find('[data-testid="add-url-btn"]').attributes('aria-label'))
+        .toBe('Add or edit item URL');
+      expect(wrapper.find('[data-testid="remove-item-btn"]').attributes('aria-label'))
+        .toBe('Remove item');
     });
 
     it('renders the correct number of rows in the table', async () => {
