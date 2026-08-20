@@ -10,6 +10,7 @@
   import type { Theme } from '@/types';
   import type { ExtendedCategory } from '@/types/helpers';
   import type { EChartsOption } from 'echarts';
+  import type { CallbackDataParams, TopLevelFormatterParams } from 'echarts/types/dist/shared';
 
   use([
     CanvasRenderer,
@@ -36,7 +37,7 @@
       chartRef.value?.setOption({
         series: [{
           itemStyle: {
-            color: (params: any) => {
+            color: (params: CallbackDataParams) => {
               const foundTheme = findTheme(theme);
               return foundTheme[params.dataIndex % theme.length];
             },
@@ -104,7 +105,7 @@
           borderRadius: 8,
           borderColor: 'white',
           borderWidth: 2,
-          color: (params: any) => {
+          color: (params: CallbackDataParams) => {
             const theme = findTheme($store.data.pack?.theme as Theme);
             return theme[params.dataIndex % theme.length] ?? '';
           },
@@ -114,15 +115,17 @@
     tooltip: {
       show: true,
       trigger: 'item',
-      formatter: (value: any) => {
-        const category = $store.data.pack?.categories?.[value.dataIndex];
+      formatter: (params: TopLevelFormatterParams) => {
+        // Trigger is 'item', but the callback type still allows the array form.
+        const value = Array.isArray(params) ? params[0] : params;
+        const category = value ? $store.data.pack?.categories?.[value.dataIndex] : undefined;
         const categoryWeight = calculateCategoryWeight(category as ExtendedCategory);
         const weight = round(convert(categoryWeight, 'mg')
           .to('lb'), 2);
         return (`
           <div class="flex flex-col gap-2 w-fit">
             <p class="text-eyebrow text-sm!">
-              <span style="margin-right: 4px; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${value.color};"></span>
+              <span style="margin-right: 4px; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${value?.color};"></span>
               ${category?.name}
             </p>
             <p class="font-bold! text-base-lg text-center">
@@ -152,7 +155,7 @@
           value: calculateCategoryWeight(c as ExtendedCategory),
         })),
         itemStyle: {
-          color: (params: any) => {
+          color: (params: CallbackDataParams) => {
             const theme = findTheme($store.data.pack?.theme as Theme);
             return theme[params.dataIndex % theme.length] ?? '';
           },
@@ -187,7 +190,7 @@
     chartRef.value?.setOption({
       series: [{
         itemStyle: {
-          color: (params: any) => {
+          color: (params: CallbackDataParams) => {
             const theme = findTheme(newTheme as Theme);
             return theme[params.dataIndex % (theme.length || 1)] ?? '';
           },

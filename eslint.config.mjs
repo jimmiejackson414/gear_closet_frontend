@@ -71,7 +71,9 @@ export default withNuxt(
       '@stylistic/space-before-function-paren': ['warn', 'always'],
 
       // Soften Nuxt/TS recommended rules that were not hard failures before
-      '@typescript-eslint/no-explicit-any': 'off',
+      // Warn, not error: the remaining casts are known (see #112) but new ones
+      // should be visible rather than silently spreading.
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
       '@typescript-eslint/no-unused-expressions': 'warn',
       '@typescript-eslint/consistent-type-imports': 'off',
@@ -153,6 +155,14 @@ export default withNuxt(
     files: ['pages/**/*.vue', 'components/ui/**/*.vue'],
     rules: {
       'vue/multi-word-component-names': 'off',
+    },
+  },
+  {
+    files: ['tests/**'],
+    rules: {
+      // Building partial fixtures and stubbing SDK clients needs `any`; keeping
+      // the rule on here would bury the production warnings it exists to surface.
+      '@typescript-eslint/no-explicit-any': 'off',
     },
   },
 );

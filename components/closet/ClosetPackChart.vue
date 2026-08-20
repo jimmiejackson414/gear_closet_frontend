@@ -12,6 +12,7 @@
   import { Theme } from '@/types';
   import type { ExtendedCategory } from '@/types/helpers';
   import type { EChartsOption } from 'echarts';
+  import type { CallbackDataParams, TopLevelFormatterParams } from 'echarts/types/dist/shared';
 
   use([
     CanvasRenderer,
@@ -47,7 +48,7 @@
     yAxis: {
       type: 'value',
       splitLine: { show: false },
-      axisLabel: { formatter: (value: any) => `${value} lbs` },
+      axisLabel: { formatter: (value: number) => `${value} lbs` },
     },
     grid: { show: false },
     series: [
@@ -56,7 +57,7 @@
         type: 'bar',
         itemStyle: {
           borderRadius: 5,
-          color: (params: any) => {
+          color: (params: CallbackDataParams) => {
             const theme = findTheme($store.data.selectedPack?.theme as Theme);
             return theme[params.dataIndex % theme.length] ?? '';
           },
@@ -66,12 +67,14 @@
     tooltip: {
       show: true,
       trigger: 'item',
-      formatter: (value: any) => {
-        const point = seriesData.value[value.dataIndex];
+      formatter: (params: TopLevelFormatterParams) => {
+        // Trigger is 'item', but the callback type still allows the array form.
+        const value = Array.isArray(params) ? params[0] : params;
+        const point = value ? seriesData.value[value.dataIndex] : undefined;
         return (`
           <div class="flex flex-col gap-2 w-fit">
             <p class="text-eyebrow text-sm!">
-              <span style="margin-right: 4px; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${value.color};"></span>
+              <span style="margin-right: 4px; display: inline-block; width: 10px; height: 10px; border-radius: 50%; background-color: ${value?.color};"></span>
               ${point?.name ?? ''}
             </p>
             <p class="font-bold! text-base-lg text-center">
@@ -110,7 +113,7 @@
     chartRef.value?.setOption({
       series: [{
         itemStyle: {
-          color: (params: any) => {
+          color: (params: CallbackDataParams) => {
             const theme = findTheme(newTheme as Theme);
             return theme[params.dataIndex % theme.length] ?? '';
           },

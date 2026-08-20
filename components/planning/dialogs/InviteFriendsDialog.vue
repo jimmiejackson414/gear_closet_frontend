@@ -3,10 +3,6 @@
   import { NotificationKind } from '@/utils/notifications';
   import type { SelectOption } from '@/types/helpers';
 
-  type FriendSearchResult = Tables<'friends'> & {
-    profile: Tables<'profiles'>;
-  };
-
   interface Props {
     isOpen: boolean;
   }
@@ -33,8 +29,8 @@
 
   const searching = ref(false);
   const searchResults = ref<FriendSelectOption[]>([]);
-  // shallowRef: replaced wholesale, never deeply mutated, and the deep unwrap
-  // of a full profiles row otherwise trips TS2589 on assignment.
+  // shallowRef: replaced wholesale, never deeply mutated. A plain ref makes Vue
+  // deeply unwrap a full profiles row, which trips TS2589 where this is read.
   const friendObjects = shallowRef<Tables<'profiles'>[]>([]);
   const searchForFriends = async (searchTerm: string) => {
     if (!searchTerm?.trim()) {
@@ -46,29 +42,29 @@
       searching.value = true;
       const supabase = useSupabaseClient<Database>();
       const escaped = escapeIlikeTerm(searchTerm.trim());
-      // Nested `profile:profiles!profile_id(*)` select depth blows Volar (cascade: missing auto-imports).
-      const { data: friendsData, error } = await (supabase
+      const { data: friendsData, error } = await supabase
         .from('friends')
         .select('*, profile:profiles!profile_id(*)')
         .or(`first_name.ilike.%${escaped}%,last_name.ilike.%${escaped}%,email.ilike.%${escaped}%`, { referencedTable: 'profiles' })
         .neq('profile_id', $store.selectedTrip?.profile_id ?? null)
-        .limit(10) as any) as { data: FriendSearchResult[] | null; error: unknown };
+        .limit(10);
 
       if (error) {
         $appStore.notifyNegative('There was an error searching for friends.');
         return;
       }
 
-      if (friendsData?.length) {
-        friendObjects.value = friendsData.map(f => f.profile);
-        searchResults.value = friendsData.map(f => ({
-          label: friendlyUsername(f.profile),
-          value: f.profile.id,
-          image: f.profile.image,
-        }));
-      } else {
-        searchResults.value = [];
-      }
+      // The embedded profile is nullable, so drop any row it failed to resolve for.
+      const profiles = (friendsData ?? [])
+        .map(f => f.profile)
+        .filter((p): p is NonNullable<typeof p> => p !== null);
+
+      friendObjects.value = profiles;
+      searchResults.value = profiles.map(p => ({
+        label: friendlyUsername(p),
+        value: p.id,
+        image: p.image,
+      }));
     } catch {
       $appStore.notifyNegative('There was an error searching for friends.');
     } finally {
@@ -100,11 +96,9 @@
         .select();
 
       // send each friend a notification
-      // Pinia profile state is a deep supabase join type; erase before use.
-      const inviter = ($userStore as any).profile as Tables<'profiles'> | null;
       const notificationsPayload = friendsToInvite.value.map((f: Tables<'profiles'>) => ({
         title: NotificationKind.TRIP_INVITE,
-        content: `${friendlyUsername(inviter)} invited you to a trip!`,
+        content: `${friendlyUsername($userStore.profile)} invited you to a trip!`,
         read_on_date: null,
         profile_id: f.id,
         sender_id: user.value?.sub,

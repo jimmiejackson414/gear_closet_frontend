@@ -118,9 +118,10 @@ export const usePlanningStore = defineStore('planning', () => {
       } else {
         selectedTripId.value = undefined;
       }
-    } catch (err: any) {
+    } catch (err) {
       if (generation !== fetchGeneration.value) return;
-      $store.notifyNegative(err);
+      const message = err instanceof Error ? err.message : '';
+      $store.notifyNegative(message || 'There was an error loading planning data.');
     } finally {
       if (generation === fetchGeneration.value) {
         pageLoading.value = false;

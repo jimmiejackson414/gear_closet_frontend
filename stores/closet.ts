@@ -101,9 +101,10 @@ export const useClosetStore = defineStore('closet', () => {
         data.value.selectedPack = response.pack;
         data.value.allPacks = response.packs || [];
       }
-    } catch (err: any) {
+    } catch (err) {
       if (generation !== fetchGeneration.value) return;
-      $store.notifyNegative(err?.message || 'An error occurred fetching the closet page.');
+      const message = err instanceof Error ? err.message : '';
+      $store.notifyNegative(message || 'An error occurred fetching the closet page.');
     } finally {
       if (generation === fetchGeneration.value) {
         pageLoading.value = false;
