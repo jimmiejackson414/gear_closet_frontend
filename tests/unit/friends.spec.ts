@@ -20,9 +20,13 @@ vi.mock('@/components/ui/toast', () => ({
   useToast: () => ({ toast: vi.fn() }),
 }));
 
-vi.mock('@/utils/avatar', () => ({
-  buildImageSrc: vi.fn((url: string) => url),
-}));
+vi.mock('@/utils/avatar', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/avatar')>();
+  return {
+    ...actual,
+    buildImageSrc: vi.fn((url: string) => url),
+  };
+});
 
 vi.mock('@/utils/displayName', () => ({
   initials: vi.fn((user) => (user ? `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}` : 'GC')),

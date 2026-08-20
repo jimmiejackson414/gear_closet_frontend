@@ -111,7 +111,7 @@
         class="shrink-0"
         :initials="initials(friend.sender)"
         size="xl"
-        :url="buildImageSrc(friend.sender.image)" />
+        :url="friend.sender.image" />
       <div class="flex flex-col min-w-0">
         <typography class="font-bold truncate">
           {{ friendlyUsername(friend.sender, { includeTrailName: true }) }}

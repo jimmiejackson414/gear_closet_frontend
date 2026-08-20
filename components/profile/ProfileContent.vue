@@ -22,7 +22,7 @@
   const newAvatarFile = ref<FilePondFile | undefined>(undefined);
   const profileAvatar = computed(() => {
     if ($store.profile?.image) {
-      return buildImageSrc($store.profile.image);
+      return buildImageSrc($store.profile.image, 'xl');
     }
     return undefined;
   });

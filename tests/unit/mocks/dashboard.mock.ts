@@ -1,5 +1,5 @@
-import type { ForumResponse } from '@/pages/index.vue';
 import type { Tables } from "@/types";
+import type { ForumResponse } from '@/types/forum';
 import type { DashboardTripInvite, ExtendedFriend } from '@/types/planning';
 
 export const upcomingTrips: Tables<'trips'>[] = [

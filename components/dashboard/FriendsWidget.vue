@@ -42,7 +42,7 @@
             <gc-avatar
               border
               :initials="initials(user)"
-              :url="buildImageSrc(user.image)" />
+              :url="user.image" />
           </li>
           <nuxt-link
             v-if="data.length > 5"

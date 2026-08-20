@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import type { Database, Tables } from '@/types';
-  import type { ForumCategory, ForumPost } from '@/types/forum';
+  import type { ForumResponse } from '@/types/forum';
   import type { DashboardTripInvite, ExtendedFriend } from '@/types/planning';
 
   definePageMeta({ layout: 'dashboard-layout' });
@@ -9,11 +9,6 @@
     friends: ExtendedFriend[];
     trips: Tables<'trips'>[];
     trip_friends: DashboardTripInvite[];
-  }
-
-  export interface ForumResponse {
-    latest_posts: ForumPost[];
-    categories: ForumCategory[];
   }
 
   const $store = useAppStore();

@@ -65,7 +65,7 @@
         <gc-avatar
           :initials="initials(friend.friend_profile)"
           size="sm"
-          :url="buildImageSrc(friend.friend_profile?.image)" />
+          :url="friend.friend_profile?.image" />
         <div class="flex flex-1 justify-between items-center gap-2 min-w-0">
           <typography class="font-medium truncate">
             {{ friend.friend_profile ? friendlyUsername(friend.friend_profile) : 'Unknown friend' }}

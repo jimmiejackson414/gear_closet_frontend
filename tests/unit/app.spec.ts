@@ -33,7 +33,7 @@ const { useSupabaseClient } = vi.hoisted(() => {
           }),
         storage: {
           from: () => ({
-            getPublicUrl: (url: string) => ({
+            getPublicUrl: (url: string, _options?: unknown) => ({
               data: { publicUrl: url },
             }),
           }),

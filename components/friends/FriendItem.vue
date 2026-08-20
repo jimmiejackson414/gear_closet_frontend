@@ -22,7 +22,7 @@
     <gc-avatar
       :initials="initials(friend.friend)"
       size="xl"
-      :url="buildImageSrc(friend.friend.image)" />
+      :url="friend.friend.image" />
     <div class="flex items-center flex-col mt-4 gap-2">
       <typography class="font-bold text-center">
         {{ friendlyUsername(friend.friend, { includeTrailName: true }) }}
