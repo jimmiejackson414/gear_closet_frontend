@@ -15,14 +15,39 @@
   const $store = useClosetStore();
   const $route = useRoute();
   /** Set only after fetch from the loaded pack — never from stale Pinia state. */
-  const displayPrivatePackWarning = ref(false);
+  type PublicPackGateReason = 'private' | 'not_found' | 'error';
+  const packGateReason = ref<PublicPackGateReason | null>(null);
+
+  const showPackGate = computed(() => packGateReason.value !== null);
+
+  const packGateCopy = computed(() => {
+    switch (packGateReason.value) {
+    case 'private':
+      return {
+        title: 'This pack is private',
+        description: 'Please contact the pack owner for access.',
+      };
+    case 'not_found':
+      return {
+        title: 'Pack not found',
+        description: 'This link may be incorrect, or the pack may have been removed.',
+      };
+    case 'error':
+      return {
+        title: 'Couldn\'t load this pack',
+        description: 'Something went wrong while loading this pack. Please try again.',
+      };
+    default:
+      return { title: '', description: '' };
+    }
+  });
 
   const fetchPack = async () => {
     try {
       $store.pageLoading = true;
       // Clear warm closet store so a previous pack can't flash through the gate.
       $store.data.selectedPack = undefined;
-      displayPrivatePackWarning.value = false;
+      packGateReason.value = null;
 
       const supabase = useSupabaseClient<Database>();
       const { data: fetchedPack, error } = await supabase
@@ -49,17 +74,25 @@
 
       if (error) throw error;
 
-      // Missing row (or RLS) and private packs both stay gated — don't leave pack data in store.
-      if (!fetchedPack || fetchedPack.private) {
-        displayPrivatePackWarning.value = true;
+      // Privacy: RLS hides private packs from anon users (maybeSingle returns null),
+      // so guests see "not found" rather than "private" — avoids leaking pack existence.
+      // Signed-in owners still receive the row and see the private message.
+      if (!fetchedPack) {
+        packGateReason.value = 'not_found';
+        $store.data.selectedPack = undefined;
+        return;
+      }
+
+      if (fetchedPack.private) {
+        packGateReason.value = 'private';
         $store.data.selectedPack = undefined;
         return;
       }
 
       $store.data.selectedPack = fetchedPack as PublicPack;
-      displayPrivatePackWarning.value = false;
+      packGateReason.value = null;
     } catch {
-      displayPrivatePackWarning.value = true;
+      packGateReason.value = 'error';
       $store.data.selectedPack = undefined;
       $appStore.notifyNegative('Failed to fetch pack data');
     } finally {
@@ -137,12 +170,14 @@
   }
   const activeTab = ref(TableTabs.DETAILS);
 
+  const commentsDisabledCopy = 'The pack owner has turned off comments for this pack.';
+
   useHead({ title: selectedPackName.value || 'Public Pack' });
 </script>
 
 <template>
   <div class="py-8">
-    <div v-if="!displayPrivatePackWarning">
+    <div v-if="!showPackGate">
       <div class="card card-main">
         <div class="flex justify-start items-center gap-4 mb-4">
           <h1 class="text-2xl">
@@ -153,7 +188,7 @@
           </h1>
         </div>
         <card class="px-8 py-4 rounded-3xl">
-          <div class="grid lg:grid-cols-[1fr_auto_40%] grid-cols-1 gap-6">
+          <div class="gap-6 grid grid-cols-1 lg:grid-cols-[1fr_auto_40%]">
             <closet-pack-chart />
             <separator orientation="vertical" />
             <closet-pack-details />
@@ -165,19 +200,25 @@
           activation-mode="manual"
           class="mt-14"
           :default-value="TableTabs.DETAILS">
-          <tabs-list class="bg-background dark:bg-background border-b border-muted-foreground pb-0 rounded-none">
+          <tabs-list class="bg-background dark:bg-background pb-0 border-muted-foreground border-b rounded-none">
             <tabs-trigger
-              class="shadow-none! border-b-[3px] data-[state=active]:border-primary dark:data-[state=active]:border-primary-light dark:data-[state=inactive]:text-accent-light data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-hidden rounded-none hover:text-primary"
+              class="shadow-none! data-[state=active]:border-primary data-[state=inactive]:border-transparent dark:data-[state=active]:border-primary-light border-b-[3px] rounded-none outline-hidden data-[state=active]:font-bold hover:text-primary dark:data-[state=inactive]:text-accent-light"
               :value="TableTabs.DETAILS">
               Details
             </tabs-trigger>
             <tabs-trigger
-              class="shadow-none! border-b-[3px] data-[state=active]:border-primary dark:data-[state=inactive]:text-accent-light data-[state=active]:font-bold data-[state=inactive]:border-transparent outline-hidden rounded-none hover:text-primary"
+              v-tippy="!$store.data.selectedPack?.allow_comments ? { content: commentsDisabledCopy } : undefined"
+              class="shadow-none! data-[state=active]:border-primary data-[state=inactive]:border-transparent border-b-[3px] rounded-none outline-hidden data-[state=active]:font-bold hover:text-primary dark:data-[state=inactive]:text-accent-light"
               :disabled="!$store.data.selectedPack?.allow_comments"
               :value="TableTabs.COMMENTS">
               Comments ({{ ($store.data.selectedPack as PublicPack)?.comments?.length || 0 }})
             </tabs-trigger>
           </tabs-list>
+          <typography
+            v-if="!$store.data.selectedPack?.allow_comments"
+            class="mt-2 text-muted-foreground text-sm">
+            {{ commentsDisabledCopy }}
+          </typography>
           <tabs-content :value="TableTabs.DETAILS">
             <closet-pack-categories />
           </tabs-content>
@@ -187,15 +228,15 @@
               id="comments"
               aria-labelledby="comments-tab"
               role="tabpanel">
-              <div class="flex items-start flex-col max-w-6xl mx-auto px-6 py-6">
+              <div class="flex flex-col items-start mx-auto px-6 py-6 max-w-6xl">
                 <!-- Compose: logged-in users only -->
                 <template v-if="user">
                   <textarea-root
                     v-model="newCommentValue"
-                    class="rounded-xl shadow-xs w-full disabled:bg-gray-100 disabled:pointer-events-none"
+                    class="disabled:bg-gray-100 shadow-xs rounded-xl w-full disabled:pointer-events-none"
                     :disabled="submitting"
                     placeholder="Add a comment" />
-                  <div class="flex items-center gap-6 ml-auto my-2">
+                  <div class="flex items-center gap-6 my-2 ml-auto">
                     <typography class="text-muted-foreground dark:text-muted-foreground text-sm">
                       Commenting as <span class="font-bold">{{ commentingAsName }}</span>
                     </typography>
@@ -230,7 +271,7 @@
                 </gc-empty-state>
                 <div
                   v-else
-                  class="flex items-end flex-col w-full">
+                  class="flex flex-col items-end w-full">
                   <public-pack-comment
                     v-for="comment in ($store.data.selectedPack as PublicPack)?.comments"
                     :key="comment.id"
@@ -244,78 +285,106 @@
     </div>
 
     <div v-else>
-      <alert-dialog v-model:open="displayPrivatePackWarning">
-        <alert-dialog-content class="max-w-96">
-          <div class="flex flex-col place-content-center place-items-center">
+      <alert-dialog :open="showPackGate">
+        <alert-dialog-content class="max-w-md">
+          <alert-dialog-header class="text-center sm:text-center">
             <gc-logo-icon
               :fill="tailwind.theme.colors.primary.DEFAULT"
-              wrapper-class="h-8 w-8 mb-4" />
-            <typography
-              class="mb-4"
-              variant="large">
-              This pack is private!
-            </typography>
-            <typography>
-              Please contact the pack owner for access.
-            </typography>
-          </div>
+              wrapper-class="h-8 w-8 mx-auto mb-4" />
+            <alert-dialog-title>
+              {{ packGateCopy.title }}
+            </alert-dialog-title>
+            <alert-dialog-description>
+              {{ packGateCopy.description }}
+            </alert-dialog-description>
+          </alert-dialog-header>
+          <alert-dialog-footer class="flex-col sm:flex-col gap-2 sm:space-x-0">
+            <nuxt-link
+              class="w-full"
+              :to="{ name: 'index' }">
+              <button-root
+                class="w-full"
+                variant="default">
+                Home
+              </button-root>
+            </nuxt-link>
+            <nuxt-link
+              v-if="!user"
+              class="w-full"
+              :to="{ name: 'login' }">
+              <button-root
+                class="w-full"
+                variant="secondary">
+                Sign in
+              </button-root>
+            </nuxt-link>
+            <nuxt-link
+              class="w-full"
+              :to="{ name: user ? 'closet' : 'register' }">
+              <button-root
+                class="w-full"
+                variant="outline">
+                Browse
+              </button-root>
+            </nuxt-link>
+          </alert-dialog-footer>
         </alert-dialog-content>
       </alert-dialog>
       <div class="blur-xs card card-main">
         <div
-          class="max-w-xl mx-auto p-4 md:p-6 w-full"
+          class="mx-auto p-4 md:p-6 w-full max-w-xl"
           role="status">
-          <div class="bg-gray-200 h-2.5 mb-2.5 rounded-full w-32" />
-          <div class="bg-gray-200 h-2 mb-10 rounded-full w-48" />
+          <div class="bg-gray-200 mb-2.5 rounded-full w-32 h-2.5" />
+          <div class="bg-gray-200 mb-10 rounded-full w-48 h-2" />
           <div class="flex items-baseline mt-4">
-            <div class="bg-gray-200 h-72 rounded-t-lg w-full" />
-            <div class="bg-gray-200 h-56 ms-6 rounded-t-lg w-full" />
-            <div class="bg-gray-200 h-72 ms-6 rounded-t-lg w-full" />
-            <div class="bg-gray-200 h-64 ms-6 rounded-t-lg w-full" />
-            <div class="bg-gray-200 h-80 ms-6 rounded-t-lg w-full" />
-            <div class="bg-gray-200 h-72 ms-6 rounded-t-lg w-full" />
-            <div class="bg-gray-200 h-80 ms-6 rounded-t-lg w-full" />
+            <div class="bg-gray-200 rounded-t-lg w-full h-72" />
+            <div class="bg-gray-200 ms-6 rounded-t-lg w-full h-56" />
+            <div class="bg-gray-200 ms-6 rounded-t-lg w-full h-72" />
+            <div class="bg-gray-200 ms-6 rounded-t-lg w-full h-64" />
+            <div class="bg-gray-200 ms-6 rounded-t-lg w-full h-80" />
+            <div class="bg-gray-200 ms-6 rounded-t-lg w-full h-72" />
+            <div class="bg-gray-200 ms-6 rounded-t-lg w-full h-80" />
           </div>
           <span class="sr-only">Loading...</span>
         </div>
 
         <div
-          class="divide-gray-200 divide-y max-w-xl mt-14 mx-auto p-4 md:p-6 space-y-4"
+          class="space-y-4 mx-auto mt-14 p-4 md:p-6 divide-y divide-gray-200 max-w-xl"
           role="status">
           <div class="flex justify-between items-center">
             <div>
-              <div class="bg-gray-300 h-2.5 mb-2.5 rounded-full w-24" />
-              <div class="bg-gray-200 h-2 rounded-full w-32" />
+              <div class="bg-gray-300 mb-2.5 rounded-full w-24 h-2.5" />
+              <div class="bg-gray-200 rounded-full w-32 h-2" />
             </div>
-            <div class="bg-gray-300 h-2.5 rounded-full w-12" />
+            <div class="bg-gray-300 rounded-full w-12 h-2.5" />
           </div>
           <div class="flex justify-between items-center pt-4">
             <div>
-              <div class="bg-gray-300 h-2.5 mb-2.5 rounded-full w-24" />
-              <div class="bg-gray-200 h-2 rounded-full w-32" />
+              <div class="bg-gray-300 mb-2.5 rounded-full w-24 h-2.5" />
+              <div class="bg-gray-200 rounded-full w-32 h-2" />
             </div>
-            <div class="bg-gray-300 h-2.5 rounded-full w-12" />
+            <div class="bg-gray-300 rounded-full w-12 h-2.5" />
           </div>
           <div class="flex justify-between items-center pt-4">
             <div>
-              <div class="bg-gray-300 h-2.5 mb-2.5 rounded-full w-24" />
-              <div class="bg-gray-200 h-2 rounded-full w-32" />
+              <div class="bg-gray-300 mb-2.5 rounded-full w-24 h-2.5" />
+              <div class="bg-gray-200 rounded-full w-32 h-2" />
             </div>
-            <div class="bg-gray-300 h-2.5 rounded-full w-12" />
+            <div class="bg-gray-300 rounded-full w-12 h-2.5" />
           </div>
           <div class="flex justify-between items-center pt-4">
             <div>
-              <div class="bg-gray-300 h-2.5 mb-2.5 rounded-full w-24" />
-              <div class="bg-gray-200 h-2 rounded-full w-32" />
+              <div class="bg-gray-300 mb-2.5 rounded-full w-24 h-2.5" />
+              <div class="bg-gray-200 rounded-full w-32 h-2" />
             </div>
-            <div class="bg-gray-300 h-2.5 rounded-full w-12" />
+            <div class="bg-gray-300 rounded-full w-12 h-2.5" />
           </div>
           <div class="flex justify-between items-center pt-4">
             <div>
-              <div class="bg-gray-300 h-2.5 mb-2.5 rounded-full w-24" />
-              <div class="bg-gray-200 h-2 rounded-full w-32" />
+              <div class="bg-gray-300 mb-2.5 rounded-full w-24 h-2.5" />
+              <div class="bg-gray-200 rounded-full w-32 h-2" />
             </div>
-            <div class="bg-gray-300 h-2.5 rounded-full w-12" />
+            <div class="bg-gray-300 rounded-full w-12 h-2.5" />
           </div>
           <span class="sr-only">Loading...</span>
         </div>
