@@ -79,6 +79,7 @@ export default defineNuxtConfig({
   },
 
   modules: [
+    '@sentry/nuxt/module',
     '@nuxtjs/supabase',
     '@pinia/nuxt',
     '@vueuse/nuxt',
@@ -109,6 +110,8 @@ export default defineNuxtConfig({
     resendApiKey: '',
     mailFrom: '',
     mailAllowlist: '',
+    sentryDsn: '',
+    sentryProbeKey: '',
 
     public: {
       cloudinaryCloudName: process.env.NUXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
@@ -120,12 +123,30 @@ export default defineNuxtConfig({
       cookieKey: process.env.NUXT_COOKIE_KEY,
       stripePublishableKey: process.env.NUXT_PUBLIC_STRIPE_PUBLISHABLE_KEY,
       lifetimePromo: process.env.NUXT_PUBLIC_LIFETIME_PROMO === 'true',
+      sentryDsn: '',
+      sentryEnabled: '',
+      sentryEnvironment: '',
     },
   },
 
   shadcn: {
     prefix: '',
     componentDir: './components/ui',
+  },
+
+  sentry: {
+    // Vitest loads nuxt.config; keep the bundler plugin out of unit tests.
+    enabled: !process.env.VITEST,
+    telemetry: false,
+    // Captures API/Nitro errors in preview/prod without a custom `node --import`.
+    autoInjectServerSentry: 'experimental_dynamic-import',
+    org: process.env.SENTRY_ORG,
+    project: process.env.SENTRY_PROJECT,
+    authToken: process.env.SENTRY_AUTH_TOKEN,
+  },
+
+  sourcemap: {
+    client: 'hidden',
   },
 
   supabase: {
