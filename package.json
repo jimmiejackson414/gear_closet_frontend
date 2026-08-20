@@ -60,6 +60,7 @@
     "@noble/ciphers": "^2.3.0",
     "@noble/hashes": "^2.3.0",
     "@pinia/nuxt": "^1.0.1",
+    "@sentry/nuxt": "^10.70.0",
     "@stripe/stripe-js": "^9.13.0",
     "@supabase/supabase-js": "^2.112.2",
     "@vee-validate/zod": "^4.15.0",
