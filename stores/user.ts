@@ -1,10 +1,23 @@
 import { defineStore } from 'pinia';
-import { profileWithSubscriptionsQuery } from '@/queries/profile';
 import { useAppStore } from '@/stores/app';
 import { SubscriptionLevel, type Database, type TablesUpdate } from '@/types';
 import { isPaidPlanIdentifier } from '@/utils/planLimits';
 import type { ExtendedNotification, ProfileApiResponse, ProfileLayoutResponse } from '@/types/helpers';
-import type { RealtimeChannel } from '@supabase/supabase-js';
+import type { QueryData, RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
+
+/** Profile plus its subscriptions and the price each subscription points at. */
+export const profileWithSubscriptionsQuery = (
+  supabase: SupabaseClient<Database>,
+  profileId: string,
+) => supabase.from('profiles')
+  .select(`
+    *,
+    subscriptions!subscriptions_profile_id_fkey(*, prices!subscriptions_price_id_fkey(*))
+  `)
+  .eq('id', profileId)
+  .single();
+
+export type ProfileWithSubscriptions = QueryData<ReturnType<typeof profileWithSubscriptionsQuery>>;
 
 /** Module-scoped so remounts can tear down the previous Realtime channel. */
 let notificationsChannel: RealtimeChannel | null = null;

@@ -4,7 +4,6 @@
   import utc from 'dayjs/plugin/utc';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
-  import { subscriptionWithPriceQuery } from '@/queries/subscription';
   import { MeasuringSystem, SubscriptionLevel, type Database } from '@/types';
   import type { ProfileApiResponse, SubscriptionApiResponse } from '@/types/helpers';
   import type { FilePondFile } from 'filepond';
@@ -140,7 +139,11 @@
       }
 
       const supabase = useSupabaseClient<Database>();
-      const result = await subscriptionWithPriceQuery(supabase, profile.id);
+      const result = await supabase
+        .from('subscriptions')
+        .select('*, prices(*)')
+        .eq('profile_id', profile.id)
+        .maybeSingle();
 
       const subscriptions = ensureProfileSubscriptions(profile);
       if (result.data) {

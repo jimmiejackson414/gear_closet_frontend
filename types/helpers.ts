@@ -1,4 +1,4 @@
-import type { ProfileWithSubscriptions } from '@/queries/profile';
+import type { ProfileWithSubscriptions } from '@/stores/user';
 import type { Tables } from '@/types';
 // Fully type-only: under verbatimModuleSyntax, `import { type Stripe }` still
 // emits a bare `import {} from 'stripe'`, which would put the server-side
@@ -12,8 +12,8 @@ export type SubscriptionType = Tables<'subscriptions'> & {
 };
 
 /*
- * Derived from the query rather than hand-written, so the select string in
- * queries/profile.ts is the single source of truth for this shape. See #112.
+ * Derived from the query in stores/user.ts rather than hand-written, so the
+ * select string is the single source of truth for this shape. See #112.
  */
 export type ProfileLayoutResponse = ProfileWithSubscriptions;
 
