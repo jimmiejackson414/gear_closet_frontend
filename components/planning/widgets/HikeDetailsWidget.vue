@@ -24,11 +24,13 @@
       </typography>
       <button-root
         v-if="!$store.pageLoading && hikeDetails.length && $store.isSelectedTripOwner"
+        aria-label="Add hike detail"
         class="justify-self-end rounded-full"
         data-testid="create-new-detail-btn"
         size="icon"
+        type="button"
         @click="createNewDetail">
-        <icon-plus />
+        <icon-plus aria-hidden="true" />
       </button-root>
     </div>
     <gc-skeleton v-if="$store.pageLoading" />

@@ -88,6 +88,17 @@ describe('App', async () => {
       expect(pageTitle.exists())
         .toBe(true);
     });
+
+    it('exposes accessible names on icon-only controls', async () => {
+      const notificationsButton = wrapper.find('[data-testid="notifications-button"]');
+      expect(notificationsButton.attributes('aria-label'))
+        .toBe('Open notifications');
+
+      const themeToggle = wrapper.findAll('button')
+        .find((btn) => Boolean(btn.attributes('aria-label')?.includes('Switch to')));
+      expect(themeToggle?.attributes('aria-label'))
+        .toMatch(/Switch to (light|dark) mode/);
+    });
   });
 
   describe('GcNavbarAlt Component', async () => {
@@ -111,6 +122,23 @@ describe('App', async () => {
       });
       expect(wrapper.exists())
         .toBe(true);
+    });
+
+    it('exposes accessible names on navigation and logout controls', async () => {
+      const wrapper = await mountSuspended(GcDrawer, {
+        global: {
+          plugins: [VueTippy],
+        },
+      });
+
+      const logoutButton = wrapper.find('[data-testid="logout"]');
+      expect(logoutButton.attributes('aria-label'))
+        .toBe('Log out');
+
+      const navLinks = wrapper.findAll('a[aria-label], a[href][aria-label]');
+      const nuxtLinks = wrapper.findAll('a[aria-label]');
+      expect(nuxtLinks.length + navLinks.length)
+        .toBeGreaterThan(0);
     });
   });
 });

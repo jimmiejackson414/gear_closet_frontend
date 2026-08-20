@@ -72,10 +72,12 @@
       </p>
       <button-root
         v-if="!pageLoading && data.friends.length && $store.isSelectedTripOwner"
+        aria-label="Invite friends"
         class="justify-self-end rounded-full"
         size="icon"
+        type="button"
         @click="isInviteModalOpen = true">
-        <icon-plus />
+        <icon-plus aria-hidden="true" />
       </button-root>
     </div>
     <gc-skeleton v-if="pageLoading" />

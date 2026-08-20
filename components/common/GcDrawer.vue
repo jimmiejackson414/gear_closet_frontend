@@ -44,7 +44,8 @@
           :class="link.disabled ? 'cursor-not-allowed' : 'cursor-pointer'">
           <template v-if="link.external">
             <a
-              class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg dark:hover:bg-accent hover:bg-gray-100"
+              :aria-label="link.requiresSubscription && link.disabled ? (link.requiresSubscriptionCopy ?? link.title) : link.title"
+              class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-accent hover:bg-gray-100"
               :href="link.disabled ? undefined : link.to"
               rel="noopener noreferrer"
               target="_blank"
@@ -58,7 +59,9 @@
           </template>
           <template v-else>
             <nuxt-link
-              class="duration-200 ease-in-out inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg transition dark:hover:bg-accent hover:bg-gray-100"
+              :aria-current="isActiveRoute(link) ? 'page' : undefined"
+              :aria-label="link.title"
+              class="duration-200 ease-in-out inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-accent hover:bg-gray-100"
               :class="[isActiveRoute(link) ? 'bg-accent dark:bg-accent-light' : '']"
               :disabled="link.disabled"
               :to="{ name: link.to }">
@@ -83,15 +86,17 @@
 
       <client-only>
         <li class="cursor-pointer">
-          <span
-            v-tippy="{ content: 'Logout', placement: 'right' }"
-            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg dark:hover:bg-accent hover:bg-gray-100"
+          <button
+            aria-label="Log out"
+            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-accent hover:bg-gray-100"
             data-testid="logout"
+            type="button"
             @click="handleLogout">
             <icon-log-out
+              aria-hidden="true"
               :color="isLightMode ? tailwind.theme.colors.gray['500'] : tailwind.theme.colors.card.foreground"
               :size="24" />
-          </span>
+          </button>
         </li>
       </client-only>
     </ul>

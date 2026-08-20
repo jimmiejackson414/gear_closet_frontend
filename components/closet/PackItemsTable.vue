@@ -170,12 +170,14 @@
                   v-if="!$store.isPublicRoute"
                   class="flex justify-end">
                   <button-root
+                    aria-label="Remove category"
                     class="bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-out h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8"
                     data-testid="remove-category-btn"
                     size="icon"
+                    type="button"
                     variant="ghost"
                     @click="emit('handleRemoveCategory', category.id)">
-                    <icon-trash />
+                    <icon-trash aria-hidden="true" />
                   </button-root>
                 </div>
               </table-head>
@@ -280,11 +282,15 @@
                 <div class="flex place-content-center w-full">
                   <button
                     v-if="!$store.isPublicRoute"
-                    class="cursor-pointer duration-150 ease-out flex justify-center items-center h-8 rounded-full transition w-8"
+                    :aria-label="catItem.item.consumable ? 'Mark item as not consumable' : 'Mark item as consumable'"
+                    :aria-pressed="catItem.item.consumable"
+                    class="cursor-pointer duration-150 ease-out flex justify-center items-center h-8 rounded-full transition w-8 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     :class="catItem.item.consumable ? 'bg-primary hover:bg-primary/70' : 'bg-transparent hover:bg-gray-200'"
                     data-testid="consumable-btn"
+                    type="button"
                     @click="$store.updateItem(catItem.item, 'consumable', !catItem.item.consumable, category.id)">
                     <icon-apple
+                      aria-hidden="true"
                       class="h-5 w-5"
                       :class="catItem.item.consumable ? 'text-primary-foreground' : 'text-muted-foreground'" />
                   </button>
@@ -304,11 +310,15 @@
                 <div class="flex place-content-center w-full">
                   <button
                     v-if="!$store.isPublicRoute"
-                    class="cursor-pointer duration-150 ease-out flex justify-center items-center h-8 rounded-full transition w-8"
+                    :aria-label="catItem.item.worn ? 'Mark item as not worn' : 'Mark item as worn'"
+                    :aria-pressed="catItem.item.worn"
+                    class="cursor-pointer duration-150 ease-out flex justify-center items-center h-8 rounded-full transition w-8 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     :class="catItem.item.worn ? 'bg-accent-alt dark:bg-accent-light hover:bg-accent-alt/70' : 'bg-transparent hover:bg-gray-200'"
                     data-testid="worn-btn"
+                    type="button"
                     @click="$store.updateItem(catItem.item, 'worn', !catItem.item.worn, category.id)">
                     <icon-shirt
+                      aria-hidden="true"
                       class="h-5 w-5"
                       :class="catItem.item.worn ? 'text-primary-foreground' : 'text-muted-foreground'" />
                   </button>
@@ -424,32 +434,44 @@
                 <div class="grid grid-cols-[auto_auto] gap-1 justify-end items-center">
                   <button-root
                     v-if="!$store.isPublicRoute"
+                    aria-label="Add or edit item URL"
                     v-tippy="{ content: 'Add/Modify URL', placement: 'top' }"
                     :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-out h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
                     data-testid="add-url-btn"
                     size="icon"
+                    type="button"
                     variant="ghost"
                     @click="emit('handleAddUrl', catItem.item, catItem.category_id)">
-                    <icon-link :class="cn('h-5 w-5', catItem.item.url ? 'text-primary-foreground' : 'text-dark-gray')" />
+                    <icon-link
+                      aria-hidden="true"
+                      :class="cn('h-5 w-5', catItem.item.url ? 'text-primary-foreground' : 'text-dark-gray')" />
                   </button-root>
                   <button-root
                     v-if="!$store.isPublicRoute"
+                    aria-label="Remove item"
                     class="bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-out h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8"
                     data-testid="remove-item-btn"
                     size="icon"
+                    type="button"
                     variant="ghost"
                     @click="emit('handleRemoveItem', catItem)">
-                    <icon-trash class="h-5 w-5" />
+                    <icon-trash
+                      aria-hidden="true"
+                      class="h-5 w-5" />
                   </button-root>
                   <button-root
                     v-if="$store.isPublicRoute"
+                    aria-label="Visit item URL"
                     v-tippy="{ content: 'Visit URL', placement: 'top' }"
                     :class="cn('bg-transparent dark:hover:bg-destructive-light hover:bg-destructive/10 cursor-pointer duration-150 ease-out h-8 dark:hover:text-destructive items-center justify-center rounded-full transition w-8', catItem.item.url ? 'bg-tertiary dark:bg-tertiary-foreground hover:bg-tertiary/70' : 'bg-transparent hover:bg-gray-200 dark:hover:bg-tertiary-foreground')"
                     :disabled="!catItem.item.url"
                     size="icon"
+                    type="button"
                     variant="ghost"
                     @click="openUrl(catItem.item.url)">
-                    <icon-link :class="cn('h-5 w-5', catItem.item.url ? 'text-primary-foreground' : 'text-dark-gray')" />
+                    <icon-link
+                      aria-hidden="true"
+                      :class="cn('h-5 w-5', catItem.item.url ? 'text-primary-foreground' : 'text-dark-gray')" />
                   </button-root>
                 </div>
               </table-cell>
