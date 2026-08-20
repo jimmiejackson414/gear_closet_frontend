@@ -1,25 +1,14 @@
-import { Cloudinary } from '@cloudinary/url-gen';
-
-const useAuthLayout = async  () => {
+const useAuthLayout = () => {
   const runtimeConfig = useRuntimeConfig();
   const cloudName = runtimeConfig.public.cloudinaryCloudName;
+  const folder = runtimeConfig.public.cloudinaryAuthPagesPath;
+  const rand = Math.round(Math.random() * 13 + 1);
+  const publicId = `${folder}/background${rand}`;
 
-  const cld = new Cloudinary({
-    cloud: { cloudName },
-    url: { secure: true },
+  const backgroundImage = reactive({
+    image: `https://res.cloudinary.com/${cloudName}/image/upload/f_auto/${publicId}`,
+    fill: logoColor(publicId),
   });
-
-  const fetchImage = async () => {
-    const rand = Math.round(Math.random() * (14 - 1) + 1);
-    const newImage = cld.image(`${runtimeConfig.public.cloudinaryAuthPagesPath}/background${rand}`);
-    return {
-      image: newImage.format('auto')
-        .toURL(),
-      fill: logoColor(newImage),
-    };
-  };
-
-  const backgroundImage = reactive(await fetchImage());
 
   return { backgroundImage };
 };

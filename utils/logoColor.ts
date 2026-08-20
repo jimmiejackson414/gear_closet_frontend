@@ -1,4 +1,4 @@
-const value = [
+const DARK_LOGO_BACKGROUNDS = [
   'background2',
   'background3',
   'background4',
@@ -7,9 +7,10 @@ const value = [
   'background13',
 ];
 
-const logoColor = (image: any): string => {
-  const test = image.publicID.split('/')[2];
-  if (value.some(v => test.includes(v))) {
+const logoColor = (publicId: string): string => {
+  const backgroundName = publicId.split('/')
+    .at(-1) ?? publicId;
+  if (DARK_LOGO_BACKGROUNDS.some(name => backgroundName.includes(name))) {
     return '#4a4a4a';
   }
   return '#fff';

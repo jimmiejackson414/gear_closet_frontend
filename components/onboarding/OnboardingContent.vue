@@ -234,7 +234,7 @@
       <!-- Step 1: Upload Avatar -->
       <template v-if="stepIndex === 1">
         <client-only>
-          <gc-avatar-upload
+          <lazy-gc-avatar-upload
             classes="max-w-xs mx-auto"
             @handle-add-file="avatarFile = $event"
             @handle-error="handleAvatarError"
