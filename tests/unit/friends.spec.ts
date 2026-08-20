@@ -14,28 +14,23 @@ import {
 } from '@/tests/unit/mocks/supabase.mock';
 import { FriendRequestStatus } from '@/types';
 import { NotificationKind } from '@/utils/notifications';
-import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
+import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/planning';
 
 vi.mock('@/components/ui/toast', () => ({
   useToast: () => ({ toast: vi.fn() }),
 }));
 
-vi.mock('@/utils/helpers', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/utils/helpers')>();
-  const buildImageSrc = vi.fn((url: string) => url);
-  const initials = vi.fn((user) => (user ? `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}` : 'GC'));
-  const friendlyUsername = vi.fn((user) => {
+vi.mock('@/utils/avatar', () => ({
+  buildImageSrc: vi.fn((url: string) => url),
+}));
+
+vi.mock('@/utils/displayName', () => ({
+  initials: vi.fn((user) => (user ? `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}` : 'GC')),
+  friendlyUsername: vi.fn((user) => {
     if (!user) return 'a friend';
     return user.trail_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'a friend';
-  });
-
-  return {
-    ...actual,
-    buildImageSrc,
-    initials,
-    friendlyUsername,
-  };
-});
+  }),
+}));
 
 const CURRENT_USER_ID = '61b66be5-d199-48d5-898a-c521dd6b59cc';
 const SENDER_ID = friends[0]!.friend.id;

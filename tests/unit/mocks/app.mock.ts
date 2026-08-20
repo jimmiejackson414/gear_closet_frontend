@@ -1,4 +1,4 @@
-import type { ExtendedNotification, ProfileApiResponse } from "@/types/helpers";
+import type { ExtendedNotification, ProfileApiResponse } from '@/types/profile';
 
 export const notifications: ExtendedNotification[] = [
   {

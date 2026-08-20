@@ -1,4 +1,5 @@
 import { SubscriptionLevel } from '@/types';
+import type { ExtendedUser } from '@/types/profile';
 
 /**
  * Only Life promo subscriptions are created during onboarding. Monthly and
@@ -37,3 +38,8 @@ export async function completeOnboardingPlan (input: {
     throw new Error('Unable to finish onboarding.');
   }
 }
+
+export const completedOnboarding = (user: ExtendedUser | null | undefined, page: string) => {
+  if (!user || !user.onboarding_steps) return false;
+  return user.onboarding_steps.some(step => step?.page === page);
+};

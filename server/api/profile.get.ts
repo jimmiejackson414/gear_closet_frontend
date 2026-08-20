@@ -5,7 +5,7 @@
  */
 import { isError } from 'h3';
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
-import type { ProfileLayoutResponse } from '~/types/helpers';
+import type { ProfileLayoutResponse } from '~/types/profile';
 
 export default defineEventHandler(async (event) => {
   try {

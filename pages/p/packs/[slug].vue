@@ -1,7 +1,8 @@
 <script lang='ts' setup>
   import tailwind from '@/utils/tailwind';
   import type { Database } from '@/types';
-  import type { ExtendedComment, PublicPack } from '@/types/helpers';
+  import type { PublicPack } from '@/types/closet';
+  import type { ExtendedComment } from '@/types/planning';
 
   const user = useSupabaseUser();
   const $userStore = useUserStore();

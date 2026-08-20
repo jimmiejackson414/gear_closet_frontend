@@ -5,7 +5,7 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { MeasuringSystem, SubscriptionLevel, type Database } from '@/types';
-  import type { ProfileApiResponse, SubscriptionApiResponse } from '@/types/helpers';
+  import type { ProfileApiResponse, SubscriptionApiResponse } from '@/types/profile';
   import type { FilePondFile } from 'filepond';
 
   dayjs.extend(utc);

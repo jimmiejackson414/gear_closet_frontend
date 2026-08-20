@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import { usePlanningStore } from '@/stores/planning';
   import type { Tables } from '@/types';
-  import type { ExtendedPoll } from '@/types/helpers';
+  import type { ExtendedPoll } from '@/types/planning';
 
   type PollForm = {
     question: Tables<'questions'>;

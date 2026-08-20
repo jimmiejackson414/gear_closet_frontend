@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import dayjs from 'dayjs';
-  import type { ForumPost } from '@/types/helpers';
+  import type { ForumPost } from '@/types/forum';
 
   interface Props {
     post: ForumPost;

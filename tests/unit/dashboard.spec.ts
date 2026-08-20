@@ -5,20 +5,17 @@ import InvitationsWidget from '@/components/dashboard/InvitationsWidget.vue';
 import UpcomingTripsWidget from '@/components/dashboard/UpcomingTripsWidget.vue';
 import { friends, invitations, upcomingTrips } from './mocks/dashboard.mock';
 
-vi.mock('@/utils/helpers', () => {
-  const buildImageSrc = vi.fn((url: string) => url);
-  const mockInitials = vi.fn((user) => user ? `${user.first_name.charAt(0)}${user.last_name.charAt(0)}` : 'GC');
-  const friendlyUsername = vi.fn((user) => {
+vi.mock('@/utils/avatar', () => ({
+  buildImageSrc: vi.fn((url: string) => url),
+}));
+
+vi.mock('@/utils/displayName', () => ({
+  initials: vi.fn((user) => user ? `${user.first_name.charAt(0)}${user.last_name.charAt(0)}` : 'GC'),
+  friendlyUsername: vi.fn((user) => {
     if (!user) return 'a friend';
     return user.trail_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'a friend';
-  });
-
-  return {
-    buildImageSrc,
-    initials: mockInitials,
-    friendlyUsername,
-  };
-});
+  }),
+}));
 
 describe('Dashboard', async () => {
   describe('UpcomingTripsWidget', async () => {

@@ -6,7 +6,7 @@
     ComboboxPortal,
     ComboboxRoot,
   } from 'reka-ui';
-  import type { SelectOption } from '@/types/helpers';
+  import type { SelectOption } from '@/types/ui';
 
   interface Props {
     options: T[];
@@ -32,7 +32,7 @@
   const isDisabled = computed(() => props.loading || props.disabled || false);
 
   // Debounced search emit
-  const debouncedSearch = debounce(() => {
+  const debouncedSearch = useDebounceFn(() => {
     emit('search', searchTerm.value);
   }, 500);
 

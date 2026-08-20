@@ -3,7 +3,7 @@
     destinationAfterAuth,
     isPasswordRecoveryCallback,
   } from '@/utils/authRedirect';
-  import type { ProfileLayoutResponse } from '@/types/helpers';
+  import type { ProfileLayoutResponse } from '@/types/profile';
 
   definePageMeta({ layout: 'auth-layout', colorMode: 'light' });
 

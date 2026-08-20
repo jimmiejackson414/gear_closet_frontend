@@ -1,5 +1,5 @@
 import { SubscriptionLevel } from '@/types';
-import { convertCurrency } from '@/utils/helpers';
+import { convertCurrency } from '@/utils/format';
 
 export interface Tier {
   title: string;

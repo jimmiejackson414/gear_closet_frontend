@@ -50,7 +50,7 @@
     });
   };
 
-  const saveChanges = debounce(() => {
+  const saveChanges = useDebounceFn(() => {
     if (localModel.value !== modelValue.value) {
       modelValue.value = localModel.value;
     }

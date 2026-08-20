@@ -2,7 +2,7 @@
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import { notificationRoute } from '@/utils/notifications';
-  import type { ExtendedNotification } from '@/types/helpers';
+  import type { ExtendedNotification } from '@/types/profile';
 
   dayjs.extend(relativeTime);
 

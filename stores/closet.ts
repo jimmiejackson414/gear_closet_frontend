@@ -1,6 +1,6 @@
 import { defineStore } from "pinia";
 import type { Database, Tables, TablesUpdate } from "@/types";
-import type { ExtendedCategoryItem, ExtendedPack, PublicPack } from "@/types/helpers";
+import type { ExtendedCategoryItem, ExtendedPack, PublicPack } from "@/types/closet";
 
 export interface ClosetPageData {
   selectedPack?: ExtendedPack | PublicPack;

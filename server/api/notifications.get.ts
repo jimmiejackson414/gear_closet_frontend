@@ -6,7 +6,7 @@
 import { isError } from 'h3';
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import { NOTIFICATION_FETCH_LIMIT } from '~/server/utils/notificationLimit';
-import type { ExtendedNotification } from '~/types/helpers';
+import type { ExtendedNotification } from '~/types/profile';
 
 export default defineEventHandler(async (event) => {
   try {

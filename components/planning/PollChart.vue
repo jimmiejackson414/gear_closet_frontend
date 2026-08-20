@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import type { Database, Tables } from '~/types';
-  import type { ExtendedPoll } from '~/types/helpers';
+  import type { ExtendedPoll } from '~/types/planning';
 
   interface Props {
     poll: ExtendedPoll;

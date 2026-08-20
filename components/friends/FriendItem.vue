@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import type { ExtendedFriend } from '@/types/helpers';
+  import type { ExtendedFriend } from '@/types/planning';
 
   interface Props {
     friend: ExtendedFriend;

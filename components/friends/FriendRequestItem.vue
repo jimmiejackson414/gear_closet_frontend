@@ -2,7 +2,7 @@
   import dayjs, { type Dayjs } from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import { FriendRequestStatus, type Database } from '@/types';
-  import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
+  import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/planning';
 
   dayjs.extend(relativeTime);
 

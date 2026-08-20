@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import Papa, { type ParseResult } from 'papaparse';
   import type { Database } from '@/types';
-  import type { ExtendedCategory, ExtendedPack, ParsedResults } from '@/types/helpers';
+  import type { ExtendedCategory, ExtendedPack, ParsedResults } from '@/types/closet';
 
   const $store = useClosetStore();
   const submitting = ref(false);

@@ -1,7 +1,8 @@
 <script lang='ts' setup>
   import { IconBackpack } from '#components';
   import type { Database } from '@/types';
-  import type { ExtendedPack, SelectOption } from '@/types/helpers';
+  import type { ExtendedPack } from '@/types/closet';
+  import type { SelectOption } from '@/types/ui';
 
   interface Props {
     isOpen: boolean;

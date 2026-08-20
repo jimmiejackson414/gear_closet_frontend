@@ -1,4 +1,4 @@
-import type { ExtendedPack } from "@/types/helpers";
+import type { ExtendedPack } from '@/types/closet';
 
 export const selectedPack: ExtendedPack = {
   "id": 1,

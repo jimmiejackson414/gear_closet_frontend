@@ -9,7 +9,7 @@ import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
 import { resolveBillingCustomerAccess } from '../../utils/billingAccess';
 import { getSubscriptionItemPeriod } from '../../utils/stripe';
 import type { Database } from '@/types';
-import type { SubscriptionApiResponse } from '@/types/helpers';
+import type { SubscriptionApiResponse } from '@/types/profile';
 
 const stripe = new Stripe(process.env.NUXT_STRIPE_SECRET as string);
 

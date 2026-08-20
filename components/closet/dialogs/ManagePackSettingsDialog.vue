@@ -5,7 +5,7 @@
   import { IconBackpack } from '#components';
   import { Theme, type Database } from '@/types';
   import generateThemeOptions from '@/utils/chartTheme';
-  import type { ExtendedPack } from '@/types/helpers';
+  import type { ExtendedPack } from '@/types/closet';
 
   const $store = useClosetStore();
   const $appStore = useAppStore();

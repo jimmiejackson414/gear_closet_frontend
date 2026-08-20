@@ -8,7 +8,7 @@ import {
   createSupabaseMock,
   createThenableQuery,
 } from '@/tests/unit/mocks/supabase.mock';
-import type { PublicPack } from '@/types/helpers';
+import type { PublicPack } from '@/types/closet';
 
 vi.mock('@/components/public/packs/PublicPackComment.vue', () => ({
   default: {
@@ -30,18 +30,17 @@ vi.mock('@/components/closet/ClosetPackCategories.vue', () => ({
   default: { name: 'ClosetPackCategories', template: '<div data-testid="stub-categories" />' },
 }));
 
-vi.mock('@/utils/helpers', async (importOriginal) => {
-  const actual = await importOriginal<typeof import('@/utils/helpers')>();
-  return {
-    ...actual,
-    buildImageSrc: vi.fn((url: string) => url),
-    initials: vi.fn(() => 'GC'),
-    friendlyUsername: vi.fn((user) => {
-      if (!user) return '';
-      return user.trail_name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
-    }),
-  };
-});
+vi.mock('@/utils/avatar', () => ({
+  buildImageSrc: vi.fn((url: string) => url),
+}));
+
+vi.mock('@/utils/displayName', () => ({
+  initials: vi.fn(() => 'GC'),
+  friendlyUsername: vi.fn((user) => {
+    if (!user) return '';
+    return user.trail_name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
+  }),
+}));
 
 const supabaseUser = vi.hoisted(() => {
   const { ref } = require('vue') as typeof import('vue');
