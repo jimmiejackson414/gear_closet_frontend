@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { tripFriends } from '@/tests/unit/mocks/planning.mock';
 import {
   parseInviteEmail,
+  pendingInviteEmailSet,
   toExtendedTripFriend,
   toFriendSelectOptions,
   tripFriendEmailSet,
@@ -71,6 +72,10 @@ describe('trip friend helpers', () => {
       .toEqual({ email: 'new.person@example.com', duplicate: true });
     expect(parseInviteEmail('  New.Person@example.com  ', [], onTripEmails))
       .toEqual({ email: 'new.person@example.com' });
+    expect(parseInviteEmail('pending@example.com', [], pendingInviteEmailSet([
+      { email: 'Pending@example.com' },
+    ])))
+      .toEqual({ error: 'That person is already on this trip.' });
   });
 
   it('attaches friend_profile onto a trip_friends row', () => {

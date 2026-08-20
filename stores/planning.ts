@@ -2,7 +2,7 @@ import { defineStore } from "pinia";
 import { ResourceType, TripDetailsType } from "@/types";
 import type { Database, Tables, TablesUpdate } from "@/types";
 import type { ExtendedPack } from "@/types/closet";
-import type { ExtendedPoll, ExtendedTripFriend } from "@/types/planning";
+import type { ExtendedPoll, ExtendedTripFriend, PendingTripInvite } from "@/types/planning";
 
 export interface PlanningPageData {
   trips: Tables<'trips'>[];
@@ -11,6 +11,7 @@ export interface PlanningPageData {
   todos: Tables<'todos'>[];
   shopping_items: Tables<'shopping_list_items'>[];
   friends: ExtendedTripFriend[];
+  pending_invites: PendingTripInvite[];
   poll?: ExtendedPoll;
   errors?: string[];
 }
@@ -23,6 +24,7 @@ export function normalizePlanningPageData (raw: PlanningPageData | null | undefi
     todos: raw?.todos ?? [],
     shopping_items: raw?.shopping_items ?? [],
     friends: raw?.friends ?? [],
+    pending_invites: raw?.pending_invites ?? [],
     poll: raw?.poll ?? undefined,
     errors: raw?.errors,
   };
@@ -36,6 +38,7 @@ export const usePlanningStore = defineStore('planning', () => {
     todos: [],
     shopping_items: [],
     friends: [],
+    pending_invites: [],
     poll: undefined,
   });
   const pageLoading = ref(true);

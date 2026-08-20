@@ -165,6 +165,7 @@ export default defineNuxtConfig({
         '/forgot-password',
         '/reset-password',
         '/p/packs/*',
+        '/invite/trip',
       ],
       saveRedirectToCookie: true,
     },
