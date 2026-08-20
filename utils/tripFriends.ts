@@ -1,5 +1,7 @@
 import { z } from 'zod';
 import { TripFriendStatus } from '@/types';
+import type { Tables } from '@/types';
+import type { ExtendedTripFriend, TripFriendRecord } from '@/types/planning';
 import type { SelectOption } from '@/types/ui';
 
 const emailSchema = z.string()
@@ -71,6 +73,23 @@ export const toFriendSelectOptions = <T extends { id: string; image: string | nu
       status,
     };
   });
+
+/** Copy fields instead of spreading a generated row — a spread hits TS2589. */
+export const toExtendedTripFriend = (
+  friend: TripFriendRecord,
+  friendProfile: Tables<'profiles'> | null,
+): ExtendedTripFriend => ({
+  id: friend.id,
+  trip_id: friend.trip_id,
+  profile_id: friend.profile_id,
+  invited_by_id: friend.invited_by_id,
+  status: friend.status,
+  invite_token: friend.invite_token,
+  accepted_invite_on: friend.accepted_invite_on,
+  created_at: friend.created_at,
+  updated_at: friend.updated_at,
+  friend_profile: friendProfile,
+});
 
 export const parseInviteEmail = (
   raw: string,
