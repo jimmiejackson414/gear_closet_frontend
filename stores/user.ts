@@ -22,12 +22,6 @@ export type ProfileWithSubscriptions = QueryData<ReturnType<typeof profileWithSu
 /** Module-scoped so remounts can tear down the previous Realtime channel. */
 let notificationsChannel: RealtimeChannel | null = null;
 
-/*
- * Setup syntax rather than the options form. The `this`-based options API made
- * TypeScript re-instantiate the store type on every state write, which tripped
- * TS2589 on the nested subscriptions/prices shape and forced `as any` on both
- * the query results and the state assignments. None of that is needed here. See #112.
- */
 export const useUserStore = defineStore('user', () => {
   const profile = ref<ProfileApiResponse | null>(null);
   const notifications = ref<ExtendedNotification[]>([]);

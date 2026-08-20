@@ -27,11 +27,6 @@ export function normalizePlanningPageData (raw: PlanningPageData | null | undefi
   };
 }
 
-/*
- * Setup syntax rather than the options form: the `this`-based options API makes
- * TypeScript re-instantiate the whole store type on every state write, which
- * trips TS2589 once state holds wide relational rows. See #112.
- */
 export const usePlanningStore = defineStore('planning', () => {
   const data = ref<PlanningPageData>({
     trips: [],

@@ -42,11 +42,6 @@ const nextTempId = () => --tempIdCounter;
 /** Per-item generation so stale updateItem responses are ignored. */
 const itemUpdateGenerations = new Map<number, number>();
 
-/*
- * Setup syntax rather than the options form: the `this`-based options API makes
- * TypeScript re-instantiate the whole store type on every state write, which
- * trips TS2589 once state holds wide relational rows. See #112.
- */
 export const useClosetStore = defineStore('closet', () => {
   const activeCategoryId = ref<number | undefined>(undefined);
   const activeItem = ref<Tables<'items'> | undefined>(undefined);
