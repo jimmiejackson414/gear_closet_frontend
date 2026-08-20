@@ -224,6 +224,53 @@ export const findTheme = (theme: Theme | string | undefined): Array<string> => {
   }
 };
 
+/**
+ * Converts a CSS HSL variable to a HEX color code.
+ * @param hslVar - The CSS variable value (e.g., 'hsl(var(--text))').
+ */
+export const hslVarToHex = async (hslVar: string): Promise<string> => {
+  if (typeof window === 'undefined' || !document.documentElement) {
+    return '#000000';
+  }
+
+  const varNameMatch = hslVar.match(/var\((--[^)]+)\)/);
+  if (!varNameMatch) {
+    throw new Error('Invalid HSL variable format');
+  }
+  const varName = varNameMatch[1];
+
+  await nextTick();
+  await new Promise(resolve => setTimeout(resolve, 100));
+
+  const root = document.documentElement;
+  const computedStyle = getComputedStyle(root);
+  if (!varName) {
+    throw new Error('Invalid HSL variable name');
+  }
+  const hslValue = computedStyle.getPropertyValue(varName)
+    .trim();
+
+  const hslMatch = hslValue.match(/\d+/g);
+  if (!hslMatch) {
+    throw new Error('Invalid HSL value');
+  }
+  const [h, s, l] = hslMatch.map(Number);
+  if (h === undefined || s === undefined || l === undefined) {
+    throw new Error('Invalid HSL value');
+  }
+
+  const lightness = l / 100;
+  const a = s * Math.min(lightness, 1 - lightness) / 100;
+  const f = (n: number) => {
+    const k = (n + h / 30) % 12;
+    const color = lightness - a * Math.max(Math.min(k - 3, 9 - k, 1), -1);
+    return Math.round(255 * color)
+      .toString(16)
+      .padStart(2, '0');
+  };
+  return `#${f(0)}${f(8)}${f(4)}`;
+};
+
 const generateThemeOptions = (): Array<Option> => {
   const office = [
     { label: Theme.BLUE6, value: Theme.BLUE6, colors: Blue6 },

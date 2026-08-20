@@ -6,7 +6,7 @@
     isResourceLocked,
     LOCKED_RESOURCE_TIP,
   } from '@/utils/planLimits';
-  import type { SelectOption } from '@/types/helpers';
+  import type { SelectOption } from '@/types/ui';
   import type { AcceptableValue } from 'reka-ui';
 
   const $store = useClosetStore();

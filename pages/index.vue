@@ -1,6 +1,7 @@
 <script lang='ts' setup>
   import type { Database, Tables } from '@/types';
-  import type { ExtendedFriend, ForumCategory, ForumPost } from '@/types/helpers';
+  import type { ForumCategory, ForumPost } from '@/types/forum';
+  import type { ExtendedFriend } from '@/types/planning';
 
   definePageMeta({ layout: 'dashboard-layout' });
 

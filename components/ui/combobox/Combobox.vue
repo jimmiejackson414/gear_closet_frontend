@@ -3,7 +3,7 @@
   import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
   import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
   import { cn } from '@/lib/utils';
-  import type { SelectOption } from '@/types/helpers';
+  import type { SelectOption } from '@/types/ui';
 
   interface Props {
     disabled?: boolean;

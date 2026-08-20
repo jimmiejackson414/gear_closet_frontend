@@ -1,7 +1,7 @@
 import convert, { type Mass } from 'convert';
 import { describe, expect, it } from 'vitest';
-import { calculatePackPrices, calculatePackWeights } from '@/utils/helpers';
-import type { ExtendedPack } from '@/types/helpers';
+import { calculatePackPrices, calculatePackWeights } from '@/utils/packMath';
+import type { ExtendedPack } from '@/types/closet';
 
 function packWithItems (
   items: Array<{
@@ -62,7 +62,7 @@ function packWithItems (
   } as ExtendedPack;
 }
 
-describe('utils/helpers pack math', () => {
+describe('utils/packMath', () => {
   describe('calculatePackPrices', () => {
     it('returns zeros for empty / missing categories', () => {
       expect(calculatePackPrices(undefined as any))

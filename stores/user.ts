@@ -2,7 +2,7 @@ import { defineStore } from 'pinia';
 import { useAppStore } from '@/stores/app';
 import { SubscriptionLevel, type Database, type TablesUpdate } from '@/types';
 import { isPaidPlanIdentifier } from '@/utils/planLimits';
-import type { ExtendedNotification, ProfileApiResponse, ProfileLayoutResponse } from '@/types/helpers';
+import type { ExtendedNotification, ProfileApiResponse, ProfileLayoutResponse } from '@/types/profile';
 import type { QueryData, RealtimeChannel, SupabaseClient } from '@supabase/supabase-js';
 
 /** Profile plus its subscriptions and the price each subscription points at. */

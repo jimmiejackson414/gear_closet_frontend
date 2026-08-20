@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import GcFooter from '@/components/common/GcFooter.vue';
   import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
-  import type { ProfileLayoutResponse } from '@/types/helpers';
+  import type { ProfileLayoutResponse } from '@/types/profile';
 
   const loading = ref(false);
 

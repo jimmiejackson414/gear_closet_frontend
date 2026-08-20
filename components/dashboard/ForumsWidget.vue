@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import type { ForumCategory, ForumPost } from '@/types/helpers';
+  import type { ForumCategory, ForumPost } from '@/types/forum';
 
   interface Props {
     data?: {

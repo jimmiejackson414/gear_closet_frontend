@@ -2,7 +2,8 @@
   import dayjs from 'dayjs';
   import relativeTime from 'dayjs/plugin/relativeTime';
   import type { Database } from '@/types';
-  import type { ExtendedComment, ExtendedReply, PublicPack } from '@/types/helpers';
+  import type { ExtendedComment, ExtendedReply } from '@/types/planning';
+  import type { PublicPack } from '@/types/closet';
 
   dayjs.extend(relativeTime);
 

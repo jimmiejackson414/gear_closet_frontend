@@ -2,7 +2,7 @@
   import { IconCheck, IconCircleHelp } from '#components';
   import { validatePollForm } from '@/utils/pollFormValidation';
   import type { Database, Tables } from '@/types';
-  import type { ExtendedPoll } from '@/types/helpers';
+  import type { ExtendedPoll } from '@/types/planning';
 
   type PollForm = {
     question: Tables<'questions'>;

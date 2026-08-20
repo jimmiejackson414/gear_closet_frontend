@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   import { IconSearch } from '#components';
   import { FriendRequestStatus, type Database, type Tables } from '@/types';
-  import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/helpers';
+  import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/planning';
 
   definePageMeta({ layout: 'page-layout' });
 
@@ -147,7 +147,7 @@
     }
   };
 
-  watch(searchQuery, debounce(async () => {
+  watch(searchQuery, useDebounceFn(async () => {
     if (searchQuery.value) {
       await fetchSearchResults();
     } else {

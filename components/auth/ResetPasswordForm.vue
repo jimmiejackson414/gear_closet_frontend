@@ -4,7 +4,7 @@
   import * as z from 'zod';
   import { type Severity } from '@/components/common/GcAlert.vue';
   import { destinationAfterAuth } from '@/utils/authRedirect';
-  import type { ProfileLayoutResponse } from '@/types/helpers';
+  import type { ProfileLayoutResponse } from '@/types/profile';
 
   const supabase = useSupabaseClient();
   const user = useSupabaseUser();

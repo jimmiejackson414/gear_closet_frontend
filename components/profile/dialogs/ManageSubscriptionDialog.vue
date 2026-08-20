@@ -12,7 +12,7 @@
     subscriptionChangeMethod,
   } from '@/utils/subscriptionUpgrade';
   import tailwind from '@/utils/tailwind';
-  import type { SubscriptionApiResponse } from '@/types/helpers';
+  import type { SubscriptionApiResponse } from '@/types/profile';
   import type { StripeCardElement } from '@stripe/stripe-js';
 
   interface Props {

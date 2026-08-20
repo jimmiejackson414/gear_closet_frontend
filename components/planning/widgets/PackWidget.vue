@@ -8,7 +8,7 @@
   import round from 'lodash.round';
   import { findTheme } from '@/utils/chartTheme';
   import type { Theme } from '@/types';
-  import type { ExtendedCategory } from '@/types/helpers';
+  import type { ExtendedCategory } from '@/types/closet';
   import type { EChartsOption } from 'echarts';
   import type { CallbackDataParams, TopLevelFormatterParams } from 'echarts/types/dist/shared';
 

@@ -7,7 +7,7 @@
   } from '@/utils/planLimits';
   import { isTripLockedForUser, ownedTrips } from '@/utils/trips';
   import type { Tables } from '@/types';
-  import type { SelectOption } from '@/types/helpers';
+  import type { SelectOption } from '@/types/ui';
   import type { AcceptableValue } from 'reka-ui';
 
   const $store = usePlanningStore();

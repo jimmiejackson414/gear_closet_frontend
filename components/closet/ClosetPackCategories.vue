@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import type { Database, Tables, TablesUpdate } from '@/types';
-  import type { ExtendedCategory, ExtendedPack } from '@/types/helpers';
+  import type { ExtendedCategory, ExtendedPack } from '@/types/closet';
 
   const $store = useClosetStore();
 

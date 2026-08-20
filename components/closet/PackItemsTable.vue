@@ -4,7 +4,7 @@
   import { SelectContent , SelectGroup, SelectItem, SelectRoot, SelectTrigger, Typography } from '#components';
   import GcInlineEdit from '@/components/common/GcInlineEdit.vue';
   import { cn } from '@/lib/utils';
-  import { weightOptions } from '@/utils/helpers';
+  import { weightOptions } from '@/utils/packMath';
   import type { Tables, TablesUpdate } from '@/types';
 
   const $store = useClosetStore();

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
   import { TripFriendStatus, type Database, type Tables, type TablesInsert } from '@/types';
   import { NotificationKind } from '@/utils/notifications';
-  import type { SelectOption } from '@/types/helpers';
+  import type { SelectOption } from '@/types/ui';
 
   interface Props {
     isOpen: boolean;

@@ -3,7 +3,7 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { authCallbackUrl, destinationAfterAuth } from '@/utils/authRedirect';
-  import type { ProfileLayoutResponse } from '@/types/helpers';
+  import type { ProfileLayoutResponse } from '@/types/profile';
   import type { Provider } from '@supabase/supabase-js';
 
   const supabase = useSupabaseClient();

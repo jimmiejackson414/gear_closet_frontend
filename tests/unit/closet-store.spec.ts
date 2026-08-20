@@ -10,7 +10,7 @@ import {
   createThenableQuery,
   type QueryResult,
 } from '@/tests/unit/mocks/supabase.mock';
-import type { ExtendedPack } from '@/types/helpers';
+import type { ExtendedPack } from '@/types/closet';
 
 vi.mock('@/components/ui/toast', () => ({
   useToast: () => ({ toast: vi.fn() }),

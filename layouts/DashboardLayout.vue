@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import type { ProfileLayoutResponse } from '@/types/helpers';
+  import type { ProfileLayoutResponse } from '@/types/profile';
 
   const $store = useUserStore();
 

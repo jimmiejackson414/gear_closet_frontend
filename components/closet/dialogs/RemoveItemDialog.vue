@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import type { Database } from '@/types';
-  import type { ExtendedPack } from '@/types/helpers';
+  import type { ExtendedPack } from '@/types/closet';
 
   const $store = useClosetStore();
   const $appStore = useAppStore();

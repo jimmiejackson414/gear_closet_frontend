@@ -1,7 +1,8 @@
 import { defineStore } from "pinia";
 import { ResourceType, TripDetailsType } from "@/types";
 import type { Database, Tables, TablesUpdate } from "@/types";
-import type { ExtendedPack, ExtendedPoll } from "@/types/helpers";
+import type { ExtendedPack } from "@/types/closet";
+import type { ExtendedPoll } from "@/types/planning";
 
 export interface PlanningPageData {
   trips: Tables<'trips'>[];
