@@ -39,7 +39,7 @@
     "@vueuse/core": "^14.4.0",
     "@vueuse/nuxt": "^14.4.0",
     "eslint": "^10.8.1",
-    "eslint-plugin-import-x": "^4.17.1",
+    "eslint-plugin-perfectionist": "^5.10.1",
     "happy-dom": "^20.11.2",
     "nuxt": "^4.5.2",
     "nuxt-lucide-icons": "^2.1.0",

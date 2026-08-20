@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  import type { Tables } from '@/types';
+  import type { ProfileLayoutResponse } from '@/types/helpers';
 
   interface Props {
     alignLogo?: 'start' | 'center' | 'end';
@@ -20,15 +20,17 @@
 
   const { loading } = storeToRefs($appStore);
 
-  const { data, error } = await useFetch<Tables<'profiles'> | null>('/api/profile', {
+  const { data, error } = await useFetch<ProfileLayoutResponse | null>('/api/profile', {
     headers: useRequestHeaders(['cookie']),
   });
 
-  $store.profile = data.value as any;
+  $store.profile = data.value;
 
   if (!error.value && data.value && !data.value.onboard_date) {
     $router.push('/onboarding');
   }
+
+  useNotificationHydration();
 </script>
 
 <template>

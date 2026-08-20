@@ -1,10 +1,10 @@
 <script lang='ts' setup>
-  import type { Provider } from '@supabase/supabase-js';
   import { toTypedSchema } from '@vee-validate/zod';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
-  import type { Tables } from '@/types';
   import { authCallbackUrl, destinationAfterAuth } from '@/utils/authRedirect';
+  import type { ProfileLayoutResponse } from '@/types/helpers';
+  import type { Provider } from '@supabase/supabase-js';
 
   const supabase = useSupabaseClient();
   const redirectInfo = useSupabaseCookieRedirect();
@@ -30,7 +30,7 @@
         return;
       }
 
-      const profile = await $fetch<Tables<'profiles'> | null>('/api/profile', {
+      const profile = await $fetch<ProfileLayoutResponse | null>('/api/profile', {
         headers: useRequestHeaders(['cookie']),
       });
 

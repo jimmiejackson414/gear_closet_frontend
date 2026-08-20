@@ -1,6 +1,6 @@
 // @ts-check
 import stylistic from '@stylistic/eslint-plugin';
-import { importX } from 'eslint-plugin-import-x';
+import perfectionist from 'eslint-plugin-perfectionist';
 import withNuxt from './.nuxt/eslint.config.mjs';
 
 export default withNuxt(
@@ -17,27 +17,41 @@ export default withNuxt(
   {
     plugins: {
       '@stylistic': stylistic,
-      'import-x': importX,
+      perfectionist,
     },
     rules: {
       'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
       curly: 'off',
       'object-shorthand': ['warn', 'always'],
+      'no-duplicate-imports': 'warn',
 
-      'sort-imports': ['warn', { ignoreDeclarationSort: true }],
-      'import-x/no-duplicates': 'warn',
-      'import-x/order': [
+      'perfectionist/sort-imports': [
         'warn',
         {
-          pathGroupsExcludedImportTypes: ['type'],
-          'newlines-between': 'never',
-          alphabetize: {
-            order: 'asc',
-            caseInsensitive: true,
-          },
+          type: 'natural',
+          order: 'asc',
+          newlinesBetween: 0,
+          customGroups: [
+            { groupName: 'vue', elementNamePattern: '^vue' },
+            { groupName: 'nuxt-components', elementNamePattern: '^#components' },
+            { groupName: 'supabase-server', elementNamePattern: '^#supabase' },
+          ],
+          groups: [
+            'builtin',
+            'vue',
+            'external',
+            'nuxt-components',
+            'supabase-server',
+            'internal',
+            ['parent', 'sibling', 'index'],
+            ['type-external', 'type-internal', 'type-parent', 'type-sibling', 'type-index'],
+            'unknown',
+          ],
         },
       ],
+      'perfectionist/sort-named-imports': 'warn',
+      'perfectionist/sort-exports': 'warn',
 
       // Match prior @stylistic/js rules that aren't covered by Nuxt stylistic defaults
       '@stylistic/comma-dangle': ['warn', 'always-multiline'],

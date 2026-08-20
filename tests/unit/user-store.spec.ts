@@ -3,7 +3,7 @@ import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAppStore } from '@/stores/app';
 import { useUserStore } from '@/stores/user';
-import { profile } from '@/tests/unit/mocks/app.mock';
+import { profile, notifications } from '@/tests/unit/mocks/app.mock';
 import { createSupabaseMock, createThenableQuery } from '@/tests/unit/mocks/supabase.mock';
 
 vi.mock('@/components/ui/toast', () => ({
@@ -18,8 +18,11 @@ const supabaseClient = vi.hoisted(() => ({
   current: null as ReturnType<typeof createSupabaseMock> | null,
 }));
 
+const fetchMock = vi.hoisted(() => vi.fn());
+
 mockNuxtImport('useSupabaseUser', () => () => supabaseUser);
 mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
+mockNuxtImport('$fetch', () => fetchMock);
 
 describe('stores/user', () => {
   beforeEach(() => {
@@ -32,6 +35,7 @@ describe('stores/user', () => {
     const userStore = useUserStore();
     await userStore.unsubscribeFromNotifications();
     vi.clearAllMocks();
+    fetchMock.mockReset();
   });
 
   describe('fetchProfile', () => {
@@ -68,11 +72,11 @@ describe('stores/user', () => {
         .toHaveBeenCalledWith('An error occurred while loading your account.');
     });
 
-    it('loads profile and normalizes missing notifications and subscriptions to []', async () => {
-      const { notifications: _n, subscriptions: _s, ...profileWithoutRelations } = profile as any;
+    it('loads profile and normalizes missing subscriptions to []', async () => {
+      const { subscriptions: _s, ...profileWithoutRelations } = profile as any;
       supabaseClient.current = createSupabaseMock({
         from: () => createThenableQuery({
-          data: { ...profileWithoutRelations, notifications: null, subscriptions: null },
+          data: { ...profileWithoutRelations, subscriptions: null },
           error: null,
         }),
       });
@@ -82,10 +86,51 @@ describe('stores/user', () => {
 
       expect(userStore.profile?.id)
         .toBe(profile.id);
-      expect(userStore.profile?.notifications)
-        .toEqual([]);
       expect(userStore.profile?.subscriptions)
         .toEqual([]);
+    });
+
+    it('does not clear notifications when refreshing profile', async () => {
+      const { subscriptions: _s, ...profileWithoutRelations } = profile as any;
+      supabaseClient.current = createSupabaseMock({
+        from: () => createThenableQuery({
+          data: { ...profileWithoutRelations, subscriptions: profile.subscriptions },
+          error: null,
+        }),
+      });
+      const userStore = useUserStore();
+      userStore.profile = { ...profile } as any;
+      userStore.notifications = [...notifications];
+
+      await userStore.fetchProfile();
+
+      expect(userStore.notifications)
+        .toEqual(notifications);
+    });
+  });
+
+  describe('fetchNotifications', () => {
+    it('loads notifications into the store', async () => {
+      fetchMock.mockResolvedValue(notifications);
+      const userStore = useUserStore();
+
+      await userStore.fetchNotifications();
+
+      expect(fetchMock)
+        .toHaveBeenCalledWith('/api/notifications');
+      expect(userStore.notifications)
+        .toEqual(notifications);
+    });
+
+    it('no-ops when there is no user', async () => {
+      supabaseUser.value = null;
+      const userStore = useUserStore();
+
+      await userStore.fetchNotifications();
+
+      expect(fetchMock)
+        .not
+        .toHaveBeenCalled();
     });
   });
 
@@ -148,23 +193,19 @@ describe('stores/user', () => {
         from: () => createThenableQuery({ data: incoming, error: null }),
       });
       const userStore = useUserStore();
-      userStore.profile = {
-        ...profile,
-        notifications: [...(profile.notifications ?? [])],
-      } as any;
-      const before = userStore.profile!.notifications.length;
+      userStore.notifications = [...notifications];
+      const before = userStore.notifications.length;
 
       await userStore.fetchNotification(99);
 
-      expect(userStore.profile!.notifications)
+      expect(userStore.notifications)
         .toHaveLength(before + 1);
-      const notifications = userStore.profile!.notifications as Array<{ id: number; title: string }>;
-      expect(notifications.some(n => n.id === 99 && n.title === 'New'))
+      expect(userStore.notifications.some(n => n.id === 99 && n.title === 'New'))
         .toBe(true);
     });
 
     it('replaces when notification id already exists', async () => {
-      const existing = profile.notifications[0];
+      const existing = notifications[0];
       expect(existing)
         .toBeTruthy();
       const updated = { ...existing, title: 'Updated title' };
@@ -172,30 +213,37 @@ describe('stores/user', () => {
         from: () => createThenableQuery({ data: updated, error: null }),
       });
       const userStore = useUserStore();
-      userStore.profile = {
-        ...profile,
-        notifications: [{ ...existing }],
-      } as any;
+      userStore.notifications = [{ ...existing! }];
 
       await userStore.fetchNotification(existing!.id);
 
-      expect(userStore.profile!.notifications)
+      expect(userStore.notifications)
         .toHaveLength(1);
-      expect(userStore.profile!.notifications[0]?.title)
+      expect(userStore.notifications[0]?.title)
         .toBe('Updated title');
     });
 
-    it('no-ops when profile is null', async () => {
-      const from = vi.fn();
-      supabaseClient.current = createSupabaseMock({ from });
+    it('still fetches when profile is null', async () => {
+      const incoming = {
+        id: 1,
+        title: 'Hello',
+        read_on_date: null,
+        profile_id: profile.id,
+        sender_id: null,
+        created_at: new Date()
+          .toISOString(),
+        sender: null,
+      };
+      supabaseClient.current = createSupabaseMock({
+        from: () => createThenableQuery({ data: incoming, error: null }),
+      });
       const userStore = useUserStore();
       userStore.profile = null;
 
       await userStore.fetchNotification(1);
 
-      expect(from)
-        .not
-        .toHaveBeenCalled();
+      expect(userStore.notifications)
+        .toHaveLength(1);
     });
   });
 
