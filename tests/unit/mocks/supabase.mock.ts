@@ -34,6 +34,8 @@ export function createThenableQuery<T = unknown> (
     'in',
     'is',
     'filter',
+    'or',
+    'not',
   ]) {
     api[method] = vi.fn(chain);
   }
