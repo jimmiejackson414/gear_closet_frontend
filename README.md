@@ -120,6 +120,8 @@ curl "http://localhost:8000/api/sentry-example?key=$NUXT_SENTRY_PROBE_KEY"
 
 Source maps upload at build time if `SENTRY_ORG`, `SENTRY_PROJECT`, and `SENTRY_AUTH_TOKEN` are set.
 
+Happy-path Stripe webhooks are not logged. Signature failures and handler throws are sent to Sentry (`stripe.webhook=signature` or `stripe.event=<type>`). Forum and profile 500s report the underlying cause; the client still gets a generic message.
+
 ## Tests
 
 Unit tests:

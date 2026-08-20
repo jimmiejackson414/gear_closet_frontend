@@ -1,3 +1,4 @@
+import { isError } from 'h3';
 import { SubscriptionLevel, SubscriptionStatus, type Database } from '@/types';
 import {
   isPaidPlanIdentifier,
@@ -5,6 +6,7 @@ import {
   resolvePriceIdentifier,
   unlockAllUserResources,
 } from './planEntitlements';
+import { reportServerError } from './reportServerError';
 import { getSubscriptionItemPeriod } from './stripe';
 import type { SupabaseClient } from '@supabase/supabase-js';
 import type Stripe from 'stripe';
@@ -20,7 +22,12 @@ type PostgrestErrorLike = { message?: string } | null;
 
 /** Updates/deletes: 0 rows is a no-op (replay or already gone). */
 function failOnError (error: PostgrestErrorLike, message: string) {
-  if (error) throw throwError(message);
+  if (!error) return;
+  throw createError({
+    statusCode: 500,
+    statusMessage: message,
+    cause: error,
+  });
 }
 
 /** Inserts should return the new row. */
@@ -41,15 +48,14 @@ export async function processStripeWebhookEvent (
   event: Stripe.Event,
   supabase: SupabaseClient<Database>,
 ) {
-  switch (event.type) {
-  /**
-    * Occurs whenever a new customer is created.
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-customer.created}
-    */
-    case 'customer.created': {
-      try {
+  try {
+    switch (event.type) {
+    /**
+      * Occurs whenever a new customer is created.
+      * @see {@link https://docs.stripe.com/api/events/types#event_types-customer.created}
+      */
+      case 'customer.created': {
         const customer = event.data.object;
-        console.log('***** STRIPE EVENT: customer.created *****');
 
         const { data, error } = await supabase
           .from('customers')
@@ -60,21 +66,15 @@ export async function processStripeWebhookEvent (
           .select();
 
         failOnEmptyInsert(error, data, 'An error occurred while creating a customer');
-      } catch (err) {
-        console.error(err);
-        throw throwError('A catch error occurred while creating a customer');
+        break;
       }
-      break;
-    }
 
-    /**
-    * Occurs whenever a customer is deleted.
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-customer.deleted}
-    */
-    case 'customer.deleted': {
-      try {
+      /**
+      * Occurs whenever a customer is deleted.
+      * @see {@link https://docs.stripe.com/api/events/types#event_types-customer.deleted}
+      */
+      case 'customer.deleted': {
         const customer = event.data.object;
-        console.log('***** STRIPE EVENT: customer.deleted *****');
 
         const { error } = await supabase
           .from('customers')
@@ -85,21 +85,15 @@ export async function processStripeWebhookEvent (
           .eq('stripe_customer_id', customer.id);
 
         failOnError(error, 'An error occurred while deleting a customer');
-      } catch (err) {
-        console.error(err);
-        throw throwError('A catch error occurred while deleting a customer');
+        break;
       }
-      break;
-    }
 
-    /**
-    * Occurs whenever a customer is signed up for a new plan.
-    * @see {@link https://stripe.com/docs/api/events/types#event_types-customer.subscription.created}
-    */
-    case 'customer.subscription.created': {
-      try {
+      /**
+      * Occurs whenever a customer is signed up for a new plan.
+      * @see {@link https://stripe.com/docs/api/events/types#event_types-customer.subscription.created}
+      */
+      case 'customer.subscription.created': {
         const subscription = event.data.object;
-        console.log('***** STRIPE EVENT: customer.subscription.created *****');
 
         const period = getSubscriptionItemPeriod(subscription);
         const subscriptionItem = subscription.items.data[0];
@@ -125,22 +119,15 @@ export async function processStripeWebhookEvent (
           .select();
 
         failOnEmptyInsert(error, data, 'An error occurred while inserting subscription');
-      } catch (error) {
-        console.error(error);
-        throw throwError('A catch error occurred while inserting subscription');
+        break;
       }
 
-      break;
-    }
-
-    /**
-    * Occurs whenever a subscription changes (e.g., switching from one plan to another, or changing the status from trial to active).
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-customer.subscription.updated}
-    */
-    case 'customer.subscription.updated': {
-      try {
+      /**
+      * Occurs whenever a subscription changes (e.g., switching from one plan to another, or changing the status from trial to active).
+      * @see {@link https://stripe.com/docs/api/events/types#event_types-customer.subscription.updated}
+      */
+      case 'customer.subscription.updated': {
         const subscription = event.data.object;
-        console.log('***** STRIPE EVENT: customer.subscription.updated *****');
 
         const period = getSubscriptionItemPeriod(subscription);
         const subscriptionItem = subscription.items.data[0];
@@ -174,20 +161,15 @@ export async function processStripeWebhookEvent (
             await markNeedsFreeSelectionIfExcess(supabase, profileId);
           }
         }
-      } catch {
-        throw throwError('A catch error occurred while updating subscription');
+        break;
       }
-      break;
-    }
 
-    /**
-    * Occurs whenever a customer’s subscription ends.
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-customer.subscription.deleted}
-    */
-    case 'customer.subscription.deleted': {
-      try {
+      /**
+      * Occurs whenever a customer’s subscription ends.
+      * @see {@link https://docs.stripe.com/api/events/types#event_types-customer.subscription.deleted}
+      */
+      case 'customer.subscription.deleted': {
         const subscription = event.data.object;
-        console.log('***** STRIPE EVENT: customer.subscription.deleted *****');
 
         const { error } = await supabase
           .from('subscriptions')
@@ -204,21 +186,15 @@ export async function processStripeWebhookEvent (
         if (profileId) {
           await markNeedsFreeSelectionIfExcess(supabase, profileId);
         }
-      } catch (err) {
-        console.error(err);
-        throw throwError('A catch error occurred while deleting subscription');
+        break;
       }
-      break;
-    }
 
-    /**
-    * Occurs whenever a product is created.
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-product.created}
-    */
-    case 'product.created': {
-      try {
+      /**
+      * Occurs whenever a product is created.
+      * @see {@link https://docs.stripe.com/api/events/types#event_types-product.created}
+      */
+      case 'product.created': {
         const product = event.data.object;
-        console.log('***** STRIPE EVENT: product.created *****');
 
         const { data, error } = await supabase
           .from('products')
@@ -234,21 +210,15 @@ export async function processStripeWebhookEvent (
           .select();
 
         failOnEmptyInsert(error, data, 'An error occurred while inserting product');
-      } catch (err) {
-        console.error(err);
-        throw throwError('A catch error occurred while inserting product');
+        break;
       }
-      break;
-    }
 
-    /**
-    * Occurs whenever a product is updated.
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-product.updated}
-    */
-    case 'product.updated': {
-      try {
+      /**
+      * Occurs whenever a product is updated.
+      * @see {@link https://docs.stripe.com/api/events/types#event_types-product.updated}
+      */
+      case 'product.updated': {
         const product = event.data.object;
-        console.log('***** STRIPE EVENT: product.updated *****');
 
         const { error } = await supabase
           .from('products')
@@ -263,21 +233,15 @@ export async function processStripeWebhookEvent (
           .eq('id', product.id);
 
         failOnError(error, 'An error occurred while updating product');
-      } catch (err) {
-        console.error(err);
-        throw throwError('A catch error occurred while updating product');
+        break;
       }
-      break;
-    }
 
-    /**
-    * Occurs whenever a product is deleted.
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-product.deleted}
-    */
-    case 'product.deleted': {
-      try {
+      /**
+      * Occurs whenever a product is deleted.
+      * @see {@link https://docs.stripe.com/api/events/types#event_types-product.deleted}
+      */
+      case 'product.deleted': {
         const product = event.data.object;
-        console.log('***** STRIPE EVENT: product.deleted *****');
 
         const { error } = await supabase
           .from('products')
@@ -285,21 +249,15 @@ export async function processStripeWebhookEvent (
           .match({ id: product.id });
 
         failOnError(error, 'An error occurred while deleting product');
-      } catch (err) {
-        console.error(err);
-        throw throwError('A catch error occurred while deleting product');
+        break;
       }
-      break;
-    }
 
-    /**
-    * Occurs whenever a price is created.
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-price.created}
-    */
-    case 'price.created': {
-      try {
+      /**
+      * Occurs whenever a price is created.
+      * @see {@link https://docs.stripe.com/api/events/types#event_types-price.created}
+      */
+      case 'price.created': {
         const price = event.data.object;
-        console.log('***** STRIPE EVENT: price.created *****');
 
         const { data, error } = await supabase
           .from('prices')
@@ -319,21 +277,15 @@ export async function processStripeWebhookEvent (
           .select();
 
         failOnEmptyInsert(error, data, 'An error occurred while inserting price');
-      } catch (err) {
-        console.error(err);
-        throw throwError('A catch error occurred while inserting price');
+        break;
       }
-      break;
-    }
 
-    /**
-    * Occurs whenever a price is updated.
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-price.updated}
-    */
-    case 'price.updated': {
-      try {
+      /**
+      * Occurs whenever a price is updated.
+      * @see {@link https://docs.stripe.com/api/events/types#event_types-price.updated}
+      */
+      case 'price.updated': {
         const price = event.data.object;
-        console.log('***** STRIPE EVENT: price.updated *****');
 
         const { error } = await supabase
           .from('prices')
@@ -352,20 +304,15 @@ export async function processStripeWebhookEvent (
           .eq('id', price.id);
 
         failOnError(error, 'An error occurred while updating price');
-      } catch {
-        throw throwError('A catch error occurred while updating price');
+        break;
       }
-      break;
-    }
 
-    /**
-    * Occurs whenever a price is deleted.
-    * @see {@link https://docs.stripe.com/api/events/types#event_types-price.deleted}
-    */
-    case 'price.deleted': {
-      try {
+      /**
+      * Occurs whenever a price is deleted.
+      * @see {@link https://docs.stripe.com/api/events/types#event_types-price.deleted}
+      */
+      case 'price.deleted': {
         const price = event.data.object;
-        console.log('***** STRIPE EVENT: price.deleted *****');
 
         const { error } = await supabase
           .from('prices')
@@ -373,14 +320,18 @@ export async function processStripeWebhookEvent (
           .match({ id: price.id });
 
         failOnError(error, 'An error occurred while deleting price');
-      } catch (err) {
-        console.error(err);
-        throw throwError('A catch error occurred while deleting price');
+        break;
       }
-      break;
-    }
 
-    default:
-      // Unexpected event type
+      default:
+        // Unexpected event type
+    }
+  } catch (err) {
+    reportServerError(err, {
+      extra: { stripeEventId: event.id },
+      tags: { 'stripe.event': event.type },
+    });
+    if (isError(err)) throw err;
+    throw throwError('A Stripe error occurred.');
   }
 }

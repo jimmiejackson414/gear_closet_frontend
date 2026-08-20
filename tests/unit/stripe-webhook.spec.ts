@@ -1,3 +1,4 @@
+import * as Sentry from '@sentry/nuxt';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { processStripeWebhookEvent } from '@/server/utils/processStripeWebhookEvent';
 import { getSubscriptionItemPeriod } from '@/server/utils/stripe';
@@ -30,6 +31,10 @@ function stripeEvent<T extends string> (
   } as unknown as Stripe.Event;
 }
 
+vi.mock('@sentry/nuxt', () => ({
+  captureException: vi.fn(),
+}));
+
 describe('getSubscriptionItemPeriod', () => {
   it('reads period from the first subscription item', () => {
     const period = getSubscriptionItemPeriod({
@@ -57,13 +62,12 @@ describe('getSubscriptionItemPeriod', () => {
 
 describe('processStripeWebhookEvent', () => {
   beforeEach(() => {
-    vi.spyOn(console, 'log')
-      .mockImplementation(() => undefined);
-    vi.spyOn(console, 'error')
-      .mockImplementation(() => undefined);
+    vi.mocked(Sentry.captureException)
+      .mockClear();
   });
 
   it('inserts a customer on customer.created', async () => {
+    const log = vi.spyOn(console, 'log');
     const from = vi.fn(() => createThenableQuery({
       data: [{ id: 1 }],
       error: null,
@@ -80,6 +84,13 @@ describe('processStripeWebhookEvent', () => {
 
     expect(from)
       .toHaveBeenCalledWith('customers');
+    expect(Sentry.captureException)
+      .not
+      .toHaveBeenCalled();
+    expect(log)
+      .not
+      .toHaveBeenCalled();
+    log.mockRestore();
   });
 
   it('inserts a subscription on customer.subscription.created', async () => {
@@ -389,5 +400,15 @@ describe('processStripeWebhookEvent', () => {
       .toMatchObject({
         statusMessage: expect.stringMatching(/error occurred while creating a customer|catch error occurred while creating a customer/),
       });
+    expect(Sentry.captureException)
+      .toHaveBeenCalledWith(
+        expect.objectContaining({
+          statusMessage: expect.stringMatching(/error occurred while creating a customer/),
+        }),
+        expect.objectContaining({
+          extra: { stripeEventId: 'evt_test' },
+          tags: { 'stripe.event': 'customer.created' },
+        }),
+      );
   });
 });
