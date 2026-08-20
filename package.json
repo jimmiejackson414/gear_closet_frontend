@@ -16,6 +16,7 @@
     "test:e2e": "pnpm playwright test",
     "cert": "mkcert -key-file ./localhost-key.pem -cert-file ./localhost.pem localhost",
     "barrel": "tsx scripts/generateComponentBarrel.ts",
+    "mail:smoke": "tsx scripts/sendTestEmail.ts",
     "stripe:webhook": "stripe listen --forward-to localhost:8000/api/stripe/webhook"
   },
   "devDependencies": {
@@ -83,6 +84,7 @@
     "papaparse": "^5.5.4",
     "pinia": "^4.0.2",
     "reka-ui": "^2.10.3",
+    "resend": "^6.21.0",
     "sortablejs": "^1.15.7",
     "stripe": "^22.5.0",
     "tailwind-merge": "^3.6.0",
