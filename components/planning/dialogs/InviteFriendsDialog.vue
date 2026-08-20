@@ -121,6 +121,14 @@
     emits('onClose');
   };
 
+  const inviteErrorMessage = (err: unknown) => {
+    const status = typeof err === 'object' && err && 'statusCode' in err
+      ? Number((err as { statusCode: unknown }).statusCode)
+      : 0;
+    if (status === 429) return 'Too many invites. Try again later.';
+    return 'There was an error inviting friends to the trip.';
+  };
+
   const inviteFriends = async () => {
     if (!canSubmit.value) return;
 
@@ -128,18 +136,18 @@
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
+      const tripId = Number($store.selectedTripId);
       let invitedFriendsOk = false;
 
       if (friendsToInvite.value.length) {
         const existingFriendsPayload = friendsToInvite.value.map((f: Tables<'profiles'>) => ({
-          trip_id: Number($store.selectedTripId),
+          trip_id: tripId,
           profile_id: f.id,
           status: TripFriendStatus.PENDING,
           invited_by_id: user.value?.sub as string,
         }));
-        const { data: invitedFriends, error } = await supabase.from('trip_friends')
-          .insert(existingFriendsPayload)
-          .select();
+        const { error } = await supabase.from('trip_friends')
+          .insert(existingFriendsPayload);
 
         const notificationsPayload = friendsToInvite.value.map((f: Tables<'profiles'>) => ({
           title: NotificationKind.TRIP_INVITE,
@@ -152,32 +160,35 @@
         await supabase.from('notifications')
           .insert(notificationsPayload);
 
-        if (invitedFriends?.length && !error) {
-          invitedFriendsOk = true;
-          const profilesById = new Map(friendsToInvite.value.map(profile => [profile.id, profile]));
-          $store.data.friends.push(...invitedFriends.map(friend => ({
-            ...friend,
-            friend_profile: profilesById.get(friend.profile_id) ?? null,
-          })));
-        } else if (error) {
+        if (error) {
           $appStore.notifyNegative(error.message || 'There was an error inviting friends to the trip.');
           return;
         }
+        invitedFriendsOk = true;
       }
 
-      if (invitedFriendsOk) {
-        $appStore.notifyPositive('Successfully invited friends to trip!');
+      const emailed = [...emailsToInvite.value];
+
+      if (emailed.length) {
+        await $fetch(`/api/trips/${tripId}/invites`, {
+          method: 'POST',
+          body: { emails: emailed },
+        });
       }
 
-      // Email delivery is wired in #42 / #43. Keep the field ready without sending yet.
-      if (emailsToInvite.value.length) {
-        $appStore.notifyInfo('Email invites will send in a follow-up. No email was sent.');
+      if (invitedFriendsOk || emailed.length) {
+        $appStore.notifyPositive('Invites sent.');
       }
-    } catch {
-      $appStore.notifyNegative('There was an error inviting friends to the trip.');
+
+      handleClose();
+
+      if (invitedFriendsOk || emailed.length) {
+        void $store.fetchPlanningPage(tripId);
+      }
+    } catch (err) {
+      $appStore.notifyNegative(inviteErrorMessage(err));
     } finally {
       submitting.value = false;
-      handleClose();
     }
   };
 
@@ -197,7 +208,7 @@
           Invite to trip
         </dialog-title>
         <dialog-description>
-          Friends on your list get an in-app invite. Anyone else can be invited by email — they'll get a link even if they don't have an account yet.
+          Friends on your list get an in-app invite. Anyone else can be invited by email.
         </dialog-description>
       </dialog-header>
       <div class="flex flex-col gap-6 mt-4 w-full">

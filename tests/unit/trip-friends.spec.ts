@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest';
+import { tripFriends } from '@/tests/unit/mocks/planning.mock';
 import {
   parseInviteEmail,
+  toExtendedTripFriend,
   toFriendSelectOptions,
   tripFriendEmailSet,
   tripFriendStatusByProfileId,
@@ -69,5 +71,16 @@ describe('trip friend helpers', () => {
       .toEqual({ email: 'new.person@example.com', duplicate: true });
     expect(parseInviteEmail('  New.Person@example.com  ', [], onTripEmails))
       .toEqual({ email: 'new.person@example.com' });
+  });
+
+  it('attaches friend_profile onto a trip_friends row', () => {
+    const [invite] = tripFriends;
+    if (!invite) throw new Error('expected fixture');
+    const { friend_profile: profile, ...row } = invite;
+
+    expect(toExtendedTripFriend(row, profile))
+      .toEqual(invite);
+    expect(toExtendedTripFriend(row, null).friend_profile)
+      .toBeNull();
   });
 });

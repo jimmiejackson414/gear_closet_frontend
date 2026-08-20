@@ -1090,6 +1090,45 @@ export type Database = {
           },
         ]
       }
+      trip_invite_attempts: {
+        Row: {
+          created_at: string
+          email_count: number
+          id: number
+          profile_id: string
+          trip_id: number
+        }
+        Insert: {
+          created_at?: string
+          email_count?: number
+          id?: number
+          profile_id: string
+          trip_id: number
+        }
+        Update: {
+          created_at?: string
+          email_count?: number
+          id?: number
+          profile_id?: string
+          trip_id?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "trip_invite_attempts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "trip_invite_attempts_trip_id_fkey"
+            columns: ["trip_id"]
+            isOneToOne: false
+            referencedRelation: "trips"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       trip_packs: {
         Row: {
           created_at: string | null

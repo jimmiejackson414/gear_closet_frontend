@@ -30,8 +30,11 @@ const supabaseClient = vi.hoisted(() => ({
   current: null as ReturnType<typeof createSupabaseMock> | null,
 }));
 
+const fetchMock = vi.hoisted(() => vi.fn());
+
 mockNuxtImport('useSupabaseUser', () => () => supabaseUser);
 mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
+mockNuxtImport('$fetch', () => fetchMock);
 
 const planningState = {
   pageLoading: false,
@@ -48,6 +51,8 @@ const planningState = {
 describe('InviteFriendsDialog', () => {
   beforeEach(() => {
     supabaseUser.value = { sub: '61b66be5-d199-48d5-898a-c521dd6b59cc' };
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValue({ ok: true });
     supabaseClient.current = createSupabaseMock({
       from: (table) => {
         if (table === 'friends') {
@@ -61,6 +66,16 @@ describe('InviteFriendsDialog', () => {
         }
         return createThenableQuery({ data: [], error: null });
       },
+      rpc: () => Promise.resolve({
+        data: {
+          trips,
+          friends: tripFriends,
+          trip_details: [],
+          todos: [],
+          shopping_items: [],
+        },
+        error: null,
+      }),
     });
   });
 
@@ -97,5 +112,42 @@ describe('InviteFriendsDialog', () => {
       expect(options.some(option => option.value === extraProfile.id && !option.disabled))
         .toBe(true);
     });
+  });
+
+  it('posts emails to the server invite API and shows generic success copy', async () => {
+    const wrapper = await mountSuspended(InviteFriendsDialog, {
+      global: testMountGlobals({ planning: planningState }),
+      attachTo: document.body,
+      props: { isOpen: true },
+    });
+
+    const emailInput = document.body.querySelector('input[type="email"]') as HTMLInputElement;
+    emailInput.value = 'pat@example.com';
+    emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+    await wrapper.vm.$nextTick();
+
+    (document.body.querySelector('[data-testid="invite-email-add"]') as HTMLButtonElement).click();
+    await wrapper.vm.$nextTick();
+    await vi.waitFor(() => {
+      expect(document.body.textContent)
+        .toContain('pat@example.com');
+    });
+
+    (document.body.querySelector('[data-testid="invite-submit"]') as HTMLButtonElement).click();
+
+    await vi.waitFor(() => {
+      expect(fetchMock)
+        .toHaveBeenCalledWith('/api/trips/2/invites', {
+          method: 'POST',
+          body: { emails: ['pat@example.com'] },
+        });
+    });
+
+    expect(fetchMock.mock.calls[0]?.[1])
+      .not
+      .toHaveProperty('found');
+    expect(document.body.textContent)
+      .not
+      .toMatch(/no account found|account exists/i);
   });
 });

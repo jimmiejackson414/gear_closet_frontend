@@ -5,8 +5,24 @@ export type ExtendedFriend = Tables<'friends'> & {
   friend: Tables<'profiles'>;
 };
 
+/**
+ * Plain trip_friends columns. Avoid `Tables<'trip_friends'>` here: spreading or
+ * assigning that generated row into a nested type hits TS2589.
+ */
+export type TripFriendRecord = {
+  id: number;
+  trip_id: number | null;
+  profile_id: string;
+  invited_by_id: string;
+  status: 'PENDING' | 'ACCEPTED' | 'DECLINED';
+  invite_token: string | null;
+  accepted_invite_on: string | null;
+  created_at: string | null;
+  updated_at: string;
+};
+
 /** `get_planning_page_data` friend row: trip_friends plus nested `friend_profile`. */
-export type ExtendedTripFriend = Tables<'trip_friends'> & {
+export type ExtendedTripFriend = TripFriendRecord & {
   friend_profile: Tables<'profiles'> | null;
 };
 

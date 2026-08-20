@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 
 export type QueryResult<T = unknown> = {
   data: T;
-  error: { message?: string } | null;
+  error: { message?: string; code?: string } | null;
 };
 
 /**
@@ -36,6 +36,11 @@ export function createThenableQuery<T = unknown> (
     'filter',
     'or',
     'not',
+    'ilike',
+    'gte',
+    'lte',
+    'gt',
+    'lt',
   ]) {
     api[method] = vi.fn(chain);
   }
