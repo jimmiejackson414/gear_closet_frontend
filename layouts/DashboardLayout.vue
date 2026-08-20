@@ -2,13 +2,12 @@
   import type { ProfileLayoutResponse } from '@/types/helpers';
 
   const $store = useUserStore();
-  const profile = toRef($store, 'profile');
 
   const { data, error } = await useFetch<ProfileLayoutResponse | null>('/api/profile', {
     headers: useRequestHeaders(['cookie']),
   });
 
-  profile.value = data.value;
+  $store.setProfile(data.value ?? null);
 
   const $router = useRouter();
   if (!error.value && data.value && !data.value.onboard_date) {

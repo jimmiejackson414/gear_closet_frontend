@@ -16,7 +16,7 @@
       headers: useRequestHeaders(['cookie']),
     });
 
-    $store.profile = data.value;
+    $store.setProfile(data.value ?? null);
 
     const $router = useRouter();
     if (!error.value && data.value && !data.value.onboard_date) {

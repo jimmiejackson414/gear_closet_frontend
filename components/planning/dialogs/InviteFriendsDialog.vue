@@ -30,7 +30,9 @@
    */
   const searching = ref(false);
   const searchResults = ref<SelectOption[]>([]);
-  const friendObjects = ref<Tables<'profiles'>[]>([]);
+  // shallowRef: replaced wholesale, never deeply mutated, and the deep unwrap
+  // of a full profiles row otherwise trips TS2589 on assignment.
+  const friendObjects = shallowRef<Tables<'profiles'>[]>([]);
   const searchForFriends = async (searchTerm: string) => {
     if (!searchTerm?.trim()) {
       searchResults.value = [];
