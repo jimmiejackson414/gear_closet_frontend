@@ -70,7 +70,7 @@
                 v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
                 :initials="initials($store.profile)"
                 size="xs"
-                :url="buildImageSrc($store.profile.image)" />
+                :url="$store.profile.image" />
               <component
                 :is="link.icon"
                 v-else

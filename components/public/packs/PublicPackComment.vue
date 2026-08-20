@@ -176,7 +176,7 @@
             class="mt-2 user"
             :initials="initials(comment.profile)"
             size="md"
-            :url="buildImageSrc(comment.profile.image)" />
+            :url="comment.profile.image" />
           <div>
             <!-- body -->
             <div
@@ -265,7 +265,7 @@
                 class="mt-2 user"
                 :initials="initials(reply.profile)"
                 size="md"
-                :url="buildImageSrc(reply.profile.image)" />
+                :url="reply.profile.image" />
               <div>
                 <!-- body -->
                 <div

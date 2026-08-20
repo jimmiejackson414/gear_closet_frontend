@@ -166,7 +166,7 @@
               <gc-avatar
                 class="mr-2"
                 size="xs"
-                :url="buildImageSrc(option.image)" />
+                :url="option.image" />
               <span>{{ option.label }}</span>
             </div>
           </template>

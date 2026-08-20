@@ -6,9 +6,13 @@ import UpcomingTripsWidget from '@/components/dashboard/UpcomingTripsWidget.vue'
 import { createSupabaseMock } from '@/tests/unit/mocks/supabase.mock';
 import { friends, invitations, upcomingTrips } from './mocks/dashboard.mock';
 
-vi.mock('@/utils/avatar', () => ({
-  buildImageSrc: vi.fn((url: string) => url),
-}));
+vi.mock('@/utils/avatar', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/avatar')>();
+  return {
+    ...actual,
+    buildImageSrc: vi.fn((url: string) => url),
+  };
+});
 
 vi.mock('@/utils/displayName', () => ({
   initials: vi.fn((user) => user ? `${user.first_name.charAt(0)}${user.last_name.charAt(0)}` : 'GC'),

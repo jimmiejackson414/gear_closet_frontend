@@ -120,7 +120,7 @@ export function createSupabaseMock (options: SupabaseMockOptions = {}) {
           .mockResolvedValue({ data: [], error: null }),
         upload: vi.fn()
           .mockResolvedValue({ data: { path: 'x' }, error: null }),
-        getPublicUrl: (url: string) => ({ data: { publicUrl: url } }),
+        getPublicUrl: (url: string, _options?: unknown) => ({ data: { publicUrl: url } }),
       })),
     },
     _channels: channels,

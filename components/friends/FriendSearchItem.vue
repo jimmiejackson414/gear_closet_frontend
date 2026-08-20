@@ -74,7 +74,7 @@
           class="shrink-0"
           :initials="initials(profile)"
           size="lg"
-          :url="buildImageSrc(profile.image)" />
+          :url="profile.image" />
         <div class="flex flex-col min-w-0">
           <typography class="font-bold! truncate">
             {{ friendlyUsername(profile) }}

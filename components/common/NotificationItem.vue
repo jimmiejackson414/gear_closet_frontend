@@ -20,8 +20,9 @@
     .to(props.notification.created_at as string));
 
   const computedImageSrc = computed(() => {
-    if (props.notification?.sender?.image) {
-      return { backgroundImage: `url(${props.notification.sender.image})` };
+    const src = buildImageSrc(props.notification?.sender?.image, 'md');
+    if (src) {
+      return { backgroundImage: `url(${src})` };
     }
     return { backgroundImage: `url('/gear-closet-icon.svg')` };
   });

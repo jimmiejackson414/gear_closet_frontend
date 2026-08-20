@@ -30,9 +30,13 @@ vi.mock('@/components/closet/ClosetPackCategories.vue', () => ({
   default: { name: 'ClosetPackCategories', template: '<div data-testid="stub-categories" />' },
 }));
 
-vi.mock('@/utils/avatar', () => ({
-  buildImageSrc: vi.fn((url: string) => url),
-}));
+vi.mock('@/utils/avatar', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/utils/avatar')>();
+  return {
+    ...actual,
+    buildImageSrc: vi.fn((url: string) => url),
+  };
+});
 
 vi.mock('@/utils/displayName', () => ({
   initials: vi.fn(() => 'GC'),

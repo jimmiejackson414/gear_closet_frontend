@@ -98,7 +98,7 @@
                 class="shrink-0"
                 :initials="initials(invite.inviter_profile)"
                 size="sm"
-                :url="buildImageSrc(invite.inviter_profile?.image)" />
+                :url="invite.inviter_profile?.image" />
               <div class="min-w-0">
                 <typography class="font-semibold truncate">
                   {{ tripLabel(invite) }}

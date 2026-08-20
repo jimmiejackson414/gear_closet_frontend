@@ -3,9 +3,9 @@
  * @apiName GetForumPosts
  * @summary Fetch the latest forum posts
  */
-import type { ForumCategories, ForumLatestPosts } from '@/types/forum';
+import type { ForumCategories, ForumLatestPosts, ForumResponse } from '@/types/forum';
 
-export default defineEventHandler(async () => {
+export default defineEventHandler(async (): Promise<ForumResponse> => {
   const config = useRuntimeConfig();
   const controller = new AbortController();
   const timeout = setTimeout(() => {

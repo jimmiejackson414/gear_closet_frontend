@@ -36,3 +36,8 @@ export type ForumCategories = {
     categories: ForumCategory[];
   }
 };
+
+export type ForumResponse = {
+  latest_posts: ForumPost[];
+  categories: ForumCategory[];
+};
