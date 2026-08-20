@@ -44,6 +44,7 @@ describe('stores/planning', () => {
           todos: [],
           shopping_items: [],
           friends: [],
+          pending_invites: [],
           poll: undefined,
           errors: undefined,
         });

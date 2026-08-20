@@ -42,6 +42,7 @@ const planningState = {
   data: {
     trips,
     friends: tripFriends,
+    pending_invites: [],
     trip_details: [],
     todos: [],
     shopping_items: [],
@@ -70,6 +71,7 @@ describe('InviteFriendsDialog', () => {
         data: {
           trips,
           friends: tripFriends,
+          pending_invites: [],
           trip_details: [],
           todos: [],
           shopping_items: [],

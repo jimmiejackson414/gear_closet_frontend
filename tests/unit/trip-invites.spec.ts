@@ -1,9 +1,13 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import {
+  buildTripClaimInviteMessage,
   buildTripInviteMessage,
+  claimUrlFromOrigin,
+  createInviteToken,
   escapeHtml,
   escapeIlike,
   GENERIC_INVITE_RESULT,
+  hashInviteToken,
   isInviteRateLimited,
   isUniqueViolation,
   MAX_EMAILS_PER_REQUEST,
@@ -89,6 +93,21 @@ describe('invite email helpers', () => {
         templateId: 'trip-invite',
         subject: 'Jimmie invited you to a trip',
       });
+    expect(buildTripClaimInviteMessage({
+      inviterName: 'Jimmie',
+      tripName: 'AT Thru',
+      claimUrl: 'https://app.gearcloset.io/invite/trip?token=abc',
+    }))
+      .toMatchObject({
+        templateId: 'trip-invite-claim',
+      });
+    expect(claimUrlFromOrigin('https://app.gearcloset.io', 'raw-token'))
+      .toBe('https://app.gearcloset.io/invite/trip?token=raw-token');
+    const minted = createInviteToken();
+    expect(hashInviteToken(minted.token))
+      .toBe(minted.tokenHash);
+    expect(minted.tokenHash)
+      .toMatch(/^[0-9a-f]{64}$/);
   });
 });
 
@@ -152,7 +171,7 @@ describe('sendExistingUserTripInvites', () => {
       }));
   });
 
-  it('returns the same generic success when the email does not match a profile', async () => {
+  it('creates a pending invitation and claim email when the email does not match a profile', async () => {
     const userFrom = queuedFrom({
       trips: [createThenableQuery({ data: trip, error: null })],
       profiles: [createThenableQuery({ data: inviter, error: null })],
@@ -163,6 +182,10 @@ describe('sendExistingUserTripInvites', () => {
         createThenableQuery({ data: [{ id: 1 }], error: null }),
       ],
       profiles: [createThenableQuery({ data: [], error: null })],
+      trip_invitations: [
+        createThenableQuery({ data: null, error: null }),
+        createThenableQuery({ data: [{ id: 11 }], error: null }),
+      ],
     });
 
     await expect(sendExistingUserTripInvites({
@@ -173,16 +196,65 @@ describe('sendExistingUserTripInvites', () => {
       userClient: asClient(createSupabaseMock({ from: userFrom })),
       admin: asClient(createSupabaseMock({ from: adminFrom })),
       send,
+      createToken: () => ({
+        token: 'raw-token',
+        tokenHash: hashInviteToken('raw-token'),
+      }),
     }))
       .resolves
       .toEqual(GENERIC_INVITE_RESULT);
 
     expect(adminFrom)
+      .toHaveBeenCalledWith('trip_invitations');
+    expect(adminFrom)
       .not
       .toHaveBeenCalledWith('trip_friends');
     expect(send)
-      .not
-      .toHaveBeenCalled();
+      .toHaveBeenCalledWith(expect.objectContaining({
+        to: 'nobody@example.com',
+        templateId: 'trip-invite-claim',
+        text: expect.stringContaining('/invite/trip?token=raw-token'),
+      }));
+  });
+
+  it('resends a pending invitation by rotating the token', async () => {
+    const userFrom = queuedFrom({
+      trips: [createThenableQuery({ data: trip, error: null })],
+      profiles: [createThenableQuery({ data: inviter, error: null })],
+    });
+    const adminFrom = queuedFrom({
+      trip_invite_attempts: [
+        createThenableQuery({ data: [], error: null }),
+        createThenableQuery({ data: [{ id: 1 }], error: null }),
+      ],
+      profiles: [createThenableQuery({ data: [], error: null })],
+      trip_invitations: [
+        createThenableQuery({ data: { id: 7 }, error: null }),
+        createThenableQuery({ data: [{ id: 7 }], error: null }),
+      ],
+    });
+
+    await expect(sendExistingUserTripInvites({
+      tripId: 2,
+      inviterId: OWNER_ID,
+      emails: ['nobody@example.com'],
+      origin: 'https://app.gearcloset.io',
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
+      admin: asClient(createSupabaseMock({ from: adminFrom })),
+      send,
+      createToken: () => ({
+        token: 'rotated-token',
+        tokenHash: hashInviteToken('rotated-token'),
+      }),
+    }))
+      .resolves
+      .toEqual(GENERIC_INVITE_RESULT);
+
+    expect(send)
+      .toHaveBeenCalledWith(expect.objectContaining({
+        templateId: 'trip-invite-claim',
+        text: expect.stringContaining('token=rotated-token'),
+      }));
   });
 
   it('does not insert a second pending row when the unique constraint fires', async () => {

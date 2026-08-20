@@ -26,6 +26,24 @@ export type ExtendedTripFriend = TripFriendRecord & {
   friend_profile: Tables<'profiles'> | null;
 };
 
+/** Owner-only pending email invites from `get_planning_page_data` (never includes token_hash). */
+export type PendingTripInvite = {
+  id: number;
+  trip_id: number;
+  email: string;
+  status: 'PENDING' | 'CLAIMED' | 'CANCELED';
+  expires_at: string;
+  created_at: string;
+};
+
+export type TripInvitePreview =
+  | { status: 'ok'; tripName: string; inviterName: string }
+  | { status: 'expired' | 'used' | 'invalid' };
+
+export type TripInviteClaimResult =
+  | { ok: true; alreadyClaimed?: boolean }
+  | { ok: false; reason: 'invalid' | 'expired' | 'used' | 'email_mismatch' };
+
 export type InviteInviterProfile = Pick<
   Tables<'profiles'>,
   'id' | 'email' | 'first_name' | 'last_name' | 'trail_name' | 'image'
