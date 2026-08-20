@@ -1,14 +1,14 @@
 <script lang='ts' setup>
   import type { Database, Tables } from '@/types';
   import type { ForumCategory, ForumPost } from '@/types/forum';
-  import type { ExtendedFriend } from '@/types/planning';
+  import type { DashboardTripInvite, ExtendedFriend } from '@/types/planning';
 
   definePageMeta({ layout: 'dashboard-layout' });
 
   interface DashboardData {
     friends: ExtendedFriend[];
     trips: Tables<'trips'>[];
-    trip_friends: Tables<'trip_friends'>[];
+    trip_friends: DashboardTripInvite[];
   }
 
   export interface ForumResponse {
@@ -29,13 +29,11 @@
     latest_posts: [],
   });
 
-  // Single forum fetch via useAsyncData (avoid a second discarded $fetch).
   const fetchForumPosts = (): Promise<ForumResponse> =>
     $fetch<ForumResponse>('/api/forumPosts');
-  const { data: fData, error: fError, pending: forumPending } = await useAsyncData(
-    'forumPosts',
-    fetchForumPosts,
-  );
+
+  const forumAsync = useAsyncData('forumPosts', fetchForumPosts);
+  const { data: fData, error: fError, pending: forumPending } = forumAsync;
 
   const forumFetchError = computed(() => Boolean(fError.value));
 
@@ -56,6 +54,8 @@
     forumData.categories = fData.value.categories || [];
   };
 
+  watch([fData, fError], syncForumData, { immediate: true });
+
   const fetchDashboard = async () => {
     const supabase = useSupabaseClient<Database>();
     loading.value = true;
@@ -73,8 +73,6 @@
       data.friends = typedPageData.friends ?? [];
       data.trips = typedPageData.trips ?? [];
       data.trip_friends = typedPageData.trip_friends ?? [];
-
-      syncForumData();
     } catch (err) {
       console.error({ err });
       $store.notifyNegative('An error occurred while loading your dashboard.');
@@ -83,7 +81,11 @@
     }
   };
 
-  await fetchDashboard();
+  await Promise.all([
+    Promise.resolve(forumAsync)
+      .catch(() => undefined),
+    fetchDashboard(),
+  ]);
 
   useHead({
     title: 'Dashboard',

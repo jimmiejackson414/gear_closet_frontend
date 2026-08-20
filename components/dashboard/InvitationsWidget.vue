@@ -1,9 +1,10 @@
 <script lang='ts' setup>
   import { TripFriendStatus } from '@/types';
-  import type { Database, Tables } from '@/types';
+  import type { Database } from '@/types';
+  import type { DashboardTripInvite } from '@/types/planning';
 
   interface Props {
-    data?: Tables<'trip_friends'>[];
+    data?: DashboardTripInvite[];
     loading?: boolean;
   }
 
@@ -13,82 +14,25 @@
   });
 
   const emits = defineEmits<{
-    (event: 'update:data', value: Tables<'trip_friends'>[]): void;
+    (event: 'update:data', value: DashboardTripInvite[]): void;
   }>();
 
   const $appStore = useAppStore();
-  const tripNames = ref<Record<number, string>>({});
-  const inviterProfiles = ref<Record<string, Tables<'profiles'>>>({});
   const actingId = ref<number | null>(null);
 
   const pendingInvites = computed(() =>
     props.data.filter(invite => invite.status === TripFriendStatus.PENDING),
   );
 
-  const enrichInvites = async (invites: Tables<'trip_friends'>[]) => {
-    const tripIds = [...new Set(
-      invites
-        .map(i => i.trip_id)
-        .filter((id): id is number => id != null && !tripNames.value[id]),
-    )];
-    const inviterIds = [...new Set(
-      invites
-        .map(i => i.invited_by_id)
-        .filter(id => id && !inviterProfiles.value[id]),
-    )];
-
-    if (!tripIds.length && !inviterIds.length) return;
-
-    try {
-      const supabase = useSupabaseClient<Database>();
-
-      if (tripIds.length) {
-        const { data: trips, error } = await supabase
-          .from('trips')
-          .select('id, name')
-          .in('id', tripIds);
-        if (error) throw error;
-        if (trips?.length) {
-          const next = { ...tripNames.value };
-          for (const trip of trips) {
-            next[trip.id] = trip.name ?? `Trip #${trip.id}`;
-          }
-          tripNames.value = next;
-        }
-      }
-
-      if (inviterIds.length) {
-        const { data: profiles, error } = await supabase
-          .from('profiles')
-          .select('*')
-          .in('id', inviterIds);
-        if (error) throw error;
-        if (profiles?.length) {
-          const next = { ...inviterProfiles.value };
-          for (const profile of profiles) {
-            next[profile.id] = profile;
-          }
-          inviterProfiles.value = next;
-        }
-      }
-    } catch {
-      $appStore.notifyNegative('There was an error loading invitation details.');
-    }
-  };
-
-  watch(
-    () => props.data,
-    (invites) => {
-      void enrichInvites(invites ?? []);
-    },
-    { immediate: true, deep: true },
-  );
+  const tripLabel = (invite: DashboardTripInvite) =>
+    invite.trip_name
+    || (invite.trip_id ? `Trip #${invite.trip_id}` : 'Trip invitation');
 
   const removeInvite = (id: number) => {
     emits('update:data', props.data.filter(invite => invite.id !== id));
   };
 
-  const respondToInvite = async (invite: Tables<'trip_friends'>, status: TripFriendStatus) => {
+  const respondToInvite = async (invite: DashboardTripInvite, status: TripFriendStatus) => {
     try {
       actingId.value = invite.id;
       const supabase = useSupabaseClient<Database>();
@@ -152,17 +96,17 @@
             <div class="flex items-start gap-3">
               <gc-avatar
                 class="shrink-0"
-                :initials="initials(inviterProfiles[invite.invited_by_id])"
+                :initials="initials(invite.inviter_profile)"
                 size="sm"
-                :url="buildImageSrc(inviterProfiles[invite.invited_by_id]?.image)" />
+                :url="buildImageSrc(invite.inviter_profile?.image)" />
               <div class="min-w-0">
                 <typography class="font-semibold truncate">
-                  {{ tripNames[invite.trip_id ?? 0] || (invite.trip_id ? `Trip #${invite.trip_id}` : 'Trip invitation') }}
+                  {{ tripLabel(invite) }}
                 </typography>
                 <typography
                   class="text-muted-foreground"
                   variant="small">
-                  Invited by {{ friendlyUsername(inviterProfiles[invite.invited_by_id]) || 'a friend' }}
+                  Invited by {{ invite.inviter_profile ? friendlyUsername(invite.inviter_profile) : 'a friend' }}
                 </typography>
               </div>
             </div>

@@ -10,6 +10,17 @@ export type ExtendedTripFriend = Tables<'trip_friends'> & {
   friend_profile: Tables<'profiles'> | null;
 };
 
+export type InviteInviterProfile = Pick<
+  Tables<'profiles'>,
+  'id' | 'email' | 'first_name' | 'last_name' | 'trail_name' | 'image'
+>;
+
+/** `get_dashboard_data` invitation row: trip_friends plus trip name and inviter. */
+export type DashboardTripInvite = Tables<'trip_friends'> & {
+  trip_name: string | null;
+  inviter_profile: InviteInviterProfile | null;
+};
+
 export type ExtendedFriendInvite = Tables<'friend_invitations'> & {
   recipient: Tables<'profiles'>;
   sender: Tables<'profiles'>;
