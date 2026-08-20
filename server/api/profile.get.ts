@@ -5,6 +5,7 @@
  */
 import { isError } from 'h3';
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
+import { throwPublicError } from '@/server/utils/reportServerError';
 import type { ProfileLayoutResponse } from '~/types/profile';
 
 export default defineEventHandler(async (event) => {
@@ -49,9 +50,10 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     if (isError(err)) throw err;
 
-    throw createError({
+    throwPublicError(err, {
       statusCode: 500,
       statusMessage: 'An error occurred while fetching profile',
+      tags: { route: '/api/profile' },
     });
   }
 });

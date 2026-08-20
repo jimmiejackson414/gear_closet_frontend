@@ -3,6 +3,7 @@
  * @apiName GetForumPosts
  * @summary Fetch the latest forum posts
  */
+import { throwPublicError } from '@/server/utils/reportServerError';
 import type { ForumCategories, ForumLatestPosts, ForumResponse } from '@/types/forum';
 
 export default defineEventHandler(async (): Promise<ForumResponse> => {
@@ -41,10 +42,11 @@ export default defineEventHandler(async (): Promise<ForumResponse> => {
       latest_posts,
       categories,
     };
-  } catch {
-    throw createError({
+  } catch (err) {
+    return throwPublicError(err, {
       statusCode: 500,
       statusMessage: 'An error occurred while fetching posts',
+      tags: { route: '/api/forumPosts' },
     });
   } finally {
     clearTimeout(timeout);
