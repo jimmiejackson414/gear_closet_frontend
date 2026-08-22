@@ -58,6 +58,7 @@ Secrets live in `.env` (gitignored). `.env.example` is the checklist.
 | Resend | `NUXT_RESEND_API_KEY` and `NUXT_MAIL_FROM` are server-only. Do not prefix them with `NUXT_PUBLIC_`. |
 | Sentry | See [Error tracking](#error-tracking-sentry). |
 | Playwright | `NUXT_PLAYWRIGHT_BASE_URL` (defaults to `http://localhost:8000`) plus a test user. |
+| Forums | Official Discourse. Local URL is `http://localhost:3000`. API key is server-only (`NUXT_FORUMS_API_KEY`). |
 
 ## Commands
 
@@ -100,6 +101,28 @@ App-generated mail (for example trip invites) goes through Resend. Signup confir
 - Verify the from-domain in the Resend dashboard before staging/prod.
 - `NUXT_MAIL_ALLOWLIST` is a comma-separated allowlist. When set, `sendMail` only delivers to those addresses (use it in staging).
 - `pnpm mail:smoke you@example.com` confirms keys and delivery. Pass `trip-invite-claim` or `friend-request` as a second argument to preview those templates.
+
+### Forums (Discourse)
+
+Do **not** run the 2022 `gear_closet_forums` fork. Local Discourse is the official [dev Docker setup](https://github.com/discourse/discourse/blob/main/docs/developer-guides/docs/02-development-environments/03-docker-setup.md) in a sibling clone (not this repo):
+
+```sh
+git clone https://github.com/discourse/discourse.git ../discourse
+cd ../discourse
+d/boot_dev --init   # first time: gems, migrate, create an admin
+d/rails s           # terminal 1 — http://localhost:3000
+d/dev --only ember  # terminal 2
+```
+
+In Discourse: Admin → API → create a key for username `system` (read `/posts` and `/categories`). Then in this app’s `.env`:
+
+```
+NUXT_PUBLIC_FORUMS_URL=http://localhost:3000
+NUXT_FORUMS_API_KEY=
+NUXT_FORUMS_API_USERNAME=system
+```
+
+If those are unset, the dashboard widget shows an empty community state instead of a 500. Staging/prod will use official `discourse_docker` on a VPS (#67), not hosted Discourse Pro.
 
 ### Error tracking (Sentry)
 
