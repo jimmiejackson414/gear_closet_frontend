@@ -5,6 +5,7 @@ import {
   destinationAfterAuth,
   isPasswordRecoveryCallback,
   pathAfterOnboarding,
+  planningTripPath,
   safeInternalPath,
 } from '@/utils/authRedirect';
 
@@ -76,5 +77,20 @@ describe('authRedirect', () => {
       .toBe('/');
     expect(pathAfterOnboarding(null))
       .toBe('/');
+  });
+
+  it('builds a planning deep-link for a claimed trip', () => {
+    expect(planningTripPath('gc1.abc'))
+      .toBe('/planning?trip=gc1.abc');
+    expect(destinationAfterAuth({
+      onboardDate: '2026-01-01T00:00:00.000Z',
+      savedPath: planningTripPath('gc1.abc'),
+    }))
+      .toEqual({ path: '/planning?trip=gc1.abc', consumeSavedPath: true });
+    expect(destinationAfterAuth({
+      onboardDate: null,
+      savedPath: planningTripPath('gc1.abc'),
+    }))
+      .toEqual({ path: '/onboarding', consumeSavedPath: false });
   });
 });

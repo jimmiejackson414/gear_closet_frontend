@@ -67,6 +67,44 @@ const tripSummary = async (admin: InviteClient, invite: InvitationRow) => {
   };
 };
 
+const acceptInviteeOnTrip = async (input: {
+  admin: InviteClient;
+  tripId: number;
+  userId: string;
+  invitedById: string;
+  now: Date;
+}) => {
+  const acceptedAt = input.now.toISOString();
+  const { data: inserted, error: insertError } = await input.admin
+    .from('trip_friends')
+    .insert({
+      trip_id: input.tripId,
+      profile_id: input.userId,
+      status: TripFriendStatus.ACCEPTED,
+      invited_by_id: input.invitedById,
+      accepted_invite_on: acceptedAt,
+    })
+    .select('id');
+
+  if (!insertError && inserted?.length) return { attached: true as const };
+
+  if (insertError && !isUniqueViolation(insertError)) {
+    return { attached: false as const };
+  }
+
+  const { error: updateError } = await input.admin
+    .from('trip_friends')
+    .update({
+      status: TripFriendStatus.ACCEPTED,
+      accepted_invite_on: acceptedAt,
+    })
+    .eq('trip_id', input.tripId)
+    .eq('profile_id', input.userId)
+    .neq('status', TripFriendStatus.DECLINED);
+
+  return { attached: !updateError };
+};
+
 export const previewTripInvite = async (
   admin: InviteClient,
   token: string,
@@ -93,8 +131,22 @@ export const claimTripInvite = async (input: {
   const invite = await loadInvitationByToken(input.admin, input.token);
   if (!invite) return { ok: false, reason: 'invalid' };
 
+  const success = (alreadyClaimed?: boolean): TripInviteClaimResult => ({
+    ok: true,
+    tripId: invite.trip_id,
+    ...(alreadyClaimed ? { alreadyClaimed: true } : {}),
+  });
+
   if (invite.claimed_profile_id === input.userId) {
-    return { ok: true, alreadyClaimed: true };
+    const accepted = await acceptInviteeOnTrip({
+      admin: input.admin,
+      tripId: invite.trip_id,
+      userId: input.userId,
+      invitedById: invite.invited_by_id,
+      now,
+    });
+    if (!accepted.attached) return { ok: false, reason: 'invalid' };
+    return success(true);
   }
 
   const state = invitationState(invite, now);
@@ -107,31 +159,24 @@ export const claimTripInvite = async (input: {
     return { ok: false, reason: 'email_mismatch' };
   }
 
-  const { data: inserted, error: insertError } = await input.admin
-    .from('trip_friends')
+  const accepted = await acceptInviteeOnTrip({
+    admin: input.admin,
+    tripId: invite.trip_id,
+    userId: input.userId,
+    invitedById: invite.invited_by_id,
+    now,
+  });
+  if (!accepted.attached) return { ok: false, reason: 'invalid' };
+
+  const summary = await tripSummary(input.admin, invite);
+  await input.admin.from('notifications')
     .insert({
-      trip_id: invite.trip_id,
+      title: NotificationKind.TRIP_INVITE,
+      content: `${summary.inviterName} invited you to a trip!`,
+      read_on_date: null,
       profile_id: input.userId,
-      status: TripFriendStatus.PENDING,
-      invited_by_id: invite.invited_by_id,
-    })
-    .select('id');
-
-  if (insertError && !isUniqueViolation(insertError)) {
-    return { ok: false, reason: 'invalid' };
-  }
-
-  if (!insertError && inserted?.length) {
-    const summary = await tripSummary(input.admin, invite);
-    await input.admin.from('notifications')
-      .insert({
-        title: NotificationKind.TRIP_INVITE,
-        content: `${summary.inviterName} invited you to a trip!`,
-        read_on_date: null,
-        profile_id: input.userId,
-        sender_id: invite.invited_by_id,
-      });
-  }
+      sender_id: invite.invited_by_id,
+    });
 
   const { data: consumed, error: consumeError } = await input.admin
     .from('trip_invitations')
@@ -149,10 +194,10 @@ export const claimTripInvite = async (input: {
   if (!consumed) {
     const latest = await loadInvitationByToken(input.admin, input.token);
     if (latest?.claimed_profile_id === input.userId) {
-      return { ok: true, alreadyClaimed: true };
+      return success(true);
     }
     return { ok: false, reason: 'used' };
   }
 
-  return { ok: true };
+  return success();
 };

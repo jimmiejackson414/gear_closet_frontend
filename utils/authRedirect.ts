@@ -52,6 +52,11 @@ export function pathAfterOnboarding (savedPath: string | null | undefined): stri
   return safeInternalPath(savedPath) ?? '/';
 }
 
+/** Planning deep-link used after a successful email-invite claim. */
+export function planningTripPath (encryptedTripId: string): string {
+  return `/planning?trip=${encryptedTripId}`;
+}
+
 export function isPasswordRecoveryCallback (queryType: unknown, hash: string): boolean {
   if (queryType === 'recovery') return true;
   return hash.includes('type=recovery');
