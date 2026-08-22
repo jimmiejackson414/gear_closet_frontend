@@ -24,6 +24,14 @@ const ownerPlanningState = {
   data: {
     trips,
     friends: [] as typeof tripFriends,
+    pending_invites: [] as Array<{
+      id: number;
+      trip_id: number;
+      email: string;
+      status: 'PENDING';
+      expires_at: string;
+      created_at: string;
+    }>,
     trip_details: [],
     todos: [],
     shopping_items: [],
@@ -79,6 +87,36 @@ describe('TripFriendsWidget', () => {
     expect(supabaseClient.current?.from)
       .not
       .toHaveBeenCalled();
+  });
+
+  it('lists pending email invites separately from trip members', async () => {
+    const wrapper = await mountSuspended(TripFriendsWidget, {
+      global: testMountGlobals({
+        planning: {
+          ...ownerPlanningState,
+          data: {
+            ...ownerPlanningState.data,
+            friends: tripFriends,
+            pending_invites: [{
+              id: 44,
+              trip_id: 2,
+              email: 'new.person@example.com',
+              status: 'PENDING',
+              expires_at: '2026-09-03T00:00:00.000Z',
+              created_at: '2026-08-20T00:00:00.000Z',
+            }],
+          },
+        },
+      }),
+    });
+
+    expect(wrapper.text())
+      .toContain('new.person@example.com');
+    expect(wrapper.text())
+      .toContain('Resend');
+    expect(wrapper.find('[data-testid="trip-friends-empty-invite"]')
+      .exists())
+      .toBe(false);
   });
 
   it('does not fetch profiles for the empty friends list', async () => {

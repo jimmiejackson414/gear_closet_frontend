@@ -1,6 +1,7 @@
+import { createHash, randomBytes } from 'node:crypto';
 import { z } from 'zod';
 import { sendMail, type SendMailInput } from '@/server/utils/mailer';
-import { TripFriendStatus } from '@/types';
+import { TripFriendStatus, TripInvitationStatus } from '@/types';
 import { friendlyUsername } from '@/utils/displayName';
 import { NotificationKind } from '@/utils/notifications';
 import type { Database } from '@/types';
@@ -19,6 +20,7 @@ export class InviteError extends Error {
 export const MAX_EMAILS_PER_REQUEST = 10;
 export const MAX_INVITE_EMAILS_PER_HOUR = 20;
 export const INVITE_RATE_WINDOW_MS = 60 * 60 * 1000;
+export const INVITE_TTL_DAYS = 14;
 export const GENERIC_INVITE_RESULT = { ok: true as const };
 
 const emailSchema = z.string()
@@ -35,6 +37,11 @@ type InviteProfile = {
   trail_name: string | null;
 };
 
+export type InviteTokenPair = {
+  token: string;
+  tokenHash: string;
+};
+
 export type SendExistingUserTripInvitesInput = {
   tripId: number;
   inviterId: string;
@@ -43,6 +50,8 @@ export type SendExistingUserTripInvitesInput = {
   userClient: InviteClient;
   admin: InviteClient;
   send?: (input: SendMailInput) => Promise<{ id: string }>;
+  createToken?: () => InviteTokenPair;
+  now?: () => Date;
 };
 
 export const escapeIlike = (value: string) =>
@@ -108,6 +117,29 @@ export const escapeHtml = (value: string) =>
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;');
 
+export const hashInviteToken = (token: string) =>
+  createHash('sha256')
+    .update(token)
+    .digest('hex');
+
+export const createInviteToken = (): InviteTokenPair => {
+  const token = randomBytes(32)
+    .toString('base64url');
+  return { token, tokenHash: hashInviteToken(token) };
+};
+
+export const inviteExpiresAt = (now = new Date(), days = INVITE_TTL_DAYS) =>
+  new Date(now.getTime() + days * 24 * 60 * 60 * 1000)
+    .toISOString();
+
+export const acceptUrlFromOrigin = (origin: string) => `${origin.replace(/\/$/, '')}/`;
+
+export const claimUrlFromOrigin = (origin: string, token: string) => {
+  const url = new URL('/invite/trip', `${origin.replace(/\/$/, '')}/`);
+  url.searchParams.set('token', token);
+  return url.toString();
+};
+
 export const buildTripInviteMessage = (input: {
   inviterName: string;
   tripName: string;
@@ -124,7 +156,89 @@ export const buildTripInviteMessage = (input: {
   };
 };
 
-const acceptUrlFromOrigin = (origin: string) => `${origin.replace(/\/$/, '')}/`;
+export const buildTripClaimInviteMessage = (input: {
+  inviterName: string;
+  tripName: string;
+  claimUrl: string;
+}) => {
+  const subject = `${input.inviterName} invited you to a trip`;
+  const text = `${input.inviterName} invited you to ${input.tripName} on Gear Closet. Open ${input.claimUrl} to join.`;
+  const html = `<p>${escapeHtml(input.inviterName)} invited you to <strong>${escapeHtml(input.tripName)}</strong> on Gear Closet.</p><p><a href="${escapeHtml(input.claimUrl)}">Join trip</a></p>`;
+  return {
+    subject,
+    text,
+    html,
+    templateId: 'trip-invite-claim',
+  };
+};
+
+const upsertPendingTripInvitation = async (input: {
+  admin: InviteClient;
+  tripId: number;
+  email: string;
+  inviterId: string;
+  tokenHash: string;
+  expiresAt: string;
+}) => {
+  const { data: existing } = await input.admin
+    .from('trip_invitations')
+    .select('id')
+    .eq('trip_id', input.tripId)
+    .eq('status', TripInvitationStatus.PENDING)
+    .ilike('email', escapeIlike(input.email))
+    .maybeSingle();
+
+  if (existing?.id) {
+    const { error } = await input.admin
+      .from('trip_invitations')
+      .update({
+        token_hash: input.tokenHash,
+        expires_at: input.expiresAt,
+        invited_by_id: input.inviterId,
+        updated_at: new Date()
+          .toISOString(),
+      })
+      .eq('id', existing.id);
+    return !error;
+  }
+
+  const { error } = await input.admin
+    .from('trip_invitations')
+    .insert({
+      trip_id: input.tripId,
+      email: input.email,
+      invited_by_id: input.inviterId,
+      token_hash: input.tokenHash,
+      status: TripInvitationStatus.PENDING,
+      expires_at: input.expiresAt,
+    });
+
+  if (!error) return true;
+  if (!isUniqueViolation(error)) return false;
+
+  const { data: raced } = await input.admin
+    .from('trip_invitations')
+    .select('id')
+    .eq('trip_id', input.tripId)
+    .eq('status', TripInvitationStatus.PENDING)
+    .ilike('email', escapeIlike(input.email))
+    .maybeSingle();
+
+  if (!raced?.id) return false;
+
+  const { error: updateError } = await input.admin
+    .from('trip_invitations')
+    .update({
+      token_hash: input.tokenHash,
+      expires_at: input.expiresAt,
+      invited_by_id: input.inviterId,
+      updated_at: new Date()
+        .toISOString(),
+    })
+    .eq('id', raced.id);
+
+  return !updateError;
+};
 
 export const sendExistingUserTripInvites = async (
   input: SendExistingUserTripInvitesInput,
@@ -183,7 +297,9 @@ export const sendExistingUserTripInvites = async (
   const tripName = trip.name?.trim() || 'a trip';
   const acceptUrl = acceptUrlFromOrigin(input.origin);
   const mail = input.send ?? sendMail;
-  const message = buildTripInviteMessage({ inviterName, tripName, acceptUrl });
+  const createToken = input.createToken ?? createInviteToken;
+  const now = input.now ?? (() => new Date());
+  const existingUserMessage = buildTripInviteMessage({ inviterName, tripName, acceptUrl });
 
   for (const email of input.emails) {
     try {
@@ -194,35 +310,62 @@ export const sendExistingUserTripInvites = async (
         .limit(1);
 
       const profile = (matches?.[0] ?? null) as InviteProfile | null;
-      if (!profile || profile.id === input.inviterId) continue;
+      if (profile?.id === input.inviterId) continue;
 
-      const { data: inserted, error: insertError } = await input.admin
-        .from('trip_friends')
-        .insert({
-          trip_id: input.tripId,
-          profile_id: profile.id,
-          status: TripFriendStatus.PENDING,
-          invited_by_id: input.inviterId,
-        })
-        .select('id');
+      if (profile) {
+        const { data: inserted, error: insertError } = await input.admin
+          .from('trip_friends')
+          .insert({
+            trip_id: input.tripId,
+            profile_id: profile.id,
+            status: TripFriendStatus.PENDING,
+            invited_by_id: input.inviterId,
+          })
+          .select('id');
 
-      if (isUniqueViolation(insertError) || insertError || !inserted?.length) continue;
+        if (isUniqueViolation(insertError) || insertError || !inserted?.length) continue;
 
-      await input.admin.from('notifications')
-        .insert({
-          title: NotificationKind.TRIP_INVITE,
-          content: `${inviterName} invited you to a trip!`,
-          read_on_date: null,
-          profile_id: profile.id,
-          sender_id: input.inviterId,
+        await input.admin.from('notifications')
+          .insert({
+            title: NotificationKind.TRIP_INVITE,
+            content: `${inviterName} invited you to a trip!`,
+            read_on_date: null,
+            profile_id: profile.id,
+            sender_id: input.inviterId,
+          });
+
+        await mail({
+          to: email,
+          subject: existingUserMessage.subject,
+          html: existingUserMessage.html,
+          text: existingUserMessage.text,
+          templateId: existingUserMessage.templateId,
         });
+        continue;
+      }
 
+      const { token, tokenHash } = createToken();
+      const saved = await upsertPendingTripInvitation({
+        admin: input.admin,
+        tripId: input.tripId,
+        email,
+        inviterId: input.inviterId,
+        tokenHash,
+        expiresAt: inviteExpiresAt(now()),
+      });
+      if (!saved) continue;
+
+      const claimMessage = buildTripClaimInviteMessage({
+        inviterName,
+        tripName,
+        claimUrl: claimUrlFromOrigin(input.origin, token),
+      });
       await mail({
         to: email,
-        subject: message.subject,
-        html: message.html,
-        text: message.text,
-        templateId: message.templateId,
+        subject: claimMessage.subject,
+        html: claimMessage.html,
+        text: claimMessage.text,
+        templateId: claimMessage.templateId,
       });
     } catch {
       // Keep a generic success even if lookup, insert, or mail fails for one address.
