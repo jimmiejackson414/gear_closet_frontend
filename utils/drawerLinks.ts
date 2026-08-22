@@ -1,4 +1,4 @@
-import { IconDoorOpen,  IconHome, IconListTodo, IconMessagesSquare, IconUserCircle2, IconUsers } from '#components';
+import { IconDoorOpen, IconHome, IconListTodo, IconMessagesSquare, IconUserCircle2, IconUsers } from '#components';
 
 export type LinkItem = {
   to: string;
@@ -7,12 +7,9 @@ export type LinkItem = {
   disabled: boolean;
   requiresSubscription: boolean;
   requiresSubscriptionCopy?: string;
-  external: boolean;
 };
 
 export const drawerLinks = () => {
-  const config = useRuntimeConfig();
-
   const $store = useUserStore();
 
   return [
@@ -22,7 +19,6 @@ export const drawerLinks = () => {
       icon: IconHome,
       disabled: false,
       requiresSubscription: false,
-      external: false,
     },
     {
       to: 'closet',
@@ -30,7 +26,6 @@ export const drawerLinks = () => {
       icon: IconDoorOpen,
       disabled: false,
       requiresSubscription: false,
-      external: false,
     },
     {
       to: 'planning',
@@ -38,7 +33,6 @@ export const drawerLinks = () => {
       icon: IconListTodo,
       disabled: false,
       requiresSubscription: false,
-      external: false,
     },
     {
       to: 'friends',
@@ -46,16 +40,14 @@ export const drawerLinks = () => {
       icon: IconUsers,
       disabled: false,
       requiresSubscription: false,
-      external: false,
     },
     {
-      to: config.public.forumsUrl,
+      to: 'forums',
       title: 'Forums',
       icon: IconMessagesSquare,
       disabled: !$store.isPaidMember,
       requiresSubscription: true,
-      requiresSubscriptionCopy: 'The forums are only available to paid members.',
-      external: true,
+      requiresSubscriptionCopy: 'The forums are only available to paid members. Upgrade in Profile.',
     },
     {
       to: 'profile',
@@ -63,7 +55,6 @@ export const drawerLinks = () => {
       icon: IconUserCircle2,
       disabled: false,
       requiresSubscription: false,
-      external: false,
     },
   ] satisfies LinkItem[];
 };

@@ -125,6 +125,20 @@ describe('App', async () => {
         .toBe(true);
     });
 
+    it('routes the locked forums item to Profile subscription', async () => {
+      const wrapper = await mountSuspended(GcDrawer, {
+        global: {
+          plugins: [VueTippy],
+        },
+      });
+
+      const forumsLink = wrapper.get('[aria-label="The forums are only available to paid members. Upgrade in Profile."]');
+      expect(forumsLink.attributes('href'))
+        .toContain('/profile');
+      expect(forumsLink.attributes('href'))
+        .toContain('tab=subscription');
+    });
+
     it('exposes accessible names on navigation and logout controls', async () => {
       const wrapper = await mountSuspended(GcDrawer, {
         global: {

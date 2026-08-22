@@ -57,11 +57,6 @@ describe('ForumsWidget', () => {
   });
 
   it('renders posts and categories when data is present', async () => {
-    const store = useUserStore();
-    store.profile = {
-      subscriptions: [{ prices: { identifier: 'MONTHLY' } }],
-    } as any;
-
     const wrapper = await mountSuspended(ForumsWidget, {
       props: {
         loading: false,
@@ -71,6 +66,11 @@ describe('ForumsWidget', () => {
         },
       },
     });
+    const store = useUserStore();
+    store.profile = {
+      subscriptions: [{ prices: { identifier: 'MONTHLY' } }],
+    } as any;
+    await wrapper.vm.$nextTick();
 
     expect(wrapper.text())
       .toContain('This is a test topic');
@@ -79,16 +79,38 @@ describe('ForumsWidget', () => {
     expect(wrapper.text())
       .toContain('topics');
     expect(wrapper.text())
+      .toContain('Open forums');
+    expect(wrapper.get('a[aria-label="Open General on the forums"]')
+      .attributes('href'))
+      .toContain('/forums?category=general&categoryId=4');
+    expect(wrapper.text())
       .not
       .toContain('Error occurred fetching forum posts.');
   });
 
-  it('shows a visible upgrade banner for Free users when posts exist', async () => {
+  it('renders a paid empty community state with an Open forums CTA', async () => {
+    const wrapper = await mountSuspended(ForumsWidget, {
+      props: {
+        loading: false,
+        data: { latest_posts: [], categories: [] },
+      },
+    });
     const store = useUserStore();
     store.profile = {
-      subscriptions: [],
+      subscriptions: [{ prices: { identifier: 'MONTHLY' } }],
     } as any;
+    await wrapper.vm.$nextTick();
 
+    expect(wrapper.text())
+      .toContain('The community is warming up');
+    expect(wrapper.text())
+      .toContain('Open forums');
+    expect(wrapper.text())
+      .not
+      .toContain('Upgrade in Profile');
+  });
+
+  it('shows a visible upgrade banner for Free users when posts exist', async () => {
     const wrapper = await mountSuspended(ForumsWidget, {
       props: {
         loading: false,
@@ -98,10 +120,18 @@ describe('ForumsWidget', () => {
         },
       },
     });
+    const store = useUserStore();
+    store.profile = {
+      subscriptions: [],
+    } as any;
+    await wrapper.vm.$nextTick();
 
     expect(wrapper.text())
       .toContain('Preview only');
     expect(wrapper.text())
       .toContain('Upgrade in Profile');
+    expect(wrapper.get('a[aria-label="Upgrade to open General"]')
+      .attributes('href'))
+      .toContain('/profile?tab=subscription');
   });
 });

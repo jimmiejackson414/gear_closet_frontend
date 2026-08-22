@@ -5,6 +5,7 @@
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
   import { MeasuringSystem, SubscriptionLevel, type Database } from '@/types';
+  import { profileTabFromQuery } from '@/utils/profileTabs';
   import type { ProfileApiResponse, SubscriptionApiResponse } from '@/types/profile';
   import type { FilePondFile } from 'filepond';
 
@@ -105,7 +106,12 @@
   /**
    * Fetches the subscription data
    */
-  const activeTab = ref<'profile' | 'settings' | 'subscription'>('profile');
+  const $route = useRoute();
+  const activeTab = ref(profileTabFromQuery($route.query.tab));
+
+  watch(() => $route.query.tab, (tab) => {
+    activeTab.value = profileTabFromQuery(tab);
+  });
   const selectedPlan = ref<SubscriptionLevel | undefined>(undefined);
   const displayedSubscriptionPlan = computed(() => {
     const stripePlan = subscriptionData.value.subscriptions[0]?.items?.data[0]?.price?.nickname;

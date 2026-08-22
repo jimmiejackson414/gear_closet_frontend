@@ -23,6 +23,18 @@
   };
 
   const $store = useUserStore();
+
+  const linkTo = (link: LinkItem) => {
+    if (link.disabled && link.requiresSubscription) {
+      return { path: '/profile', query: { tab: 'subscription' } };
+    }
+    return { name: link.to };
+  };
+
+  const linkLabel = (link: LinkItem) =>
+    (link.requiresSubscription && link.disabled
+      ? (link.requiresSubscriptionCopy ?? link.title)
+      : link.title);
 </script>
 
 <template>
@@ -42,43 +54,25 @@
           v-for="link in drawerLinks()"
           :key="link.to"
           :class="link.disabled ? 'cursor-not-allowed' : 'cursor-pointer'">
-          <template v-if="link.external">
-            <a
-              :aria-label="link.requiresSubscription && link.disabled ? (link.requiresSubscriptionCopy ?? link.title) : link.title"
-              class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-accent hover:bg-gray-100"
-              :href="link.disabled ? undefined : link.to"
-              rel="noopener noreferrer"
-              target="_blank"
-              @click="link.disabled && $event.preventDefault()">
-              <component
-                :is="link.icon"
-                v-tippy="{ content: (link.requiresSubscription && link.disabled ? link.requiresSubscriptionCopy : link.title), placement: 'right', offset: [0, 30] }"
-                :color="iconColor(link)"
-                :size="24" />
-            </a>
-          </template>
-          <template v-else>
-            <nuxt-link
-              :aria-current="isActiveRoute(link) ? 'page' : undefined"
-              :aria-label="link.title"
-              class="duration-200 ease-in-out inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-accent hover:bg-gray-100"
-              :class="[isActiveRoute(link) ? 'bg-accent dark:bg-accent-light' : '']"
-              :disabled="link.disabled"
-              :to="{ name: link.to }">
-              <gc-avatar
-                v-if="$store.profile?.image && link.to === 'profile'"
-                v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
-                :initials="initials($store.profile)"
-                size="xs"
-                :url="$store.profile.image" />
-              <component
-                :is="link.icon"
-                v-else
-                v-tippy="{ content: link.title, placement: 'right', offset: [0, 30] }"
-                :color="iconColor(link)"
-                :size="24" />
-            </nuxt-link>
-          </template>
+          <nuxt-link
+            :aria-current="isActiveRoute(link) ? 'page' : undefined"
+            :aria-label="linkLabel(link)"
+            class="duration-200 ease-in-out inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-accent hover:bg-gray-100"
+            :class="[isActiveRoute(link) ? 'bg-accent dark:bg-accent-light' : '']"
+            :to="linkTo(link)">
+            <gc-avatar
+              v-if="$store.profile?.image && link.to === 'profile'"
+              v-tippy="{ content: linkLabel(link), placement: 'right', offset: [0, 30] }"
+              :initials="initials($store.profile)"
+              size="xs"
+              :url="$store.profile.image" />
+            <component
+              :is="link.icon"
+              v-else
+              v-tippy="{ content: linkLabel(link), placement: 'right', offset: [0, 30] }"
+              :color="iconColor(link)"
+              :size="24" />
+          </nuxt-link>
         </li>
       </client-only>
 
