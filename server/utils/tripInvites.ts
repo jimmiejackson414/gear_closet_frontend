@@ -1,5 +1,6 @@
 import { createHash, randomBytes } from 'node:crypto';
 import { z } from 'zod';
+import { renderTripInviteClaimEmail, renderTripInviteEmail } from '@/server/emails/templates';
 import { sendMail, type SendMailInput } from '@/server/utils/mailer';
 import { TripFriendStatus, TripInvitationStatus } from '@/types';
 import { friendlyUsername } from '@/utils/displayName';
@@ -110,12 +111,7 @@ export const parseInviteEmailsBody = (body: unknown) => {
   return { emails };
 };
 
-export const escapeHtml = (value: string) =>
-  value
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+export { escapeHtml } from '@/server/emails/html';
 
 export const hashInviteToken = (token: string) =>
   createHash('sha256')
@@ -140,37 +136,9 @@ export const claimUrlFromOrigin = (origin: string, token: string) => {
   return url.toString();
 };
 
-export const buildTripInviteMessage = (input: {
-  inviterName: string;
-  tripName: string;
-  acceptUrl: string;
-}) => {
-  const subject = `${input.inviterName} invited you to a trip`;
-  const text = `${input.inviterName} invited you to ${input.tripName} on Gear Closet. Open ${input.acceptUrl} to accept from your dashboard.`;
-  const html = `<p>${escapeHtml(input.inviterName)} invited you to <strong>${escapeHtml(input.tripName)}</strong> on Gear Closet.</p><p><a href="${escapeHtml(input.acceptUrl)}">View invitation</a></p>`;
-  return {
-    subject,
-    text,
-    html,
-    templateId: 'trip-invite',
-  };
-};
+export const buildTripInviteMessage = renderTripInviteEmail;
 
-export const buildTripClaimInviteMessage = (input: {
-  inviterName: string;
-  tripName: string;
-  claimUrl: string;
-}) => {
-  const subject = `${input.inviterName} invited you to a trip`;
-  const text = `${input.inviterName} invited you to ${input.tripName} on Gear Closet. Open ${input.claimUrl} to join.`;
-  const html = `<p>${escapeHtml(input.inviterName)} invited you to <strong>${escapeHtml(input.tripName)}</strong> on Gear Closet.</p><p><a href="${escapeHtml(input.claimUrl)}">Join trip</a></p>`;
-  return {
-    subject,
-    text,
-    html,
-    templateId: 'trip-invite-claim',
-  };
-};
+export const buildTripClaimInviteMessage = renderTripInviteClaimEmail;
 
 const upsertPendingTripInvitation = async (input: {
   admin: InviteClient;
