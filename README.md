@@ -73,7 +73,7 @@ Secrets live in `.env` (gitignored). `.env.example` is the checklist.
 | `pnpm test:e2e` | Playwright (`tests/e2e`) |
 | `pnpm typegen` | Regenerate `types/index.ts` from local Supabase + enums |
 | `pnpm stripe:webhook` | Forward Stripe events to `/api/stripe/webhook` |
-| `pnpm mail:smoke you@example.com` | Send a Resend smoke email |
+| `pnpm mail:smoke you@example.com [template]` | Send a Resend smoke email (`trip-invite`, `trip-invite-claim`, `friend-request`) |
 | `pnpm cert` | Write `localhost.pem` / `localhost-key.pem` via mkcert |
 | `pnpm barrel` | Check shadcn UI subdirectory barrels |
 
@@ -99,7 +99,7 @@ App-generated mail (for example trip invites) goes through Resend. Signup confir
 
 - Verify the from-domain in the Resend dashboard before staging/prod.
 - `NUXT_MAIL_ALLOWLIST` is a comma-separated allowlist. When set, `sendMail` only delivers to those addresses (use it in staging).
-- `pnpm mail:smoke you@example.com` confirms keys and delivery.
+- `pnpm mail:smoke you@example.com` confirms keys and delivery. Pass `trip-invite-claim` or `friend-request` as a second argument to preview those templates.
 
 ### Error tracking (Sentry)
 
