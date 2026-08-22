@@ -1,3 +1,8 @@
+import {
+  EMPTY_FORUM_RESPONSE,
+  isForumsConfigured,
+  normalizeForumsUrl,
+} from '@/server/utils/forumsConfig';
 /**
  * @api {get} /forumPosts Get latest forum posts
  * @apiName GetForumPosts
@@ -8,25 +13,37 @@ import type { ForumCategories, ForumLatestPosts, ForumResponse } from '@/types/f
 
 export default defineEventHandler(async (): Promise<ForumResponse> => {
   const config = useRuntimeConfig();
+  const forumsUrl = normalizeForumsUrl(config.public.forumsUrl);
+  const apiKey = String(config.forumsApiKey ?? '')
+    .trim();
+  const apiUsername = String(config.forumsApiUsername ?? 'system')
+    .trim() || 'system';
+
+  if (!isForumsConfigured(forumsUrl)) {
+    return EMPTY_FORUM_RESPONSE;
+  }
+
   const controller = new AbortController();
   const timeout = setTimeout(() => {
     controller.abort();
   }, 15000);
 
   try {
-    const headers = {
+    const headers: Record<string, string> = {
       Accept: 'application/json',
-      'Api-Key': config.forumsApiKey,
-      'Api-Username': 'system',
     };
+    if (apiKey) {
+      headers['Api-Key'] = apiKey;
+      headers['Api-Username'] = apiUsername;
+    }
 
     const [latestPostData, categoriesData] = await Promise.all([
-      $fetch<ForumLatestPosts>(`${config.public.forumsUrl}/posts`, {
+      $fetch<ForumLatestPosts>(`${forumsUrl}/posts`, {
         method: 'GET',
         headers,
         signal: controller.signal,
       }),
-      $fetch<ForumCategories>(`${config.public.forumsUrl}/categories`, {
+      $fetch<ForumCategories>(`${forumsUrl}/categories`, {
         method: 'GET',
         headers,
         signal: controller.signal,

@@ -103,8 +103,11 @@ export default defineNuxtConfig({
     cloudinaryApiSecret: process.env.NUXT_CLOUDINARY_API_SECRET,
     playwrightUsername: process.env.NUXT_PLAYWRIGHT_USERNAME,
     playwrightPassword: process.env.NUXT_PLAYWRIGHT_PASSWORD,
-    forumsApiKey: process.env.NUXT_PUBLIC_FORUMS_API_KEY,
-    forumsApiUsername: process.env.NUXT_PUBLIC_FORUMS_API_USERNAME,
+    forumsApiKey: process.env.NUXT_FORUMS_API_KEY || process.env.NUXT_PUBLIC_FORUMS_API_KEY,
+    forumsApiUsername:
+      process.env.NUXT_FORUMS_API_USERNAME
+      || process.env.NUXT_PUBLIC_FORUMS_API_USERNAME
+      || 'system',
     stripeWebhookSecret: process.env.NUXT_STRIPE_WEBHOOK_SECRET,
     stripeSecret: process.env.NUXT_STRIPE_SECRET,
     resendApiKey: '',
