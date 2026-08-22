@@ -41,7 +41,7 @@ export type TripInvitePreview =
   | { status: 'expired' | 'used' | 'invalid' };
 
 export type TripInviteClaimResult =
-  | { ok: true; alreadyClaimed?: boolean }
+  | { ok: true; tripId: number; alreadyClaimed?: boolean }
   | { ok: false; reason: 'invalid' | 'expired' | 'used' | 'email_mismatch' };
 
 export type InviteInviterProfile = Pick<

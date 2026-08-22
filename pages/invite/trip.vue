@@ -1,5 +1,6 @@
 <script lang="ts" setup>
-  import { destinationAfterAuth, safeInternalPath } from '@/utils/authRedirect';
+  import { destinationAfterAuth, planningTripPath, safeInternalPath } from '@/utils/authRedirect';
+  import { encrypt } from '@/utils/encryption';
   import type { TripInviteClaimResult, TripInvitePreview } from '@/types/planning';
   import type { ProfileLayoutResponse } from '@/types/profile';
 
@@ -63,7 +64,7 @@
     case 'used':
       return {
         title: 'This invite has already been used',
-        description: 'If you already joined, open your dashboard to accept the trip.',
+        description: 'If you already joined, open Planning from your dashboard.',
       };
     case 'email_mismatch':
       return {
@@ -98,20 +99,23 @@
     }
   };
 
-  const goToDashboard = async () => {
+  const goToClaimedTrip = async (tripId: number) => {
     const profile = await $fetch<ProfileLayoutResponse | null>('/api/profile', {
       headers: useRequestHeaders(['cookie']),
     })
       .catch(() => null);
 
+    const planningPath = planningTripPath(encrypt(tripId));
     const dest = destinationAfterAuth({
       onboardDate: profile?.onboard_date,
-      savedPath: invitePath.value,
+      savedPath: planningPath,
     });
     if (dest.consumeSavedPath) {
       redirectInfo.pluck();
+    } else {
+      redirectInfo.path.value = planningPath;
     }
-    await navigateTo(dest.path === '/onboarding' ? dest.path : '/');
+    await navigateTo(dest.path);
   };
 
   const claim = async () => {
@@ -123,7 +127,7 @@
         body: { token: token.value },
       });
       if (claimResult.value.ok) {
-        await goToDashboard();
+        await goToClaimedTrip(claimResult.value.tripId);
       }
     } catch (err) {
       const status = typeof err === 'object' && err && 'statusCode' in err

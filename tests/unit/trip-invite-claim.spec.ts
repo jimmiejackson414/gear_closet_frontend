@@ -110,7 +110,7 @@ describe('trip invite claim helpers', () => {
       .toEqual({ status: 'invalid' });
   });
 
-  it('claims a valid token once and attaches a pending trip friend', async () => {
+  it('claims a valid token once and accepts the trip friend', async () => {
     const adminFrom = queuedFrom({
       trip_invitations: [
         createThenableQuery({ data: pendingInvite, error: null }),
@@ -138,7 +138,7 @@ describe('trip invite claim helpers', () => {
       now: NOW,
     }))
       .resolves
-      .toEqual({ ok: true });
+      .toEqual({ ok: true, tripId: 2 });
 
     expect(adminFrom)
       .toHaveBeenCalledWith('trip_friends');
@@ -207,6 +207,10 @@ describe('trip invite claim helpers', () => {
         },
         error: null,
       })],
+      trip_friends: [
+        createThenableQuery({ data: null, error: { code: '23505' } }),
+        createThenableQuery({ data: null, error: null }),
+      ],
     });
 
     await expect(claimTripInvite({
@@ -217,10 +221,9 @@ describe('trip invite claim helpers', () => {
       now: NOW,
     }))
       .resolves
-      .toEqual({ ok: true, alreadyClaimed: true });
+      .toEqual({ ok: true, tripId: 2, alreadyClaimed: true });
 
     expect(adminFrom)
-      .not
       .toHaveBeenCalledWith('trip_friends');
   });
 });

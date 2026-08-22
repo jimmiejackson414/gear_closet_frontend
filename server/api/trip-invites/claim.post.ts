@@ -1,7 +1,7 @@
 /**
  * @api {post} /trip-invites/claim Claim a pending trip invite
  * @apiName ClaimTripInvite
- * @summary Attach the authenticated user to the trip and consume the invitation once.
+ * @summary Accept the trip for the authenticated user and consume the invitation once.
  */
 import { isError } from 'h3';
 import { serverSupabaseServiceRole, serverSupabaseUser } from '#supabase/server';
