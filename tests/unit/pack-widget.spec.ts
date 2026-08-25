@@ -1,11 +1,12 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import PackWidget from '@/components/planning/widgets/PackWidget.vue';
 import { usePlanningStore } from '@/stores/planning';
 import { selectedPack } from '@/tests/unit/mocks/closet.mock';
 import { tripFriends, trips } from '@/tests/unit/mocks/planning.mock';
 import { createSupabaseMock } from '@/tests/unit/mocks/supabase.mock';
 import { testMountGlobals } from './helpers';
+import type { VueWrapper } from '@vue/test-utils';
 
 vi.mock('vue-echarts', () => ({
   default: {
@@ -29,6 +30,10 @@ const supabaseClient = vi.hoisted(() => ({
 mockNuxtImport('useSupabaseUser', () => () => supabaseUser);
 mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
 mockNuxtImport('hslVarToHex', () => async () => '#000000');
+mockNuxtImport('useColorMode', () => () => ({
+  value: 'light',
+  preference: 'light',
+}));
 
 const friendPack = {
   ...selectedPack,
@@ -57,21 +62,39 @@ const planningState = {
   },
 };
 
+const dialogStubs = {
+  LazyChangePackDialog: true,
+  LazyChangePackThemeDialog: true,
+  ChangePackDialog: true,
+  ChangePackThemeDialog: true,
+};
+
 const mountPackWidget = () => mountSuspended(PackWidget, {
-  global: testMountGlobals({
-    planning: planningState,
-    user: { profile: { id: OWNER_ID } },
-  }),
+  global: {
+    ...testMountGlobals({
+      planning: planningState,
+      user: { profile: { id: OWNER_ID } },
+    }),
+    stubs: dialogStubs,
+  },
 });
 
 describe('PackWidget', () => {
+  let wrapper: VueWrapper<any> | undefined;
+
   beforeEach(() => {
     supabaseClient.current = createSupabaseMock();
     supabaseUser.value = { sub: OWNER_ID };
   });
 
+  afterEach(async () => {
+    wrapper?.unmount();
+    wrapper = undefined;
+    await vi.dynamicImportSettled();
+  });
+
   it('shows only the current user pack by default without a member switcher', async () => {
-    const wrapper = await mountPackWidget();
+    wrapper = await mountPackWidget();
 
     expect(wrapper.text())
       .toContain('Summer Pack');
@@ -90,7 +113,7 @@ describe('PackWidget', () => {
   });
 
   it('shows a friend pack after viewTripPack and returns to My pack', async () => {
-    const wrapper = await mountPackWidget();
+    wrapper = await mountPackWidget();
     const store = usePlanningStore();
 
     store.viewTripPack(FRIEND_ID);

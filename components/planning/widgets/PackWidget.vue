@@ -221,7 +221,9 @@
   updateLegendTextColor();
 
   const colorMode = useColorMode();
-  watch(() => colorMode.value, () => updateLegendTextColor());
+  watch(() => colorMode?.value, () => {
+    void updateLegendTextColor();
+  });
 
   watch(() => displayedPack.value?.theme, (newTheme) => {
     chartRef.value?.setOption?.({
@@ -337,12 +339,14 @@
 
   <!-- Add or Update a Pack Modal -->
   <lazy-change-pack-dialog
+    v-if="isAddPackModalOpen"
     :is-open="isAddPackModalOpen"
     :state="modalState"
     @on-close="isAddPackModalOpen = false" />
 
   <!-- Change Theme Modal -->
   <lazy-change-pack-theme-dialog
+    v-if="isChangeThemeModalOpen"
     :is-open="isChangeThemeModalOpen"
     @on-close="isChangeThemeModalOpen = false"
     @update-theme="updateTheme" />
