@@ -69,7 +69,7 @@
       <p
         v-if="$store.canEditSelectedTrip"
         class="mb-4 text-muted-foreground text-sm">
-        Invite people from your Friends list, or enter an email — they'll get an in-app invite if they have an account, or an email to join if they don't.
+        Invite from Friends or by email.
       </p>
       <button-root
         v-if="$store.canEditSelectedTrip"

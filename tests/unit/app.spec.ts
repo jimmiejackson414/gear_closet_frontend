@@ -1,5 +1,5 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import app from '@/app.vue';
 import GcDrawer from '@/components/common/GcDrawer.vue';
 import GcNavbar from '@/components/common/GcNavbar.vue';
@@ -42,14 +42,33 @@ const { useSupabaseClient } = vi.hoisted(() => {
   };
 });
 mockNuxtImport('useSupabaseClient', () => useSupabaseClient);
+mockNuxtImport('useColorMode', () => () => ({
+  value: 'light',
+  preference: 'light',
+}));
 
 describe('App', async () => {
+  afterEach(async () => {
+    await vi.dynamicImportSettled();
+  });
+
   describe('App Component', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
       wrapper = await mountSuspended(app, {
-        global: testMountGlobals(),
+        global: {
+          ...testMountGlobals(),
+          stubs: {
+            NuxtLayout: true,
+            NuxtPage: true,
+          },
+        },
       });
+      await vi.dynamicImportSettled();
+    });
+
+    afterEach(() => {
+      wrapper.unmount();
     });
 
     it('calls useSupabaseClient', async () => {
@@ -72,6 +91,10 @@ describe('App', async () => {
           pageTitle: 'Test Page',
         },
       });
+    });
+
+    afterEach(() => {
+      wrapper.unmount();
     });
 
     it('renders the GcNavbar', async () => {

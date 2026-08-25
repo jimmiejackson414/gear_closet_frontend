@@ -99,7 +99,6 @@
           if (!$store.data.trips.some(t => t.id === trip.id)) {
             $store.data.trips.push(trip);
           }
-          // Always load the new trip so widgets don't keep prior pack/todos/poll.
           await $store.fetchPlanningPage(trip.id);
         }
       }
@@ -114,7 +113,7 @@
 <template>
   <dialog-root :open="isOpen">
     <dialog-content
-      class="max-h-[90dvh] sm:max-w-112.5 lg:max-w-162.5"
+      class="sm:max-w-112.5 lg:max-w-162.5 max-h-[90dvh]"
       @escape-key-down="emits('onClose')"
       @interact-outside="emits('onClose')">
       <dialog-header>
@@ -210,7 +209,7 @@
                 :ui="{ calendarCell: 'gc-dp-cell', input: 'gc-dp-input' }"
                 @update:model-value="dateRange = $event">
                 <template #input-icon>
-                  <icon-calendar class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-foreground w-5" />
+                  <icon-calendar class="inline-block top-1/2 left-2.5 absolute w-5 h-5 text-foreground text-base -translate-y-1/2 pointer-events-none" />
                 </template>
               </vue-date-picker>
             </form-item>

@@ -37,7 +37,10 @@ jobs:
         run: pnpm typecheck
 
       - name: Unit tests
-        run: pnpm test:unit:run
+        run: pnpm test:unit:run -- --maxWorkers=2
+        env:
+          # closet.spec Nuxt forks exceed Node's default heap on ubuntu-latest.
+          NODE_OPTIONS: --max-old-space-size=4096
 
       - name: Lint
         run: pnpm lint

@@ -1,4 +1,4 @@
-import { mountSuspended } from '@nuxt/test-utils/runtime';
+import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
 import convert from 'convert';
 import round from 'lodash.round';
@@ -17,6 +17,7 @@ import RemoveItemDialog from '@/components/closet/dialogs/RemoveItemDialog.vue';
 import SharePackDialog from '@/components/closet/dialogs/SharePackDialog.vue';
 import PackItemsTable from '@/components/closet/PackItemsTable.vue';
 import { useClosetStore } from '@/stores/closet';
+import { createSupabaseMock } from '@/tests/unit/mocks/supabase.mock';
 import {
   findBodyButton,
   getMenuItemsFromBody,
@@ -28,6 +29,13 @@ import {
 } from './helpers';
 import { selectedPack } from './mocks/closet.mock';
 import type { Tables } from '@/types';
+
+const supabaseClient = vi.hoisted(() => ({
+  current: null as ReturnType<typeof createSupabaseMock> | null,
+}));
+
+mockNuxtImport('useSupabaseClient', () => () =>
+  supabaseClient.current ?? createSupabaseMock());
 
 const allPacks = [
   { id: 1, name: 'Summer Pack', slug: 'd8a2423f-6c5b-4aa3-9e61-690f094d4c1e' },
@@ -278,6 +286,7 @@ describe('Closet Page', async () => {
 
   describe('ClosetPackCategories.vue', async () => {
     afterEach(() => {
+      supabaseClient.current = null;
       vi.restoreAllMocks();
     });
 
@@ -291,6 +300,25 @@ describe('Closet Page', async () => {
     });
 
     it('creates a new category when the add category button is clicked', async () => {
+      supabaseClient.current = createSupabaseMock({
+        rpc: () => Promise.resolve({
+          data: {
+            id: 99,
+            name: 'Category Name',
+            pack_id: selectedPack.id,
+            slug: 'new-category',
+            unit: 'g',
+            position: 1,
+            created_at: new Date()
+              .toISOString(),
+            updated_at: new Date()
+              .toISOString(),
+            category_items: [],
+          },
+          error: null,
+        }),
+      });
+
       const wrapper = await mountSuspended(ClosetPackCategories, {
         global: testMountGlobals({
           closet: {
@@ -304,26 +332,6 @@ describe('Closet Page', async () => {
       });
 
       const store = useClosetStore();
-      const spy = vi.spyOn(wrapper.vm, 'createDefaultCategory' as any) as MockInstance;
-      expect(spy.getMockName())
-        .toEqual('createDefaultCategory');
-
-      spy.mockImplementation(() => {
-        store.data.selectedPack!.categories.unshift({
-          name: '',
-          pack_id: 0,
-          slug: '',
-          unit: 'g',
-          position: 1,
-          id: 0,
-          created_at: new Date()
-            .toISOString(),
-          updated_at: new Date()
-            .toISOString(),
-          category_items: [],
-        });
-      });
-
       expect(store.data.selectedPack!.categories.length)
         .toBe(8);
 
@@ -334,6 +342,8 @@ describe('Closet Page', async () => {
 
       expect(store.data.selectedPack!.categories.length)
         .toBe(9);
+      expect(store.data.selectedPack!.categories[0]?.id)
+        .toBe(99);
     });
   });
 

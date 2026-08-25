@@ -5,6 +5,7 @@ import ModifyDetailDialog from '@/components/planning/dialogs/ModifyDetailDialog
 import PlanningEmptyState from '@/components/planning/PlanningEmptyState.vue';
 import PlanningSettings from '@/components/planning/PlanningSettings.vue';
 import HikeDetailsWidget from '@/components/planning/widgets/HikeDetailsWidget.vue';
+import TripDetailsWidget from '@/components/planning/widgets/TripDetailsWidget.vue';
 import { usePlanningStore } from '@/stores/planning';
 import { isButtonDisabled, isDialogRootOpen, testMountGlobals } from './helpers';
 import { tripDetails, trips } from './mocks/planning.mock';
@@ -170,6 +171,26 @@ describe('Planning Page', async () => {
         .toBe(true);
     });
 
+    it('still shows origin, destination, and description when hike details are empty', async () => {
+      const store = usePlanningStore();
+      store.$patch({
+        data: { trips, trip_details: [] },
+        selectedTripId: String(trips[0]?.id),
+        pageLoading: false,
+      });
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.text())
+        .toContain('Starting point');
+      expect(wrapper.text())
+        .toContain('Ending point');
+      expect(wrapper.text())
+        .toContain(trips[0]?.description);
+      expect(wrapper.find('[data-testid="hike-details-empty-state"]')
+        .exists())
+        .toBe(true);
+    });
+
     it('uses distinct starting and ending point placeholders', async () => {
       const store = usePlanningStore();
       store.$patch({
@@ -225,6 +246,29 @@ describe('Planning Page', async () => {
       const createDetailButton = wrapper.find('[data-testid="create-new-detail-btn"]');
       expect(createDetailButton.exists())
         .toBe(true);
+    });
+  });
+
+  describe('TripDetailsWidget.vue', async () => {
+    it('shows trip dates even when there are no trip detail rows', async () => {
+      const wrapper = await mountSuspended(TripDetailsWidget, {
+        global: testMountGlobals({
+          planning: {
+            pageLoading: false,
+            selectedTripId: String(trips[1]?.id),
+            data: { trips, trip_details: [] },
+          },
+        }),
+      });
+
+      expect(wrapper.text())
+        .toContain(trips[1]?.name);
+      expect(wrapper.text())
+        .toContain('Apr 1, 2024');
+      expect(wrapper.text())
+        .toContain('Sep 5, 2024');
+      expect(wrapper.text())
+        .toContain("You haven't added any trip details yet!");
     });
   });
 
