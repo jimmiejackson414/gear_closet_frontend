@@ -15,6 +15,12 @@ export const trips: Tables<'trips'>[] = [
     "starting_date":null,
     "starting_point":"Starting point",
     "locked_at":null,
+    "origin_lat":null,
+    "origin_lng":null,
+    "origin_place_id":null,
+    "destination_lat":null,
+    "destination_lng":null,
+    "destination_place_id":null,
   },
   {
     "id":3,
@@ -29,6 +35,12 @@ export const trips: Tables<'trips'>[] = [
     "starting_date":"2024-04-01T20:34:00+00:00",
     "starting_point":"Springer Mountain",
     "locked_at":null,
+    "origin_lat":null,
+    "origin_lng":null,
+    "origin_place_id":null,
+    "destination_lat":null,
+    "destination_lng":null,
+    "destination_place_id":null,
   },
 ];
 

@@ -200,10 +200,10 @@ describe('Planning Page', async () => {
       });
       await wrapper.vm.$nextTick();
 
-      const inlineEdits = wrapper.findAllComponents({ name: 'GcInlineEdit' });
-      expect(inlineEdits[0]?.props('placeholder'))
+      const placeSearches = wrapper.findAllComponents({ name: 'GcPlaceSearch' });
+      expect(placeSearches[0]?.props('placeholder'))
         .toBe('Starting point');
-      expect(inlineEdits[1]?.props('placeholder'))
+      expect(placeSearches[1]?.props('placeholder'))
         .toBe('Ending point');
     });
 
