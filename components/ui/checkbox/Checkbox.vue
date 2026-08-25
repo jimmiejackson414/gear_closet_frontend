@@ -13,7 +13,7 @@
     checked?: CheckedState | null,
   }>();
   const emits = defineEmits<CheckboxRootEmits & {
-    'update:checked': [value: CheckedState]
+    'update:checked': [value: boolean]
   }>();
 
   const delegatedProps = computed(() => {
@@ -29,7 +29,7 @@
 
   const onModelUpdate = (value: CheckedState) => {
     emits('update:modelValue', value);
-    emits('update:checked', value);
+    emits('update:checked', value === true);
   };
 
   const variantClasses = computed(() => {
