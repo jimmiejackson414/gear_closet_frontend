@@ -84,7 +84,7 @@ describe('stores/planning', () => {
       const normalized = normalizePlanningPageData({
         trips,
         pack: [] as unknown as PlanningPageData['pack'],
-      } as PlanningPageData);
+      } as any);
       expect(normalized.pack)
         .toBeUndefined();
     });
@@ -95,14 +95,14 @@ describe('stores/planning', () => {
         party_packs: [
           { profile_id: 'friend-id', display_name: 'Junebug', pack: [] },
         ],
-      } as PlanningPageData);
+      } as any);
       expect(normalized.party_packs[0]?.pack)
         .toBeUndefined();
 
       const empty = normalizePlanningPageData({
         trips,
         party_packs: {} as unknown as PlanningPageData['party_packs'],
-      } as PlanningPageData);
+      } as any);
       expect(empty.party_packs)
         .toEqual([]);
     });
