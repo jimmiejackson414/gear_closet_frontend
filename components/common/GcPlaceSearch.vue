@@ -32,7 +32,18 @@
   const editing = ref(false);
   const pickedLabel = ref<string | null>(null);
   const rootRef = ref<HTMLElement | null>(null);
+  const inputRef = ref<{ focusInput: () => void } | null>(null);
   const didFinish = ref(false);
+  let finishTimer: ReturnType<typeof setTimeout> | null = null;
+
+  const clearFinishTimer = () => {
+    if (finishTimer != null) {
+      clearTimeout(finishTimer);
+      finishTimer = null;
+    }
+  };
+
+  onBeforeUnmount(clearFinishTimer);
 
   watch(model, (value) => {
     if (!editing.value) {
@@ -101,6 +112,7 @@
 
   const onFocus = () => {
     if (props.disabled) return;
+    clearFinishTimer();
     didFinish.value = false;
     editing.value = true;
     if (query.value.trim().length >= 2) {
@@ -108,10 +120,24 @@
     }
   };
 
-  const onFocusOut = (event: FocusEvent) => {
+  const startInlineEdit = () => {
+    if (props.disabled) return;
+    clearFinishTimer();
+    didFinish.value = false;
+    editing.value = true;
+    nextTick(() => {
+      inputRef.value?.focusInput();
+    });
+  };
+
+  const onInputBlur = (event: FocusEvent) => {
     const next = event.relatedTarget as Node | null;
     if (next && rootRef.value?.contains(next)) return;
-    setTimeout(() => {
+    clearFinishTimer();
+    finishTimer = setTimeout(() => {
+      finishTimer = null;
+      const active = document.activeElement;
+      if (active && rootRef.value?.contains(active)) return;
       finishEditing();
     }, 150);
   };
@@ -128,15 +154,15 @@
   <div
     ref="rootRef"
     class="relative w-full"
-    data-testid="place-search"
-    @focusin="onFocus"
-    @focusout="onFocusOut">
+    data-testid="place-search">
     <button
       v-if="variant === 'inline' && !showInput"
       class="w-full text-left"
+      data-testid="place-search-trigger"
       :disabled="disabled"
       type="button"
-      @click="onFocus">
+      @mousedown.prevent
+      @click="startInlineEdit">
       <slot name="display">
         <typography
           class="font-black!"
@@ -147,11 +173,14 @@
     </button>
     <input-root
       v-if="showInput"
+      ref="inputRef"
       :disabled="disabled"
       :model-value="query"
       :name="name"
       :placeholder="placeholder"
       :prepend-icon="IconMapPin"
+      @blur="onInputBlur"
+      @focus="onFocus"
       @update:model-value="onInput" />
     <ul
       v-if="open && (places.length || loading || hasSearched)"
