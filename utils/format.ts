@@ -1,6 +1,6 @@
 import { dinero, toDecimal, type DineroCurrency } from 'dinero.js';
 import { USD } from 'dinero.js/currencies';
-import { MeasuringSystem } from '@/types';
+import { MeasuringSystem, SubscriptionLevel } from '@/types';
 
 /**
  * Capitalizes the first letter of each word in a string.
@@ -13,6 +13,12 @@ export const capitalize = (text: string | undefined | null) => {
     .map(word => word.charAt(0)
       .toUpperCase() + word.slice(1))
     .join(' ');
+};
+
+/** User-facing plan name. LIFE would otherwise capitalize to "Life". */
+export const subscriptionPlanLabel = (identifier: string | null | undefined) => {
+  if (identifier === SubscriptionLevel.LIFE) return 'Lifetime';
+  return capitalize(identifier) || 'Free';
 };
 
 const isoCurrencies: Record<string, DineroCurrency<number>> = {

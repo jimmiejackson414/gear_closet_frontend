@@ -5,9 +5,12 @@ import ProfileContent from '@/components/profile/ProfileContent.vue';
 import { useUserStore } from '@/stores/user';
 import { profile } from '@/tests/unit/mocks/app.mock';
 import { createSupabaseMock, createThenableQuery } from '@/tests/unit/mocks/supabase.mock';
+import type { ProfileApiResponse } from '@/types/profile';
+
+const toast = vi.hoisted(() => vi.fn());
 
 vi.mock('@/components/ui/toast', () => ({
-  useToast: () => ({ toast: vi.fn() }),
+  useToast: () => ({ toast }),
 }));
 
 vi.mock('@/components/common/GcAvatarUpload.vue', () => ({
@@ -28,20 +31,41 @@ const supabaseClient = vi.hoisted(() => ({
 
 mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
 
+function seedFreeProfile () {
+  const userStore = useUserStore();
+  const { subscriptions: _s, ...profileWithoutSubscription } = profile;
+  userStore.profile = {
+    ...profileWithoutSubscription,
+    subscriptions: [],
+  } as ProfileApiResponse;
+}
+
+function seedLifetimeProfile () {
+  const userStore = useUserStore();
+  const existing = profile.subscriptions[0];
+  userStore.profile = {
+    ...profile,
+    subscriptions: [{
+      ...existing,
+      stripe_subscription_id: null,
+      prices: {
+        ...existing.prices,
+        identifier: 'LIFE',
+        description: 'Lifetime',
+      },
+    }],
+  } as ProfileApiResponse;
+}
+
 describe('components/profile/ProfileContent', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
     fetchMock.mockReset();
+    toast.mockReset();
     supabaseClient.current = createSupabaseMock({
       from: () => createThenableQuery({ data: null, error: null }),
     });
-
-    const userStore = useUserStore();
-    const { subscriptions: _s, ...profileWithoutSubscription } = profile;
-    userStore.profile = {
-      ...profileWithoutSubscription,
-      subscriptions: [],
-    } as any;
+    seedFreeProfile();
   });
 
   it('shows a Free subscription pill when the profile has no subscription row', async () => {
@@ -70,5 +94,73 @@ describe('components/profile/ProfileContent', () => {
       .toBe(false);
     expect(wrapper.text())
       .toContain('Billing details appear here after you subscribe to a paid plan.');
+    expect(wrapper.get('[data-testid="update-payment-method"]')
+      .attributes('disabled'))
+      .toBeDefined();
+    expect(toast)
+      .not
+      .toHaveBeenCalled();
+  });
+
+  it('treats ofetch status (without statusCode) as a missing Stripe customer', async () => {
+    fetchMock.mockRejectedValue({
+      status: 404,
+      statusMessage: 'No billing customer on file',
+    });
+
+    const wrapper = await mountSuspended(ProfileContent);
+    const vm = wrapper.vm as any;
+
+    await vm.fetchSubscriptionData();
+
+    expect(vm.hasStripeBilling)
+      .toBe(false);
+    expect(toast)
+      .not
+      .toHaveBeenCalled();
+  });
+
+  it('skips Stripe billing for lifetime members and hides payment controls', async () => {
+    fetchMock.mockRejectedValue({
+      statusCode: 500,
+      statusMessage: 'Error fetching stripe subscription',
+    });
+
+    const wrapper = await mountSuspended(ProfileContent);
+    seedLifetimeProfile();
+    await wrapper.vm.$nextTick();
+    const vm = wrapper.vm as any;
+
+    expect(wrapper.text())
+      .toContain('Lifetime Subscription');
+
+    vm.activeTab = 'subscription';
+    await vm.fetchSubscriptionData();
+    await Promise.resolve();
+    await wrapper.vm.$nextTick();
+    await wrapper.vm.$nextTick();
+
+    expect(fetchMock)
+      .not
+      .toHaveBeenCalled();
+    expect(toast)
+      .not
+      .toHaveBeenCalled();
+    expect(vm.displayedSubscriptionPlan)
+      .toBe('Lifetime');
+    expect(wrapper.text())
+      .toContain('complimentary lifetime membership');
+    expect(wrapper.get('[data-testid="manage-subscription"]')
+      .text())
+      .toContain('View Membership');
+    expect(wrapper.find('[data-testid="update-payment-method"]')
+      .exists())
+      .toBe(false);
+    expect(wrapper.text())
+      .not
+      .toContain('Payment Methods');
+    expect(wrapper.text())
+      .not
+      .toContain('Next Billing Date');
   });
 });

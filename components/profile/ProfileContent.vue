@@ -113,10 +113,15 @@
     activeTab.value = profileTabFromQuery(tab);
   });
   const selectedPlan = ref<SubscriptionLevel | undefined>(undefined);
+  const isLifetimeMember = computed(() =>
+    $store.currentPlanIdentifier === SubscriptionLevel.LIFE);
   const displayedSubscriptionPlan = computed(() => {
+    if (isLifetimeMember.value) {
+      return subscriptionPlanLabel(SubscriptionLevel.LIFE);
+    }
     const stripePlan = subscriptionData.value.subscriptions[0]?.items?.data[0]?.price?.nickname;
     if (stripePlan) return capitalize(stripePlan);
-    return capitalize($store.currentPlanIdentifier);
+    return subscriptionPlanLabel($store.currentPlanIdentifier);
   });
 
   const ensureProfileSubscriptions = (profile: ProfileApiResponse) => {
@@ -126,10 +131,42 @@
     return profile.subscriptions;
   };
 
+  const emptyStripeBilling = (): SubscriptionApiResponse => ({
+    customer: undefined,
+    paymentMethods: [],
+    nextBillingDate: null,
+    invoices: [],
+    subscriptions: [],
+  });
+
+  const fetchErrorStatus = (err: unknown): number | undefined => {
+    if (!err || typeof err !== 'object') return undefined;
+    const error = err as {
+      statusCode?: number;
+      status?: number;
+      response?: { status?: number };
+      data?: { statusCode?: number };
+    };
+    return error.statusCode ?? error.status ?? error.response?.status ?? error.data?.statusCode;
+  };
+
+  const applyMissingStripeBilling = () => {
+    hasStripeBilling.value = false;
+    subscriptionData.value = emptyStripeBilling();
+    selectedPlan.value = $store.currentPlanIdentifier;
+  };
+
   const fetchSubscriptionData = async () => {
     fetchingSubscription.value = true;
     hasStripeBilling.value = false;
     try {
+      // Lifetime is granted in Postgres with no Stripe customer. Skip the
+      // billing API so a 404/500 does not toast or wipe the LIFE row.
+      if (isLifetimeMember.value) {
+        applyMissingStripeBilling();
+        return;
+      }
+
       const response = await $fetch<SubscriptionApiResponse>('/api/stripe/subscription');
       if (!response) {
         $appStore.notifyNegative('An error occurred while fetching your subscription data.');
@@ -168,21 +205,9 @@
       } else {
         selectedPlan.value = $store.currentPlanIdentifier;
       }
-    } catch (err: any) {
-      if (err?.statusCode === 404) {
-        subscriptionData.value = {
-          customer: undefined,
-          paymentMethods: [],
-          nextBillingDate: null,
-          invoices: [],
-          subscriptions: [],
-        };
-        selectedPlan.value = $store.currentPlanIdentifier;
-
-        const profile = $store.profile as ProfileApiResponse | null;
-        if (profile) {
-          ensureProfileSubscriptions(profile).length = 0;
-        }
+    } catch (err: unknown) {
+      if (fetchErrorStatus(err) === 404) {
+        applyMissingStripeBilling();
         return;
       }
 
@@ -274,7 +299,7 @@
             {{ friendlyUsername($store.profile, { includeTrailName: false }) }}
           </typography>
           <gc-pill
-            :copy="capitalize($store.currentPlanIdentifier) + ' Subscription'"
+            :copy="`${subscriptionPlanLabel($store.currentPlanIdentifier)} Subscription`"
             size="sm"
             :variant="{
               [SubscriptionLevel.FREE]: 'warning' as const,
@@ -402,93 +427,104 @@
                     Current Subscription: <span class="font-bold">{{ displayedSubscriptionPlan }}</span>
                   </typography>
                   <typography
-                    v-if="!hasStripeBilling"
+                    v-if="isLifetimeMember"
+                    class="text-muted-foreground"
+                    variant="small">
+                    You have a complimentary lifetime membership. Packs, trips, and forums stay unlocked, and there is no card on file.
+                  </typography>
+                  <typography
+                    v-else-if="!hasStripeBilling"
                     class="text-muted-foreground"
                     variant="small">
                     Billing details appear here after you subscribe to a paid plan.
                   </typography>
                   <button-root
+                    data-testid="manage-subscription"
                     size="sm"
                     variant="outline"
                     @click="isManageSubscriptionOpen = true">
-                    Manage Subscription
+                    {{ isLifetimeMember ? 'View Membership' : 'Manage Subscription' }}
                   </button-root>
                 </div>
-                <div class="flex flex-col items-start gap-2">
-                  <typography
-                    class="font-bold!"
-                    variant="small">
-                    Payment Methods
-                  </typography>
-                  <ul v-if="subscriptionData?.paymentMethods?.length">
-                    <li
-                      v-for="method in subscriptionData?.paymentMethods"
-                      :key="method.id">
-                      {{ capitalize(method.card?.brand ) || 'N/A' }} ending in {{ method.card?.last4 || 'N/A' }}
-                      <badge
-                        v-if="method.id === subscriptionData?.customer?.invoice_settings.default_payment_method"
-                        class="ml-4"
-                        variant="secondary">
-                        default
-                      </badge>
-                    </li>
-                  </ul>
-                  <typography
-                    v-else
-                    variant="small">
-                    No payment methods on file.
-                  </typography>
-                  <button-root
-                    class="mt-2"
-                    size="sm"
-                    variant="outline"
-                    @click="isUpdatePaymentDialogOpen = true">
-                    Update Billing Method
-                  </button-root>
-                </div>
-                <div>
-                  <typography
-                    class="font-bold!"
-                    variant="small">
-                    Next Billing Date
-                  </typography>
-                  <typography>
-                    {{ subscriptionData?.nextBillingDate ? dayjs.utc(subscriptionData.nextBillingDate * 1000).format('MMM DD, YYYY') : 'N/A' }}
-                  </typography>
-                </div>
-                <div>
-                  <accordion
-                    collapsible
-                    type="single">
-                    <accordion-item value="billing-history">
-                      <accordion-trigger>
-                        <typography
-                          class="font-bold!"
-                          variant="small">
-                          Billing History
-                        </typography>
-                      </accordion-trigger>
-                      <accordion-content>
-                        <ul>
-                          <li
-                            v-for="invoice in subscriptionData.invoices"
-                            :key="invoice.id"
-                            class="flex justify-start items-center gap-8 mb-3">
-                            {{ dayjs.utc(invoice.created * 1000).format('MMM DD, YYYY') }} - ${{ (invoice.amount_paid / 100).toFixed(2) }} ({{ invoice.lines.data[0]?.description || 'N/A' }})
-                            <a
-                              v-tippy="'Download Invoice'"
-                              class="text-gray-400 hover:text-primary transition-colors duration-200 ease-in-out"
-                              :href="(invoice.invoice_pdf as string)"
-                              rel="noopener noreferrer"
-                              target="_blank">
-                              <icon-download class="w-4 h-4" />
-                            </a>
-                          </li>
-                        </ul>
-                      </accordion-content>
-                    </accordion-item>
-                  </accordion>
-                </div>
+                <template v-if="!isLifetimeMember">
+                  <div class="flex flex-col items-start gap-2">
+                    <typography
+                      class="font-bold!"
+                      variant="small">
+                      Payment Methods
+                    </typography>
+                    <ul v-if="subscriptionData?.paymentMethods?.length">
+                      <li
+                        v-for="method in subscriptionData?.paymentMethods"
+                        :key="method.id">
+                        {{ capitalize(method.card?.brand ) || 'N/A' }} ending in {{ method.card?.last4 || 'N/A' }}
+                        <badge
+                          v-if="method.id === subscriptionData?.customer?.invoice_settings.default_payment_method"
+                          class="ml-4"
+                          variant="secondary">
+                          default
+                        </badge>
+                      </li>
+                    </ul>
+                    <typography
+                      v-else
+                      variant="small">
+                      No payment methods on file.
+                    </typography>
+                    <button-root
+                      class="mt-2"
+                      data-testid="update-payment-method"
+                      :disabled="!hasStripeBilling"
+                      size="sm"
+                      variant="outline"
+                      @click="isUpdatePaymentDialogOpen = true">
+                      Update Billing Method
+                    </button-root>
+                  </div>
+                  <div>
+                    <typography
+                      class="font-bold!"
+                      variant="small">
+                      Next Billing Date
+                    </typography>
+                    <typography>
+                      {{ subscriptionData?.nextBillingDate ? dayjs.utc(subscriptionData.nextBillingDate * 1000).format('MMM DD, YYYY') : 'N/A' }}
+                    </typography>
+                  </div>
+                  <div>
+                    <accordion
+                      collapsible
+                      type="single">
+                      <accordion-item value="billing-history">
+                        <accordion-trigger>
+                          <typography
+                            class="font-bold!"
+                            variant="small">
+                            Billing History
+                          </typography>
+                        </accordion-trigger>
+                        <accordion-content>
+                          <ul>
+                            <li
+                              v-for="invoice in subscriptionData.invoices"
+                              :key="invoice.id"
+                              class="flex justify-start items-center gap-8 mb-3">
+                              {{ dayjs.utc(invoice.created * 1000).format('MMM DD, YYYY') }} - ${{ (invoice.amount_paid / 100).toFixed(2) }} ({{ invoice.lines.data[0]?.description || 'N/A' }})
+                              <a
+                                v-tippy="'Download Invoice'"
+                                class="text-gray-400 hover:text-primary transition-colors duration-200 ease-in-out"
+                                :href="(invoice.invoice_pdf as string)"
+                                rel="noopener noreferrer"
+                                target="_blank">
+                                <icon-download class="w-4 h-4" />
+                              </a>
+                            </li>
+                          </ul>
+                        </accordion-content>
+                      </accordion-item>
+                    </accordion>
+                  </div>
+                </template>
               </div>
             </card>
           </tabs-content>
