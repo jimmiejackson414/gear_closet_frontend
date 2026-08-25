@@ -1,7 +1,9 @@
 import { createTtlCache } from '@/server/utils/ttlCache';
 import {
+  companionPlaceQueries,
   mapGeoapifyAutocomplete,
   normalizePlaceQuery,
+  rankPlaceSuggestions,
   type GeoapifyAutocompleteResponse,
 } from '@/utils/places';
 import type { PlaceSuggestion } from '@/types/places';
@@ -18,10 +20,29 @@ export async function searchPlaces (
   const cached = placeCache.get(normalized);
   if (cached) return cached;
 
+  const batches = await Promise.all(
+    companionPlaceQueries(query)
+      .map(text => fetchAutocomplete(text, apiKey)),
+  );
+  const places = rankPlaceSuggestions(query, batches.flat());
+  if (places.length) {
+    placeCache.set(normalized, places);
+  }
+  return places;
+}
+
+async function fetchAutocomplete (
+  text: string,
+  apiKey: string,
+): Promise<PlaceSuggestion[]> {
+  const cacheKey = `raw:${normalizePlaceQuery(text)}`;
+  const cached = placeCache.get(cacheKey);
+  if (cached) return cached;
+
   const url = new URL('https://api.geoapify.com/v1/geocode/autocomplete');
-  url.searchParams.set('text', query.trim());
+  url.searchParams.set('text', text);
   url.searchParams.set('format', 'json');
-  url.searchParams.set('limit', '6');
+  url.searchParams.set('limit', '10');
   url.searchParams.set('lang', 'en');
   url.searchParams.set('apiKey', apiKey);
 
@@ -29,8 +50,9 @@ export async function searchPlaces (
     method: 'GET',
     timeout: 8000,
   });
-
   const places = mapGeoapifyAutocomplete(payload);
-  placeCache.set(normalized, places);
+  if (places.length) {
+    placeCache.set(cacheKey, places);
+  }
   return places;
 }
