@@ -1,7 +1,7 @@
 /**
  * @api {get} /weather Trip weather
  * @apiName GetTripWeather
- * @summary Forecast weather for a trip origin when the start is within 14 days
+ * @summary Forecast weather for a trip origin and destination when the start is within 14 days
  */
 import { isError } from 'h3';
 import { serverSupabaseClient, serverSupabaseUser } from '#supabase/server';
@@ -11,12 +11,47 @@ import {
   type TripAirQuality,
 } from '@/server/utils/openMeteoWeather';
 import { throwPublicError } from '@/server/utils/reportServerError';
-import { WEATHER_AVAILABLE_WITHIN_DAYS, type TripWeatherResponse } from '@/types/weather';
+import { WEATHER_AVAILABLE_WITHIN_DAYS, type TripWeatherPlaceForecast, type TripWeatherResponse, type WeatherUnits } from '@/types/weather';
 import {
   shouldUseForecast,
+  weatherLocationsFromTrip,
   weatherUnitsFromMeasuringSystem,
+  type WeatherLocation,
 } from '@/utils/tripWeather';
 import type { Database } from '@/types';
+
+const emptyAirQuality: TripAirQuality = { current: null, byDate: {} };
+
+async function forecastForLocation (
+  location: WeatherLocation,
+  dates: { startingDate: string | null; endingDate: string | null },
+  units: WeatherUnits,
+): Promise<TripWeatherPlaceForecast> {
+  const [airQuality, days] = await Promise.all([
+    fetchAirQuality({
+      lat: location.lat,
+      lng: location.lng,
+    })
+      .catch(() => emptyAirQuality),
+    fetchForecastWeather({
+      lat: location.lat,
+      lng: location.lng,
+      startingDate: dates.startingDate,
+      endingDate: dates.endingDate,
+      units,
+    }),
+  ]);
+
+  return {
+    kind: location.kind,
+    placeLabel: location.label,
+    currentAirQuality: airQuality.current,
+    days: days.map(day => ({
+      ...day,
+      airQuality: airQuality.byDate[day.date] ?? null,
+    })),
+  };
+}
 
 export default defineEventHandler(async (event): Promise<TripWeatherResponse> => {
   try {
@@ -39,7 +74,7 @@ export default defineEventHandler(async (event): Promise<TripWeatherResponse> =>
 
     const supabase = await serverSupabaseClient<Database>(event);
     const { data: trip, error: tripError } = await supabase.from('trips')
-      .select('origin_lat, origin_lng, starting_point, starting_date, ending_date')
+      .select('origin_lat, origin_lng, starting_point, destination_lat, destination_lng, ending_point, starting_date, ending_date')
       .eq('id', tripId)
       .maybeSingle();
 
@@ -52,7 +87,9 @@ export default defineEventHandler(async (event): Promise<TripWeatherResponse> =>
         statusMessage: 'Trip not found.',
       });
     }
-    if (trip.origin_lat == null || trip.origin_lng == null) {
+
+    const locations = weatherLocationsFromTrip(trip);
+    if (!locations.length) {
       return { status: 'needs_place' };
     }
     if (!shouldUseForecast(trip.starting_date)) {
@@ -67,33 +104,18 @@ export default defineEventHandler(async (event): Promise<TripWeatherResponse> =>
       .eq('id', user.sub)
       .maybeSingle();
     const units = weatherUnitsFromMeasuringSystem(profile?.measuring_system);
-    const placeLabel = trip.starting_point?.trim() || 'Trip origin';
-    const emptyAirQuality: TripAirQuality = { current: null, byDate: {} };
-
-    const [airQuality, days] = await Promise.all([
-      fetchAirQuality({
-        lat: trip.origin_lat,
-        lng: trip.origin_lng,
-      })
-        .catch(() => emptyAirQuality),
-      fetchForecastWeather({
-        lat: trip.origin_lat,
-        lng: trip.origin_lng,
-        startingDate: trip.starting_date,
-        endingDate: trip.ending_date,
-        units,
-      }),
-    ]);
 
     return {
       status: 'forecast',
-      placeLabel,
       units,
-      currentAirQuality: airQuality.current,
-      days: days.map(day => ({
-        ...day,
-        airQuality: airQuality.byDate[day.date] ?? null,
-      })),
+      places: await Promise.all(locations.map(location => forecastForLocation(
+        location,
+        {
+          startingDate: trip.starting_date,
+          endingDate: trip.ending_date,
+        },
+        units,
+      ))),
     };
   } catch (err) {
     if (isError(err)) throw err;

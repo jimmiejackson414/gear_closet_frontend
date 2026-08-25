@@ -1,8 +1,7 @@
 import { computed, ref, watch } from "vue";
 import { defineStore } from "pinia";
-import { ResourceType, TripDetailsType } from "@/types";
-import { STARTER_DETAIL_TITLE, starterDetailValue } from "@/utils/trips";
-import type { Database, Tables, TablesUpdate } from "@/types";
+import { ResourceType } from "@/types";
+import type { Database, Tables, TablesInsert, TablesUpdate } from "@/types";
 import type { ExtendedPack } from "@/types/closet";
 import type { ExtendedPoll, ExtendedTripFriend, PendingTripInvite } from "@/types/planning";
 
@@ -208,16 +207,17 @@ export const usePlanningStore = defineStore('planning', () => {
     }
   };
 
-  const createTripDetail = async (type: TripDetailsType) => {
+  const createTripDetail = async (payload: Pick<TablesInsert<'trip_details'>, 'title' | 'type' | 'value' | 'url'>) => {
     const $appStore = useAppStore();
     try {
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
           trip_id: Number(selectedTripId.value),
-          title: STARTER_DETAIL_TITLE,
-          type,
-          value: starterDetailValue(type),
+          title: payload.title,
+          type: payload.type,
+          value: payload.value ?? null,
+          url: payload.url ?? null,
         })
         .select();
 

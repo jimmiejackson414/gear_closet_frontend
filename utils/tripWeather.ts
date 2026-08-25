@@ -123,3 +123,67 @@ export function toIsoDate (date: Date): string {
     .slice(0, 10);
 }
 
+type TripWeatherPlaceFields = {
+  origin_lat?: number | null
+  origin_lng?: number | null
+  starting_point?: string | null
+  destination_lat?: number | null
+  destination_lng?: number | null
+  ending_point?: string | null
+};
+
+export type WeatherLocation = {
+  kind: 'origin' | 'destination'
+  lat: number
+  lng: number
+  label: string
+};
+
+function coordsKey (lat: number, lng: number): string {
+  return `${lat.toFixed(3)},${lng.toFixed(3)}`;
+}
+
+export function weatherLocationsFromTrip (trip: TripWeatherPlaceFields): WeatherLocation[] {
+  const locations: WeatherLocation[] = [];
+  let originKey: string | undefined;
+
+  if (trip.origin_lat != null && trip.origin_lng != null) {
+    originKey = coordsKey(trip.origin_lat, trip.origin_lng);
+    locations.push({
+      kind: 'origin',
+      lat: trip.origin_lat,
+      lng: trip.origin_lng,
+      label: trip.starting_point?.trim() || 'Starting point',
+    });
+  }
+
+  if (trip.destination_lat != null && trip.destination_lng != null) {
+    const destinationKey = coordsKey(trip.destination_lat, trip.destination_lng);
+    if (destinationKey !== originKey) {
+      locations.push({
+        kind: 'destination',
+        lat: trip.destination_lat,
+        lng: trip.destination_lng,
+        label: trip.ending_point?.trim() || 'Ending point',
+      });
+    }
+  }
+
+  return locations;
+}
+
+export function tripWeatherWatchKey (
+  tripId: number | null | undefined,
+  trip: TripWeatherPlaceFields | null | undefined,
+): string {
+  return [
+    tripId ?? 'none',
+    trip?.origin_lat ?? '',
+    trip?.origin_lng ?? '',
+    trip?.starting_point ?? '',
+    trip?.destination_lat ?? '',
+    trip?.destination_lng ?? '',
+    trip?.ending_point ?? '',
+  ].join('|');
+}
+

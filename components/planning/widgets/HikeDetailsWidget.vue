@@ -5,6 +5,7 @@
 
   const $store = usePlanningStore();
   const activeDetail = ref<Tables<'trip_details'> | undefined>(undefined);
+  const dialogMode = ref<'create' | 'edit'>('edit');
   const isModifyDetailDialogOpen = ref(false);
 
   const hikeDetails = computed(() => {
@@ -15,6 +16,7 @@
 
   const openDetail = (detail: Tables<'trip_details'>) => {
     activeDetail.value = detail;
+    dialogMode.value = 'edit';
     nextTick(() => {
       isModifyDetailDialogOpen.value = true;
     });
@@ -24,9 +26,12 @@
     isModifyDetailDialogOpen.value = false;
   };
 
-  const createNewDetail = async () => {
-    const detail = await $store.createTripDetail(TripDetailsType.HIKE);
-    if (detail) openDetail(detail);
+  const openCreate = () => {
+    activeDetail.value = undefined;
+    dialogMode.value = 'create';
+    nextTick(() => {
+      isModifyDetailDialogOpen.value = true;
+    });
   };
   const updateTrip = (payload: TablesUpdate<'trips'>) => $store.updateTrip(payload);
 
@@ -65,7 +70,7 @@
         data-testid="create-new-detail-btn"
         size="icon"
         type="button"
-        @click="createNewDetail">
+        @click="openCreate">
         <icon-plus aria-hidden="true" />
       </button-root>
     </div>
@@ -129,7 +134,7 @@
           v-if="$store.canEditSelectedTrip"
           size="sm"
           variant="outline"
-          @click="createNewDetail">
+          @click="openCreate">
           Get Started
         </button-root>
       </gc-empty-state>
@@ -142,8 +147,10 @@
   </card>
 
   <modify-detail-dialog
-    v-if="isModifyDetailDialogOpen && activeDetail"
+    v-if="isModifyDetailDialogOpen"
     :active-detail="activeDetail"
+    :detail-type="TripDetailsType.HIKE"
     :is-open="true"
+    :mode="dialogMode"
     @on-close="closeDetail" />
 </template>

@@ -7,20 +7,33 @@
   import type { Tables } from '@/types';
 
   interface Props {
-    activeDetail: Tables<'trip_details'>;
+    activeDetail?: Tables<'trip_details'>;
+    detailType?: TripDetailsType;
     isOpen: boolean;
+    mode?: 'create' | 'edit';
   }
 
-  const props = defineProps<Props>();
+  const props = withDefaults(defineProps<Props>(), {
+    activeDetail: undefined,
+    detailType: undefined,
+    mode: 'edit',
+  });
   const emits = defineEmits(['onClose']);
 
   const $store = usePlanningStore();
   const submitting = ref(false);
 
-  const editHeading = computed(() => {
-    return props.activeDetail?.type === TripDetailsType.TRIP
-      ? 'Edit Trip Detail'
-      : 'Edit Hike Detail';
+  const isCreate = computed(() => props.mode === 'create');
+  const resolvedType = computed(() => {
+    return props.detailType ?? props.activeDetail?.type ?? TripDetailsType.HIKE;
+  });
+
+  const heading = computed(() => {
+    const isTrip = resolvedType.value === TripDetailsType.TRIP;
+    if (isCreate.value) {
+      return isTrip ? 'Create Trip Detail' : 'Create Hike Detail';
+    }
+    return isTrip ? 'Edit Trip Detail' : 'Edit Hike Detail';
   });
 
   const valuesFromDetail = (detail: Tables<'trip_details'> | undefined) => ({
@@ -48,7 +61,7 @@
 
   const { isFieldDirty, handleSubmit, isSubmitting, values, setValues } = useForm({
     validationSchema: formSchema,
-    initialValues: valuesFromDetail(props.activeDetail),
+    initialValues: valuesFromDetail(isCreate.value ? undefined : props.activeDetail),
   });
 
   const handleClose = () => {
@@ -59,24 +72,30 @@
     if (!open) handleClose();
   };
 
-  watch(() => [props.isOpen, props.activeDetail] as const, ([open]) => {
+  watch(() => [props.isOpen, props.activeDetail, props.mode] as const, ([open]) => {
     if (open) {
-      setValues(valuesFromDetail(props.activeDetail));
+      setValues(valuesFromDetail(isCreate.value ? undefined : props.activeDetail));
     }
   });
 
-  /**
-   * Updates a detail.
-   */
-  const updateDetail = handleSubmit(async (v) => {
+  const submitDetail = handleSubmit(async (v) => {
     try {
       submitting.value = true;
-      const ok = await $store.updateTripDetail(props.activeDetail?.id as number, {
+      const fields = {
         title: v.title,
         value: v.value,
         url: v.has_url && v.url?.trim() ? prependProtocol(v.url.trim()) : null,
-      });
-      if (ok) handleClose();
+      };
+      if (isCreate.value) {
+        const created = await $store.createTripDetail({
+          ...fields,
+          type: resolvedType.value,
+        });
+        if (created) handleClose();
+      } else {
+        const ok = await $store.updateTripDetail(props.activeDetail?.id as number, fields);
+        if (ok) handleClose();
+      }
     } finally {
       submitting.value = false;
     }
@@ -86,9 +105,10 @@
    * Deletes a detail.
    */
   const deleteDetail = async () => {
+    if (isCreate.value || !props.activeDetail?.id) return;
     try {
       submitting.value = true;
-      const ok = await $store.deleteTripDetail(props.activeDetail?.id as number);
+      const ok = await $store.deleteTripDetail(props.activeDetail.id);
       if (ok) handleClose();
     } finally {
       submitting.value = false;
@@ -105,9 +125,11 @@
       @escape-key-down="handleClose"
       @interact-outside="handleClose">
       <dialog-header>
-        <dialog-title>{{ editHeading }}</dialog-title>
+        <dialog-title>{{ heading }}</dialog-title>
         <dialog-description>
-          Update the title, description, and optional link for this detail.
+          {{ isCreate
+            ? 'Add a title, description, and optional link for this detail.'
+            : 'Update the title, description, and optional link for this detail.' }}
         </dialog-description>
       </dialog-header>
       <div
@@ -153,14 +175,14 @@
             <form-field
               v-slot="{ value, handleChange }"
               name="has_url"
-              type="checkbox"
               :validate-on-blur="!isFieldDirty">
               <form-item class="flex flex-row items-start gap-x-3 space-y-0">
                 <form-control>
                   <checkbox
-                    :checked="value"
+                    data-testid="detail-has-url"
                     :disabled="isSubmitting"
-                    @update:checked="handleChange" />
+                    :model-value="value"
+                    @update:model-value="handleChange" />
                 </form-control>
                 <form-label>Link to URL?</form-label>
                 <form-message />
@@ -177,6 +199,7 @@
                 <form-label>URL</form-label>
                 <form-control>
                   <input-root
+                    data-testid="detail-url"
                     :disabled="isSubmitting"
                     :prepend-icon="IconLink"
                     v-bind="componentField" />
@@ -195,6 +218,7 @@
         </dialog-close>
         <div class="flex items-center gap-4">
           <button-root
+            v-if="!isCreate"
             data-testid="delete-detail"
             :disabled="isSubmitting"
             type="button"
@@ -203,12 +227,12 @@
             Delete
           </button-root>
           <button-root
-            data-testid="update-detail"
+            :data-testid="isCreate ? 'create-detail' : 'update-detail'"
             :disabled="isSubmitting"
             :loading="isSubmitting"
             type="button"
-            @click="updateDetail">
-            Update
+            @click="submitDetail">
+            {{ isCreate ? 'Create' : 'Update' }}
           </button-root>
         </div>
       </dialog-footer>

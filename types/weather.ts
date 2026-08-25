@@ -26,12 +26,19 @@ export type TripWeatherNeedsPlace = {
   status: 'needs_place'
 };
 
-export type TripWeatherForecast = {
-  status: 'forecast'
+export type WeatherLocationKind = 'origin' | 'destination';
+
+export type TripWeatherPlaceForecast = {
+  kind: WeatherLocationKind
   placeLabel: string
-  units: WeatherUnits
   days: TripWeatherDay[]
   currentAirQuality: AirQualitySnapshot | null
+};
+
+export type TripWeatherForecast = {
+  status: 'forecast'
+  units: WeatherUnits
+  places: TripWeatherPlaceForecast[]
 };
 
 export type TripWeatherTooFar = {

@@ -161,8 +161,8 @@
       data-testid="place-search-trigger"
       :disabled="disabled"
       type="button"
-      @mousedown.prevent
-      @click="startInlineEdit">
+      @click="startInlineEdit"
+      @mousedown.prevent>
       <slot name="display">
         <typography
           class="font-black!"
