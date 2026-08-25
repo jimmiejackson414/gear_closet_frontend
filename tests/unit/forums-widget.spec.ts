@@ -4,8 +4,18 @@ import ForumsWidget from '@/components/dashboard/ForumsWidget.vue';
 import { useUserStore } from '@/stores/user';
 import { testMountGlobals } from '@/tests/unit/helpers';
 import { forumPosts } from '@/tests/unit/mocks/dashboard.mock';
+import type { ForumCategory, ForumPost } from '@/types/forum';
 
-const mountForumsWidget = (props: Record<string, unknown>) => mountSuspended(ForumsWidget, {
+type ForumsWidgetProps = {
+  loading: boolean;
+  error?: boolean;
+  data?: {
+    latest_posts: ForumPost[];
+    categories: ForumCategory[];
+  };
+};
+
+const mountForumsWidget = (props: ForumsWidgetProps) => mountSuspended(ForumsWidget, {
   props,
   global: testMountGlobals(),
 });
