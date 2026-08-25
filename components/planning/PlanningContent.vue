@@ -1,5 +1,6 @@
 <script lang='ts' setup>
   const $store = usePlanningStore();
+  const weatherHasForecast = ref(false);
 </script>
 
 <template>
@@ -8,8 +9,8 @@
       v-if="$store.isRefreshing"
       aria-busy="true"
       aria-live="polite"
-      class="absolute inset-0 z-10 bg-background/40 pointer-events-none rounded-3xl" />
-    <div class="grid lg:grid-cols-[65%_35%] grid-cols-1 gap-6">
+      class="z-10 absolute inset-0 bg-background/40 rounded-3xl pointer-events-none" />
+    <div class="gap-6 grid grid-cols-1 lg:grid-cols-[65%_35%]">
       <div class="flex flex-col space-y-6">
         <!-- Pack Widget -->
         <pack-widget />
@@ -21,23 +22,33 @@
         <hike-details-widget />
       </div>
 
-      <div class="flex flex-col space-y-6">
-        <!-- Friends -->
-        <trip-friends-widget />
-
-        <!-- Todos -->
-        <todos-widget />
-
-        <!-- Weather -->
-        <trip-weather-widget
+      <div
+        class="flex flex-col gap-6"
+        data-testid="planning-sidebar">
+        <div class="order-1">
+          <trip-friends-widget />
+        </div>
+        <div
           v-if="$store.selectedTrip"
-          :trip-id="$store.selectedTrip.id" />
-
-        <!-- Shopping List -->
-        <shopping-list-widget />
-
-        <!-- Poll -->
-        <poll-widget />
+          :class="weatherHasForecast ? 'order-2' : 'order-4'"
+          data-testid="planning-weather-slot">
+          <trip-weather-widget
+            v-model:has-forecast="weatherHasForecast"
+            :trip-id="$store.selectedTrip.id" />
+        </div>
+        <div
+          :class="weatherHasForecast ? 'order-3' : 'order-2'"
+          data-testid="planning-todos-slot">
+          <todos-widget />
+        </div>
+        <div
+          :class="weatherHasForecast ? 'order-4' : 'order-3'"
+          data-testid="planning-shopping-slot">
+          <shopping-list-widget />
+        </div>
+        <div class="order-5">
+          <poll-widget />
+        </div>
       </div>
     </div>
   </div>

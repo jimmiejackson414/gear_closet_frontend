@@ -5,19 +5,32 @@
   import { cn } from '@/lib/utils';
   import type { CheckboxRootEmits, CheckboxRootProps } from 'reka-ui';
 
+  type CheckedState = boolean | 'indeterminate';
+
   const props = defineProps<CheckboxRootProps & {
     class?: HTMLAttributes['class'],
     variant?: 'primary' | 'destructive' | 'accent',
+    checked?: CheckedState | null,
   }>();
-  const emits = defineEmits<CheckboxRootEmits>();
+  const emits = defineEmits<CheckboxRootEmits & {
+    'update:checked': [value: boolean]
+  }>();
 
   const delegatedProps = computed(() => {
-    const { class: _, ...delegated } = props;
+    const { class: _, variant, checked, ...delegated } = props;
 
-    return delegated;
+    return {
+      ...delegated,
+      modelValue: props.modelValue ?? checked,
+    };
   });
 
   const forwarded = useForwardPropsEmits(delegatedProps, emits);
+
+  const onModelUpdate = (value: CheckedState) => {
+    emits('update:modelValue', value);
+    emits('update:checked', value === true);
+  };
 
   const variantClasses = computed(() => {
     switch (props.variant) {
@@ -38,7 +51,8 @@
       'peer h-4 w-4 shrink-0 rounded-sm border ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 data-[state=checked]:text-current',
       variantClasses,
       props.class
-    )">
+    )"
+    @update:model-value="onModelUpdate">
     <checkbox-indicator class="flex justify-center items-center h-full text-current w-full">
       <slot>
         <icon-check class="h-4 w-4" />

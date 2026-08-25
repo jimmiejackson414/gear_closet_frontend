@@ -7,6 +7,7 @@ import PlanningSettings from '@/components/planning/PlanningSettings.vue';
 import HikeDetailsWidget from '@/components/planning/widgets/HikeDetailsWidget.vue';
 import TripDetailsWidget from '@/components/planning/widgets/TripDetailsWidget.vue';
 import { usePlanningStore } from '@/stores/planning';
+import { TripDetailsType } from '@/types';
 import { isButtonDisabled, isDialogRootOpen, testMountGlobals } from './helpers';
 import { tripDetails, trips } from './mocks/planning.mock';
 
@@ -146,6 +147,11 @@ describe('Planning Page', async () => {
       });
     });
 
+    afterEach(() => {
+      wrapper.unmount();
+      document.body.innerHTML = '';
+    });
+
     it('renders the hike details widget', async () => {
       expect(wrapper.exists())
         .toBe(true);
@@ -272,9 +278,83 @@ describe('Planning Page', async () => {
       expect(document.body.querySelector('[data-testid="modify-detail-dialog"]'))
         .toBeTruthy();
     });
+
+    it('opens a create dialog from the plus button without inserting a detail', async () => {
+      wrapper.unmount();
+      wrapper = await mountSuspended(HikeDetailsWidget, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+            data: { trips, trip_details: tripDetails },
+          },
+          user: { profile: { id: trips[0]?.profile_id } },
+        }),
+      });
+      const store = usePlanningStore();
+      const createSpy = vi.spyOn(store, 'createTripDetail');
+
+      await wrapper.get('[data-testid="create-new-detail-btn"]')
+        .trigger('click');
+      await wrapper.vm.$nextTick();
+      await wrapper.vm.$nextTick();
+
+      expect(createSpy)
+        .not
+        .toHaveBeenCalled();
+      expect(store.data.trip_details)
+        .toHaveLength(tripDetails.length);
+      expect(document.body.textContent)
+        .toContain('Create Hike Detail');
+      expect(document.body.textContent)
+        .not
+        .toContain('Edit Hike Detail');
+      expect(document.body.querySelector('[data-testid="delete-detail"]'))
+        .toBeNull();
+      expect(document.body.querySelector('[data-testid="create-detail"]'))
+        .toBeTruthy();
+    });
+
+    it('opens a create dialog from Get Started without inserting a detail', async () => {
+      wrapper.unmount();
+      wrapper = await mountSuspended(HikeDetailsWidget, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+            data: { trips, trip_details: [] },
+          },
+          user: { profile: { id: trips[0]?.profile_id } },
+        }),
+      });
+      const store = usePlanningStore();
+      const createSpy = vi.spyOn(store, 'createTripDetail');
+
+      const getStarted = wrapper.get('[data-testid="hike-details-empty-state"]')
+        .find('button');
+      expect(getStarted.exists())
+        .toBe(true);
+      await getStarted.trigger('click');
+      await wrapper.vm.$nextTick();
+      await wrapper.vm.$nextTick();
+
+      expect(createSpy)
+        .not
+        .toHaveBeenCalled();
+      expect(store.data.trip_details)
+        .toHaveLength(0);
+      expect(document.body.textContent)
+        .toContain('Create Hike Detail');
+    });
   });
 
   describe('TripDetailsWidget.vue', async () => {
+    afterEach(() => {
+      document.body.innerHTML = '';
+    });
+
     it('shows trip dates even when there are no trip detail rows', async () => {
       const wrapper = await mountSuspended(TripDetailsWidget, {
         global: testMountGlobals({
@@ -318,6 +398,43 @@ describe('Planning Page', async () => {
         .toContain('Edit Trip Detail');
       wrapper.unmount();
     });
+
+    it('opens a create dialog from the plus button without inserting a detail', async () => {
+      const wrapper = await mountSuspended(TripDetailsWidget, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+            data: { trips, trip_details: tripDetails },
+          },
+          user: { profile: { id: trips[0]?.profile_id } },
+        }),
+      });
+      const store = usePlanningStore();
+      const createSpy = vi.spyOn(store, 'createTripDetail');
+
+      await wrapper.get('[data-testid="create-trip-detail-btn"]')
+        .trigger('click');
+      await wrapper.vm.$nextTick();
+      await wrapper.vm.$nextTick();
+
+      expect(createSpy)
+        .not
+        .toHaveBeenCalled();
+      expect(store.data.trip_details)
+        .toHaveLength(tripDetails.length);
+      expect(document.body.textContent)
+        .toContain('Create Trip Detail');
+      expect(document.body.textContent)
+        .not
+        .toContain('Edit Trip Detail');
+      expect(document.body.querySelector('[data-testid="delete-detail"]'))
+        .toBeNull();
+      expect(document.body.querySelector('[data-testid="create-detail"]'))
+        .toBeTruthy();
+      wrapper.unmount();
+    });
   });
 
   describe('ModifyDetailDialog.vue', async () => {
@@ -347,7 +464,7 @@ describe('Planning Page', async () => {
       wrapper.unmount();
     });
 
-    it('renders a New detail that has no URL', async () => {
+    it('shows the URL field after checking Link to URL', async () => {
       const wrapper = await mountSuspended(ModifyDetailDialog, {
         attachTo: document.body,
         global: testMountGlobals(),
@@ -357,10 +474,89 @@ describe('Planning Page', async () => {
         },
       });
 
-      expect(document.body.querySelector('[data-testid="modify-detail-dialog"]'))
+      expect(document.body.querySelector('[data-testid="detail-url"]'))
+        .toBeNull();
+
+      const checkbox = document.body.querySelector('[data-testid="detail-has-url"]') as HTMLElement;
+      expect(checkbox)
         .toBeTruthy();
+      checkbox.click();
+      await vi.waitFor(() => {
+        expect(document.body.querySelector('[data-testid="detail-url"]'))
+          .toBeTruthy();
+      });
+      wrapper.unmount();
+    });
+
+    it('renders a create dialog without a Delete action', async () => {
+      const wrapper = await mountSuspended(ModifyDetailDialog, {
+        global: testMountGlobals({
+          planning: {
+            pageLoading: false,
+            data: { trip_details: [] },
+          },
+        }),
+        attachTo: document.body,
+        props: {
+          detailType: TripDetailsType.HIKE,
+          isOpen: true,
+          mode: 'create',
+        },
+      });
+
+      expect(isDialogRootOpen(wrapper))
+        .toBe(true);
       expect(document.body.textContent)
+        .toContain('Create Hike Detail');
+      expect(document.body.textContent)
+        .not
         .toContain('Edit Hike Detail');
+      expect(document.body.querySelector('[data-testid="delete-detail"]'))
+        .toBeNull();
+      expect(document.body.querySelector('[data-testid="create-detail"]'))
+        .toBeTruthy();
+      wrapper.unmount();
+    });
+
+    it('creates a detail then closes', async () => {
+      const wrapper = await mountSuspended(ModifyDetailDialog, {
+        attachTo: document.body,
+        global: testMountGlobals(),
+        props: {
+          detailType: TripDetailsType.TRIP,
+          isOpen: true,
+          mode: 'create',
+        },
+      });
+      const store = usePlanningStore();
+      const created = { ...tripDetails[1]!, id: 99, title: 'Campsite notes' };
+      const createSpy = vi.spyOn(store, 'createTripDetail')
+        .mockResolvedValue(created);
+
+      const titleInput = document.body.querySelector('input[name="title"]') as HTMLInputElement;
+      expect(titleInput)
+        .toBeTruthy();
+      titleInput.value = 'Campsite notes';
+      titleInput.dispatchEvent(new Event('input', { bubbles: true }));
+      await wrapper.vm.$nextTick();
+
+      const createButton = document.body.querySelector('[data-testid="create-detail"]') as HTMLButtonElement;
+      expect(createButton)
+        .toBeTruthy();
+      createButton.click();
+      await vi.waitFor(() => {
+        expect(createSpy)
+          .toHaveBeenCalled();
+      });
+
+      expect(createSpy)
+        .toHaveBeenCalledWith(expect.objectContaining({
+          title: 'Campsite notes',
+          type: TripDetailsType.TRIP,
+          url: null,
+        }));
+      expect(wrapper.emitted('onClose'))
+        .toBeTruthy();
       wrapper.unmount();
     });
 

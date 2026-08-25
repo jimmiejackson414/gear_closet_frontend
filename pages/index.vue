@@ -83,7 +83,9 @@
   ]);
 
   const weatherTripId = computed(() => {
-    const trip = data.trips.find(item => item.origin_lat != null && item.origin_lng != null);
+    const trip = data.trips.find(item =>
+      (item.origin_lat != null && item.origin_lng != null)
+      || (item.destination_lat != null && item.destination_lng != null));
     return trip?.id ?? null;
   });
 

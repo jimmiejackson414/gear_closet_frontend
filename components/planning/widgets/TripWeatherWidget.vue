@@ -9,27 +9,39 @@
     IconSun,
   } from '#components';
   import { OPEN_METEO_ATTRIBUTION, type AirQualitySnapshot, type TripWeatherResponse } from '@/types/weather';
-  import { airQualityLabel, weatherIconKind } from '@/utils/tripWeather';
+  import { airQualityLabel, tripWeatherWatchKey, weatherIconKind } from '@/utils/tripWeather';
 
   interface Props {
     tripId?: number | null
   }
 
   const props = defineProps<Props>();
+  const $store = usePlanningStore();
+
+  const selectedPlaceTrip = computed(() => {
+    return $store.selectedTrip?.id === props.tripId ? $store.selectedTrip : null;
+  });
+
+  const weatherKey = computed(() => tripWeatherWatchKey(props.tripId, selectedPlaceTrip.value));
 
   const weatherAsync = useAsyncData(
-    () => `trip-weather-${props.tripId ?? 'none'}`,
+    () => `trip-weather-${weatherKey.value}`,
     async () => {
       if (!props.tripId) return null;
       return $fetch<TripWeatherResponse>('/api/weather', {
         query: { tripId: props.tripId },
       });
     },
-    { watch: [() => props.tripId], server: false },
+    { watch: [weatherKey], server: false },
   );
 
   const weather = computed(() => weatherAsync.data.value);
   const pending = computed(() => weatherAsync.pending.value);
+  const hasForecast = defineModel<boolean>('hasForecast', { default: false });
+
+  watch(() => weather.value?.status === 'forecast', (value) => {
+    hasForecast.value = value;
+  }, { immediate: true });
 
   const unitSymbol = computed(() => {
     if (weather.value && 'units' in weather.value) {
@@ -82,13 +94,11 @@
   <card
     class="px-4 sm:px-8 py-4 rounded-3xl"
     data-testid="trip-weather-widget">
-    <div class="flex justify-start items-center py-4">
-      <icon-sun class="mr-6 w-6 h-6 text-primary dark:text-primary-foreground" />
-      <typography
-        class="font-bold"
-        variant="p">
+    <div class="justify-start items-center grid grid-cols-[auto_auto_1fr] py-4">
+      <icon-sun class="mr-6 w-6 h-6 text-primary" />
+      <p class="font-bold! text-base">
         Weather
-      </typography>
+      </p>
     </div>
     <gc-skeleton
       v-if="pending"
@@ -97,7 +107,7 @@
       <typography
         class="text-muted-foreground"
         variant="p">
-        Pick a place for this trip's origin to see weather.
+        Pick a starting or ending point to see weather.
       </typography>
     </div>
     <div v-else-if="weather?.status === 'too_far'">
@@ -108,46 +118,52 @@
         your scheduled trip.
       </typography>
     </div>
-    <div v-else-if="weather?.status === 'forecast'">
-      <typography
-        class="mb-3 text-muted-foreground"
-        variant="muted">
-        Forecast for {{ weather.placeLabel }}
-      </typography>
-      <typography
-        v-if="weather.currentAirQuality"
-        class="mb-3"
-        variant="muted">
-        Air quality now:
-        <span :class="aqiClass(weather.currentAirQuality)">
-          {{ weather.currentAirQuality.aqi }} {{ airQualityLabel(weather.currentAirQuality.category) }}
-        </span>
-      </typography>
-      <ul class="divide-y divide-border">
-        <li
-          v-for="day in weather.days"
-          :key="day.date"
-          class="flex items-center gap-3 py-2">
-          <component
-            :is="iconFor(day.weatherCode)"
-            class="w-5 h-5 text-primary shrink-0" />
-          <span class="flex-1 text-sm">{{ formatDay(day.date) }}</span>
-          <span class="tabular-nums text-sm">
-            {{ Math.round(day.high) }}{{ unitSymbol }} / {{ Math.round(day.low) }}{{ unitSymbol }}
+    <div
+      v-else-if="weather?.status === 'forecast'"
+      class="space-y-6">
+      <div
+        v-for="place in weather.places"
+        :key="place.kind">
+        <typography
+          class="mb-3 text-muted-foreground"
+          variant="muted">
+          Forecast for {{ place.placeLabel }}
+        </typography>
+        <typography
+          v-if="place.currentAirQuality"
+          class="mb-3"
+          variant="muted">
+          Air quality now:
+          <span :class="aqiClass(place.currentAirQuality)">
+            {{ place.currentAirQuality.aqi }} {{ airQualityLabel(place.currentAirQuality.category) }}
           </span>
-          <span
-            v-if="day.precipChance != null"
-            class="w-12 tabular-nums text-muted-foreground text-sm text-right">
-            {{ Math.round(day.precipChance) }}%
-          </span>
-          <span
-            v-if="day.airQuality"
-            class="w-28 tabular-nums text-sm text-right"
-            :class="aqiClass(day.airQuality)">
-            AQI {{ day.airQuality.aqi }}
-          </span>
-        </li>
-      </ul>
+        </typography>
+        <ul class="divide-y divide-border">
+          <li
+            v-for="day in place.days"
+            :key="`${place.kind}-${day.date}`"
+            class="flex items-center gap-3 py-2">
+            <component
+              :is="iconFor(day.weatherCode)"
+              class="w-5 h-5 text-primary shrink-0" />
+            <span class="flex-1 text-sm">{{ formatDay(day.date) }}</span>
+            <span class="tabular-nums text-sm">
+              {{ Math.round(day.high) }}{{ unitSymbol }} / {{ Math.round(day.low) }}{{ unitSymbol }}
+            </span>
+            <span
+              v-if="day.precipChance != null"
+              class="w-12 tabular-nums text-muted-foreground text-sm text-right">
+              {{ Math.round(day.precipChance) }}%
+            </span>
+            <span
+              v-if="day.airQuality"
+              class="w-28 tabular-nums text-sm text-right"
+              :class="aqiClass(day.airQuality)">
+              AQI {{ day.airQuality.aqi }}
+            </span>
+          </li>
+        </ul>
+      </div>
     </div>
     <typography
       v-if="weather?.status === 'forecast'"

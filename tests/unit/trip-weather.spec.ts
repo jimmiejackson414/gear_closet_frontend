@@ -4,8 +4,10 @@ import {
   clampForecastRange,
   dailyMaxAqi,
   shouldUseForecast,
+  tripWeatherWatchKey,
   usAqiCategory,
   weatherIconKind,
+  weatherLocationsFromTrip,
   weatherUnitsFromMeasuringSystem,
 } from '@/utils/tripWeather';
 
@@ -66,5 +68,79 @@ describe('tripWeather', () => {
         '2026-08-25': { aqi: 85, category: 'moderate' },
         '2026-08-26': { aqi: 40, category: 'good' },
       });
+  });
+
+  it('builds weather locations from origin and destination', () => {
+    expect(weatherLocationsFromTrip({
+      origin_lat: 34.6265,
+      origin_lng: -84.1938,
+      starting_point: 'Springer Mountain',
+    }))
+      .toEqual([{
+        kind: 'origin',
+        lat: 34.6265,
+        lng: -84.1938,
+        label: 'Springer Mountain',
+      }]);
+
+    expect(weatherLocationsFromTrip({
+      destination_lat: 45.9044,
+      destination_lng: -68.9213,
+      ending_point: 'Mount Katahdin',
+    }))
+      .toEqual([{
+        kind: 'destination',
+        lat: 45.9044,
+        lng: -68.9213,
+        label: 'Mount Katahdin',
+      }]);
+
+    expect(weatherLocationsFromTrip({
+      origin_lat: 48.75,
+      origin_lng: -121.68,
+      starting_point: 'Hannegan Trailhead',
+      destination_lat: 48.75,
+      destination_lng: -121.68,
+      ending_point: 'Hannegan Trailhead',
+    }))
+      .toHaveLength(1);
+
+    expect(weatherLocationsFromTrip({
+      origin_lat: 34.6265,
+      origin_lng: -84.1938,
+      starting_point: 'Springer Mountain',
+      destination_lat: 45.9044,
+      destination_lng: -68.9213,
+      ending_point: 'Mount Katahdin',
+    }))
+      .toHaveLength(2);
+  });
+
+  it('changes the weather watch key when either place changes', () => {
+    const origin = tripWeatherWatchKey(2, {
+      origin_lat: 34.6,
+      origin_lng: -84.2,
+      starting_point: 'Springer Mountain',
+    });
+    const newOrigin = tripWeatherWatchKey(2, {
+      origin_lat: 48.75,
+      origin_lng: -121.68,
+      starting_point: 'Hannegan Trailhead',
+    });
+    const newDestination = tripWeatherWatchKey(2, {
+      origin_lat: 34.6,
+      origin_lng: -84.2,
+      starting_point: 'Springer Mountain',
+      destination_lat: 45.9,
+      destination_lng: -68.9,
+      ending_point: 'Mount Katahdin',
+    });
+
+    expect(origin)
+      .not
+      .toBe(newOrigin);
+    expect(origin)
+      .not
+      .toBe(newDestination);
   });
 });

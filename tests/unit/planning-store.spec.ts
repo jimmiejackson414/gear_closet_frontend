@@ -408,11 +408,17 @@ describe('stores/planning', () => {
   });
 
   describe('trip details CRUD', () => {
-    it('creates a starter detail and returns it', async () => {
+    it('creates a detail from the submitted payload and returns it', async () => {
+      const payload = {
+        title: 'Campsite notes',
+        type: TripDetailsType.HIKE,
+        value: 'Bring a bear can',
+        url: null,
+      };
       const created = {
         ...tripDetails[0]!,
         id: 99,
-        type: TripDetailsType.HIKE,
+        ...payload,
       };
       supabaseClient.current = createSupabaseMock({
         from: () => createThenableQuery({ data: [created], error: null }),
@@ -422,7 +428,7 @@ describe('stores/planning', () => {
       store.selectedTripId = String(trips[0]!.id);
       store.data.trip_details = [];
 
-      const detail = await store.createTripDetail(TripDetailsType.HIKE);
+      const detail = await store.createTripDetail(payload);
       expect(detail)
         .toEqual(created);
       expect(store.data.trip_details)
