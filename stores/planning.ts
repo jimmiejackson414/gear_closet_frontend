@@ -1,3 +1,4 @@
+import { computed, ref, watch } from "vue";
 import { defineStore } from "pinia";
 import { ResourceType, TripDetailsType } from "@/types";
 import { STARTER_DETAIL_TITLE, starterDetailValue } from "@/utils/trips";
@@ -28,7 +29,7 @@ export function normalizePlanningPageData (raw: PlanningPageData | null | undefi
   return {
     trips: raw?.trips ?? [],
     pack: coercePlanningPack(raw?.pack),
-    party_packs: raw?.party_packs ?? [],
+    party_packs: coercePartyPacks(raw?.party_packs),
     trip_details: raw?.trip_details ?? [],
     todos: raw?.todos ?? [],
     shopping_items: raw?.shopping_items ?? [],
@@ -46,6 +47,14 @@ function coercePlanningPack (pack: PlanningPageData['pack'] | unknown): Extended
   }
   if (pack && typeof pack === 'object') return pack as ExtendedPack;
   return undefined;
+}
+
+function coercePartyPacks (raw: PlanningPageData['party_packs'] | unknown): PartyTripPack[] {
+  if (!Array.isArray(raw)) return [];
+  return raw.map(party => ({
+    ...party,
+    pack: coercePlanningPack(party?.pack),
+  }));
 }
 
 export const usePlanningStore = defineStore('planning', () => {
