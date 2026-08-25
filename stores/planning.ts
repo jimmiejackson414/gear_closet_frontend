@@ -223,13 +223,17 @@ export const usePlanningStore = defineStore('planning', () => {
 
       if (newDetail?.length && !error) {
         const detail = newDetail[0];
-        if (detail) data.value.trip_details.push(detail);
+        if (detail) {
+          data.value.trip_details.push(detail);
+          return detail;
+        }
       } else if (error) {
         $appStore.notifyNegative(error.message || 'There was an error creating a new detail.');
       }
     } catch {
       $appStore.notifyNegative('There was an error creating a new detail.');
     }
+    return undefined;
   };
 
   const updateTripDetail = async (id: number, payload: TablesUpdate<'trip_details'>) => {

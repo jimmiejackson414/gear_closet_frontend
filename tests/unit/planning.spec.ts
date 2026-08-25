@@ -1,6 +1,6 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import ModifyDetailDialog from '@/components/planning/dialogs/ModifyDetailDialog.vue';
 import PlanningEmptyState from '@/components/planning/PlanningEmptyState.vue';
 import PlanningSettings from '@/components/planning/PlanningSettings.vue';
@@ -247,6 +247,31 @@ describe('Planning Page', async () => {
       expect(createDetailButton.exists())
         .toBe(true);
     });
+
+    it('opens the edit dialog when clicking a New detail', async () => {
+      wrapper.unmount();
+      wrapper = await mountSuspended(HikeDetailsWidget, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+            data: { trips, trip_details: tripDetails },
+          },
+          user: { profile: { id: trips[0]?.profile_id } },
+        }),
+      });
+
+      await wrapper.get('[data-testid="edit-detail"]')
+        .trigger('click');
+      await wrapper.vm.$nextTick();
+      await wrapper.vm.$nextTick();
+
+      expect(document.body.textContent)
+        .toContain('Edit Hike Detail');
+      expect(document.body.querySelector('[data-testid="modify-detail-dialog"]'))
+        .toBeTruthy();
+    });
   });
 
   describe('TripDetailsWidget.vue', async () => {
@@ -270,9 +295,36 @@ describe('Planning Page', async () => {
       expect(wrapper.text())
         .toContain("You haven't added any trip details yet!");
     });
+
+    it('opens the edit dialog when clicking a New trip detail', async () => {
+      const wrapper = await mountSuspended(TripDetailsWidget, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+            data: { trips, trip_details: tripDetails },
+          },
+          user: { profile: { id: trips[0]?.profile_id } },
+        }),
+      });
+
+      await wrapper.get('[data-testid="edit-detail"]')
+        .trigger('click');
+      await wrapper.vm.$nextTick();
+      await wrapper.vm.$nextTick();
+
+      expect(document.body.textContent)
+        .toContain('Edit Trip Detail');
+      wrapper.unmount();
+    });
   });
 
   describe('ModifyDetailDialog.vue', async () => {
+    afterEach(() => {
+      document.body.innerHTML = '';
+    });
+
     it('renders the dialog when open with an active detail', async () => {
       const wrapper = await mountSuspended(ModifyDetailDialog, {
         global: testMountGlobals({
@@ -292,6 +344,83 @@ describe('Planning Page', async () => {
         .toBe(true);
       expect(document.body.textContent)
         .toContain('Edit Hike Detail');
+      wrapper.unmount();
+    });
+
+    it('renders a New detail that has no URL', async () => {
+      const wrapper = await mountSuspended(ModifyDetailDialog, {
+        attachTo: document.body,
+        global: testMountGlobals(),
+        props: {
+          activeDetail: tripDetails[0]!,
+          isOpen: true,
+        },
+      });
+
+      expect(document.body.querySelector('[data-testid="modify-detail-dialog"]'))
+        .toBeTruthy();
+      expect(document.body.textContent)
+        .toContain('Edit Hike Detail');
+      wrapper.unmount();
+    });
+
+    it('updates a detail then closes', async () => {
+      const wrapper = await mountSuspended(ModifyDetailDialog, {
+        attachTo: document.body,
+        global: testMountGlobals(),
+        props: {
+          activeDetail: tripDetails[0]!,
+          isOpen: true,
+        },
+      });
+      const store = usePlanningStore();
+      const updateSpy = vi.spyOn(store, 'updateTripDetail')
+        .mockResolvedValue(true);
+
+      const updateButton = document.body.querySelector('[data-testid="update-detail"]') as HTMLButtonElement;
+      expect(updateButton)
+        .toBeTruthy();
+      updateButton.click();
+      await vi.waitFor(() => {
+        expect(updateSpy)
+          .toHaveBeenCalled();
+      });
+
+      expect(updateSpy)
+        .toHaveBeenCalledWith(tripDetails[0]!.id, expect.objectContaining({
+          title: tripDetails[0]!.title,
+          url: null,
+        }));
+      expect(wrapper.emitted('onClose'))
+        .toBeTruthy();
+      wrapper.unmount();
+    });
+
+    it('deletes a detail then closes', async () => {
+      const wrapper = await mountSuspended(ModifyDetailDialog, {
+        attachTo: document.body,
+        global: testMountGlobals(),
+        props: {
+          activeDetail: tripDetails[1]!,
+          isOpen: true,
+        },
+      });
+      const store = usePlanningStore();
+      const deleteSpy = vi.spyOn(store, 'deleteTripDetail')
+        .mockResolvedValue(true);
+
+      const deleteButton = document.body.querySelector('[data-testid="delete-detail"]') as HTMLButtonElement;
+      expect(deleteButton)
+        .toBeTruthy();
+      deleteButton.click();
+      await wrapper.vm.$nextTick();
+      await wrapper.vm.$nextTick();
+
+      expect(deleteSpy)
+        .toHaveBeenCalledWith(tripDetails[1]!.id);
+      expect(wrapper.emitted('onClose'))
+        .toBeTruthy();
+      wrapper.unmount();
     });
   });
 });

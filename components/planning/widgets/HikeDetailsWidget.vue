@@ -13,7 +13,21 @@
     }) || [];
   });
 
-  const createNewDetail = () => $store.createTripDetail(TripDetailsType.HIKE);
+  const openDetail = (detail: Tables<'trip_details'>) => {
+    activeDetail.value = detail;
+    nextTick(() => {
+      isModifyDetailDialogOpen.value = true;
+    });
+  };
+
+  const closeDetail = () => {
+    isModifyDetailDialogOpen.value = false;
+  };
+
+  const createNewDetail = async () => {
+    const detail = await $store.createTripDetail(TripDetailsType.HIKE);
+    if (detail) openDetail(detail);
+  };
   const updateTrip = (payload: TablesUpdate<'trips'>) => $store.updateTrip(payload);
 
   const saveOrigin = (place: PlaceSuggestion | null, label?: string) => {
@@ -121,14 +135,15 @@
       </gc-empty-state>
       <details-list
         v-else
+        :can-edit="$store.canEditSelectedTrip"
         :details="hikeDetails"
-        @edit="[activeDetail = $event, isModifyDetailDialogOpen = true]" />
+        @edit="openDetail" />
     </div>
   </card>
 
-  <!-- Modify Detail Dialog -->
-  <lazy-modify-detail-dialog
-    :active-detail="( activeDetail as Tables<'trip_details'> )"
-    :is-open="isModifyDetailDialogOpen"
-    @on-close="isModifyDetailDialogOpen = false" />
+  <modify-detail-dialog
+    v-if="isModifyDetailDialogOpen && activeDetail"
+    :active-detail="activeDetail"
+    :is-open="true"
+    @on-close="closeDetail" />
 </template>
