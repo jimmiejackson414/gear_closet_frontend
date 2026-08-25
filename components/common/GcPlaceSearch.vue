@@ -27,6 +27,7 @@
   const places = ref<PlaceSuggestion[]>([]);
   const open = ref(false);
   const loading = ref(false);
+  const hasSearched = ref(false);
   const editing = ref(false);
   const pickedLabel = ref<string | null>(null);
   const rootRef = ref<HTMLElement | null>(null);
@@ -42,19 +43,21 @@
     const trimmed = text.trim();
     if (trimmed.length < 2 || props.disabled) {
       places.value = [];
+      hasSearched.value = false;
       return;
     }
     loading.value = true;
+    open.value = true;
     try {
       const response = await $fetch<PlaceSearchResponse>('/api/places/search', {
         query: { q: trimmed },
       });
       places.value = response.places;
-      open.value = true;
     } catch {
       places.value = [];
     } finally {
       loading.value = false;
+      hasSearched.value = true;
     }
   }, 300);
 
@@ -145,12 +148,17 @@
       @focus="onFocus"
       @update:model-value="onInput" />
     <ul
-      v-if="open && (places.length || loading)"
+      v-if="open && (places.length || loading || hasSearched)"
       class="z-20 absolute bg-popover shadow-md mt-1 p-1 border rounded-md w-full max-h-60 overflow-auto">
       <li
         v-if="loading && !places.length"
         class="px-2 py-1.5 text-muted-foreground text-sm">
         Searching…
+      </li>
+      <li
+        v-else-if="!places.length"
+        class="px-2 py-1.5 text-muted-foreground text-sm">
+        No matching places. You can still save this name.
       </li>
       <li
         v-for="place in places"
