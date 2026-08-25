@@ -1,5 +1,7 @@
 <script lang='ts' setup>
   import { TripDetailsType, type Tables, type TablesUpdate } from '@/types';
+  import { coordsFromPlace } from '@/utils/places';
+  import type { PlaceSuggestion } from '@/types/places';
 
   const $store = usePlanningStore();
   const activeDetail = ref<Tables<'trip_details'> | undefined>(undefined);
@@ -13,6 +15,26 @@
 
   const createNewDetail = () => $store.createTripDetail(TripDetailsType.HIKE);
   const updateTrip = (payload: TablesUpdate<'trips'>) => $store.updateTrip(payload);
+
+  const saveOrigin = (place: PlaceSuggestion | null, label?: string) => {
+    const coords = coordsFromPlace(place);
+    updateTrip({
+      starting_point: place?.label ?? label ?? $store.selectedTrip?.starting_point,
+      origin_lat: coords.lat,
+      origin_lng: coords.lng,
+      origin_place_id: coords.placeId,
+    });
+  };
+
+  const saveDestination = (place: PlaceSuggestion | null, label?: string) => {
+    const coords = coordsFromPlace(place);
+    updateTrip({
+      ending_point: place?.label ?? label ?? $store.selectedTrip?.ending_point,
+      destination_lat: coords.lat,
+      destination_lng: coords.lng,
+      destination_place_id: coords.placeId,
+    });
+  };
 </script>
 
 <template>
@@ -35,34 +57,40 @@
     </div>
     <gc-skeleton v-if="$store.pageLoading" />
     <div v-else>
-      <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
-        <gc-inline-edit
+      <div class="flex sm:flex-row flex-col sm:items-center gap-2 sm:gap-6">
+        <gc-place-search
           :disabled="!$store.canEditSelectedTrip"
           :model-value="$store.selectedTrip?.starting_point"
           name="starting_point"
           placeholder="Starting point"
-          size="sm"
-          @update:model-value="updateTrip({ starting_point: $event as string | null })">
-          <typography
-            class="font-black!"
-            variant="large">
-            {{ $store.selectedTrip?.starting_point }}
-          </typography>
-        </gc-inline-edit>
+          variant="inline"
+          @commit="(label) => saveOrigin(null, label)"
+          @select="saveOrigin">
+          <template #display>
+            <typography
+              class="font-black!"
+              variant="large">
+              {{ $store.selectedTrip?.starting_point }}
+            </typography>
+          </template>
+        </gc-place-search>
         <icon-move-right class="hidden sm:block w-6 h-6 text-muted-foreground shrink-0" />
-        <gc-inline-edit
+        <gc-place-search
           :disabled="!$store.canEditSelectedTrip"
           :model-value="$store.selectedTrip?.ending_point"
           name="ending_point"
           placeholder="Ending point"
-          size="sm"
-          @update:model-value="updateTrip({ ending_point: $event as string | null })">
-          <typography
-            class="font-black!"
-            variant="large">
-            {{ $store.selectedTrip?.ending_point }}
-          </typography>
-        </gc-inline-edit>
+          variant="inline"
+          @commit="(label) => saveDestination(null, label)"
+          @select="saveDestination">
+          <template #display>
+            <typography
+              class="font-black!"
+              variant="large">
+              {{ $store.selectedTrip?.ending_point }}
+            </typography>
+          </template>
+        </gc-place-search>
       </div>
       <div class="flex items-center mb-6">
         <gc-inline-edit

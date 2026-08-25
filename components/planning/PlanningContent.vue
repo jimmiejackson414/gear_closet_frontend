@@ -28,6 +28,11 @@
         <!-- Todos -->
         <todos-widget />
 
+        <!-- Weather -->
+        <trip-weather-widget
+          v-if="$store.selectedTrip"
+          :trip-id="$store.selectedTrip.id" />
+
         <!-- Shopping List -->
         <shopping-list-widget />
 

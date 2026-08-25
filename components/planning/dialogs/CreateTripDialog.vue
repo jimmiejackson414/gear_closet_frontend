@@ -4,8 +4,10 @@
   import dayjs from 'dayjs';
   import { useForm } from 'vee-validate';
   import * as z from 'zod';
-  import { IconBackpack, IconMapPin, IconText } from '#components';
+  import { IconBackpack, IconText } from '#components';
+  import { coordsFromPlace } from '@/utils/places';
   import type { Database, TablesInsert } from '@/types';
+  import type { PlaceSuggestion } from '@/types/places';
   import '@vuepic/vue-datepicker/dist/main.css';
 
   interface Props {
@@ -28,11 +30,11 @@
       .optional(),
     starting_point: z.string()
       .min(3)
-      .max(50)
+      .max(200)
       .optional(),
     ending_point: z.string()
       .min(3)
-      .max(50)
+      .max(200)
       .optional(),
     dateRange: z.array(z.date())
       .length(2)
@@ -69,16 +71,26 @@
    */
   const $appStore = useAppStore();
   const dateRange = ref([]);
+  const originPlace = ref<PlaceSuggestion | null>(null);
+  const destinationPlace = ref<PlaceSuggestion | null>(null);
   const onSubmit = handleSubmit(async (values) => {
     try {
       isSubmitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
+      const origin = coordsFromPlace(originPlace.value);
+      const destination = coordsFromPlace(destinationPlace.value);
       const payload: TablesInsert<'trips'> = {
         name: values.name,
         description: values.description,
         starting_point: values.starting_point,
         ending_point: values.ending_point,
+        origin_lat: origin.lat,
+        origin_lng: origin.lng,
+        origin_place_id: origin.placeId,
+        destination_lat: destination.lat,
+        destination_lng: destination.lng,
+        destination_place_id: destination.placeId,
         starting_date: values.dateRange?.[0]?.toISOString(),
         ending_date: values.dateRange?.[1]?.toISOString(),
         profile_id: user.value?.sub as string,
@@ -162,10 +174,11 @@
             <form-item>
               <form-label>Trip Origin</form-label>
               <form-control>
-                <input-root
+                <gc-place-search
                   :disabled="isSubmitting"
-                  :prepend-icon="IconMapPin"
-                  v-bind="componentField" />
+                  placeholder="Search a trailhead, park, or town"
+                  v-bind="componentField"
+                  @select="originPlace = $event" />
               </form-control>
             </form-item>
           </form-field>
@@ -178,10 +191,11 @@
             <form-item>
               <form-label>Trip Destination</form-label>
               <form-control>
-                <input-root
+                <gc-place-search
                   :disabled="isSubmitting"
-                  :prepend-icon="IconMapPin"
-                  v-bind="componentField" />
+                  placeholder="Search a trailhead, park, or town"
+                  v-bind="componentField"
+                  @select="destinationPlace = $event" />
               </form-control>
             </form-item>
           </form-field>

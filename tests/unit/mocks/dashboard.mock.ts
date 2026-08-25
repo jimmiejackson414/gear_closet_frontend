@@ -16,6 +16,12 @@ export const upcomingTrips: Tables<'trips'>[] = [
     "updated_at": "2024-04-11 20:34:30.637297+00",
     "profile_id": "61b66be5-d199-48d5-898a-c521dd6b59cc",
     "locked_at": null,
+    "origin_lat": 34.6265,
+    "origin_lng": -84.1938,
+    "origin_place_id": null,
+    "destination_lat": null,
+    "destination_lng": null,
+    "destination_place_id": null,
   },
   {
     "id": 6,
@@ -30,6 +36,12 @@ export const upcomingTrips: Tables<'trips'>[] = [
     "updated_at": "2024-04-23 18:59:06.088498+00",
     "profile_id": "ea10a57b-54ed-42ee-9462-542bd7f0e760",
     "locked_at": null,
+    "origin_lat": null,
+    "origin_lng": null,
+    "origin_place_id": null,
+    "destination_lat": null,
+    "destination_lng": null,
+    "destination_place_id": null,
   },
 ];
 

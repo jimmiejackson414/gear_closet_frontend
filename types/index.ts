@@ -1243,11 +1243,17 @@ export type Database = {
         Row: {
           created_at: string | null
           description: string | null
+          destination_lat: number | null
+          destination_lng: number | null
+          destination_place_id: string | null
           ending_date: string | null
           ending_point: string | null
           id: number
           locked_at: string | null
           name: string | null
+          origin_lat: number | null
+          origin_lng: number | null
+          origin_place_id: string | null
           profile_id: string | null
           slug: string | null
           starting_date: string | null
@@ -1257,11 +1263,17 @@ export type Database = {
         Insert: {
           created_at?: string | null
           description?: string | null
+          destination_lat?: number | null
+          destination_lng?: number | null
+          destination_place_id?: string | null
           ending_date?: string | null
           ending_point?: string | null
           id?: number
           locked_at?: string | null
           name?: string | null
+          origin_lat?: number | null
+          origin_lng?: number | null
+          origin_place_id?: string | null
           profile_id?: string | null
           slug?: string | null
           starting_date?: string | null
@@ -1271,11 +1283,17 @@ export type Database = {
         Update: {
           created_at?: string | null
           description?: string | null
+          destination_lat?: number | null
+          destination_lng?: number | null
+          destination_place_id?: string | null
           ending_date?: string | null
           ending_point?: string | null
           id?: number
           locked_at?: string | null
           name?: string | null
+          origin_lat?: number | null
+          origin_lng?: number | null
+          origin_place_id?: string | null
           profile_id?: string | null
           slug?: string | null
           starting_date?: string | null

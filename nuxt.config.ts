@@ -115,6 +115,7 @@ export default defineNuxtConfig({
     mailAllowlist: '',
     sentryDsn: '',
     sentryProbeKey: '',
+    geoapifyApiKey: '',
 
     public: {
       cloudinaryCloudName: process.env.NUXT_PUBLIC_CLOUDINARY_CLOUD_NAME,
