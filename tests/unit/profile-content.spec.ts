@@ -43,6 +43,9 @@ function seedFreeProfile () {
 function seedLifetimeProfile () {
   const userStore = useUserStore();
   const existing = profile.subscriptions[0];
+  if (!existing) {
+    throw new Error('Expected the profile mock to include a subscription');
+  }
   userStore.profile = {
     ...profile,
     subscriptions: [{
