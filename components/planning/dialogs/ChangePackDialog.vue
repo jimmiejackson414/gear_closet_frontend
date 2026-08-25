@@ -1,7 +1,6 @@
 <script lang='ts' setup>
   import { IconBackpack } from '#components';
   import type { Database } from '@/types';
-  import type { ExtendedPack } from '@/types/closet';
   import type { SelectOption } from '@/types/ui';
 
   interface Props {
@@ -58,35 +57,6 @@
   });
 
   /**
-   * Fetches the trip pack.
-   */
-  const fetchTripPack = async () => {
-    try {
-      const supabase = useSupabaseClient<Database>();
-      const { data: pack, error } = await supabase
-        .from('packs')
-        .select(
-          `
-          *,
-          categories(*,
-            category_items(*,
-              item:item_id(*)
-            )
-          )
-        `,
-        )
-        .eq('id', selectedPackId.value as number)
-        .single();
-
-      if (pack && !error) {
-        $store.data.pack = pack as ExtendedPack;
-      }
-    } catch {
-      $appStore.notifyNegative('There was an error fetching the trip pack.');
-    }
-  };
-
-  /**
    * Adds a pack to the trip.
    */
   const submitting = ref(false);
@@ -107,8 +77,7 @@
         throw new Error('There was an error adding the pack to the trip.');
       } else {
         $appStore.notifyPositive('Pack added to trip!');
-        // fetch new trip pack
-        fetchTripPack();
+        await $store.fetchPlanningPage(Number($store.selectedTripId));
         emits('onClose');
       }
     } catch {
@@ -137,8 +106,7 @@
       } else {
         $appStore.notifyPositive('Trip pack updated!');
         emits('onClose');
-        // fetch new trip pack
-        fetchTripPack();
+        await $store.fetchPlanningPage(Number($store.selectedTripId));
       }
     } catch {
       $appStore.notifyNegative('There was an error updating the trip pack.');

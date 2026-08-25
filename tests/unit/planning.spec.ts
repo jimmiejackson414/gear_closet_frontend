@@ -203,6 +203,29 @@ describe('Planning Page', async () => {
       expect(createDetailButton.exists())
         .toBe(true);
     });
+
+    it('lets an accepted invitee add hike details', async () => {
+      const store = usePlanningStore();
+      const userStore = useUserStore();
+      const sessionUserId = trips[0]!.profile_id as string;
+      store.data.trips = [{ ...trips[0]!, profile_id: 'someone-else' }];
+      store.data.trip_details = tripDetails;
+      store.selectedTripId = String(trips[0]?.id);
+      store.pageLoading = false;
+      // Nested profile types on ExtendedTripFriend hit TS2589 if assigned structurally.
+      (store.data as { friends: Array<{ profile_id: string; status: string }> }).friends = [{
+        profile_id: sessionUserId,
+        status: 'ACCEPTED',
+      }];
+      userStore.$patch({
+        profile: { id: sessionUserId } as any,
+      });
+      await wrapper.vm.$nextTick();
+
+      const createDetailButton = wrapper.find('[data-testid="create-new-detail-btn"]');
+      expect(createDetailButton.exists())
+        .toBe(true);
+    });
   });
 
   describe('ModifyDetailDialog.vue', async () => {

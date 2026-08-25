@@ -1308,6 +1308,7 @@ export type Database = {
       get_closet_page_data: { Args: { p_pack_id: number }; Returns: Json }
       get_dashboard_data: { Args: never; Returns: Json }
       get_planning_page_data: { Args: { p_trip_id: number }; Returns: Json }
+      grant_beta_lifetime_for_profile: { Args: { p_profile_id: string }; Returns: undefined }
       import_csv_data: {
         Args: { csv_data: Json; p_pack_id: number }
         Returns: Json

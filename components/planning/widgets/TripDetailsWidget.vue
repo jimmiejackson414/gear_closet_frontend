@@ -49,7 +49,7 @@
         Trip Details
       </p>
       <button-root
-        v-if="!$store.pageLoading && tripDetails.length && $store.isSelectedTripOwner"
+        v-if="!$store.pageLoading && tripDetails.length && $store.canEditSelectedTrip"
         aria-label="Add trip detail"
         class="justify-self-end rounded-full"
         size="icon"
@@ -64,7 +64,7 @@
         You haven't added any trip details yet!
       </p>
       <button-root
-        v-if="$store.isSelectedTripOwner"
+        v-if="$store.canEditSelectedTrip"
         size="sm"
         variant="outline"
         @click="createDetail">
@@ -74,7 +74,7 @@
     <div v-else>
       <div class="flex flex-col mb-6">
         <gc-inline-edit
-          :disabled="!$store.isSelectedTripOwner"
+          :disabled="!$store.canEditSelectedTrip"
           :model-value="$store.selectedTrip?.name"
           name="trip_name"
           placeholder="Trip Name"
@@ -90,7 +90,7 @@
           <div
             v-if="!editingTripDates"
             class="group flex items-center gap-4"
-            @click="$store.isSelectedTripOwner && (editingTripDates = !editingTripDates)">
+            @click="$store.canEditSelectedTrip && (editingTripDates = !editingTripDates)">
             <typography class="text-muted-foreground cursor-pointer">
               {{ $store.selectedTrip?.starting_date ? formattedDate($store.selectedTrip?.starting_date) : 'Start Date' }}
             </typography>
@@ -99,7 +99,7 @@
               {{ $store.selectedTrip?.ending_date ? formattedDate($store.selectedTrip?.ending_date) : 'End Date' }}
             </typography>
             <button-root
-              v-if="$store.isSelectedTripOwner"
+              v-if="$store.canEditSelectedTrip"
               aria-label="Edit trip dates"
               class="opacity-0 group-hover:opacity-100 rounded-full"
               size="sm"

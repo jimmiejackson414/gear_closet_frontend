@@ -1,33 +1,26 @@
 import { SubscriptionLevel } from '@/types';
+import { shouldGrantLifetimeOnOnboarding } from '@/utils/lifetimePromo';
 import type { ExtendedUser } from '@/types/profile';
 
 /**
- * Only Life promo subscriptions are created during onboarding. Monthly and
- * Annual billing is deferred to Profile, where the Stripe Card Element attaches
- * a payment method before subscribe.
- */
-export function requiresOnboardingStripeSubscription (plan: SubscriptionLevel): boolean {
-  return plan === SubscriptionLevel.LIFE;
-}
-
-/**
- * Completes onboarding for a chosen plan.
+ * Completes onboarding for a chosen plan by setting `onboard_date`.
  *
- * Card details are not collected during onboarding. Free users finish with no
- * Stripe rows. Life promo may POST a subscription without a card. Monthly/Annual
- * selections complete as Free; paid billing happens later from Profile (#65 / #71).
+ * Card details are not collected during onboarding. When the lifetime promo
+ * flag is on, choosing LIFE writes a DB subscription row (no Stripe).
+ * Monthly/Annual checkout stays on Profile.
  */
 export async function completeOnboardingPlan (input: {
   plan: SubscriptionLevel | null;
-  createPaidSubscription: (plan: SubscriptionLevel) => Promise<{ ok: boolean }>;
+  lifetimePromo?: unknown;
+  grantLifetime: () => Promise<{ ok: boolean }>;
   markOnboarded: () => Promise<{ success: boolean }>;
 }): Promise<void> {
   if (!input.plan) {
     throw new Error('Select a plan to continue.');
   }
 
-  if (requiresOnboardingStripeSubscription(input.plan)) {
-    const response = await input.createPaidSubscription(input.plan);
+  if (shouldGrantLifetimeOnOnboarding(input.plan, input.lifetimePromo)) {
+    const response = await input.grantLifetime();
     if (!response.ok) {
       throw new Error('Unable to start your subscription.');
     }

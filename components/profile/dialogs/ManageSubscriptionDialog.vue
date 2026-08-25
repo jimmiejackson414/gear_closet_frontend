@@ -38,6 +38,9 @@
   const selectedPackId = ref<number | undefined>(undefined);
   const selectedTripId = ref<number | undefined>(undefined);
 
+  const isLifetimeMember = computed(() =>
+    $userStore.currentPlanIdentifier === SubscriptionLevel.LIFE);
+
   const hasExistingSubscription = computed(() =>
     Boolean(props.subscriptionData.subscriptions?.length));
 
@@ -63,6 +66,9 @@
   });
 
   const steps = computed(() => {
+    if (isLifetimeMember.value) {
+      return [{ step: 1, title: 'Subscription', icon: IconHeart }];
+    }
     const base = [
       { step: 1, title: 'Subscription', icon: IconCheckCircle },
     ];
@@ -377,7 +383,7 @@
           <div class="flex flex-col gap-4 mx-auto mt-2 w-full">
             <template v-if="activeStep === 1">
               <div
-                v-if="subscriptionData?.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() === SubscriptionLevel.LIFE"
+                v-if="isLifetimeMember"
                 class="mt-2 mb-4 text-center">
                 <typography class="font-bold text-lg">
                   Good news!
@@ -402,7 +408,9 @@
                   </span>
                 </typography>
               </div>
-              <div class="gap-4 grid grid-cols-1 lg:grid-cols-3">
+              <div
+                v-if="!isLifetimeMember"
+                class="gap-4 grid grid-cols-1 lg:grid-cols-3">
                 <subscription-item
                   v-for="tier in tiers"
                   :key="tier.title"
@@ -512,9 +520,10 @@
         <dialog-close
           class=""
           @click="handleClose">
-          Cancel
+          {{ isLifetimeMember ? 'Close' : 'Cancel' }}
         </dialog-close>
         <button-root
+          v-if="!isLifetimeMember"
           :disabled="isSubmitting || !canContinue"
           :loading="isSubmitting"
           @click="handleContinue">

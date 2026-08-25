@@ -4,9 +4,16 @@ import type { Database, Tables, TablesUpdate } from "@/types";
 import type { ExtendedPack } from "@/types/closet";
 import type { ExtendedPoll, ExtendedTripFriend, PendingTripInvite } from "@/types/planning";
 
+export type PartyTripPack = {
+  profile_id: string;
+  display_name: string | null;
+  pack?: ExtendedPack | null;
+};
+
 export interface PlanningPageData {
   trips: Tables<'trips'>[];
   pack?: ExtendedPack;
+  party_packs: PartyTripPack[];
   trip_details: Tables<'trip_details'>[];
   todos: Tables<'todos'>[];
   shopping_items: Tables<'shopping_list_items'>[];
@@ -20,6 +27,7 @@ export function normalizePlanningPageData (raw: PlanningPageData | null | undefi
   return {
     trips: raw?.trips ?? [],
     pack: raw?.pack ?? undefined,
+    party_packs: raw?.party_packs ?? [],
     trip_details: raw?.trip_details ?? [],
     todos: raw?.todos ?? [],
     shopping_items: raw?.shopping_items ?? [],
@@ -34,6 +42,7 @@ export const usePlanningStore = defineStore('planning', () => {
   const data = ref<PlanningPageData>({
     trips: [],
     pack: undefined,
+    party_packs: [],
     trip_details: [],
     todos: [],
     shopping_items: [],
@@ -56,6 +65,17 @@ export const usePlanningStore = defineStore('planning', () => {
     const userStore = useUserStore();
     const userId = session.value?.sub ?? userStore.profile?.id;
     return Boolean(userId && selectedTrip.value?.profile_id === userId);
+  });
+
+  /** Owner or accepted invitee. Trip delete stays owner-only. */
+  const canEditSelectedTrip = computed(() => {
+    if (isSelectedTripOwner.value) return true;
+    const session = useSupabaseUser();
+    const userStore = useUserStore();
+    const userId = session.value?.sub ?? userStore.profile?.id;
+    if (!userId || !selectedTrip.value) return false;
+    return (data.value.friends ?? []).some((friend) =>
+      friend.profile_id === userId && friend.status === 'ACCEPTED');
   });
 
   /**
@@ -390,6 +410,7 @@ export const usePlanningStore = defineStore('planning', () => {
     fetchGeneration,
     selectedTrip,
     isSelectedTripOwner,
+    canEditSelectedTrip,
     fetchPlanningPage,
     updateTrip,
     createTripDetail,

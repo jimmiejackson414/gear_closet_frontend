@@ -27,6 +27,8 @@ const supabaseClient = vi.hoisted(() => ({
 mockNuxtImport('useSupabaseUser', () => () => supabaseUser);
 mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
 
+const SESSION_USER_ID = '61b66be5-d199-48d5-898a-c521dd6b59cc';
+
 describe('stores/planning', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
@@ -40,6 +42,7 @@ describe('stores/planning', () => {
         .toEqual({
           trips: [],
           pack: undefined,
+          party_packs: [],
           trip_details: [],
           todos: [],
           shopping_items: [],
@@ -61,6 +64,8 @@ describe('stores/planning', () => {
       expect(normalized.todos)
         .toEqual([]);
       expect(normalized.shopping_items)
+        .toEqual([]);
+      expect(normalized.party_packs)
         .toEqual([]);
     });
 
@@ -311,6 +316,46 @@ describe('stores/planning', () => {
       store.selectedTripId = String(trips[0]!.id);
 
       expect(store.isSelectedTripOwner)
+        .toBe(false);
+    });
+  });
+
+  describe('canEditSelectedTrip', () => {
+    it('is true for the trip owner', () => {
+      const store = usePlanningStore();
+      store.data.trips = [...trips];
+      store.selectedTripId = String(trips[0]!.id);
+
+      expect(store.canEditSelectedTrip)
+        .toBe(true);
+    });
+
+    it('is true for an accepted invitee', () => {
+      const store = usePlanningStore();
+      store.data.trips = [{ ...trips[0]!, profile_id: 'someone-else' }];
+      store.selectedTripId = String(trips[0]!.id);
+      // Nested profile types on ExtendedTripFriend hit TS2589 if assigned structurally.
+      (store.data as { friends: Array<{ profile_id: string; status: string }> }).friends = [{
+        profile_id: SESSION_USER_ID,
+        status: 'ACCEPTED',
+      }];
+
+      expect(store.isSelectedTripOwner)
+        .toBe(false);
+      expect(store.canEditSelectedTrip)
+        .toBe(true);
+    });
+
+    it('is false for a pending invitee', () => {
+      const store = usePlanningStore();
+      store.data.trips = [{ ...trips[0]!, profile_id: 'someone-else' }];
+      store.selectedTripId = String(trips[0]!.id);
+      (store.data as { friends: Array<{ profile_id: string; status: string }> }).friends = [{
+        profile_id: SESSION_USER_ID,
+        status: 'PENDING',
+      }];
+
+      expect(store.canEditSelectedTrip)
         .toBe(false);
     });
   });

@@ -23,7 +23,7 @@
         Hike Details
       </typography>
       <button-root
-        v-if="!$store.pageLoading && hikeDetails.length && $store.isSelectedTripOwner"
+        v-if="!$store.pageLoading && hikeDetails.length && $store.canEditSelectedTrip"
         aria-label="Add hike detail"
         class="justify-self-end rounded-full"
         data-testid="create-new-detail-btn"
@@ -41,7 +41,7 @@
         You haven't created any hike details yet!
       </typography>
       <button-root
-        v-if="$store.isSelectedTripOwner"
+        v-if="$store.canEditSelectedTrip"
         size="sm"
         variant="outline"
         @click="createNewDetail">
@@ -51,7 +51,7 @@
     <div v-else>
       <div class="flex items-center gap-6">
         <gc-inline-edit
-          :disabled="!$store.isSelectedTripOwner"
+          :disabled="!$store.canEditSelectedTrip"
           :model-value="$store.selectedTrip?.starting_point"
           name="starting_point"
           placeholder="Starting point"
@@ -65,7 +65,7 @@
         </gc-inline-edit>
         <icon-move-right class="w-6 h-6 text-muted-foreground" />
         <gc-inline-edit
-          :disabled="!$store.isSelectedTripOwner"
+          :disabled="!$store.canEditSelectedTrip"
           :model-value="$store.selectedTrip?.ending_point"
           name="ending_point"
           placeholder="Ending point"
@@ -80,7 +80,7 @@
       </div>
       <div class="flex items-center mb-6">
         <gc-inline-edit
-          :disabled="!$store.isSelectedTripOwner"
+          :disabled="!$store.canEditSelectedTrip"
           :model-value="$store.selectedTrip?.description"
           name="description"
           placeholder="Trip description"

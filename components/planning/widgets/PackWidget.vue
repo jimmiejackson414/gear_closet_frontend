@@ -24,6 +24,51 @@
 
   const $store = usePlanningStore();
   const $appStore = useAppStore();
+  const $userStore = useUserStore();
+  const sessionUser = useSupabaseUser();
+
+  const currentUserId = computed(() =>
+    sessionUser.value?.sub ?? $userStore.profile?.id);
+
+  const viewedPackProfileId = ref<string | undefined>(undefined);
+
+  watch(
+    [() => $store.selectedTripId, currentUserId],
+    () => {
+      viewedPackProfileId.value = currentUserId.value;
+    },
+    { immediate: true },
+  );
+
+  const viewingOwnPack = computed(() =>
+    Boolean(currentUserId.value)
+    && (!viewedPackProfileId.value || viewedPackProfileId.value === currentUserId.value));
+
+  const displayedPack = computed(() => {
+    if (viewingOwnPack.value) return $store.data.pack;
+    return $store.data.party_packs.find((party) =>
+      party.profile_id === viewedPackProfileId.value)?.pack ?? undefined;
+  });
+
+  const packViewerOptions = computed(() => {
+    const options: { value: string; label: string }[] = [];
+    if (currentUserId.value) {
+      options.push({ value: currentUserId.value, label: 'My pack' });
+    }
+    for (const party of $store.data.party_packs ?? []) {
+      if (party.profile_id === currentUserId.value) continue;
+      options.push({
+        value: party.profile_id,
+        label: party.display_name || 'Trip member',
+      });
+    }
+    return options;
+  });
+
+  const showPackViewer = computed(() => packViewerOptions.value.length > 1);
+
+  const canManagePack = computed(() =>
+    $store.canEditSelectedTrip && viewingOwnPack.value);
 
   const modalState = ref<'insert' | 'update' | undefined>(undefined);
   const isAddPackModalOpen = ref(false);
@@ -106,7 +151,7 @@
           borderColor: 'white',
           borderWidth: 2,
           color: (params: CallbackDataParams) => {
-            const theme = findTheme($store.data.pack?.theme as Theme);
+            const theme = findTheme(displayedPack.value?.theme as Theme);
             return theme[params.dataIndex % theme.length] ?? '';
           },
         },
@@ -118,7 +163,7 @@
       formatter: (params: TopLevelFormatterParams) => {
         // Trigger is 'item', but the callback type still allows the array form.
         const value = Array.isArray(params) ? params[0] : params;
-        const category = value ? $store.data.pack?.categories?.[value.dataIndex] : undefined;
+        const category = value ? displayedPack.value?.categories?.[value.dataIndex] : undefined;
         const categoryWeight = calculateCategoryWeight(category as ExtendedCategory);
         const weight = round(convert(categoryWeight, 'mg')
           .to('lb'), 2);
@@ -138,7 +183,7 @@
   });
 
   const applyPackSeries = () => {
-    const categories = $store.data.pack?.categories ?? [];
+    const categories = displayedPack.value?.categories ?? [];
     chartRef.value?.setOption({
       legend: {
         data: categories.map(c => ({
@@ -156,7 +201,7 @@
         })),
         itemStyle: {
           color: (params: CallbackDataParams) => {
-            const theme = findTheme($store.data.pack?.theme as Theme);
+            const theme = findTheme(displayedPack.value?.theme as Theme);
             return theme[params.dataIndex % theme.length] ?? '';
           },
         },
@@ -186,7 +231,7 @@
   const colorMode = useColorMode();
   watch(() => colorMode.value, () => updateLegendTextColor());
 
-  watch(() => $store.data.pack?.theme, (newTheme) => {
+  watch(() => displayedPack.value?.theme, (newTheme) => {
     chartRef.value?.setOption({
       series: [{
         itemStyle: {
@@ -199,7 +244,7 @@
     });
   });
 
-  watch(() => $store.data.pack?.categories, () => {
+  watch(() => displayedPack.value?.categories, () => {
     applyPackSeries();
   }, { deep: true, immediate: true });
 </script>
@@ -207,14 +252,31 @@
 <template>
   <card class="px-8 py-4 rounded-3xl">
     <div class="flex justify-between items-center py-4">
-      <div class="flex items-center">
-        <icon-backpack class="mr-6 w-6 h-6 text-primary" />
-        <p class="font-bold! text-base">
+      <div class="flex items-center gap-4 min-w-0">
+        <icon-backpack class="mr-2 w-6 h-6 text-primary shrink-0" />
+        <p class="font-bold! text-base shrink-0">
           Pack
         </p>
+        <select-root
+          v-if="showPackViewer && currentUserId"
+          :model-value="viewedPackProfileId ?? currentUserId"
+          @update:model-value="viewedPackProfileId = String($event ?? currentUserId)">
+          <select-trigger class="min-w-36">
+            <select-value placeholder="My pack" />
+          </select-trigger>
+          <select-content>
+            <select-item
+              v-for="option in packViewerOptions"
+              :key="option.value"
+              hide-checkmark
+              :value="option.value">
+              {{ option.label }}
+            </select-item>
+          </select-content>
+        </select-root>
       </div>
       <div
-        v-if="$store.data.pack && $store.isSelectedTripOwner"
+        v-if="displayedPack && canManagePack"
         class="flex">
         <dropdown-menu>
           <dropdown-menu-trigger>
@@ -236,12 +298,12 @@
       </div>
     </div>
     <gc-skeleton v-if="$store.pageLoading" />
-    <gc-empty-state v-else-if="!$store.data.pack && !$store.pageLoading">
+    <gc-empty-state v-else-if="!displayedPack && !$store.pageLoading">
       <p class="mb-4 text-base">
-        You haven't added a pack to this trip yet!
+        {{ viewingOwnPack ? "You haven't added a pack to this trip yet!" : 'This person has not added a pack to this trip yet.' }}
       </p>
       <button-root
-        v-if="$store.isSelectedTripOwner"
+        v-if="canManagePack"
         size="sm"
         variant="outline"
         @click="[modalState = 'insert', isAddPackModalOpen = true]">
@@ -251,7 +313,7 @@
     <div v-else>
       <h5 class="text-base-lg">
         Selected Pack:
-        <span class="font-black">{{ $store.data.pack?.name }}</span>
+        <span class="font-black">{{ displayedPack?.name }}</span>
       </h5>
       <div class="mx-auto mt-0 mb-4 w-full h-100">
         <client-only>
