@@ -1,3 +1,4 @@
+import { ref, type Ref } from 'vue';
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { createPinia, setActivePinia } from 'pinia';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
@@ -46,10 +47,11 @@ vi.mock('@/utils/displayName', () => ({
   }),
 }));
 
-const supabaseUser = vi.hoisted(() => {
-  const { ref } = require('vue') as typeof import('vue');
-  return ref<{ sub: string } | null>(null);
-});
+const supabaseUser = vi.hoisted(() => ({
+  current: undefined as Ref<{ sub: string } | null> | undefined,
+}));
+
+supabaseUser.current = ref<{ sub: string } | null>(null);
 
 const supabaseClient = vi.hoisted(() => ({
   current: null as ReturnType<typeof createSupabaseMock> | null,
@@ -59,7 +61,7 @@ const routeSlug = vi.hoisted(() => ({
   value: 'test-pack-slug',
 }));
 
-mockNuxtImport('useSupabaseUser', () => () => supabaseUser);
+mockNuxtImport('useSupabaseUser', () => () => supabaseUser.current);
 mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
 mockNuxtImport('useRoute', () => () => ({
   params: { slug: routeSlug.value },
@@ -93,7 +95,7 @@ const publicProfile = {
 describe('pages/p/packs/[slug]', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
-    supabaseUser.value = null;
+    supabaseUser.current!.value = null;
     routeSlug.value = 'test-pack-slug';
     supabaseClient.current = createSupabaseMock();
   });

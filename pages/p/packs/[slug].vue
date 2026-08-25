@@ -192,8 +192,8 @@
           <div class="gap-6 grid grid-cols-1 lg:grid-cols-[1fr_auto_40%]">
             <closet-pack-chart />
             <separator
-            class="hidden lg:block"
-            orientation="vertical" />
+              class="hidden lg:block"
+              orientation="vertical" />
             <closet-pack-details />
           </div>
         </card>
