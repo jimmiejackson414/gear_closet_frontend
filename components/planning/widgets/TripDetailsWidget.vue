@@ -18,7 +18,21 @@
     return $store.data?.trip_details.filter((detail) => detail.type === TripDetailsType.TRIP) || [];
   });
 
-  const createDetail = () => $store.createTripDetail(TripDetailsType.TRIP);
+  const openDetail = (detail: Tables<'trip_details'>) => {
+    activeDetail.value = detail;
+    nextTick(() => {
+      isModifyDetailDialogOpen.value = true;
+    });
+  };
+
+  const closeDetail = () => {
+    isModifyDetailDialogOpen.value = false;
+  };
+
+  const createDetail = async () => {
+    const detail = await $store.createTripDetail(TripDetailsType.TRIP);
+    if (detail) openDetail(detail);
+  };
   const updateTrip = (payload: TablesUpdate<'trips'>) => $store.updateTrip(payload);
 
   const datePicker = ref(null);
@@ -52,6 +66,7 @@
         v-if="!$store.pageLoading && tripDetails.length && $store.canEditSelectedTrip"
         aria-label="Add trip detail"
         class="justify-self-end rounded-full"
+        data-testid="create-trip-detail-btn"
         size="icon"
         type="button"
         @click="createDetail">
@@ -129,14 +144,15 @@
       </gc-empty-state>
       <details-list
         v-else
+        :can-edit="$store.canEditSelectedTrip"
         :details="tripDetails"
-        @edit="[activeDetail = $event, isModifyDetailDialogOpen = true]" />
+        @edit="openDetail" />
     </div>
 
-    <!-- Modify Detail Dialog -->
-    <lazy-modify-detail-dialog
-      :active-detail="( activeDetail as Tables<'trip_details'> )"
-      :is-open="isModifyDetailDialogOpen"
-      @on-close="isModifyDetailDialogOpen = false" />
+    <modify-detail-dialog
+      v-if="isModifyDetailDialogOpen && activeDetail"
+      :active-detail="activeDetail"
+      :is-open="true"
+      @on-close="closeDetail" />
   </card>
 </template>

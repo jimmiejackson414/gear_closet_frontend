@@ -17,10 +17,17 @@
   const $store = usePlanningStore();
   const submitting = ref(false);
 
-  const dialogTitle = computed(() => {
+  const editHeading = computed(() => {
     return props.activeDetail?.type === TripDetailsType.TRIP
       ? 'Edit Trip Detail'
       : 'Edit Hike Detail';
+  });
+
+  const valuesFromDetail = (detail: Tables<'trip_details'> | undefined) => ({
+    title: detail?.title ?? '',
+    value: detail?.value ?? '',
+    has_url: Boolean(detail?.url),
+    url: detail?.url ?? '',
   });
 
   const formSchema = toTypedSchema(z.object({
@@ -28,39 +35,33 @@
       .min(3)
       .max(50),
     value: z.string()
-      .min(3)
       .max(500)
       .optional(),
     has_url: z.boolean(),
     url: z.string()
-      .url()
-      .nullable()
       .optional(),
   })
-    .refine(data => !data.has_url || (data.has_url && data.url), {
-      message: "URL is required.",
-      path: ["url"],
+    .refine(data => !data.has_url || Boolean(data.url?.trim()), {
+      message: 'URL is required.',
+      path: ['url'],
     }));
 
   const { isFieldDirty, handleSubmit, isSubmitting, values, setValues } = useForm({
     validationSchema: formSchema,
-    initialValues: {
-      title: props.activeDetail?.title as string,
-      value: props.activeDetail?.value as string,
-      has_url: Boolean(props.activeDetail?.url),
-      url: props.activeDetail?.url as string,
-    },
+    initialValues: valuesFromDetail(props.activeDetail),
   });
 
-  // on open, set the initial values manually
-  watch(() => props.isOpen, (newValue) => {
-    if (newValue) {
-      setValues({
-        title: props.activeDetail?.title as string,
-        value: props.activeDetail?.value as string,
-        has_url: Boolean(props.activeDetail?.url),
-        url: props.activeDetail?.url as string,
-      });
+  const handleClose = () => {
+    emits('onClose');
+  };
+
+  const onOpenChange = (open: boolean) => {
+    if (!open) handleClose();
+  };
+
+  watch(() => [props.isOpen, props.activeDetail] as const, ([open]) => {
+    if (open) {
+      setValues(valuesFromDetail(props.activeDetail));
     }
   });
 
@@ -73,7 +74,7 @@
       const ok = await $store.updateTripDetail(props.activeDetail?.id as number, {
         title: v.title,
         value: v.value,
-        url: v.url ? prependProtocol(v?.url as string) : null,
+        url: v.has_url && v.url?.trim() ? prependProtocol(v.url.trim()) : null,
       });
       if (ok) handleClose();
     } finally {
@@ -93,22 +94,25 @@
       submitting.value = false;
     }
   };
-
-  const handleClose = () => {
-    emits('onClose');
-  };
 </script>
 
 <template>
-  <dialog-root :open="isOpen">
+  <dialog-root
+    :open="isOpen"
+    @update:open="onOpenChange">
     <dialog-content
       class="sm:max-w-112.5 lg:max-w-162.5 max-h-[90dvh]"
       @escape-key-down="handleClose"
       @interact-outside="handleClose">
       <dialog-header>
-        <dialog-title>{{ dialogTitle }}</dialog-title>
+        <dialog-title>{{ editHeading }}</dialog-title>
+        <dialog-description>
+          Update the title, description, and optional link for this detail.
+        </dialog-description>
       </dialog-header>
-      <div class="w-full">
+      <div
+        class="w-full"
+        data-testid="modify-detail-dialog">
         <form class="flex flex-col gap-6 w-full">
           <!-- Title -->
           <form-field
@@ -116,7 +120,7 @@
             name="title"
             :validate-on-blur="!isFieldDirty">
             <form-item>
-              <form-label>Trip Name</form-label>
+              <form-label>Title</form-label>
               <form-control>
                 <input-root
                   :disabled="isSubmitting"
@@ -191,14 +195,18 @@
         </dialog-close>
         <div class="flex items-center gap-4">
           <button-root
+            data-testid="delete-detail"
             :disabled="isSubmitting"
+            type="button"
             variant="destructive"
             @click="deleteDetail">
             Delete
           </button-root>
           <button-root
+            data-testid="update-detail"
             :disabled="isSubmitting"
             :loading="isSubmitting"
+            type="button"
             @click="updateDetail">
             Update
           </button-root>

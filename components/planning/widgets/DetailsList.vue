@@ -2,10 +2,13 @@
   import type { Tables } from '@/types';
 
   interface Props {
+    canEdit?: boolean;
     details: Tables<'trip_details'>[];
   }
 
-  defineProps<Props>();
+  withDefaults(defineProps<Props>(), {
+    canEdit: false,
+  });
   const emits = defineEmits<{
     (event: 'edit', detail: Tables<'trip_details'>): void;
   }>();
@@ -37,9 +40,12 @@
           </typography>
         </div>
         <button-root
+          v-if="canEdit"
           aria-label="Edit detail"
           class="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 rounded-full"
+          data-testid="edit-detail"
           size="sm"
+          type="button"
           variant="ghost"
           @click="emits('edit', detail)">
           <icon-pencil />

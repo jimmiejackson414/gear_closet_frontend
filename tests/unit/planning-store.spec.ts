@@ -3,14 +3,14 @@ import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAppStore } from '@/stores/app';
 import { normalizePlanningPageData, usePlanningStore, type PlanningPageData } from '@/stores/planning';
-import { todos, tripFriends, trips } from '@/tests/unit/mocks/planning.mock';
+import { todos, tripDetails, tripFriends, trips } from '@/tests/unit/mocks/planning.mock';
 import {
   createDeferred,
   createSupabaseMock,
   createThenableQuery,
   type QueryResult,
 } from '@/tests/unit/mocks/supabase.mock';
-import { ResourceType } from '@/types';
+import { ResourceType, TripDetailsType } from '@/types';
 
 vi.mock('@/components/ui/toast', () => ({
   useToast: () => ({ toast: vi.fn() }),
@@ -403,6 +403,60 @@ describe('stores/planning', () => {
       store.viewTripPack('friend-id');
       store.selectedTripId = String(trips[1]!.id);
       expect(store.viewedPackProfileId)
+        .toBeUndefined();
+    });
+  });
+
+  describe('trip details CRUD', () => {
+    it('creates a starter detail and returns it', async () => {
+      const created = {
+        ...tripDetails[0]!,
+        id: 99,
+        type: TripDetailsType.HIKE,
+      };
+      supabaseClient.current = createSupabaseMock({
+        from: () => createThenableQuery({ data: [created], error: null }),
+      });
+
+      const store = usePlanningStore();
+      store.selectedTripId = String(trips[0]!.id);
+      store.data.trip_details = [];
+
+      const detail = await store.createTripDetail(TripDetailsType.HIKE);
+      expect(detail)
+        .toEqual(created);
+      expect(store.data.trip_details)
+        .toEqual([created]);
+    });
+
+    it('updates a detail in local state on success', async () => {
+      const updated = { ...tripDetails[0]!, title: 'Campsite', url: null };
+      supabaseClient.current = createSupabaseMock({
+        from: () => createThenableQuery({ data: [updated], error: null }),
+      });
+
+      const store = usePlanningStore();
+      store.data.trip_details = [{ ...tripDetails[0]! }];
+
+      const ok = await store.updateTripDetail(tripDetails[0]!.id, { title: 'Campsite' });
+      expect(ok)
+        .toBe(true);
+      expect(store.data.trip_details[0]?.title)
+        .toBe('Campsite');
+    });
+
+    it('removes a deleted detail from local state', async () => {
+      supabaseClient.current = createSupabaseMock({
+        from: () => createThenableQuery({ data: null, error: null }),
+      });
+
+      const store = usePlanningStore();
+      store.data.trip_details = [...tripDetails];
+
+      const ok = await store.deleteTripDetail(tripDetails[0]!.id);
+      expect(ok)
+        .toBe(true);
+      expect(store.data.trip_details.find(detail => detail.id === tripDetails[0]!.id))
         .toBeUndefined();
     });
   });
