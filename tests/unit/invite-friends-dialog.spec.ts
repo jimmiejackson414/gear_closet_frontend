@@ -108,7 +108,11 @@ describe('InviteFriendsDialog', () => {
 
     select.vm.$emit('search', 'Shelly');
     await vi.waitFor(() => {
-      const options = select.props('options') as Array<{ disabled?: boolean; status?: string }>;
+      const options = select.props('options') as Array<{
+        disabled?: boolean;
+        status?: string;
+        value?: string;
+      }>;
       expect(options.some(option => option.disabled && option.status === 'PENDING'))
         .toBe(true);
       expect(options.some(option => option.value === extraProfile.id && !option.disabled))

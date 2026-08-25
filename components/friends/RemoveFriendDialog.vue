@@ -26,7 +26,7 @@
       const myId = user.value?.sub;
       const friendId = props.friend.friend_id;
 
-      if (!myId) throw new Error();
+      if (!myId || !friendId) throw new Error();
 
       const { error: ownRowError } = await supabase
         .from('friends')

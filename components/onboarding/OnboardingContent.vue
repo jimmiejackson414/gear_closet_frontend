@@ -148,9 +148,10 @@
       await completeOnboardingPlan({
         plan,
         lifetimePromo: $config.public.lifetimePromo,
-        grantLifetime: () => $fetch('/api/billing/lifetime', {
-          method: 'POST',
-        }),
+        grantLifetime: () => ($fetch as (url: string, opts: { method: 'POST' }) => Promise<{ ok: boolean }>)(
+          '/api/billing/lifetime',
+          { method: 'POST' },
+        ),
         markOnboarded: () => $store.updateProfile({
           onboard_date: new Date()
             .toISOString(),

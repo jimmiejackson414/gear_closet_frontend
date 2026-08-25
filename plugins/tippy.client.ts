@@ -36,7 +36,7 @@ const installTippy = (vueApp: App) => {
   return installPromise;
 };
 
-export default defineNuxtPlugin((nuxtApp) => {
+export default defineNuxtPlugin((nuxtApp): void | Promise<void> => {
   const route = useRoute();
   const router = useRouter();
 

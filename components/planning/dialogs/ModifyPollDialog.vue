@@ -78,7 +78,7 @@
       const supabase = useSupabaseClient<Database>();
       const { data: updatedPoll, error } = await supabase.rpc('update_poll', {
         poll_id: $store.data.poll?.id as number,
-        question: localForm.question.title.trim(),
+        question: localForm.question.title?.trim() ?? '',
         answers,
       })
         .select();
@@ -107,7 +107,7 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newPoll, error } = await supabase.rpc('create_poll', {
         trip_id: Number($store.selectedTripId),
-        question: localForm.question.title.trim(),
+        question: localForm.question.title?.trim() ?? '',
         answers,
       })
         .single();
