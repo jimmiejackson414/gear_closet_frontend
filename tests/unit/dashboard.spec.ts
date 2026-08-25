@@ -4,6 +4,7 @@ import FriendsWidget from '@/components/dashboard/FriendsWidget.vue';
 import InvitationsWidget from '@/components/dashboard/InvitationsWidget.vue';
 import UpcomingTripsWidget from '@/components/dashboard/UpcomingTripsWidget.vue';
 import { createSupabaseMock } from '@/tests/unit/mocks/supabase.mock';
+import { testMountGlobals } from './helpers';
 import { friends, invitations, upcomingTrips } from './mocks/dashboard.mock';
 
 vi.mock('@/utils/avatar', async (importOriginal) => {
@@ -178,6 +179,7 @@ describe('Dashboard', async () => {
 
     it('renders the loading state for the InvitationsWidget', async () => {
       const wrapper = await mountSuspended(InvitationsWidget, {
+        global: testMountGlobals(),
         props: {
           data: [],
           loading: true,
@@ -190,6 +192,7 @@ describe('Dashboard', async () => {
 
     it('renders the empty state for the InvitationsWidget', async () => {
       const wrapper = await mountSuspended(InvitationsWidget, {
+        global: testMountGlobals(),
         props: {
           data: [],
           loading: false,
@@ -201,6 +204,7 @@ describe('Dashboard', async () => {
 
     it('renders invitations from nested RPC fields without querying trips or profiles', async () => {
       const wrapper = await mountSuspended(InvitationsWidget, {
+        global: testMountGlobals(),
         props: {
           data: invitations,
           loading: false,
