@@ -73,20 +73,7 @@
     data-testid="login-form"
     @keydown.enter="onSubmit"
     @submit.prevent="onSubmit">
-    <div class="justify-center gap-4 grid grid-cols-[12.5_12.5] text-center">
-      <button
-        class="flex justify-center items-center gap-2 bg-white disabled:opacity-50 shadow-md hover:shadow-lg p-2 border border-transparent rounded-full w-fit h-fit font-semibold text-white text-sm transition-all duration-100 ease-in-out disabled:pointer-events-none shrink-0"
-        type="button"
-        @click="handleOAuthSignin('facebook')">
-        <img src="/images/facebook.png">
-      </button>
-      <button
-        class="flex justify-center items-center gap-2 bg-white disabled:opacity-50 shadow-md hover:shadow-lg p-2 border border-transparent rounded-full w-fit h-fit font-semibold text-white text-sm transition-all duration-100 ease-in-out disabled:pointer-events-none shrink-0"
-        type="button"
-        @click="handleOAuthSignin('google')">
-        <img src="/images/google.png">
-      </button>
-    </div>
+    <social-login-buttons @select="handleOAuthSignin" />
     <div class="flex justify-center">
       <separator
         class="mx-auto mt-8 mb-6 max-w-60"
