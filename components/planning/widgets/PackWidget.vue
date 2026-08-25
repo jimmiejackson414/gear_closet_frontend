@@ -250,9 +250,9 @@
 </script>
 
 <template>
-  <card class="px-8 py-4 rounded-3xl">
-    <div class="flex justify-between items-center py-4">
-      <div class="flex items-center gap-4 min-w-0">
+  <card class="px-4 sm:px-8 py-4 rounded-3xl">
+    <div class="flex flex-wrap justify-between items-center gap-2 py-4">
+      <div class="flex items-center gap-2 sm:gap-4 min-w-0">
         <icon-backpack class="mr-2 w-6 h-6 text-primary shrink-0" />
         <p class="font-bold! text-base shrink-0">
           Pack
@@ -261,7 +261,7 @@
           v-if="showPackViewer && currentUserId"
           :model-value="viewedPackProfileId ?? currentUserId"
           @update:model-value="viewedPackProfileId = String($event ?? currentUserId)">
-          <select-trigger class="min-w-36">
+          <select-trigger class="min-w-0 max-w-full sm:min-w-36">
             <select-value placeholder="My pack" />
           </select-trigger>
           <select-content>

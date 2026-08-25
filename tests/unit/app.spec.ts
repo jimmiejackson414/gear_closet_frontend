@@ -89,6 +89,18 @@ describe('App', async () => {
         .toBe(true);
     });
 
+    it('keeps the notifications panel inside the viewport on small screens', async () => {
+      await wrapper.find('[data-testid="notifications-button"]')
+        .trigger('click');
+
+      const dropdown = wrapper.find('[data-testid="notifications-dropdown"]');
+      expect(dropdown.exists())
+        .toBe(true);
+      expect(dropdown.classes()
+        .join(' '))
+        .toContain('calc(100vw-5.5rem)');
+    });
+
     it('exposes accessible names on icon-only controls', async () => {
       const notificationsButton = wrapper.find('[data-testid="notifications-button"]');
       expect(notificationsButton.attributes('aria-label'))

@@ -42,7 +42,7 @@
 </script>
 
 <template>
-  <card class="px-8 py-4 rounded-3xl">
+  <card class="px-4 sm:px-8 py-4 rounded-3xl">
     <div class="justify-start items-center grid grid-cols-[auto_auto_1fr]">
       <icon-footprints class="mr-6 w-6 h-6 text-primary" />
       <p class="font-bold! text-base">
@@ -89,7 +89,7 @@
         <div>
           <div
             v-if="!editingTripDates"
-            class="group flex items-center gap-4"
+            class="group flex flex-wrap items-center gap-2 sm:gap-4"
             @click="$store.canEditSelectedTrip && (editingTripDates = !editingTripDates)">
             <typography class="text-muted-foreground cursor-pointer">
               {{ $store.selectedTrip?.starting_date ? formattedDate($store.selectedTrip?.starting_date) : 'Start Date' }}
@@ -101,7 +101,7 @@
             <button-root
               v-if="$store.canEditSelectedTrip"
               aria-label="Edit trip dates"
-              class="opacity-0 group-hover:opacity-100 rounded-full"
+              class="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 rounded-full"
               size="sm"
               type="button"
               variant="ghost">

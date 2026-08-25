@@ -39,7 +39,7 @@
 
 <template>
   <card
-    class="px-8 py-4 rounded-3xl"
+    class="px-4 sm:px-8 py-4 rounded-3xl"
     data-testid="upcoming-trips-widget">
     <gc-skeleton
       v-if="loading"
@@ -62,7 +62,7 @@
             <nuxt-link
               class="block duration-150 ease-in-out p-3 rounded-md hover:bg-gray-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
               :to="tripLink(trip)">
-              <div class="flex items-stretch space-x-4">
+              <div class="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-4">
                 <div class="flex-1 min-w-0">
                   <p class="font-semibold text-base text-muted-foreground truncate">
                     {{ trip.name }}

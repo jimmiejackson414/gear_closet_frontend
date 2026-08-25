@@ -188,10 +188,12 @@
             {{ selectedPackName }}
           </h1>
         </div>
-        <card class="px-8 py-4 rounded-3xl">
+        <card class="px-4 sm:px-8 py-4 rounded-3xl">
           <div class="gap-6 grid grid-cols-1 lg:grid-cols-[1fr_auto_40%]">
             <closet-pack-chart />
-            <separator orientation="vertical" />
+            <separator
+            class="hidden lg:block"
+            orientation="vertical" />
             <closet-pack-details />
           </div>
         </card>

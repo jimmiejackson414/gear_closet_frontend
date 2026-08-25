@@ -7,11 +7,13 @@
     <pack-summary-empty-state v-if="!$store.data.selectedPack.categories?.length" />
     <div v-else>
       <card
-        class="px-8 py-4 rounded-3xl"
+        class="px-4 sm:px-8 py-4 rounded-3xl"
         data-testid="pack-summary-widget">
         <div class="grid lg:grid-cols-[1fr_auto_40%] grid-cols-1 gap-6 pt-4">
           <closet-pack-chart />
-          <separator orientation="vertical" />
+          <separator
+            class="hidden lg:block"
+            orientation="vertical" />
           <closet-pack-details />
         </div>
       </card>

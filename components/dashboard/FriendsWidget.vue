@@ -19,7 +19,7 @@
 
 <template>
   <card
-    class="h-full px-8 py-4 rounded-3xl"
+    class="h-full px-4 sm:px-8 py-4 rounded-3xl"
     data-testid="friends-widget">
     <gc-skeleton
       v-if="loading"

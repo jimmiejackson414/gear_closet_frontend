@@ -23,7 +23,7 @@
 </script>
 
 <template>
-  <card class="px-8 py-4 rounded-3xl">
+  <card class="px-4 sm:px-8 py-4 rounded-3xl">
     <div class="justify-start items-center grid grid-cols-[auto_auto_1fr] py-4">
       <icon-check-square-2 class="mr-6 w-6 h-6 text-primary" />
       <p class="font-bold! text-base">

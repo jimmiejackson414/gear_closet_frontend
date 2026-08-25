@@ -42,13 +42,13 @@
       </p>
       <h1
         v-if="pageTitle"
-        class="mt-4 text-3xl">
+        class="mt-4 text-2xl sm:text-3xl">
         {{ pageTitle }}
       </h1>
     </div>
     <div class="grow" />
 
-    <div class="flex items-center gap-8">
+    <div class="flex items-center gap-3 sm:gap-8">
       <span
         v-tippy="{ content: 'Toggle color mode' }"
         class="flex">
@@ -88,7 +88,7 @@
           <div
             v-if="isDropdownOpen"
             ref="notificationDropdown"
-            class="top-full right-0 z-20 absolute bg-white shadow-xs mt-2 border rounded-lg divide-gray-100 w-max min-w-75 max-w-sm transition-all duration-300"
+            class="top-full right-0 z-20 absolute bg-white shadow-xs mt-2 border rounded-lg divide-gray-100 w-[min(18.75rem,calc(100vw-5.5rem))] max-w-[calc(100vw-5.5rem)] transition-all duration-300"
             data-testid="notifications-dropdown">
             <div class="block bg-gray-50 px-4 py-2 rounded-t-lg font-bold text-muted-foreground text-center">
               Notifications ({{ $store.unreadNotifications?.length ?? 0 }})

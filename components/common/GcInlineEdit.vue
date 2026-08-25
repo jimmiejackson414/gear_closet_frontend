@@ -81,7 +81,7 @@
       <slot />
       <icon-pencil
         v-if="!hideEditBtn && !props.disabled"
-        class="opacity-0 group-hover:opacity-100 ml-4 w-4 h-4 text-muted-foreground hover:text-primary transition cursor-pointer" />
+        class="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 ml-4 w-4 h-4 text-muted-foreground hover:text-primary transition cursor-pointer" />
     </span>
 
     <!-- Edit Mode -->
