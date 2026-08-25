@@ -16,7 +16,7 @@
 </script>
 
 <template>
-  <card class="px-8 py-4 rounded-3xl">
+  <card class="px-4 sm:px-8 py-4 rounded-3xl">
     <div class="justify-start items-center grid grid-cols-[auto_auto_1fr]">
       <icon-mountain class="mr-6 w-6 h-6 text-primary" />
       <typography class="font-bold!">
@@ -49,7 +49,7 @@
       </button-root>
     </gc-empty-state>
     <div v-else>
-      <div class="flex items-center gap-6">
+      <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
         <gc-inline-edit
           :disabled="!$store.canEditSelectedTrip"
           :model-value="$store.selectedTrip?.starting_point"
@@ -63,7 +63,7 @@
             {{ $store.selectedTrip?.starting_point }}
           </typography>
         </gc-inline-edit>
-        <icon-move-right class="w-6 h-6 text-muted-foreground" />
+        <icon-move-right class="hidden sm:block w-6 h-6 text-muted-foreground shrink-0" />
         <gc-inline-edit
           :disabled="!$store.canEditSelectedTrip"
           :model-value="$store.selectedTrip?.ending_point"

@@ -68,13 +68,13 @@
 </script>
 
 <template>
-  <div class="flex justify-between lg:justify-end items-center gap-6 mb-8">
-    <div class="flex justify-center items-center gap-4">
+  <div class="flex flex-wrap justify-between lg:justify-end items-center gap-3 sm:gap-6 mb-8">
+    <div class="flex justify-center items-center gap-3 sm:gap-4 min-w-0">
       <select-root
         :default-value="String($store.selectedTripId)"
         :model-value="$store.selectedTripId"
         @update:model-value="handleSelectTrip">
-        <select-trigger class="min-w-45">
+        <select-trigger class="min-w-0 w-40 sm:min-w-45 sm:w-auto">
           <span v-if="!$store.selectedTripId">Selected Trip</span>
           <select-value placeholder="Selected Trip" />
         </select-trigger>

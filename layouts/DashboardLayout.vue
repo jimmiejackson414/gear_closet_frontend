@@ -24,7 +24,7 @@
     <gc-loading-wrapper v-if="$appStore.loading" />
     <div v-else>
       <gc-drawer />
-      <div class="min-h-screen">
+      <div class="min-h-screen overflow-x-hidden">
         <div class="py-4 pr-4 lg:pr-9 pl-18">
           <div class="container">
             <slot />

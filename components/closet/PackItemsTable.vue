@@ -227,7 +227,7 @@
               <table-cell class="p-0">
                 <icon-grip-vertical
                   v-if="!$store.isPublicRoute"
-                  class="size-6! cursor-move ease-out group-hover:opacity-100 opacity-0 row-handle stroke-1 text-muted-foreground transition" />
+                  class="size-6! cursor-move ease-out opacity-100 sm:opacity-0 sm:group-hover:opacity-100 row-handle stroke-1 text-muted-foreground transition" />
               </table-cell>
 
               <table-cell class="pl-0 pr-1 py-1">
