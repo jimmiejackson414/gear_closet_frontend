@@ -319,45 +319,71 @@
 
   @container style(--depth: 0) {
     li:has(ul) > .comment {
-      @apply before:bottom-0 before:absolute relative before:inset-s-6 before:bg-gray-300 before:w-0.5 before:content-[''];
+      position: relative;
+    }
 
-      &:before {
-        top: calc(var(--size) + 8px);
-      }
+    li:has(ul) > .comment::before {
+      content: '';
+      position: absolute;
+      top: calc(var(--size) + 8px);
+      bottom: 0;
+      inset-inline-start: 1.5rem;
+      width: 0.125rem;
+      background-color: var(--color-gray-300);
     }
   }
 
   @container style(--depth: 1) {
     li:has(ul) > .comment {
-      @apply before:bottom-0 before:absolute relative before:inset-s-3 before:bg-gray-300 before:w-0.5 before:content-[''];
-
-      &:before {
-        top: calc(var(--size) + 8px);
-      }
+      position: relative;
     }
-  }
 
-  @container style(--depth: 1) {
-    li:not(:last-child) {
-      @apply before:top-0 before:bottom-0 before:absolute relative before:inset-s-6 before:bg-gray-300 before:w-0.5 before:content-[''];
+    li:has(ul) > .comment::before {
+      content: '';
+      position: absolute;
+      top: calc(var(--size) + 8px);
+      bottom: 0;
+      inset-inline-start: 0.75rem;
+      width: 0.125rem;
+      background-color: var(--color-gray-300);
     }
 
     li {
-      @apply after:top-0 after:absolute relative after:inset-s-6 after:bg-transparent after:border-gray-300 after:border-b-2 after:border-l-2 after:w-5.5 after:h-7 before:content-[''];
+      position: relative;
+    }
 
-      &:after {
-        border-end-start-radius: 10px;
-      }
+    li:not(:last-child)::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      inset-inline-start: 1.5rem;
+      width: 0.125rem;
+      background-color: var(--color-gray-300);
+    }
+
+    li::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      inset-inline-start: 1.5rem;
+      width: 1.375rem;
+      height: 1.75rem;
+      background-color: transparent;
+      border-bottom: 2px solid var(--color-gray-300);
+      border-left: 2px solid var(--color-gray-300);
+      border-end-start-radius: 10px;
     }
   }
 
   @container style(--nested: true) {
     .comment {
-      @apply relative pt-1;
+      position: relative;
+      padding-top: 0.25rem;
     }
 
     li {
-      @apply ps-14;
+      padding-inline-start: 3.5rem;
     }
   }
 </style>
