@@ -25,7 +25,7 @@
         query: { tripId: props.tripId },
       });
     },
-    { watch: [() => props.tripId] },
+    { watch: [() => props.tripId], server: false },
   );
 
   const weather = computed(() => weatherAsync.data.value);

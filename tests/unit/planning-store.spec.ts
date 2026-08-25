@@ -84,9 +84,27 @@ describe('stores/planning', () => {
       const normalized = normalizePlanningPageData({
         trips,
         pack: [] as unknown as PlanningPageData['pack'],
-      } as PlanningPageData);
+      } as any);
       expect(normalized.pack)
         .toBeUndefined();
+    });
+
+    it('coerces nested party packs and ignores a non-array party_packs payload', () => {
+      const normalized = normalizePlanningPageData({
+        trips,
+        party_packs: [
+          { profile_id: 'friend-id', display_name: 'Junebug', pack: [] },
+        ],
+      } as any);
+      expect(normalized.party_packs[0]?.pack)
+        .toBeUndefined();
+
+      const empty = normalizePlanningPageData({
+        trips,
+        party_packs: {} as unknown as PlanningPageData['party_packs'],
+      } as any);
+      expect(empty.party_packs)
+        .toEqual([]);
     });
   });
 

@@ -107,9 +107,9 @@ describe('PackWidget', () => {
     expect(wrapper.findComponent({ name: 'SelectRoot' })
       .exists())
       .toBe(false);
-    expect(wrapper.get('[data-testid="pack-widget-view-full"]')
-      .attributes('href'))
-      .toContain(`/p/packs/${selectedPack.slug}`);
+    expect(wrapper.find('[data-testid="pack-widget-view-full"]')
+      .exists())
+      .toBe(false);
   });
 
   it('shows a friend pack after viewTripPack and returns to My pack', async () => {
@@ -139,6 +139,9 @@ describe('PackWidget', () => {
     expect(wrapper.text())
       .toContain('Summer Pack');
     expect(wrapper.find('[data-testid="pack-widget-my-pack"]')
+      .exists())
+      .toBe(false);
+    expect(wrapper.find('[data-testid="pack-widget-view-full"]')
       .exists())
       .toBe(false);
   });
