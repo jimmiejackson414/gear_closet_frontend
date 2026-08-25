@@ -157,7 +157,7 @@ describe('stripeSubscriptionCreate helpers', () => {
             current_period_end: 1_700_086_400,
           }],
         },
-      } as any));
+      } as any) as any);
 
     await expect(ensureStripeSubscription(stripe, {
       profileId: 'user-1',

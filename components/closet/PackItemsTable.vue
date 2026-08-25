@@ -283,7 +283,7 @@
                   <button
                     v-if="!$store.isPublicRoute"
                     :aria-label="catItem.item.consumable ? 'Mark item as not consumable' : 'Mark item as consumable'"
-                    :aria-pressed="catItem.item.consumable"
+                    :aria-pressed="Boolean(catItem.item.consumable)"
                     class="cursor-pointer duration-150 ease-out flex justify-center items-center h-8 rounded-full transition w-8 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     :class="catItem.item.consumable ? 'bg-primary hover:bg-primary/70' : 'bg-transparent hover:bg-gray-200'"
                     data-testid="consumable-btn"
@@ -311,7 +311,7 @@
                   <button
                     v-if="!$store.isPublicRoute"
                     :aria-label="catItem.item.worn ? 'Mark item as not worn' : 'Mark item as worn'"
-                    :aria-pressed="catItem.item.worn"
+                    :aria-pressed="Boolean(catItem.item.worn)"
                     class="cursor-pointer duration-150 ease-out flex justify-center items-center h-8 rounded-full transition w-8 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
                     :class="catItem.item.worn ? 'bg-accent-alt dark:bg-accent-light hover:bg-accent-alt/70' : 'bg-transparent hover:bg-gray-200'"
                     data-testid="worn-btn"
