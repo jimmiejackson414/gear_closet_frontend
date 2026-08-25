@@ -12,18 +12,19 @@
   import type { EChartsOption } from 'echarts';
   import type { CallbackDataParams, TopLevelFormatterParams } from 'echarts/types/dist/shared';
 
-  use([
-    CanvasRenderer,
-    GridComponent,
-    PieChart,
-    PolarComponent,
-    TitleComponent,
-    LegendComponent,
-    TooltipComponent,
-  ]);
+  if (import.meta.client) {
+    use([
+      CanvasRenderer,
+      GridComponent,
+      PieChart,
+      PolarComponent,
+      TitleComponent,
+      LegendComponent,
+      TooltipComponent,
+    ]);
+  }
 
   const $store = usePlanningStore();
-  const $appStore = useAppStore();
   const $userStore = useUserStore();
   const sessionUser = useSupabaseUser();
 
@@ -60,29 +61,22 @@
   * Update Theme associated with the pack
   */
   const isChangeThemeModalOpen = ref(false);
-  const updateTheme = (theme: Theme) => {
-    try {
-      chartRef.value?.setOption?.({
-        series: [{
-          itemStyle: {
-            color: (params: CallbackDataParams) => {
-              const foundTheme = findTheme(theme);
-              return foundTheme[params.dataIndex % theme.length];
-            },
-          },
-        }],
-      });
-    } catch {
-      $appStore.notifyNegative('There was an error updating your pack theme.');
-    } finally {
-      isChangeThemeModalOpen.value = false;
-    }
+  const updateTheme = (_theme: Theme) => {
+    isChangeThemeModalOpen.value = false;
   };
 
-  /* Donut Chart Options — stable base; series/legend/theme via setOption */
+  const packCategories = computed(() => displayedPack.value?.categories ?? []);
+  const packSeriesData = computed(() => packCategories.value.map(category => ({
+    name: category.name ?? 'Unnamed',
+    value: calculateCategoryWeight({
+      ...category,
+      category_items: category.category_items ?? [],
+    } as ExtendedCategory),
+  })));
+
+  /* Donut Chart Options — series/legend live in the option so vue-echarts 8 can apply them */
   const legendTextColor = ref('');
-  const chartRef = ref<InstanceType<typeof VChart> | undefined>(undefined);
-  const chartOptions = ref<EChartsOption>({
+  const chartOptions = computed<EChartsOption>(() => ({
     animationDuration: 300,
     legend: {
       orient: 'vertical',
@@ -91,7 +85,13 @@
       textStyle: {
         color: legendTextColor.value,
       },
-      data: [],
+      data: packCategories.value.map(category => ({
+        name: category.name as string,
+        textStyle: {
+          overflow: 'truncate',
+          width: 180,
+        },
+      })),
     },
     grid: {
       bottom: '30%',
@@ -127,7 +127,7 @@
         center: ['80%', '50%'],
         left: 'center',
         height: '100%',
-        data: [],
+        data: packSeriesData.value,
         label: { show: false },
         itemStyle: {
           borderRadius: 8,
@@ -135,7 +135,7 @@
           borderWidth: 2,
           color: (params: CallbackDataParams) => {
             const theme = findTheme(displayedPack.value?.theme as Theme);
-            return theme[params.dataIndex % theme.length] ?? '';
+            return theme[params.dataIndex % (theme.length || 1)] ?? '';
           },
         },
       },
@@ -144,10 +144,12 @@
       show: true,
       trigger: 'item',
       formatter: (params: TopLevelFormatterParams) => {
-        // Trigger is 'item', but the callback type still allows the array form.
         const value = Array.isArray(params) ? params[0] : params;
         const category = value ? displayedPack.value?.categories?.[value.dataIndex] : undefined;
-        const categoryWeight = calculateCategoryWeight(category as ExtendedCategory);
+        const categoryWeight = calculateCategoryWeight({
+          ...(category as ExtendedCategory),
+          category_items: category?.category_items ?? [],
+        });
         const weight = round(convert(categoryWeight, 'mg')
           .to('lb'), 2);
         return (`
@@ -163,43 +165,7 @@
         `);
       },
     },
-  });
-
-  const applyPackSeries = () => {
-    const categories = displayedPack.value?.categories ?? [];
-    const seriesData = categories.map(category => ({
-      name: category.name ?? 'Unnamed',
-      value: calculateCategoryWeight({
-        ...category,
-        category_items: category.category_items ?? [],
-      } as ExtendedCategory),
-    }));
-    chartRef.value?.setOption?.({
-      legend: {
-        data: categories.map(category => ({
-          name: category.name as string,
-          textStyle: {
-            overflow: 'truncate',
-            width: 180,
-          },
-        })),
-      },
-      series: [{
-        data: seriesData,
-        itemStyle: {
-          color: (params: CallbackDataParams) => {
-            const theme = findTheme(displayedPack.value?.theme as Theme);
-            return theme[params.dataIndex % (theme.length || 1)] ?? '';
-          },
-        },
-      }],
-    });
-  };
-
-  const schedulePackSeries = async () => {
-    await nextTick();
-    applyPackSeries();
-  };
+  }));
 
   /**
    * Dynamically update the legend text color based on the current theme.
@@ -208,14 +174,6 @@
     await nextTick();
     await new Promise(resolve => setTimeout(resolve, 50));
     legendTextColor.value = await hslVarToHex('hsl(var(--text))');
-
-    chartRef.value?.setOption?.({
-      legend: {
-        textStyle: {
-          color: legendTextColor.value,
-        },
-      },
-    });
   };
 
   updateLegendTextColor();
@@ -223,31 +181,6 @@
   const colorMode = useColorMode();
   watch(() => colorMode?.value, () => {
     void updateLegendTextColor();
-  });
-
-  watch(() => displayedPack.value?.theme, (newTheme) => {
-    chartRef.value?.setOption?.({
-      series: [{
-        itemStyle: {
-          color: (params: CallbackDataParams) => {
-            const theme = findTheme(newTheme as Theme);
-            return theme[params.dataIndex % (theme.length || 1)] ?? '';
-          },
-        },
-      }],
-    });
-  });
-
-  watch(() => displayedPack.value?.categories, () => {
-    void schedulePackSeries();
-  }, { deep: true, immediate: true });
-
-  watch(chartRef, (chart) => {
-    if (chart) void schedulePackSeries();
-  }, { flush: 'post' });
-
-  watch(() => $store.pageLoading, (loading) => {
-    if (!loading) void schedulePackSeries();
   });
 </script>
 
@@ -273,7 +206,7 @@
         v-if="displayedPack"
         class="flex items-center gap-2">
         <button-root
-          v-if="displayedPack.slug"
+          v-if="!viewingOwnPack && displayedPack.slug"
           as-child
           size="sm"
           variant="outline">
@@ -329,7 +262,6 @@
         <client-only>
           <v-chart
             :key="displayedPack?.id ?? 'pack-chart'"
-            ref="chartRef"
             :autoresize="true"
             :option="chartOptions" />
         </client-only>
