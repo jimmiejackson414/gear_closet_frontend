@@ -30,42 +30,25 @@
   const currentUserId = computed(() =>
     sessionUser.value?.sub ?? $userStore.profile?.id);
 
-  const viewedPackProfileId = ref<string | undefined>(undefined);
-
-  watch(
-    [() => $store.selectedTripId, currentUserId],
-    () => {
-      viewedPackProfileId.value = currentUserId.value;
-    },
-    { immediate: true },
-  );
-
   const viewingOwnPack = computed(() =>
-    Boolean(currentUserId.value)
-    && (!viewedPackProfileId.value || viewedPackProfileId.value === currentUserId.value));
+    !$store.viewedPackProfileId
+    || $store.viewedPackProfileId === currentUserId.value);
 
   const displayedPack = computed(() => {
-    if (viewingOwnPack.value) return $store.data.pack;
-    return $store.data.party_packs.find((party) =>
-      party.profile_id === viewedPackProfileId.value)?.pack ?? undefined;
+    const pack = viewingOwnPack.value
+      ? $store.data.pack
+      : $store.data.party_packs.find(party =>
+        party.profile_id === $store.viewedPackProfileId)?.pack ?? undefined;
+    if (!pack || Array.isArray(pack) || typeof pack !== 'object') return undefined;
+    return pack;
   });
 
-  const packViewerOptions = computed(() => {
-    const options: { value: string; label: string }[] = [];
-    if (currentUserId.value) {
-      options.push({ value: currentUserId.value, label: 'My pack' });
-    }
-    for (const party of $store.data.party_packs ?? []) {
-      if (party.profile_id === currentUserId.value) continue;
-      options.push({
-        value: party.profile_id,
-        label: party.display_name || 'Trip member',
-      });
-    }
-    return options;
+  const viewedPackOwnerLabel = computed(() => {
+    if (viewingOwnPack.value) return 'your pack';
+    const party = $store.data.party_packs.find(item =>
+      item.profile_id === $store.viewedPackProfileId);
+    return party?.display_name || 'this pack';
   });
-
-  const showPackViewer = computed(() => packViewerOptions.value.length > 1);
 
   const canManagePack = computed(() =>
     $store.canEditSelectedTrip && viewingOwnPack.value);
@@ -79,7 +62,7 @@
   const isChangeThemeModalOpen = ref(false);
   const updateTheme = (theme: Theme) => {
     try {
-      chartRef.value?.setOption({
+      chartRef.value?.setOption?.({
         series: [{
           itemStyle: {
             color: (params: CallbackDataParams) => {
@@ -184,10 +167,17 @@
 
   const applyPackSeries = () => {
     const categories = displayedPack.value?.categories ?? [];
-    chartRef.value?.setOption({
+    const seriesData = categories.map(category => ({
+      name: category.name ?? 'Unnamed',
+      value: calculateCategoryWeight({
+        ...category,
+        category_items: category.category_items ?? [],
+      } as ExtendedCategory),
+    }));
+    chartRef.value?.setOption?.({
       legend: {
-        data: categories.map(c => ({
-          name: c.name as string,
+        data: categories.map(category => ({
+          name: category.name as string,
           textStyle: {
             overflow: 'truncate',
             width: 180,
@@ -195,14 +185,11 @@
         })),
       },
       series: [{
-        data: categories.map(c => ({
-          name: c.name ?? 'Unnamed',
-          value: calculateCategoryWeight(c as ExtendedCategory),
-        })),
+        data: seriesData,
         itemStyle: {
           color: (params: CallbackDataParams) => {
             const theme = findTheme(displayedPack.value?.theme as Theme);
-            return theme[params.dataIndex % theme.length] ?? '';
+            return theme[params.dataIndex % (theme.length || 1)] ?? '';
           },
         },
       }],
@@ -222,7 +209,7 @@
     await new Promise(resolve => setTimeout(resolve, 50));
     legendTextColor.value = await hslVarToHex('hsl(var(--text))');
 
-    chartRef.value?.setOption({
+    chartRef.value?.setOption?.({
       legend: {
         textStyle: {
           color: legendTextColor.value,
@@ -237,7 +224,7 @@
   watch(() => colorMode.value, () => updateLegendTextColor());
 
   watch(() => displayedPack.value?.theme, (newTheme) => {
-    chartRef.value?.setOption({
+    chartRef.value?.setOption?.({
       series: [{
         itemStyle: {
           color: (params: CallbackDataParams) => {
@@ -251,10 +238,14 @@
 
   watch(() => displayedPack.value?.categories, () => {
     void schedulePackSeries();
-  }, { deep: true });
+  }, { deep: true, immediate: true });
 
   watch(chartRef, (chart) => {
     if (chart) void schedulePackSeries();
+  }, { flush: 'post' });
+
+  watch(() => $store.pageLoading, (loading) => {
+    if (!loading) void schedulePackSeries();
   });
 </script>
 
@@ -266,28 +257,31 @@
         <p class="font-bold! text-base shrink-0">
           Pack
         </p>
-        <select-root
-          v-if="showPackViewer && currentUserId"
-          :model-value="viewedPackProfileId ?? currentUserId"
-          @update:model-value="viewedPackProfileId = String($event ?? currentUserId)">
-          <select-trigger class="min-w-0 max-w-full sm:min-w-36">
-            <select-value placeholder="My pack" />
-          </select-trigger>
-          <select-content>
-            <select-item
-              v-for="option in packViewerOptions"
-              :key="option.value"
-              hide-checkmark
-              :value="option.value">
-              {{ option.label }}
-            </select-item>
-          </select-content>
-        </select-root>
+        <button-root
+          v-if="!viewingOwnPack"
+          data-testid="pack-widget-my-pack"
+          size="sm"
+          type="button"
+          variant="outline"
+          @click="$store.viewTripPack()">
+          My pack
+        </button-root>
       </div>
       <div
-        v-if="displayedPack && canManagePack"
-        class="flex">
-        <dropdown-menu>
+        v-if="displayedPack"
+        class="flex items-center gap-2">
+        <button-root
+          v-if="displayedPack.slug"
+          as-child
+          size="sm"
+          variant="outline">
+          <nuxt-link
+            data-testid="pack-widget-view-full"
+            :to="{ name: 'p-packs-slug', params: { slug: displayedPack.slug } }">
+            View full pack
+          </nuxt-link>
+        </button-root>
+        <dropdown-menu v-if="canManagePack">
           <dropdown-menu-trigger>
             <icon-ellipsis-vertical class="w-6 h-6" />
           </dropdown-menu-trigger>
@@ -319,10 +313,15 @@
         Add a pack
       </button-root>
     </gc-empty-state>
-    <div v-else>
+    <div v-else-if="displayedPack">
       <h5 class="text-base-lg">
         Selected Pack:
         <span class="font-black">{{ displayedPack?.name }}</span>
+        <span
+          v-if="!viewingOwnPack"
+          class="ml-1 text-muted-foreground font-normal">
+          ({{ viewedPackOwnerLabel }})
+        </span>
       </h5>
       <div class="mx-auto mt-0 mb-4 w-full h-100">
         <client-only>

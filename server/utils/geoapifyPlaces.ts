@@ -22,7 +22,7 @@ export async function searchPlaces (
 
   const batches = await Promise.all(
     companionPlaceQueries(query)
-      .map(text => fetchAutocomplete(text, apiKey)),
+      .map(text => fetchPlaceCandidates(text, apiKey)),
   );
   const places = rankPlaceSuggestions(query, batches.flat());
   if (places.length) {
@@ -31,7 +31,7 @@ export async function searchPlaces (
   return places;
 }
 
-async function fetchAutocomplete (
+async function fetchPlaceCandidates (
   text: string,
   apiKey: string,
 ): Promise<PlaceSuggestion[]> {
@@ -39,20 +39,35 @@ async function fetchAutocomplete (
   const cached = placeCache.get(cacheKey);
   if (cached) return cached;
 
-  const url = new URL('https://api.geoapify.com/v1/geocode/autocomplete');
-  url.searchParams.set('text', text);
-  url.searchParams.set('format', 'json');
-  url.searchParams.set('limit', '10');
-  url.searchParams.set('lang', 'en');
-  url.searchParams.set('apiKey', apiKey);
-
-  const payload = await $fetch<GeoapifyAutocompleteResponse>(url.toString(), {
-    method: 'GET',
-    timeout: 8000,
-  });
-  const places = mapGeoapifyAutocomplete(payload);
+  const autocomplete = await fetchGeoapifyPlaces('autocomplete', text, apiKey);
+  const places = autocomplete.length
+    ? autocomplete
+    : await fetchGeoapifyPlaces('search', text, apiKey);
   if (places.length) {
     placeCache.set(cacheKey, places);
   }
   return places;
+}
+
+async function fetchGeoapifyPlaces (
+  kind: 'autocomplete' | 'search',
+  text: string,
+  apiKey: string,
+): Promise<PlaceSuggestion[]> {
+  const path = kind === 'search'
+    ? 'https://api.geoapify.com/v1/geocode/search'
+    : 'https://api.geoapify.com/v1/geocode/autocomplete';
+  const payload = await $fetch<GeoapifyAutocompleteResponse>(path, {
+    method: 'GET',
+    timeout: 8000,
+    headers: { Accept: 'application/json' },
+    query: {
+      text,
+      format: 'json',
+      limit: 10,
+      lang: 'en',
+      apiKey,
+    },
+  });
+  return mapGeoapifyAutocomplete(payload);
 }

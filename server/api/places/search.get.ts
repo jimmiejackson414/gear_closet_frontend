@@ -29,6 +29,12 @@ export default defineEventHandler(async (event): Promise<PlaceSearchResponse> =>
     const config = useRuntimeConfig(event);
     const apiKey = String(config.geoapifyApiKey ?? '')
       .trim();
+    if (!apiKey) {
+      throw createError({
+        statusCode: 503,
+        statusMessage: 'Place search is not configured.',
+      });
+    }
     const places = await searchPlaces(query, apiKey);
     return { places, attribution: GEOAPIFY_ATTRIBUTION };
   } catch (err) {

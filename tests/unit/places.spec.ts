@@ -57,6 +57,30 @@ describe('places', () => {
       ]);
   });
 
+  it('maps GeoJSON features and string coordinates', () => {
+    expect(mapGeoapifyAutocomplete({
+      features: [
+        {
+          geometry: { coordinates: ['-121.5917136', '48.9102084'] },
+          properties: {
+            name: 'Hannegan Trailhead',
+            county: 'Whatcom County',
+            state_code: 'WA',
+            place_id: 'geo',
+          },
+        },
+      ],
+    }))
+      .toEqual([
+        {
+          label: 'Hannegan Trailhead, Whatcom County, WA',
+          lat: 48.9102084,
+          lng: -121.5917136,
+          placeId: 'geo',
+        },
+      ]);
+  });
+
   it('keeps Hannegan matches and prefers the trailhead over other Pass Trailheads', () => {
     expect(rankPlaceSuggestions('Hannegan Pass Trailhead', [
       {

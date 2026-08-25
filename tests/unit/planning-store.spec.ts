@@ -2,7 +2,7 @@ import { mockNuxtImport } from '@nuxt/test-utils/runtime';
 import { createPinia, setActivePinia } from 'pinia';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { useAppStore } from '@/stores/app';
-import { normalizePlanningPageData, usePlanningStore } from '@/stores/planning';
+import { normalizePlanningPageData, usePlanningStore, type PlanningPageData } from '@/stores/planning';
 import { todos, tripFriends, trips } from '@/tests/unit/mocks/planning.mock';
 import {
   createDeferred,
@@ -78,6 +78,15 @@ describe('stores/planning', () => {
         .toEqual(tripFriends);
       expect(normalized.friends[0]?.friend_profile?.first_name)
         .toBe('Shelly');
+    });
+
+    it('treats an empty pack array from the RPC as no pack', () => {
+      const normalized = normalizePlanningPageData({
+        trips,
+        pack: [] as unknown as PlanningPageData['pack'],
+      } as PlanningPageData);
+      expect(normalized.pack)
+        .toBeUndefined();
     });
   });
 
@@ -357,6 +366,26 @@ describe('stores/planning', () => {
 
       expect(store.canEditSelectedTrip)
         .toBe(false);
+    });
+  });
+
+  describe('viewTripPack', () => {
+    it('toggles a friend pack and resets when the selected trip changes', () => {
+      const store = usePlanningStore();
+      store.selectedTripId = String(trips[0]!.id);
+
+      store.viewTripPack('friend-id');
+      expect(store.viewedPackProfileId)
+        .toBe('friend-id');
+
+      store.viewTripPack('friend-id');
+      expect(store.viewedPackProfileId)
+        .toBeUndefined();
+
+      store.viewTripPack('friend-id');
+      store.selectedTripId = String(trips[1]!.id);
+      expect(store.viewedPackProfileId)
+        .toBeUndefined();
     });
   });
 });

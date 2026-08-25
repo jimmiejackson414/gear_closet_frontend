@@ -107,7 +107,7 @@ describe('pages/p/packs/[slug]', () => {
   const gateDialogText = () =>
     document.querySelector('[role="alertdialog"]')?.textContent ?? '';
 
-  it('gates private packs with private messaging and navigation CTAs', async () => {
+  it('does not leak a private pack to guests', async () => {
     const privatePack = {
       ...structuredClone(selectedPack),
       private: true,
@@ -127,18 +127,39 @@ describe('pages/p/packs/[slug]', () => {
     expect(closet.pageLoading)
       .toBe(false);
     expect((wrapper.vm as any).packGateReason)
-      .toBe('private');
+      .toBe('not_found');
     expect(gateDialogText())
-      .toContain('This pack is private');
-    expect(gateDialogText())
-      .not
       .toContain('Pack not found');
     expect(gateDialogText())
-      .toContain('Home');
-    expect(gateDialogText())
-      .toContain('Sign in');
-    expect(gateDialogText())
-      .toContain('Browse');
+      .not
+      .toContain('This pack is private');
+  });
+
+  it('lets a signed-in trip member view a private pack', async () => {
+    supabaseUser.current!.value = { sub: 'trip-mate-id' };
+    const privatePack = {
+      ...structuredClone(selectedPack),
+      private: true,
+      name: 'Trail Private',
+      profile: publicProfile,
+      comments: [],
+      categories: [],
+    } as PublicPack;
+
+    supabaseClient.current = createSupabaseMock({
+      from: () => createThenableQuery({ data: privatePack, error: null }),
+    });
+
+    const wrapper = await mountSuspended(PublicPackPage);
+    const closet = useClosetStore();
+
+    expect(closet.data.selectedPack?.name)
+      .toBe('Trail Private');
+    expect(wrapper.text())
+      .toContain('Trail Private Pack');
+    expect(wrapper.text())
+      .not
+      .toContain('Pack not found');
   });
 
   it('gates missing packs with not-found messaging', async () => {

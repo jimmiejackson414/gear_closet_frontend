@@ -28,6 +28,7 @@
   const open = ref(false);
   const loading = ref(false);
   const hasSearched = ref(false);
+  const searchError = ref('');
   const editing = ref(false);
   const pickedLabel = ref<string | null>(null);
   const rootRef = ref<HTMLElement | null>(null);
@@ -44,10 +45,12 @@
     if (trimmed.length < 2 || props.disabled) {
       places.value = [];
       hasSearched.value = false;
+      searchError.value = '';
       return;
     }
     loading.value = true;
     open.value = true;
+    searchError.value = '';
     try {
       const response = await $fetch<PlaceSearchResponse>('/api/places/search', {
         query: { q: trimmed },
@@ -55,6 +58,7 @@
       places.value = response.places;
     } catch {
       places.value = [];
+      searchError.value = 'Place search is unavailable right now.';
     } finally {
       loading.value = false;
       hasSearched.value = true;
@@ -104,7 +108,9 @@
     }
   };
 
-  const onBlur = () => {
+  const onFocusOut = (event: FocusEvent) => {
+    const next = event.relatedTarget as Node | null;
+    if (next && rootRef.value?.contains(next)) return;
     setTimeout(() => {
       finishEditing();
     }, 150);
@@ -122,7 +128,9 @@
   <div
     ref="rootRef"
     class="relative w-full"
-    data-testid="place-search">
+    data-testid="place-search"
+    @focusin="onFocus"
+    @focusout="onFocusOut">
     <button
       v-if="variant === 'inline' && !showInput"
       class="w-full text-left"
@@ -144,8 +152,6 @@
       :name="name"
       :placeholder="placeholder"
       :prepend-icon="IconMapPin"
-      @blur="onBlur"
-      @focus="onFocus"
       @update:model-value="onInput" />
     <ul
       v-if="open && (places.length || loading || hasSearched)"
@@ -154,6 +160,11 @@
         v-if="loading && !places.length"
         class="px-2 py-1.5 text-muted-foreground text-sm">
         Searching…
+      </li>
+      <li
+        v-else-if="searchError"
+        class="px-2 py-1.5 text-muted-foreground text-sm">
+        {{ searchError }}
       </li>
       <li
         v-else-if="!places.length"
