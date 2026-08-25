@@ -1,21 +1,20 @@
 import { mountSuspended } from '@nuxt/test-utils/runtime';
-import { createPinia, setActivePinia } from 'pinia';
-import { beforeEach, describe, expect, it } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import ForumsWidget from '@/components/dashboard/ForumsWidget.vue';
 import { useUserStore } from '@/stores/user';
+import { testMountGlobals } from '@/tests/unit/helpers';
 import { forumPosts } from '@/tests/unit/mocks/dashboard.mock';
 
-describe('ForumsWidget', () => {
-  beforeEach(() => {
-    setActivePinia(createPinia());
-  });
+const mountForumsWidget = (props: Record<string, unknown>) => mountSuspended(ForumsWidget, {
+  props,
+  global: testMountGlobals(),
+});
 
+describe('ForumsWidget', () => {
   it('renders skeleton while loading', async () => {
-    const wrapper = await mountSuspended(ForumsWidget, {
-      props: {
-        loading: true,
-        data: { latest_posts: [], categories: [] },
-      },
+    const wrapper = await mountForumsWidget({
+      loading: true,
+      data: { latest_posts: [], categories: [] },
     });
 
     expect(wrapper.findComponent({ name: 'GcSkeleton' })
@@ -27,11 +26,9 @@ describe('ForumsWidget', () => {
   });
 
   it('renders an empty community state when there are no posts', async () => {
-    const wrapper = await mountSuspended(ForumsWidget, {
-      props: {
-        loading: false,
-        data: { latest_posts: [], categories: [] },
-      },
+    const wrapper = await mountForumsWidget({
+      loading: false,
+      data: { latest_posts: [], categories: [] },
     });
 
     expect(wrapper.text())
@@ -44,12 +41,10 @@ describe('ForumsWidget', () => {
   });
 
   it('renders fetch error separately from empty posts', async () => {
-    const wrapper = await mountSuspended(ForumsWidget, {
-      props: {
-        loading: false,
-        error: true,
-        data: { latest_posts: [], categories: [] },
-      },
+    const wrapper = await mountForumsWidget({
+      loading: false,
+      error: true,
+      data: { latest_posts: [], categories: [] },
     });
 
     expect(wrapper.text())
@@ -57,13 +52,11 @@ describe('ForumsWidget', () => {
   });
 
   it('renders posts and categories when data is present', async () => {
-    const wrapper = await mountSuspended(ForumsWidget, {
-      props: {
-        loading: false,
-        data: {
-          latest_posts: forumPosts.latest_posts,
-          categories: forumPosts.categories,
-        },
+    const wrapper = await mountForumsWidget({
+      loading: false,
+      data: {
+        latest_posts: forumPosts.latest_posts,
+        categories: forumPosts.categories,
       },
     });
     const store = useUserStore();
@@ -89,11 +82,9 @@ describe('ForumsWidget', () => {
   });
 
   it('renders a paid empty community state with an Open forums CTA', async () => {
-    const wrapper = await mountSuspended(ForumsWidget, {
-      props: {
-        loading: false,
-        data: { latest_posts: [], categories: [] },
-      },
+    const wrapper = await mountForumsWidget({
+      loading: false,
+      data: { latest_posts: [], categories: [] },
     });
     const store = useUserStore();
     store.profile = {
@@ -111,13 +102,11 @@ describe('ForumsWidget', () => {
   });
 
   it('shows a visible upgrade banner for Free users when posts exist', async () => {
-    const wrapper = await mountSuspended(ForumsWidget, {
-      props: {
-        loading: false,
-        data: {
-          latest_posts: forumPosts.latest_posts,
-          categories: forumPosts.categories,
-        },
+    const wrapper = await mountForumsWidget({
+      loading: false,
+      data: {
+        latest_posts: forumPosts.latest_posts,
+        categories: forumPosts.categories,
       },
     });
     const store = useUserStore();

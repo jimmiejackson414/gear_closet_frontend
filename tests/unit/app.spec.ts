@@ -1,10 +1,10 @@
-import VueTippy from 'vue-tippy';
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import app from '@/app.vue';
 import GcDrawer from '@/components/common/GcDrawer.vue';
 import GcNavbar from '@/components/common/GcNavbar.vue';
 import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
+import { testMountGlobals } from '@/tests/unit/helpers';
 import type { VueWrapper } from '@vue/test-utils';
 
 const { useSupabaseClient } = vi.hoisted(() => {
@@ -48,9 +48,7 @@ describe('App', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
       wrapper = await mountSuspended(app, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
       });
     });
 
@@ -69,9 +67,7 @@ describe('App', async () => {
     let wrapper: VueWrapper<any>;
     beforeEach(async () => {
       wrapper = await mountSuspended(GcNavbar, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
         props: {
           pageTitle: 'Test Page',
         },
@@ -117,9 +113,7 @@ describe('App', async () => {
   describe('GcNavbarAlt Component', async () => {
     it('renders the GcNavbarAlt', async () => {
       const wrapper = await mountSuspended(GcNavbarAlt, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
       });
       expect(wrapper.exists())
         .toBe(true);
@@ -129,9 +123,7 @@ describe('App', async () => {
   describe('GcDrawer Component', async () => {
     it('renders the GcDrawer', async () => {
       const wrapper = await mountSuspended(GcDrawer, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
       });
       expect(wrapper.exists())
         .toBe(true);
@@ -139,9 +131,7 @@ describe('App', async () => {
 
     it('routes the locked forums item to Profile subscription', async () => {
       const wrapper = await mountSuspended(GcDrawer, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
       });
 
       const forumsLink = wrapper.get('[aria-label="The forums are only available to paid members. Upgrade in Profile."]');
@@ -153,9 +143,7 @@ describe('App', async () => {
 
     it('exposes accessible names on navigation and logout controls', async () => {
       const wrapper = await mountSuspended(GcDrawer, {
-        global: {
-          plugins: [VueTippy],
-        },
+        global: testMountGlobals(),
       });
 
       const logoutButton = wrapper.find('[data-testid="logout"]');
