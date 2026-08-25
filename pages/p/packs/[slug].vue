@@ -16,18 +16,13 @@
   const $store = useClosetStore();
   const $route = useRoute();
   /** Set only after fetch from the loaded pack — never from stale Pinia state. */
-  type PublicPackGateReason = 'private' | 'not_found' | 'error';
+  type PublicPackGateReason = 'not_found' | 'error';
   const packGateReason = ref<PublicPackGateReason | null>(null);
 
   const showPackGate = computed(() => packGateReason.value !== null);
 
   const packGateCopy = computed(() => {
     switch (packGateReason.value) {
-    case 'private':
-      return {
-        title: 'This pack is private',
-        description: 'Please contact the pack owner for access.',
-      };
     case 'not_found':
       return {
         title: 'Pack not found',
@@ -41,6 +36,14 @@
     default:
       return { title: '', description: '' };
     }
+  });
+
+  const canComposeComment = computed(() => {
+    const pack = $store.data.selectedPack;
+    const uid = user.value?.sub;
+    if (!pack?.allow_comments || !uid) return false;
+    if (!pack.private) return true;
+    return pack.profile_id === uid;
   });
 
   const fetchPack = async () => {
@@ -75,17 +78,11 @@
 
       if (error) throw error;
 
-      // Privacy: RLS hides private packs from anon users (maybeSingle returns null),
-      // so guests see "not found" rather than "private" — avoids leaking pack existence.
-      // Signed-in owners still receive the row and see the private message.
-      if (!fetchedPack) {
+      // Privacy: RLS hides private packs from guests and non-party users
+      // (maybeSingle returns null). Trip members and owners receive the row and
+      // can view it even when the pack is private.
+      if (!fetchedPack || (fetchedPack.private && !user.value)) {
         packGateReason.value = 'not_found';
-        $store.data.selectedPack = undefined;
-        return;
-      }
-
-      if (fetchedPack.private) {
-        packGateReason.value = 'private';
         $store.data.selectedPack = undefined;
         return;
       }
@@ -232,8 +229,8 @@
               aria-labelledby="comments-tab"
               role="tabpanel">
               <div class="flex flex-col items-start mx-auto px-6 py-6 max-w-6xl">
-                <!-- Compose: logged-in users only -->
-                <template v-if="user">
+                <!-- Compose: public packs, or the owner of a private pack -->
+                <template v-if="canComposeComment">
                   <textarea-root
                     v-model="newCommentValue"
                     class="disabled:bg-gray-100 shadow-xs rounded-xl w-full disabled:pointer-events-none"
@@ -254,7 +251,7 @@
                   <separator class="mb-4" />
                 </template>
                 <typography
-                  v-else
+                  v-else-if="!user"
                   class="mb-4 text-muted-foreground text-sm">
                   <nuxt-link
                     class="font-semibold text-primary hover:underline"

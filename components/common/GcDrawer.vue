@@ -39,10 +39,10 @@
 
 <template>
   <div
-    class="bg-background fixed h-screen pb-4 pt-12 px-2 z-50"
+    class="z-50 fixed bg-background px-2 pt-12 pb-4 h-screen"
     data-testid="gc-drawer">
-    <ul class="flex items-center flex-col gap-4 h-full">
-      <li class="border-b border-light-grey">
+    <ul class="flex flex-col items-center gap-4 h-full">
+      <li class="border-light-grey border-b">
         <span class="block mb-4 px-4 py-2">
           <gc-logo-icon
             :fill="tailwind.theme.colors.primary.DEFAULT"
@@ -57,7 +57,7 @@
           <nuxt-link
             :aria-current="isActiveRoute(link) ? 'page' : undefined"
             :aria-label="linkLabel(link)"
-            class="duration-200 ease-in-out inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg transition focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-accent hover:bg-gray-100"
+            class="inline-flex justify-center items-center hover:bg-gray-100 dark:hover:bg-accent mb-4 px-4 py-2 rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 transition duration-200 ease-in-out"
             :class="[isActiveRoute(link) ? 'bg-accent dark:bg-accent-light' : '']"
             :to="linkTo(link)">
             <gc-avatar
@@ -81,8 +81,9 @@
       <client-only>
         <li class="cursor-pointer">
           <button
+            v-tippy="{ content: 'Log out', placement: 'right', offset: [0, 30] }"
             aria-label="Log out"
-            class="inline-flex justify-center items-center mb-4 px-4 py-2 rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 dark:hover:bg-accent hover:bg-gray-100"
+            class="inline-flex justify-center items-center hover:bg-gray-100 dark:hover:bg-accent mb-4 px-4 py-2 rounded-lg focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
             data-testid="logout"
             type="button"
             @click="handleLogout">

@@ -8,13 +8,19 @@ type GeoapifyAutocompleteResult = {
   state?: string
   state_code?: string
   name?: string
-  lat?: number
-  lon?: number
+  lat?: unknown
+  lon?: unknown
   place_id?: string | number
+};
+
+type GeoapifyFeature = {
+  geometry?: { coordinates?: unknown[] }
+  properties?: GeoapifyAutocompleteResult
 };
 
 export type GeoapifyAutocompleteResponse = {
   results?: GeoapifyAutocompleteResult[]
+  features?: GeoapifyFeature[]
 };
 
 const GENERIC_PLACE_TOKENS = new Set([
@@ -65,15 +71,12 @@ export function companionPlaceQueries (raw: string): string[] {
 export function mapGeoapifyAutocomplete (
   payload: GeoapifyAutocompleteResponse | null | undefined,
 ): PlaceSuggestion[] {
-  const results = payload?.results;
-  if (!Array.isArray(results)) return [];
-
+  const results = geoapifyRows(payload);
   const places: PlaceSuggestion[] = [];
   for (const result of results) {
-    const lat = result.lat;
-    const lng = result.lon;
-    if (typeof lat !== 'number' || typeof lng !== 'number') continue;
-    if (!Number.isFinite(lat) || !Number.isFinite(lng)) continue;
+    const lat = asCoord(result.lat);
+    const lng = asCoord(result.lon);
+    if (lat == null || lng == null) continue;
 
     const name = result.name || result.address_line1 || null;
     const area = [result.city || result.county, result.state_code || result.state]
@@ -128,6 +131,33 @@ export function coordsFromPlace (place: PlaceSuggestion | null): {
     return { lat: null, lng: null, placeId: null };
   }
   return { lat: place.lat, lng: place.lng, placeId: place.placeId };
+}
+
+function geoapifyRows (
+  payload: GeoapifyAutocompleteResponse | null | undefined,
+): GeoapifyAutocompleteResult[] {
+  if (Array.isArray(payload?.results) && payload.results.length) {
+    return payload.results;
+  }
+  if (!Array.isArray(payload?.features)) return [];
+  return payload.features.map((feature) => {
+    const properties = feature.properties ?? {};
+    const coordinates = feature.geometry?.coordinates ?? [];
+    return {
+      ...properties,
+      lon: properties.lon ?? coordinates[0],
+      lat: properties.lat ?? coordinates[1],
+    };
+  });
+}
+
+function asCoord (value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) return value;
+  if (typeof value === 'string' && value.trim()) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) return parsed;
+  }
+  return null;
 }
 
 function placeQueryTokens (query: string): string[] {

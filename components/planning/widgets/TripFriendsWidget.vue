@@ -16,6 +16,12 @@
   const hasPeople = computed(() =>
     data.value.friends.length > 0 || pendingInvites.value.length > 0);
 
+  const canViewFriendPack = (friend: { status: string; profile_id: string }) =>
+    friend.status === 'ACCEPTED' && Boolean(friend.profile_id);
+
+  const isViewingFriendPack = (profileId: string) =>
+    $store.viewedPackProfileId === profileId;
+
   const resendInvite = async (email: string) => {
     const tripId = Number($store.selectedTripId);
     if (!tripId || resendingEmail.value) return;
@@ -87,7 +93,28 @@
         v-for="friend in data.friends"
         :key="`friend-${friend.id}`"
         class="flex items-center gap-3">
+        <button
+          v-if="canViewFriendPack(friend)"
+          v-tippy="{
+            content: isViewingFriendPack(friend.profile_id) ? 'Showing this pack' : 'View pack',
+            placement: 'top',
+          }"
+          :aria-label="isViewingFriendPack(friend.profile_id)
+            ? `Showing ${friend.friend_profile ? friendlyUsername(friend.friend_profile) : 'friend'}'s pack`
+            : `View ${friend.friend_profile ? friendlyUsername(friend.friend_profile) : 'friend'}'s pack`"
+          :aria-pressed="isViewingFriendPack(friend.profile_id)"
+          class="rounded-full focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 shrink-0"
+          :class="isViewingFriendPack(friend.profile_id) ? 'ring-2 ring-primary ring-offset-2' : ''"
+          data-testid="trip-friend-pack-avatar"
+          type="button"
+          @click="$store.viewTripPack(friend.profile_id)">
+          <gc-avatar
+            :initials="initials(friend.friend_profile)"
+            size="sm"
+            :url="friend.friend_profile?.image" />
+        </button>
         <gc-avatar
+          v-else
           :initials="initials(friend.friend_profile)"
           size="sm"
           :url="friend.friend_profile?.image" />

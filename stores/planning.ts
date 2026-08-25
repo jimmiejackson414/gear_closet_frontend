@@ -27,7 +27,7 @@ export interface PlanningPageData {
 export function normalizePlanningPageData (raw: PlanningPageData | null | undefined): PlanningPageData {
   return {
     trips: raw?.trips ?? [],
-    pack: raw?.pack ?? undefined,
+    pack: coercePlanningPack(raw?.pack),
     party_packs: raw?.party_packs ?? [],
     trip_details: raw?.trip_details ?? [],
     todos: raw?.todos ?? [],
@@ -37,6 +37,15 @@ export function normalizePlanningPageData (raw: PlanningPageData | null | undefi
     poll: raw?.poll ?? undefined,
     errors: raw?.errors,
   };
+}
+
+function coercePlanningPack (pack: PlanningPageData['pack'] | unknown): ExtendedPack | undefined {
+  if (Array.isArray(pack)) {
+    const first = pack[0];
+    return first && typeof first === 'object' ? first as ExtendedPack : undefined;
+  }
+  if (pack && typeof pack === 'object') return pack as ExtendedPack;
+  return undefined;
 }
 
 export const usePlanningStore = defineStore('planning', () => {
@@ -55,8 +64,22 @@ export const usePlanningStore = defineStore('planning', () => {
   /** True while refetching after the initial load; previous data stays visible. */
   const isRefreshing = ref(false);
   const selectedTripId = ref<string | undefined>(undefined);
+  /** Profile whose trip pack the Pack widget is showing. `undefined` means the current user's pack. */
+  const viewedPackProfileId = ref<string | undefined>(undefined);
   /** Monotonic id so stale in-flight fetches don't overwrite newer results. */
   const fetchGeneration = ref(0);
+
+  watch(() => selectedTripId.value, () => {
+    viewedPackProfileId.value = undefined;
+  }, { flush: 'sync' });
+
+  const viewTripPack = (profileId?: string | null) => {
+    if (!profileId || profileId === viewedPackProfileId.value) {
+      viewedPackProfileId.value = undefined;
+      return;
+    }
+    viewedPackProfileId.value = profileId;
+  };
 
   const selectedTrip = computed(() =>
     data.value.trips.find(trip => String(trip.id) === selectedTripId.value));
@@ -407,6 +430,8 @@ export const usePlanningStore = defineStore('planning', () => {
     pageLoading,
     isRefreshing,
     selectedTripId,
+    viewedPackProfileId,
+    viewTripPack,
     fetchGeneration,
     selectedTrip,
     isSelectedTripOwner,

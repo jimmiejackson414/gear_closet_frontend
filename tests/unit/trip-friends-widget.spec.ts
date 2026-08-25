@@ -1,6 +1,7 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import TripFriendsWidget from '@/components/planning/widgets/TripFriendsWidget.vue';
+import { usePlanningStore } from '@/stores/planning';
 import { tripFriends, trips } from '@/tests/unit/mocks/planning.mock';
 import { createSupabaseMock } from '@/tests/unit/mocks/supabase.mock';
 import { isDialogRootOpen, testMountGlobals } from './helpers';
@@ -117,6 +118,39 @@ describe('TripFriendsWidget', () => {
     expect(wrapper.find('[data-testid="trip-friends-empty-invite"]')
       .exists())
       .toBe(false);
+  });
+
+  it('opens an accepted friend pack from their avatar and toggles back', async () => {
+    const acceptedFriend = {
+      ...tripFriends[0]!,
+      id: 9,
+      status: 'ACCEPTED' as const,
+    };
+    const wrapper = await mountSuspended(TripFriendsWidget, {
+      global: testMountGlobals({
+        planning: {
+          ...ownerPlanningState,
+          data: {
+            ...ownerPlanningState.data,
+            friends: [acceptedFriend, tripFriends[0]!],
+          },
+        },
+      }),
+    });
+    const store = usePlanningStore();
+
+    expect(wrapper.findAll('[data-testid="trip-friend-pack-avatar"]'))
+      .toHaveLength(1);
+
+    await wrapper.get('[data-testid="trip-friend-pack-avatar"]')
+      .trigger('click');
+    expect(store.viewedPackProfileId)
+      .toBe(acceptedFriend.profile_id);
+
+    await wrapper.get('[data-testid="trip-friend-pack-avatar"]')
+      .trigger('click');
+    expect(store.viewedPackProfileId)
+      .toBeUndefined();
   });
 
   it('does not fetch profiles for the empty friends list', async () => {

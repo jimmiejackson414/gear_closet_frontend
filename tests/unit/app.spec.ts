@@ -172,6 +172,8 @@ describe('App', async () => {
       const logoutButton = wrapper.find('[data-testid="logout"]');
       expect(logoutButton.attributes('aria-label'))
         .toBe('Log out');
+      expect((logoutButton.element as HTMLElement & { _tippy?: { props?: { content?: string } } })._tippy?.props?.content)
+        .toBe('Log out');
 
       const navLinks = wrapper.findAll('a[aria-label], a[href][aria-label]');
       const nuxtLinks = wrapper.findAll('a[aria-label]');
