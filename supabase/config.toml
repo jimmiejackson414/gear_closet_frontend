@@ -144,6 +144,9 @@ skip_nonce_check = false
 enabled = true
 client_id = "env(SUPABASE_AUTH_EXTERNAL_FACEBOOK_CLIENT_ID)"
 secret = "env(SUPABASE_AUTH_EXTERNAL_FACEBOOK_SECRET)"
+# Meta allows http://localhost for dev, but rejects http://127.0.0.1 (the
+# CLI default API URL). This is the URI Facebook must whitelist, not /callback.
+redirect_uri = "http://localhost:54321/auth/v1/callback"
 
 [analytics]
 enabled = true
