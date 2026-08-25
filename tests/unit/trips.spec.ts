@@ -1,6 +1,13 @@
 import { describe, expect, it } from 'vitest';
+import { TripDetailsType } from '@/types';
 import { resolveLockedFallback } from '@/utils/planLimits';
-import { isOwnedTrip, isTripLockedForUser, ownedTrips } from '@/utils/trips';
+import {
+  isOwnedTrip,
+  isTripLockedForUser,
+  ownedTrips,
+  STARTER_TRIP_DETAILS,
+  starterDetailValue,
+} from '@/utils/trips';
 
 const owned = { id: 1, profile_id: 'me', locked_at: null };
 const invited = { id: 2, profile_id: 'them', locked_at: null };
@@ -45,5 +52,14 @@ describe('utils/trips', () => {
       (trip) => isTripLockedForUser(trip, 'me', false),
     ))
       .toEqual({ needed: true, unlocked: owned });
+  });
+
+  it('seeds one Trip and one Hike placeholder detail', () => {
+    expect(STARTER_TRIP_DETAILS.map((detail) => detail.type))
+      .toEqual([TripDetailsType.TRIP, TripDetailsType.HIKE]);
+    expect(starterDetailValue(TripDetailsType.TRIP))
+      .toBe('New trip detail description');
+    expect(starterDetailValue(TripDetailsType.HIKE))
+      .toBe('New hike detail description');
   });
 });

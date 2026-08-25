@@ -209,6 +209,11 @@
     });
   };
 
+  const schedulePackSeries = async () => {
+    await nextTick();
+    applyPackSeries();
+  };
+
   /**
    * Dynamically update the legend text color based on the current theme.
    */
@@ -245,8 +250,12 @@
   });
 
   watch(() => displayedPack.value?.categories, () => {
-    applyPackSeries();
-  }, { deep: true, immediate: true });
+    void schedulePackSeries();
+  }, { deep: true });
+
+  watch(chartRef, (chart) => {
+    if (chart) void schedulePackSeries();
+  });
 </script>
 
 <template>
@@ -318,6 +327,7 @@
       <div class="mx-auto mt-0 mb-4 w-full h-100">
         <client-only>
           <v-chart
+            :key="displayedPack?.id ?? 'pack-chart'"
             ref="chartRef"
             :autoresize="true"
             :option="chartOptions" />

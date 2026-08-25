@@ -1,5 +1,6 @@
 import { defineStore } from "pinia";
 import { ResourceType, TripDetailsType } from "@/types";
+import { STARTER_DETAIL_TITLE, starterDetailValue } from "@/utils/trips";
 import type { Database, Tables, TablesUpdate } from "@/types";
 import type { ExtendedPack } from "@/types/closet";
 import type { ExtendedPoll, ExtendedTripFriend, PendingTripInvite } from "@/types/planning";
@@ -179,13 +180,12 @@ export const usePlanningStore = defineStore('planning', () => {
     const $appStore = useAppStore();
     try {
       const supabase = useSupabaseClient<Database>();
-      const isHike = type === TripDetailsType.HIKE;
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
           trip_id: Number(selectedTripId.value),
-          title: 'New detail',
+          title: STARTER_DETAIL_TITLE,
           type,
-          value: isHike ? 'New hike detail description' : 'New trip detail description',
+          value: starterDetailValue(type),
         })
         .select();
 

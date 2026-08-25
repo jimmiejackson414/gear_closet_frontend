@@ -150,6 +150,11 @@ describe('TripFriendsWidget', () => {
     expect(wrapper.find('[data-testid="trip-friends-empty-invite"]')
       .exists())
       .toBe(true);
+    expect(wrapper.text())
+      .toContain('Invite from Friends or by email.');
+    expect(wrapper.text())
+      .not
+      .toContain('in-app invite');
 
     await wrapper.get('[data-testid="trip-friends-invite"]')
       .trigger('click');

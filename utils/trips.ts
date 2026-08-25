@@ -1,4 +1,27 @@
+import { TripDetailsType } from '@/types';
 import { isResourceLocked } from '@/utils/planLimits';
+
+/** Keep in sync with private.seed_starter_trip_details (migration 68). */
+export const STARTER_DETAIL_TITLE = 'New detail';
+
+export function starterDetailValue (type: TripDetailsType): string {
+  return type === TripDetailsType.HIKE
+    ? 'New hike detail description'
+    : 'New trip detail description';
+}
+
+export const STARTER_TRIP_DETAILS = [
+  {
+    type: TripDetailsType.TRIP,
+    title: STARTER_DETAIL_TITLE,
+    value: starterDetailValue(TripDetailsType.TRIP),
+  },
+  {
+    type: TripDetailsType.HIKE,
+    title: STARTER_DETAIL_TITLE,
+    value: starterDetailValue(TripDetailsType.HIKE),
+  },
+] as const;
 
 export function isOwnedTrip (
   trip: { profile_id?: string | null } | null | undefined,

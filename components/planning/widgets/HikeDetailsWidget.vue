@@ -34,20 +34,6 @@
       </button-root>
     </div>
     <gc-skeleton v-if="$store.pageLoading" />
-    <gc-empty-state
-      v-else-if="!$store.pageLoading && !hikeDetails.length"
-      data-testid="hike-details-empty-state">
-      <typography class="mb-4">
-        You haven't created any hike details yet!
-      </typography>
-      <button-root
-        v-if="$store.canEditSelectedTrip"
-        size="sm"
-        variant="outline"
-        @click="createNewDetail">
-        Get Started
-      </button-root>
-    </gc-empty-state>
     <div v-else>
       <div class="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-6">
         <gc-inline-edit
@@ -91,7 +77,22 @@
           </typography>
         </gc-inline-edit>
       </div>
+      <gc-empty-state
+        v-if="!hikeDetails.length"
+        data-testid="hike-details-empty-state">
+        <typography class="mb-4">
+          You haven't created any hike details yet!
+        </typography>
+        <button-root
+          v-if="$store.canEditSelectedTrip"
+          size="sm"
+          variant="outline"
+          @click="createNewDetail">
+          Get Started
+        </button-root>
+      </gc-empty-state>
       <details-list
+        v-else
         :details="hikeDetails"
         @edit="[activeDetail = $event, isModifyDetailDialogOpen = true]" />
     </div>
