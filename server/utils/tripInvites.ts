@@ -224,7 +224,17 @@ export const sendExistingUserTripInvites = async (
     throw new InviteError('Not found', 404);
   }
   if (trip.profile_id !== input.inviterId) {
-    throw new InviteError('Forbidden', 403);
+    const { data: membership, error: membershipError } = await input.userClient
+      .from('trip_friends')
+      .select('id')
+      .eq('trip_id', input.tripId)
+      .eq('profile_id', input.inviterId)
+      .eq('status', 'ACCEPTED')
+      .maybeSingle();
+
+    if (membershipError || !membership) {
+      throw new InviteError('Forbidden', 403);
+    }
   }
 
   const windowStart = new Date(Date.now() - INVITE_RATE_WINDOW_MS)

@@ -7,6 +7,7 @@
   import { useToast } from '@/components/ui/toast/use-toast';
   import { MeasuringSystem, SubscriptionLevel } from '@/types';
   import { pathAfterOnboarding } from '@/utils/authRedirect';
+  import { isLifetimePromoEnabled } from '@/utils/lifetimePromo';
   import { completeOnboardingPlan } from '@/utils/onboarding';
   import tiers, { type Tier } from '@/utils/tiers';
   import type { FilePondFile } from 'filepond';
@@ -77,7 +78,7 @@
 
   const $store = useUserStore();
   const $config = useRuntimeConfig();
-  const showLifetimePromo = computed(() => $config.public.lifetimePromo === true);
+  const showLifetimePromo = computed(() => isLifetimePromoEnabled($config.public.lifetimePromo));
   const { meta, values, errorBag } = useForm({
     initialValues: {
       first_name: $store.profile?.first_name ?? '',
@@ -136,7 +137,7 @@
     if (!plan) {
       toast({
         title: 'Select a plan',
-        description: 'Choose Free, Monthly, or Annual to continue.',
+        description: 'Choose a plan to continue.',
         variant: 'destructive',
       });
       return;
@@ -146,9 +147,9 @@
     try {
       await completeOnboardingPlan({
         plan,
-        createPaidSubscription: (paidPlan) => $fetch('/api/stripe/subscription', {
+        lifetimePromo: $config.public.lifetimePromo,
+        grantLifetime: () => $fetch('/api/billing/lifetime', {
           method: 'POST',
-          body: { subscription: paidPlan },
         }),
         markOnboarded: () => $store.updateProfile({
           onboard_date: new Date()

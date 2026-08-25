@@ -175,6 +175,27 @@ describe('stores/user', () => {
       expect(userStore.isPaidMember)
         .toBe(true);
     });
+
+    it('treats Lifetime as paid', () => {
+      const userStore = useUserStore();
+      const existing = profile.subscriptions[0];
+      if (!existing) {
+        throw new Error('mock profile is missing a subscription');
+      }
+
+      userStore.profile = {
+        ...profile,
+        subscriptions: [{
+          ...existing,
+          prices: { ...existing.prices, identifier: 'LIFE' },
+        }],
+      } as any;
+
+      expect(userStore.currentPlanIdentifier)
+        .toBe('LIFE');
+      expect(userStore.isPaidMember)
+        .toBe(true);
+    });
   });
 
   describe('fetchNotification', () => {

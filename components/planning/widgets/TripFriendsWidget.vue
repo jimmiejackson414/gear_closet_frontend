@@ -10,7 +10,7 @@
   const resendingEmail = ref<string | null>(null);
 
   const canInvite = computed(() =>
-    !pageLoading.value && $store.isSelectedTripOwner);
+    !pageLoading.value && $store.canEditSelectedTrip);
 
   const pendingInvites = computed(() => data.value.pending_invites ?? []);
   const hasPeople = computed(() =>
@@ -64,15 +64,15 @@
     <gc-skeleton v-if="pageLoading" />
     <gc-empty-state v-else-if="!hasPeople">
       <p class="mb-4 text-base">
-        {{ $store.isSelectedTripOwner ? "You haven't added any friends to this trip yet!" : 'No friends on this trip yet.' }}
+        {{ $store.canEditSelectedTrip ? "You haven't added any friends to this trip yet!" : 'No friends on this trip yet.' }}
       </p>
       <p
-        v-if="$store.isSelectedTripOwner"
+        v-if="$store.canEditSelectedTrip"
         class="mb-4 text-muted-foreground text-sm">
         Invite people from your Friends list, or enter an email — they'll get an in-app invite if they have an account, or an email to join if they don't.
       </p>
       <button-root
-        v-if="$store.isSelectedTripOwner"
+        v-if="$store.canEditSelectedTrip"
         data-testid="trip-friends-empty-invite"
         size="sm"
         variant="outline"

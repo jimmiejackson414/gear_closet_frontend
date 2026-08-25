@@ -342,6 +342,37 @@ describe('sendExistingUserTripInvites', () => {
       .toHaveBeenCalledWith('profiles');
   });
 
+  it('allows accepted invitees to send invites', async () => {
+    const limitedAdmin = queuedFrom({
+      trip_invite_attempts: [createThenableQuery({
+        data: [{ email_count: 20, trip_id: 2 }],
+        error: null,
+      })],
+    });
+    const inviteeFrom = queuedFrom({
+      trips: [createThenableQuery({
+        data: { ...trip, profile_id: OTHER_ID },
+        error: null,
+      })],
+      trip_friends: [createThenableQuery({
+        data: { id: 1 },
+        error: null,
+      })],
+    });
+
+    await expect(sendExistingUserTripInvites({
+      tripId: 2,
+      inviterId: OWNER_ID,
+      emails: ['pat@example.com'],
+      origin: 'https://app.gearcloset.io',
+      userClient: asClient(createSupabaseMock({ from: inviteeFrom })),
+      admin: asClient(createSupabaseMock({ from: limitedAdmin })),
+      send,
+    }))
+      .rejects
+      .toMatchObject({ name: 'InviteError', statusCode: 429 });
+  });
+
   it('still returns generic success when mail delivery fails', async () => {
     send.mockRejectedValue(new Error('allowlist'));
     const userFrom = queuedFrom({
