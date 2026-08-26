@@ -256,6 +256,35 @@ export type Database = {
           },
         ]
       }
+      friend_invite_attempts: {
+        Row: {
+          created_at: string
+          email_count: number
+          id: number
+          profile_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_count?: number
+          id?: number
+          profile_id: string
+        }
+        Update: {
+          created_at?: string
+          email_count?: number
+          id?: number
+          profile_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "friend_invite_attempts_profile_id_fkey"
+            columns: ["profile_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       friends: {
         Row: {
           created_at: string | null

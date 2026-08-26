@@ -1,6 +1,12 @@
 <script lang='ts' setup>
   import { IconSearch } from '#components';
   import { FriendRequestStatus, type Database, type Tables } from '@/types';
+  import {
+    escapeIlikeTerm,
+    mergeProfileSearchResults,
+    parseFriendSearchEmail,
+    toSafeTsQuery,
+  } from '@/utils/friendsSearch';
   import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/planning';
 
   definePageMeta({ layout: 'page-layout' });
@@ -70,12 +76,17 @@
    * Search for friends
    */
   const searching = ref(false);
+  const sendingInvite = ref(false);
+  const inviteSentFor = ref<string | null>(null);
   const searchQuery = ref<string | undefined>(undefined);
   const showAllResults = ref(false);
   const results = ref<Tables<'profiles'>[]>([]);
   const performedSearch = ref(false);
   const filteredResults = computed(() => showAllResults.value ? results.value : results.value.slice(0, 5));
   const pendingRequestIds = ref<(string | null)[]>([]);
+  const inviteEmail = computed(() => parseFriendSearchEmail(searchQuery.value));
+  const showEmailInvite = computed(() =>
+    Boolean(inviteEmail.value && performedSearch.value && !searching.value));
   let searchGeneration = 0;
 
   const fetchSearchResults = async () => {
@@ -94,27 +105,45 @@
     try {
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
+      const tsquery = toSafeTsQuery(query);
+      const email = parseFriendSearchEmail(query);
 
-      const tsquery = query.replace(/ /g, '&');
-      const { data, error } = await supabase
-        .rpc('search_profiles', { search_query: tsquery })
-        .neq('id', user.value?.sub ?? '')
-        .select();
+      const ftsPromise = tsquery
+        ? supabase
+          .rpc('search_profiles', { search_query: tsquery })
+          .neq('id', user.value?.sub ?? '')
+          .select()
+        : Promise.resolve({ data: [] as Tables<'profiles'>[] | null, error: null });
+
+      const emailPromise = email
+        ? supabase
+          .from('profiles')
+          .select('*')
+          .ilike('email', escapeIlikeTerm(email))
+          .neq('id', user.value?.sub ?? '')
+          .limit(5)
+        : Promise.resolve({ data: [] as Tables<'profiles'>[] | null, error: null });
+
+      const [ftsResult, emailResult] = await Promise.all([ftsPromise, emailPromise]);
 
       // Ignore stale responses from older keystrokes
       if (generation !== searchGeneration) return;
 
-      if (error) {
+      if (ftsResult.error || emailResult.error) {
         $appStore.notifyNegative('An error occurred while searching for friends.');
         results.value = [];
         pendingRequestIds.value = [];
         return;
       }
 
-      results.value = data ?? [];
+      const merged = mergeProfileSearchResults(
+        [ftsResult.data, emailResult.data],
+        user.value?.sub,
+      ) as Tables<'profiles'>[];
+      results.value = merged;
       pendingRequestIds.value = [];
 
-      if (!data?.length) return;
+      if (!merged.length) return;
 
       // Fetch pending invitations for these results
       const { data: invitationsData, error: invitationsError } = await supabase
@@ -122,7 +151,7 @@
         .select('recipient_id')
         .eq('sender_id', user.value!.sub)
         .eq('status', FriendRequestStatus.PENDING)
-        .in('recipient_id', data.map(profile => profile.id));
+        .in('recipient_id', merged.map(profile => profile.id));
 
       if (generation !== searchGeneration) return;
 
@@ -147,7 +176,7 @@
     }
   };
 
-  watch(searchQuery, useDebounceFn(async () => {
+  const runSearch = useDebounceFn(async () => {
     if (searchQuery.value) {
       await fetchSearchResults();
     } else {
@@ -156,8 +185,33 @@
       pendingRequestIds.value = [];
       performedSearch.value = false;
       searching.value = false;
+      inviteSentFor.value = null;
     }
-  }, 500));
+  }, 500);
+
+  watch(searchQuery, () => {
+    inviteSentFor.value = null;
+    void runSearch();
+  });
+
+  const sendEmailInvite = async () => {
+    const email = inviteEmail.value;
+    if (!email || sendingInvite.value) return;
+
+    sendingInvite.value = true;
+    try {
+      await $fetch('/api/friends/invites', {
+        method: 'POST',
+        body: { email },
+      });
+      inviteSentFor.value = email;
+      $appStore.notifyPositive('Invite sent.');
+    } catch {
+      $appStore.notifyNegative('Unable to send that invite.');
+    } finally {
+      sendingInvite.value = false;
+    }
+  };
 
   const searchSectionRef = ref<HTMLElement | null>(null);
   const searchInputRef = ref<{ focusInput: () => void } | null>(null);
@@ -229,6 +283,7 @@
             ref="searchInputRef"
             v-model="searchQuery"
             class="w-full max-w-md"
+            data-testid="friend-search-input"
             name="friend-search"
             placeholder="Search by name or email"
             :prepend-icon="IconSearch" />
@@ -264,9 +319,30 @@
               :request-pending="pendingRequestIds.includes(result.id)" />
           </div>
         </div>
-        <div v-else-if="!searching && !results.length && performedSearch">
+        <div v-else-if="!searching && !results.length && performedSearch && !showEmailInvite">
           <typography class="mt-8 text-muted-foreground">
             No results found for "{{ searchQuery }}".
+          </typography>
+        </div>
+        <div
+          v-if="showEmailInvite"
+          class="flex flex-col sm:flex-row sm:items-center gap-3 mt-8">
+          <typography class="text-muted-foreground">
+            Send an invite to {{ inviteEmail }}.
+          </typography>
+          <button-root
+            v-if="inviteSentFor !== inviteEmail"
+            data-testid="friend-email-invite"
+            :disabled="sendingInvite"
+            :loading="sendingInvite"
+            size="sm"
+            @click="sendEmailInvite">
+            Send invite
+          </button-root>
+          <typography
+            v-else
+            class="text-muted-foreground text-sm italic">
+            Invite sent
           </typography>
         </div>
       </div>
