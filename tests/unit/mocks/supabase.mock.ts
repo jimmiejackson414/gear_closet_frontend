@@ -67,7 +67,7 @@ export function createDeferred<T = QueryResult> (): Deferred<T> {
     resolve = res;
     reject = rej;
   });
-  return { promise, resolve, reject };
+  return { promise, reject, resolve };
 }
 
 type FromHandler = (table: string) => ReturnType<typeof createThenableQuery> | Record<string, unknown>;
@@ -96,17 +96,7 @@ export function createSupabaseMock (options: SupabaseMockOptions = {}) {
   const removeChannel = vi.fn(async () => 'ok');
 
   const client = {
-    from: vi.fn((table: string) => {
-      if (options.from) return options.from(table);
-      return createThenableQuery(options.defaultFromResult ?? { data: null, error: null });
-    }),
-    rpc: vi.fn((fn: string, args?: Record<string, unknown>) => {
-      if (options.rpc) {
-        const result = options.rpc(fn, args);
-        return result;
-      }
-      return Promise.resolve({ data: null, error: null });
-    }),
+    _channels: channels,
     channel: vi.fn((_name: string) => {
       const channel = {
         on: vi.fn()
@@ -118,19 +108,29 @@ export function createSupabaseMock (options: SupabaseMockOptions = {}) {
       channels.push(channel);
       return channel;
     }),
+    from: vi.fn((table: string) => {
+      if (options.from) return options.from(table);
+      return createThenableQuery(options.defaultFromResult ?? { data: null, error: null });
+    }),
     removeChannel,
+    rpc: vi.fn((fn: string, args?: Record<string, unknown>) => {
+      if (options.rpc) {
+        const result = options.rpc(fn, args);
+        return result;
+      }
+      return Promise.resolve({ data: null, error: null });
+    }),
     storage: {
       from: vi.fn(() => ({
+        getPublicUrl: (url: string, _options?: unknown) => ({ data: { publicUrl: url } }),
         list: vi.fn()
           .mockResolvedValue({ data: [], error: null }),
         remove: vi.fn()
           .mockResolvedValue({ data: [], error: null }),
         upload: vi.fn()
           .mockResolvedValue({ data: { path: 'x' }, error: null }),
-        getPublicUrl: (url: string, _options?: unknown) => ({ data: { publicUrl: url } }),
       })),
     },
-    _channels: channels,
   };
 
   return client;

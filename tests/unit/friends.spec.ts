@@ -6,14 +6,12 @@ import FriendRequestItem from '@/components/friends/FriendRequestItem.vue';
 import FriendSearchItem from '@/components/friends/FriendSearchItem.vue';
 import RemoveFriendDialog from '@/components/friends/RemoveFriendDialog.vue';
 import { useAppStore } from '@/stores/app';
-import { useUserStore } from '@/stores/user';
 import { friends } from '@/tests/unit/mocks/dashboard.mock';
 import {
   createSupabaseMock,
   createThenableQuery,
 } from '@/tests/unit/mocks/supabase.mock';
 import { FriendRequestStatus } from '@/types';
-import { NotificationKind } from '@/utils/notifications';
 import type { ExtendedFriend, ExtendedFriendInvite } from '@/types/planning';
 
 vi.mock('@/components/ui/toast', () => ({
@@ -29,11 +27,11 @@ vi.mock('@/utils/avatar', async (importOriginal) => {
 });
 
 vi.mock('@/utils/displayName', () => ({
-  initials: vi.fn((user) => (user ? `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}` : 'GC')),
   friendlyUsername: vi.fn((user) => {
     if (!user) return 'a friend';
     return user.trail_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'a friend';
   }),
+  initials: vi.fn((user) => (user ? `${user.first_name?.[0] ?? ''}${user.last_name?.[0] ?? ''}` : 'GC')),
 }));
 
 const CURRENT_USER_ID = '61b66be5-d199-48d5-898a-c521dd6b59cc';
@@ -47,42 +45,45 @@ const supabaseClient = vi.hoisted(() => ({
   current: null as ReturnType<typeof createSupabaseMock> | null,
 }));
 
+const fetchMock = vi.hoisted(() => vi.fn());
+
 mockNuxtImport('useSupabaseUser', () => () => supabaseUser);
 mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
+mockNuxtImport('$fetch', () => fetchMock);
 
 const inviteFixture = (): ExtendedFriendInvite => ({
-  id: 42,
   created_at: '2024-04-25T19:33:50.250318+00:00',
-  updated_at: '2024-04-25T19:33:50.250318+00:00',
-  sender_id: SENDER_ID,
-  recipient_id: CURRENT_USER_ID,
-  status: FriendRequestStatus.PENDING,
-  request_sent_at: '2024-04-25T19:33:50.250318+00:00',
-  request_responded_at: null,
-  sender: friends[0]!.friend,
+  id: 42,
   recipient: {
-    id: CURRENT_USER_ID,
-    email: 'me@example.com',
-    first_name: 'Me',
-    last_name: 'User',
-    trail_name: null,
-    image: null,
-    role: 'USER',
-    measuring_system: 'IMPERIAL',
-    needs_free_resource_selection: false,
-    onboard_date: null,
     address_1: null,
     address_2: null,
     city: null,
-    state: null,
     country: null,
     created_at: null,
-    updated_at: null,
     deactivated_at: null,
-    location: null,
+    email: 'me@example.com',
+    first_name: 'Me',
     fts: null,
+    id: CURRENT_USER_ID,
+    image: null,
+    last_name: 'User',
+    location: null,
+    measuring_system: 'IMPERIAL',
+    needs_free_resource_selection: false,
+    onboard_date: null,
+    role: 'USER',
     slug: 'me-user',
+    state: null,
+    trail_name: null,
+    updated_at: null,
   },
+  recipient_id: CURRENT_USER_ID,
+  request_responded_at: null,
+  request_sent_at: '2024-04-25T19:33:50.250318+00:00',
+  sender: friends[0]!.friend,
+  sender_id: SENDER_ID,
+  status: FriendRequestStatus.PENDING,
+  updated_at: '2024-04-25T19:33:50.250318+00:00',
 });
 
 describe('Friends components', () => {
@@ -90,6 +91,8 @@ describe('Friends components', () => {
     setActivePinia(createPinia());
     supabaseUser.value = { sub: CURRENT_USER_ID };
     supabaseClient.current = createSupabaseMock();
+    fetchMock.mockReset();
+    fetchMock.mockResolvedValue({ ok: true });
   });
 
   describe('FriendRequestItem', () => {
@@ -97,16 +100,16 @@ describe('Friends components', () => {
       const invite = inviteFixture();
       const acceptedInvite = {
         ...invite,
-        status: FriendRequestStatus.ACCEPTED,
         request_responded_at: '2024-04-26T00:00:00.000Z',
+        status: FriendRequestStatus.ACCEPTED,
       };
       const friendshipRow = {
+        created_at: acceptedInvite.request_responded_at,
+        friend: invite.sender,
+        friend_id: SENDER_ID,
         id: 99,
         profile_id: CURRENT_USER_ID,
-        friend_id: SENDER_ID,
-        created_at: acceptedInvite.request_responded_at,
         updated_at: acceptedInvite.request_responded_at,
-        friend: invite.sender,
       } as ExtendedFriend;
       const invitationsQuery = createThenableQuery({ data: [acceptedInvite], error: null });
       const friendsQuery = createThenableQuery({
@@ -114,9 +117,9 @@ describe('Friends components', () => {
           friendshipRow,
           {
             ...friendshipRow,
+            friend_id: CURRENT_USER_ID,
             id: 100,
             profile_id: SENDER_ID,
-            friend_id: CURRENT_USER_ID,
           },
         ],
         error: null,
@@ -149,8 +152,8 @@ describe('Friends components', () => {
         .toHaveBeenCalledWith('Friend request accepted.');
       expect(friendsQuery.insert)
         .toHaveBeenCalledWith([
-          { profile_id: CURRENT_USER_ID, friend_id: SENDER_ID },
-          { profile_id: SENDER_ID, friend_id: CURRENT_USER_ID },
+          { friend_id: SENDER_ID, profile_id: CURRENT_USER_ID },
+          { friend_id: CURRENT_USER_ID, profile_id: SENDER_ID },
         ]);
       expect(wrapper.emitted('accept')?.[0])
         .toEqual([friendshipRow, invite.id]);
@@ -240,23 +243,7 @@ describe('Friends components', () => {
         .toContain('Add Friend');
     });
 
-    it('inserts a friend request notification with sender_id', async () => {
-      const invitationQuery = createThenableQuery({ data: [{ id: 1 }], error: null });
-      const notificationQuery = createThenableQuery({ data: [{ id: 2 }], error: null });
-      supabaseClient.current = createSupabaseMock({
-        from: (table) => (
-          table === 'friend_invitations' ? invitationQuery : notificationQuery
-        ),
-      });
-
-      const userStore = useUserStore();
-      userStore.$patch({
-        profile: {
-          first_name: 'Me',
-          last_name: 'User',
-        } as any,
-      });
-
+    it('sends a friend invite through the invite API', async () => {
       const wrapper = await mountSuspended(FriendSearchItem, {
         props: {
           profile: friends[0]!.friend,
@@ -273,22 +260,11 @@ describe('Friends components', () => {
       await flushPromises();
       await wrapper.vm.$nextTick();
 
-      expect(invitationQuery.insert)
-        .toHaveBeenCalledWith([
-          {
-            recipient_id: friends[0]!.friend.id,
-            sender_id: CURRENT_USER_ID,
-            status: FriendRequestStatus.PENDING,
-          },
-        ]);
-      expect(notificationQuery.insert)
-        .toHaveBeenCalledWith([
-          expect.objectContaining({
-            title: NotificationKind.FRIEND_REQUEST,
-            profile_id: friends[0]!.friend.id,
-            sender_id: CURRENT_USER_ID,
-          }),
-        ]);
+      expect(fetchMock)
+        .toHaveBeenCalledWith('/api/friends/invites', {
+          body: { email: friends[0]!.friend.email },
+          method: 'POST',
+        });
       expect(wrapper.text())
         .toContain('Invite requested');
     });

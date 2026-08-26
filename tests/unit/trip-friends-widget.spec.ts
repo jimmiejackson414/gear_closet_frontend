@@ -20,10 +20,7 @@ mockNuxtImport('useSupabaseUser', () => () => supabaseUser);
 mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
 
 const ownerPlanningState = {
-  pageLoading: false,
-  selectedTripId: String(trips[0]!.id),
   data: {
-    trips,
     friends: [] as typeof tripFriends,
     pending_invites: [] as Array<{
       id: number;
@@ -33,10 +30,13 @@ const ownerPlanningState = {
       expires_at: string;
       created_at: string;
     }>,
-    trip_details: [],
-    todos: [],
     shopping_items: [],
+    todos: [],
+    trip_details: [],
+    trips,
   },
+  pageLoading: false,
+  selectedTripId: String(trips[0]!.id),
 };
 
 describe('TripFriendsWidget', () => {
@@ -56,18 +56,18 @@ describe('TripFriendsWidget', () => {
               ...tripFriends,
               {
                 ...tripFriends[0]!,
-                id: 3,
-                profile_id: 'declined-friend',
-                status: 'DECLINED',
                 friend_profile: tripFriends[0]!.friend_profile
                   ? {
                     ...tripFriends[0]!.friend_profile,
-                    id: 'declined-friend',
                     first_name: 'Dana',
+                    id: 'declined-friend',
                     last_name: 'Declined',
                     trail_name: null,
                   }
                   : null,
+                id: 3,
+                profile_id: 'declined-friend',
+                status: 'DECLINED',
               },
             ],
           },
@@ -99,12 +99,12 @@ describe('TripFriendsWidget', () => {
             ...ownerPlanningState.data,
             friends: tripFriends,
             pending_invites: [{
-              id: 44,
-              trip_id: 2,
-              email: 'new.person@example.com',
-              status: 'PENDING',
-              expires_at: '2026-09-03T00:00:00.000Z',
               created_at: '2026-08-20T00:00:00.000Z',
+              email: 'new.person@example.com',
+              expires_at: '2026-09-03T00:00:00.000Z',
+              id: 44,
+              status: 'PENDING',
+              trip_id: 2,
             }],
           },
         },

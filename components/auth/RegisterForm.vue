@@ -22,7 +22,7 @@
       path: ['passwordConfirm'],
     }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting, resetForm } = useForm({
+  const { handleSubmit, isFieldDirty, isSubmitting, resetForm } = useForm({
     validationSchema: formSchema,
   });
 
@@ -30,8 +30,8 @@
     try {
       const { error } = await supabase.auth.signUp({
         email: values.email,
-        password: values.password,
         options: { emailRedirectTo: authCallbackUrl(window.location.origin) },
+        password: values.password,
       });
 
       if (error) {
@@ -56,8 +56,8 @@
   const handleOAuthSignUp = async (provider: Provider) => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider,
         options: { redirectTo: authCallbackUrl(window.location.origin) },
+        provider,
       });
 
       if (error) {

@@ -21,27 +21,27 @@
 
   const $store = usePlanningStore();
   const formSchema = toTypedSchema(z.object({
-    name: z.string()
-      .min(3)
-      .max(50),
+    dateRange: z.array(z.date())
+      .length(2)
+      .optional(),
     description: z.string()
       .min(3)
       .max(500)
-      .optional(),
-    starting_point: z.string()
-      .min(3)
-      .max(200)
       .optional(),
     ending_point: z.string()
       .min(3)
       .max(200)
       .optional(),
-    dateRange: z.array(z.date())
-      .length(2)
+    name: z.string()
+      .min(3)
+      .max(50),
+    starting_point: z.string()
+      .min(3)
+      .max(200)
       .optional(),
   }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
+  const { handleSubmit, isFieldDirty, isSubmitting } = useForm({
     validationSchema: formSchema,
   });
 
@@ -81,19 +81,19 @@
       const origin = coordsFromPlace(originPlace.value);
       const destination = coordsFromPlace(destinationPlace.value);
       const payload: TablesInsert<'trips'> = {
-        name: values.name,
         description: values.description,
-        starting_point: values.starting_point,
-        ending_point: values.ending_point,
-        origin_lat: origin.lat,
-        origin_lng: origin.lng,
-        origin_place_id: origin.placeId,
         destination_lat: destination.lat,
         destination_lng: destination.lng,
         destination_place_id: destination.placeId,
-        starting_date: values.dateRange?.[0]?.toISOString(),
         ending_date: values.dateRange?.[1]?.toISOString(),
+        ending_point: values.ending_point,
+        name: values.name,
+        origin_lat: origin.lat,
+        origin_lng: origin.lng,
+        origin_place_id: origin.placeId,
         profile_id: user.value?.sub as string,
+        starting_date: values.dateRange?.[0]?.toISOString(),
+        starting_point: values.starting_point,
       };
       const { data: createdTrip, error } = await supabase.from('trips')
         .insert([payload])

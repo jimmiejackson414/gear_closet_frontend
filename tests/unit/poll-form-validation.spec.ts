@@ -4,8 +4,8 @@ import { validatePollForm } from '@/utils/pollFormValidation';
 describe('validatePollForm', () => {
   it('requires a question and at least two answers', () => {
     const result = validatePollForm({
-      question: '',
       answers: [''],
+      question: '',
     });
 
     expect(result.ok)
@@ -18,8 +18,8 @@ describe('validatePollForm', () => {
 
   it('accepts trimmed question and answer values', () => {
     const result = validatePollForm({
-      question: '  Where should we hike?  ',
       answers: [' Trail A ', 'Trail B', '   '],
+      question: '  Where should we hike?  ',
     });
 
     expect(result.ok)

@@ -54,11 +54,11 @@ async function sendTestEmail () {
   const resend = new Resend(apiKey);
   const { data, error } = await resend.emails.send({
     from: formatMailFrom(fromRaw),
-    to,
-    subject: message.subject,
     html: message.html,
-    text: message.text,
+    subject: message.subject,
     tags: [{ name: 'template', value: message.templateId }],
+    text: message.text,
+    to,
   });
 
   if (error || !data?.id) {

@@ -4,8 +4,8 @@ import { profileNamesFromAuthMetadata } from '@/utils/oauthProfileNames';
 describe('profileNamesFromAuthMetadata', () => {
   it('uses Google given_name and family_name', () => {
     expect(profileNamesFromAuthMetadata({
-      given_name: 'Jane',
       family_name: 'Doe',
+      given_name: 'Jane',
       name: 'Jane Doe',
     }))
       .toEqual({ firstName: 'Jane', lastName: 'Doe' });

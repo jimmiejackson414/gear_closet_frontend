@@ -1,14 +1,14 @@
 <script lang='ts' setup>
-  definePageMeta({ layout: 'auth-layout', colorMode: 'light' });
+  definePageMeta({ colorMode: 'light', layout: 'auth-layout' });
 
   useHead({
-    title: 'Forgot Password',
     meta: [
       {
-        name: 'description',
         content: 'Forgot your password? Reset it here',
+        name: 'description',
       },
     ],
+    title: 'Forgot Password',
   });
 </script>
 

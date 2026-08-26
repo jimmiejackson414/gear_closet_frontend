@@ -15,8 +15,8 @@
   const loading = ref(true);
   const data: DashboardData = reactive({
     friends: [],
-    trips: [],
     trip_friends: [],
+    trips: [],
   });
 
   const forumData = reactive<ForumResponse>({
@@ -90,13 +90,13 @@
   });
 
   useHead({
-    title: 'Dashboard',
     meta: [
       {
-        name: 'description',
         content: 'Welcome to your Gear Closet dashboard!',
+        name: 'description',
       },
     ],
+    title: 'Dashboard',
   });
 </script>
 

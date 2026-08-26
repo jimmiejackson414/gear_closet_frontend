@@ -16,11 +16,11 @@ vi.mock('@/utils/avatar', async (importOriginal) => {
 });
 
 vi.mock('@/utils/displayName', () => ({
-  initials: vi.fn((user) => user ? `${user.first_name.charAt(0)}${user.last_name.charAt(0)}` : 'GC'),
   friendlyUsername: vi.fn((user) => {
     if (!user) return 'a friend';
     return user.trail_name || `${user.first_name || ''} ${user.last_name || ''}`.trim() || 'a friend';
   }),
+  initials: vi.fn((user) => user ? `${user.first_name.charAt(0)}${user.last_name.charAt(0)}` : 'GC'),
 }));
 
 const supabaseClient = vi.hoisted(() => ({

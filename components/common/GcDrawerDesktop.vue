@@ -8,8 +8,8 @@
     isActiveRoute,
     isLightMode,
     linkLabel,
-    linkTo,
     links,
+    linkTo,
     onDrawerLinkClick,
   } = useDrawerNav();
   const NuxtLink = resolveComponent('NuxtLink');

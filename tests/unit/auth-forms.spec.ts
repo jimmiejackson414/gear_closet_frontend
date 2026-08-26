@@ -9,9 +9,9 @@ const signInWithOAuth = vi.hoisted(() => vi.fn());
 
 mockNuxtImport('useSupabaseClient', () => () => ({
   auth: {
+    signInWithOAuth,
     signInWithPassword,
     signUp,
-    signInWithOAuth,
   },
 }));
 
@@ -70,13 +70,13 @@ describe('Auth forms', () => {
 
       expect(signInWithOAuth)
         .toHaveBeenCalledWith({
-          provider: 'google',
           options: { redirectTo: `${window.location.origin}/callback` },
+          provider: 'google',
         });
       expect(signInWithOAuth)
         .toHaveBeenCalledWith({
-          provider: 'facebook',
           options: { redirectTo: `${window.location.origin}/callback` },
+          provider: 'facebook',
         });
     });
 
@@ -126,8 +126,8 @@ describe('Auth forms', () => {
 
       expect(signInWithOAuth)
         .toHaveBeenCalledWith({
-          provider: 'google',
           options: { redirectTo: `${window.location.origin}/callback` },
+          provider: 'google',
         });
     });
   });

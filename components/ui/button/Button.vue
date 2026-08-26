@@ -14,10 +14,10 @@
 
   const props = withDefaults(defineProps<Props>(), {
     as: 'button',
-    variant: 'default',
-    size: 'default',
     class: '',
     loading: false,
+    size: 'default',
+    variant: 'default',
   });
 </script>
 

@@ -17,7 +17,7 @@ export function createTtlCache<T> (ttlMs: number) {
       return entry.value;
     },
     set (key: string, value: T) {
-      store.set(key, { value, expiresAt: Date.now() + ttlMs });
+      store.set(key, { expiresAt: Date.now() + ttlMs, value });
     },
   };
 }

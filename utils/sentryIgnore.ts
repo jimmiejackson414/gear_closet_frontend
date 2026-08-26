@@ -45,7 +45,7 @@ export const wasSentryReported = (error: unknown) =>
 
 export const markSentryReported = (error: unknown) => {
   if (!error || typeof error !== 'object' || wasSentryReported(error)) return;
-  Object.defineProperty(error, REPORTED, { value: true, enumerable: false });
+  Object.defineProperty(error, REPORTED, { enumerable: false, value: true });
 };
 
 export const reportErrorOnce = (

@@ -21,22 +21,22 @@ const supabaseClient = vi.hoisted(() => ({
 mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
 
 const blankForm = () => ({
+  answers: [{
+    content: '',
+    created_at: '',
+    id: 0,
+    profile_id: '',
+    question_id: 0,
+    updated_at: '',
+  }],
   question: {
+    created_at: '',
     id: 0,
     poll_id: 0,
-    created_at: '',
-    updated_at: '',
     profile_id: '',
     title: '',
-  },
-  answers: [{
-    id: 0,
-    question_id: 0,
-    created_at: '',
     updated_at: '',
-    profile_id: '',
-    content: '',
-  }],
+  },
 });
 
 describe('ModifyPollDialog', () => {
@@ -53,9 +53,9 @@ describe('ModifyPollDialog', () => {
       attachTo: document.body,
       global: testMountGlobals(),
       props: {
+        form: blankForm(),
         isOpen: true,
         state: 'create',
-        form: blankForm(),
       },
     });
 

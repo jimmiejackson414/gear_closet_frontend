@@ -17,15 +17,15 @@
 
   // generate table rows and columns
   const columns = [
-    { value: 'drag', label: 'Drag', visible: false, cellClass: 'text-left' },
-    { value: 'name', label: 'Name', visible: true, cellClass: 'text-left' },
-    { value: 'generic_type', label: 'Description', visible: true, cellClass: 'text-left' },
-    { value: 'consumable', label: 'Consumable', visible: true, cellClass: 'text-center' },
-    { value: 'worn', label: 'Worn', visible: true, cellClass: 'text-center' },
-    { value: 'weight', label: 'Weight', visible: true, cellClass :'text-center' },
-    { value: 'price', label: 'Price', visible: true, cellClass: 'text-center' },
-    { value: 'quantity', label: 'Quantity', visible: true, cellClass: 'text-center' },
-    { value: 'actions', label: 'Actions', visible: true, cellClass: 'text-right' },
+    { cellClass: 'text-left', label: 'Drag', value: 'drag', visible: false },
+    { cellClass: 'text-left', label: 'Name', value: 'name', visible: true },
+    { cellClass: 'text-left', label: 'Description', value: 'generic_type', visible: true },
+    { cellClass: 'text-center', label: 'Consumable', value: 'consumable', visible: true },
+    { cellClass: 'text-center', label: 'Worn', value: 'worn', visible: true },
+    { cellClass :'text-center', label: 'Weight', value: 'weight', visible: true },
+    { cellClass: 'text-center', label: 'Price', value: 'price', visible: true },
+    { cellClass: 'text-center', label: 'Quantity', value: 'quantity', visible: true },
+    { cellClass: 'text-right', label: 'Actions', value: 'actions', visible: true },
   ];
 
   /**
@@ -49,7 +49,7 @@
 
   // Calculate the updated positions when a row is moved and build the payload
   const calculateUpdatedPositions = (event: DraggableEvent) => {
-    const { oldIndex, newIndex, to, from } = event;
+    const { from, newIndex, oldIndex, to } = event;
 
     const newCategoryId = parseInt(to?.getAttribute('data-category-id')!);
     const oldCategoryId = parseInt(from?.getAttribute('data-category-id')!);
@@ -76,9 +76,9 @@
       oldCategoryItems.forEach((item, index) => {
         if (item.position !== index + 1) {
           updatedRows.push({
+            category_id: oldCategoryId,
             id: item.id,
             position: index + 1,
-            category_id: oldCategoryId,
           });
         }
       });
@@ -87,9 +87,9 @@
       oldCategoryItems.forEach((item, index) => {
         if (item.id !== movedRow.id && item.position !== index + 1) {
           updatedRows.push({
+            category_id: oldCategoryId,
             id: item.id,
             position: index + 1,
-            category_id: oldCategoryId,
           });
         }
       });
@@ -98,15 +98,15 @@
       newCategoryItems.forEach((item, index) => {
         if (item.id === movedRow.id) {
           updatedRows.push({
+            category_id: newCategoryId,
             id: movedRow.id,
             position: index + 1,
-            category_id: newCategoryId,
           });
         } else if (item.position !== index + 1) {
           updatedRows.push({
+            category_id: newCategoryId,
             id: item.id,
             position: index + 1,
-            category_id: newCategoryId,
           });
         }
       });

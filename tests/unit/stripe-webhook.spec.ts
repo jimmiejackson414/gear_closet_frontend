@@ -19,15 +19,15 @@ function stripeEvent<T extends string> (
   object: Record<string, unknown>,
 ): Stripe.Event {
   return {
-    id: 'evt_test',
-    object: 'event',
     api_version: '2024-06-20',
     created: 1,
+    data: { object },
+    id: 'evt_test',
     livemode: false,
+    object: 'event',
     pending_webhooks: 0,
     request: null,
     type,
-    data: { object },
   } as unknown as Stripe.Event;
 }
 
@@ -41,15 +41,15 @@ describe('getSubscriptionItemPeriod', () => {
       items: {
         data: [
           {
-            current_period_start: 100,
             current_period_end: 200,
+            current_period_start: 100,
           },
         ],
       },
     } as Stripe.Subscription);
 
     expect(period)
-      .toEqual({ current_period_start: 100, current_period_end: 200 });
+      .toEqual({ current_period_end: 200, current_period_start: 100 });
   });
 
   it('throws when subscription has no items', () => {
@@ -102,21 +102,21 @@ describe('processStripeWebhookEvent', () => {
 
     await processStripeWebhookEvent(
       stripeEvent('customer.subscription.created', {
-        id: 'sub_123',
-        status: 'active',
-        metadata: { profile_id: 'profile-1' },
-        cancel_at_period_end: false,
         cancel_at: null,
+        cancel_at_period_end: false,
+        id: 'sub_123',
         items: {
           data: [
             {
+              current_period_end: 1_700_086_400,
+              current_period_start: 1_700_000_000,
               price: { id: 'price_123' },
               quantity: 1,
-              current_period_start: 1_700_000_000,
-              current_period_end: 1_700_086_400,
             },
           ],
         },
+        metadata: { profile_id: 'profile-1' },
+        status: 'active',
       }),
       asClient(supabase),
     );
@@ -134,13 +134,13 @@ describe('processStripeWebhookEvent', () => {
 
     await processStripeWebhookEvent(
       stripeEvent('product.created', {
-        id: 'prod_1',
         active: true,
-        name: 'monthly',
         description: 'Monthly plan',
+        id: 'prod_1',
         images: ['https://example.com/img.png'],
-        metadata: {},
         livemode: false,
+        metadata: {},
+        name: 'monthly',
       }),
       asClient(supabase),
     );
@@ -158,16 +158,16 @@ describe('processStripeWebhookEvent', () => {
 
     await processStripeWebhookEvent(
       stripeEvent('price.created', {
-        id: 'price_1',
-        product: 'prod_1',
         active: true,
-        nickname: 'Monthly',
-        unit_amount: 999,
         currency: 'usd',
-        type: 'recurring',
-        recurring: { interval: 'month', interval_count: 1 },
-        metadata: {},
+        id: 'price_1',
         livemode: false,
+        metadata: {},
+        nickname: 'Monthly',
+        product: 'prod_1',
+        recurring: { interval: 'month', interval_count: 1 },
+        type: 'recurring',
+        unit_amount: 999,
       }),
       asClient(supabase),
     );
@@ -219,21 +219,21 @@ describe('processStripeWebhookEvent', () => {
 
     await processStripeWebhookEvent(
       stripeEvent('customer.subscription.updated', {
-        id: 'sub_free',
-        status: 'active',
-        metadata: { profile_id: 'profile-1' },
-        cancel_at_period_end: false,
         cancel_at: null,
+        cancel_at_period_end: false,
+        id: 'sub_free',
         items: {
           data: [
             {
+              current_period_end: 1_700_086_400,
+              current_period_start: 1_700_000_000,
               price: { id: 'price_free' },
               quantity: 1,
-              current_period_start: 1_700_000_000,
-              current_period_end: 1_700_086_400,
             },
           ],
         },
+        metadata: { profile_id: 'profile-1' },
+        status: 'active',
       }),
       asClient(supabase),
     );
@@ -309,21 +309,21 @@ describe('processStripeWebhookEvent', () => {
 
     await expect(processStripeWebhookEvent(
       stripeEvent('customer.subscription.updated', {
-        id: 'sub_missing',
-        status: 'active',
-        metadata: {},
-        cancel_at_period_end: false,
         cancel_at: null,
+        cancel_at_period_end: false,
+        id: 'sub_missing',
         items: {
           data: [
             {
+              current_period_end: 1_700_086_400,
+              current_period_start: 1_700_000_000,
               price: { id: 'price_paid' },
               quantity: 1,
-              current_period_start: 1_700_000_000,
-              current_period_end: 1_700_086_400,
             },
           ],
         },
+        metadata: {},
+        status: 'active',
       }),
       asClient(createSupabaseMock({ from })),
     ))
@@ -343,13 +343,13 @@ describe('processStripeWebhookEvent', () => {
 
     await expect(processStripeWebhookEvent(
       stripeEvent('product.updated', {
-        id: 'prod_missing',
         active: true,
-        name: 'monthly',
         description: 'Monthly plan',
+        id: 'prod_missing',
         images: [],
-        metadata: {},
         livemode: false,
+        metadata: {},
+        name: 'monthly',
       }),
       asClient(supabase),
     ))
@@ -364,16 +364,16 @@ describe('processStripeWebhookEvent', () => {
 
     await expect(processStripeWebhookEvent(
       stripeEvent('price.updated', {
-        id: 'price_missing',
-        product: 'prod_1',
         active: true,
-        nickname: 'Monthly',
-        unit_amount: 999,
         currency: 'usd',
-        type: 'recurring',
-        recurring: { interval: 'month', interval_count: 1 },
-        metadata: {},
+        id: 'price_missing',
         livemode: false,
+        metadata: {},
+        nickname: 'Monthly',
+        product: 'prod_1',
+        recurring: { interval: 'month', interval_count: 1 },
+        type: 'recurring',
+        unit_amount: 999,
       }),
       asClient(supabase),
     ))

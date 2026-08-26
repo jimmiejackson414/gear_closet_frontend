@@ -1,8 +1,8 @@
 import type { ForumResponse } from '@/types/forum';
 
 export const EMPTY_FORUM_RESPONSE: ForumResponse = {
-  latest_posts: [],
   categories: [],
+  latest_posts: [],
 };
 
 export const normalizeForumsUrl = (raw: string | undefined | null) =>

@@ -1,26 +1,26 @@
 <script lang='ts' setup>
   import { AUTH_CALLBACK_PATH } from '@/utils/authRedirect';
 
-  definePageMeta({ layout: 'auth-layout', colorMode: 'light' });
+  definePageMeta({ colorMode: 'light', layout: 'auth-layout' });
 
   const route = useRoute();
   if (route.query.code || String(route.hash)
     .includes('code=')) {
     await navigateTo({
+      hash: route.hash,
       path: AUTH_CALLBACK_PATH,
       query: route.query,
-      hash: route.hash,
     }, { replace: true });
   }
 
   useHead({
-    title: 'Reset Password',
     meta: [
       {
-        name: 'description',
         content: 'Choose a new password for your account',
+        name: 'description',
       },
     ],
+    title: 'Reset Password',
   });
 </script>
 

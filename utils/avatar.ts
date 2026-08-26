@@ -4,11 +4,11 @@ export type AvatarSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
 
 /** CSS pixel size of `GcAvatar` for each named size. Transforms request 2× this. */
 export const AVATAR_DISPLAY_PX: Record<AvatarSize, number> = {
-  xs: 24,
-  sm: 32,
-  md: 48,
   lg: 64,
+  md: 48,
+  sm: 32,
   xl: 80,
+  xs: 24,
 };
 
 /**
@@ -28,9 +28,9 @@ export const buildImageSrc = (
     .getPublicUrl(url, transform
       ? {
         transform: {
-          width: px,
           height: px,
           resize: 'cover',
+          width: px,
         },
       }
       : undefined);

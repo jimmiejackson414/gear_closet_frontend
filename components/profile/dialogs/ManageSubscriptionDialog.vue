@@ -67,19 +67,19 @@
 
   const steps = computed(() => {
     if (isLifetimeMember.value) {
-      return [{ step: 1, title: 'Subscription', icon: IconHeart }];
+      return [{ icon: IconHeart, step: 1, title: 'Subscription' }];
     }
     const base = [
-      { step: 1, title: 'Subscription', icon: IconCheckCircle },
+      { icon: IconCheckCircle, step: 1, title: 'Subscription' },
     ];
     let stepNum = 2;
     if (downgradeNeedsPick.value) {
-      base.push({ step: stepNum++, title: 'Keep access', icon: IconLock });
+      base.push({ icon: IconLock, step: stepNum++, title: 'Keep access' });
     }
     if (needsPaymentStep.value) {
-      base.push({ step: stepNum++, title: 'Payment', icon: IconCheckCircle });
+      base.push({ icon: IconCheckCircle, step: stepNum++, title: 'Payment' });
     }
-    base.push({ step: stepNum, title: 'Confirm', icon: IconHeart });
+    base.push({ icon: IconHeart, step: stepNum, title: 'Confirm' });
     return base;
   });
 
@@ -111,13 +111,13 @@
       },
       style: {
         base: {
-          color: tailwind.theme.colors.primary.DEFAULT,
-          fontFamily: '"Lato", Helvetica, sans-serif',
-          fontSmoothing: 'antialiased',
-          fontSize: '16px',
           '::placeholder': {
             color: '#aab7c4',
           },
+          color: tailwind.theme.colors.primary.DEFAULT,
+          fontFamily: '"Lato", Helvetica, sans-serif',
+          fontSize: '16px',
+          fontSmoothing: 'antialiased',
         },
         invalid: {
           color: tailwind.theme.colors.destructive.DEFAULT,
@@ -135,7 +135,7 @@
   const stepTwoCopy = computed(() => {
     const stripePlan = props.subscriptionData.subscriptions[0]?.items?.data[0]?.price?.nickname?.toUpperCase() as SubscriptionLevel | undefined;
     const currentPlan = stripePlan ?? $userStore.currentPlanIdentifier;
-    const planLevels = { [SubscriptionLevel.FREE]: 1, [SubscriptionLevel.MONTHLY]: 2, [SubscriptionLevel.ANNUAL]: 3, [SubscriptionLevel.LIFE]: 4 };
+    const planLevels = { [SubscriptionLevel.ANNUAL]: 3, [SubscriptionLevel.FREE]: 1, [SubscriptionLevel.LIFE]: 4, [SubscriptionLevel.MONTHLY]: 2 };
     const currentLevel = planLevels[currentPlan];
     const newLevel = planLevels[activePlan.value as SubscriptionLevel];
 
@@ -224,9 +224,9 @@
       throw new Error('Payment form is not ready');
     }
 
-    const { paymentMethod, error: createError } = await stripe.value.createPaymentMethod({
-      type: 'card',
+    const { error: createError, paymentMethod } = await stripe.value.createPaymentMethod({
       card: cardElement,
+      type: 'card',
     });
 
     if (createError || !paymentMethod) {
@@ -234,8 +234,8 @@
     }
 
     await $fetch('/api/stripe/payment-method', {
-      method: 'PUT',
       body: { paymentMethodId: paymentMethod.id },
+      method: 'PUT',
     });
   };
 
@@ -290,24 +290,24 @@
 
       if (method === 'POST') {
         await $fetch<{ ok: boolean }>('/api/stripe/subscription', {
-          method: 'POST',
           body: { subscription: activePlan.value },
+          method: 'POST',
         });
       } else {
         const response = await $fetch<{ ok: boolean }>('/api/stripe/subscription', {
-          method: 'PUT',
           body: { newPlan: activePlan.value },
+          method: 'PUT',
         });
         if (!response?.ok) throw new Error('Subscription update failed');
       }
 
       if (activePlan.value === SubscriptionLevel.FREE) {
         await $fetch('/api/plan/free-selection', {
-          method: 'POST',
           body: {
             packId: packs.value.length ? selectedPackId.value ?? null : null,
             tripId: trips.value.length ? selectedTripId.value ?? null : null,
           },
+          method: 'POST',
         });
       } else if (isPaidPlanIdentifier(activePlan.value)) {
         await $fetch('/api/plan/unlock', { method: 'POST' });

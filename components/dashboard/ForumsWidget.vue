@@ -13,8 +13,8 @@
 
   withDefaults(defineProps<Props>(), {
     data: () => ({
-      latest_posts: [],
       categories: [],
+      latest_posts: [],
     }),
     error: false,
   });

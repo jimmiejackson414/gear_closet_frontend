@@ -31,8 +31,8 @@
       // update friend request status
       const { data, error } = await supabase.from('friend_invitations')
         .update({
-          status: FriendRequestStatus.ACCEPTED,
           request_responded_at: acceptedAt,
+          status: FriendRequestStatus.ACCEPTED,
         })
         .eq('id', props.friend.id)
         .select();
@@ -46,8 +46,8 @@
       const { data: insertedFriends, error: insertError } = await supabase
         .from('friends')
         .insert([
-          { profile_id: friendRequest.recipient_id, friend_id: friendRequest.sender_id },
-          { profile_id: friendRequest.sender_id, friend_id: friendRequest.recipient_id },
+          { friend_id: friendRequest.sender_id, profile_id: friendRequest.recipient_id },
+          { friend_id: friendRequest.recipient_id, profile_id: friendRequest.sender_id },
         ])
         .select('*, friend:profiles!friend_id(*)');
 
@@ -80,9 +80,9 @@
       submittingDecline.value = true;
       const { error } = await supabase.from('friend_invitations')
         .update({
-          status: FriendRequestStatus.DECLINED,
           request_responded_at: new Date()
             .toISOString(),
+          status: FriendRequestStatus.DECLINED,
         })
         .eq('id', props.friend.id)
         .select();
@@ -105,45 +105,30 @@
 </script>
 
 <template>
-  <div class="bg-gray-50 duration-200 ease-out my-4 px-4 sm:px-8 py-4 rounded-2xl shadow-xs hover:shadow-xl transition w-full min-w-0 sm:w-auto">
-    <div class="flex flex-col gap-4 sm:grid sm:grid-cols-[auto_1fr] sm:items-center">
-      <gc-avatar
-        class="shrink-0"
-        :initials="initials(friend.sender)"
-        size="xl"
-        :url="friend.sender.image" />
-      <div class="flex flex-col min-w-0">
-        <typography class="font-bold truncate">
-          {{ friendlyUsername(friend.sender, { includeTrailName: true }) }}
-        </typography>
-        <div
-          v-if="!madeSelection"
-          class="flex flex-wrap gap-3 mt-2">
-          <button-root
-            :disabled="submittingDecline || submittingAccept"
-            :loading="submittingDecline"
-            size="sm"
-            variant="secondary"
-            @click="declineFriendRequest">
-            Decline
-          </button-root>
-          <button-root
-            :disabled="submittingAccept || submittingDecline"
-            :loading="submittingAccept"
-            size="sm"
-            variant="accent"
-            @click="acceptFriendRequest">
-            Accept
-          </button-root>
-        </div>
-        <div
-          v-else
-          class="flex mt-2">
-          <typography class="italic text-muted-foreground text-xs">
-            {{ capitalize(madeSelection) }} {{ dayjs().to(selectionTimestamp) }}
-          </typography>
-        </div>
-      </div>
-    </div>
-  </div>
+  <friend-row
+    :image="friend.sender.image"
+    :initials="initials(friend.sender)"
+    :subtitle="madeSelection
+      ? `${capitalize(madeSelection)} ${dayjs().to(selectionTimestamp)}`
+      : 'Wants to connect'"
+    :title="friendlyUsername(friend.sender, { includeTrailName: true })">
+    <template v-if="!madeSelection">
+      <button-root
+        :disabled="submittingDecline || submittingAccept"
+        :loading="submittingDecline"
+        size="sm"
+        variant="secondary"
+        @click="declineFriendRequest">
+        Decline
+      </button-root>
+      <button-root
+        :disabled="submittingAccept || submittingDecline"
+        :loading="submittingAccept"
+        size="sm"
+        variant="accent"
+        @click="acceptFriendRequest">
+        Accept
+      </button-root>
+    </template>
+  </friend-row>
 </template>

@@ -2,13 +2,13 @@
   definePageMeta({ layout: 'page-layout' });
 
   useHead({
-    title: 'Closet',
     meta: [
       {
-        name: 'description',
         content: 'Welcome to your Gear Closet!',
+        name: 'description',
       },
     ],
+    title: 'Closet',
   });
 </script>
 

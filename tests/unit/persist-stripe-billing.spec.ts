@@ -20,14 +20,14 @@ function asClient (mock: ReturnType<typeof createSupabaseMock>) {
 
 function stripeSubscription (overrides: Partial<Stripe.Subscription> = {}): Stripe.Subscription {
   return {
-    id: 'sub_123',
-    ended_at: null,
     cancel_at_period_end: false,
+    ended_at: null,
+    id: 'sub_123',
     items: {
       data: [
         {
-          current_period_start: 1_700_000_000,
           current_period_end: 1_700_086_400,
+          current_period_start: 1_700_000_000,
         },
       ],
     },
@@ -50,8 +50,8 @@ describe('getExistingBilling', () => {
     await expect(getExistingBilling(asClient(createSupabaseMock({ from })), 'user-1'))
       .resolves
       .toEqual({
-        stripeCustomerId: 'cus_existing',
         hasSubscription: true,
+        stripeCustomerId: 'cus_existing',
       });
     expect(from)
       .toHaveBeenCalledWith('customers');
@@ -65,8 +65,8 @@ describe('getExistingBilling', () => {
     await expect(getExistingBilling(asClient(createSupabaseMock({ from })), 'user-1'))
       .resolves
       .toEqual({
-        stripeCustomerId: null,
         hasSubscription: false,
+        stripeCustomerId: null,
       });
   });
 });
@@ -77,18 +77,18 @@ describe('insertSubscriptionRow', () => {
     const from = vi.fn(() => query);
 
     await insertSubscriptionRow(asClient(createSupabaseMock({ from })), {
+      priceId: 'price_123',
       profileId: 'user-1',
       stripeSubscription: stripeSubscription(),
-      priceId: 'price_123',
     });
 
     expect(from)
       .toHaveBeenCalledWith('subscriptions');
     expect(query.insert)
       .toHaveBeenCalledWith(expect.objectContaining({
+        price_id: 'price_123',
         profile_id: 'user-1',
         stripe_subscription_id: 'sub_123',
-        price_id: 'price_123',
       }));
   });
 });
@@ -107,8 +107,8 @@ describe('insertCustomerRow', () => {
       .toHaveBeenCalledWith('customers');
     expect(query.insert)
       .toHaveBeenCalledWith({
-        stripe_customer_id: 'cus_123',
         profile_id: 'user-1',
+        stripe_customer_id: 'cus_123',
       });
   });
 });
@@ -122,10 +122,10 @@ describe('insertCustomerAndSubscription', () => {
     ));
 
     await insertCustomerAndSubscription(asClient(createSupabaseMock({ from })), {
+      priceId: 'price_123',
       profileId: 'user-1',
       stripeCustomerId: 'cus_123',
       stripeSubscription: stripeSubscription(),
-      priceId: 'price_123',
     });
 
     expect(from)
@@ -134,15 +134,15 @@ describe('insertCustomerAndSubscription', () => {
       .toHaveBeenCalledWith('subscriptions');
     expect(customerQuery.insert)
       .toHaveBeenCalledWith({
-        stripe_customer_id: 'cus_123',
         profile_id: 'user-1',
+        stripe_customer_id: 'cus_123',
       });
     expect(subscriptionQuery.insert)
       .toHaveBeenCalledWith(expect.objectContaining({
+        metadata: { profile_id: 'user-1' },
+        price_id: 'price_123',
         profile_id: 'user-1',
         stripe_subscription_id: 'sub_123',
-        price_id: 'price_123',
-        metadata: { profile_id: 'user-1' },
       }));
     expect(customerQuery.insert)
       .not
@@ -166,10 +166,10 @@ describe('insertCustomerAndSubscription', () => {
     });
 
     await expect(insertCustomerAndSubscription(asClient(supabase), {
+      priceId: 'price_123',
       profileId: 'user-1',
       stripeCustomerId: 'cus_123',
       stripeSubscription: stripeSubscription(),
-      priceId: 'price_123',
     }))
       .rejects
       .toMatchObject({ statusMessage: 'Error saving customer' });
@@ -182,8 +182,8 @@ describe('updateSubscriptionRecord', () => {
     const from = vi.fn(() => query);
 
     await updateSubscriptionRecord(asClient(createSupabaseMock({ from })), {
-      profileId: 'user-1',
       priceId: 'price_new',
+      profileId: 'user-1',
       stripeSubscription: stripeSubscription({ id: 'sub_updated' }),
     });
 

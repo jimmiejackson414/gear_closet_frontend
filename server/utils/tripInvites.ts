@@ -160,9 +160,9 @@ const upsertPendingTripInvitation = async (input: {
     const { error } = await input.admin
       .from('trip_invitations')
       .update({
-        token_hash: input.tokenHash,
         expires_at: input.expiresAt,
         invited_by_id: input.inviterId,
+        token_hash: input.tokenHash,
         updated_at: new Date()
           .toISOString(),
       })
@@ -173,12 +173,12 @@ const upsertPendingTripInvitation = async (input: {
   const { error } = await input.admin
     .from('trip_invitations')
     .insert({
-      trip_id: input.tripId,
       email: input.email,
-      invited_by_id: input.inviterId,
-      token_hash: input.tokenHash,
-      status: TripInvitationStatus.PENDING,
       expires_at: input.expiresAt,
+      invited_by_id: input.inviterId,
+      status: TripInvitationStatus.PENDING,
+      token_hash: input.tokenHash,
+      trip_id: input.tripId,
     });
 
   if (!error) return true;
@@ -197,9 +197,9 @@ const upsertPendingTripInvitation = async (input: {
   const { error: updateError } = await input.admin
     .from('trip_invitations')
     .update({
-      token_hash: input.tokenHash,
       expires_at: input.expiresAt,
       invited_by_id: input.inviterId,
+      token_hash: input.tokenHash,
       updated_at: new Date()
         .toISOString(),
     })
@@ -260,9 +260,9 @@ export const sendExistingUserTripInvites = async (
 
   await input.admin.from('trip_invite_attempts')
     .insert({
+      email_count: input.emails.length,
       profile_id: input.inviterId,
       trip_id: input.tripId,
-      email_count: input.emails.length,
     });
 
   const { data: inviter } = await input.userClient
@@ -277,7 +277,7 @@ export const sendExistingUserTripInvites = async (
   const mail = input.send ?? sendMail;
   const createToken = input.createToken ?? createInviteToken;
   const now = input.now ?? (() => new Date());
-  const existingUserMessage = buildTripInviteMessage({ inviterName, tripName, acceptUrl });
+  const existingUserMessage = buildTripInviteMessage({ acceptUrl, inviterName, tripName });
 
   for (const email of input.emails) {
     try {
@@ -294,10 +294,10 @@ export const sendExistingUserTripInvites = async (
         const { data: inserted, error: insertError } = await input.admin
           .from('trip_friends')
           .insert({
-            trip_id: input.tripId,
+            invited_by_id: input.inviterId,
             profile_id: profile.id,
             status: TripFriendStatus.PENDING,
-            invited_by_id: input.inviterId,
+            trip_id: input.tripId,
           })
           .select('id');
 
@@ -305,19 +305,19 @@ export const sendExistingUserTripInvites = async (
 
         await input.admin.from('notifications')
           .insert({
-            title: NotificationKind.TRIP_INVITE,
             content: `${inviterName} invited you to a trip!`,
-            read_on_date: null,
             profile_id: profile.id,
+            read_on_date: null,
             sender_id: input.inviterId,
+            title: NotificationKind.TRIP_INVITE,
           });
 
         await mail({
-          to: email,
-          subject: existingUserMessage.subject,
           html: existingUserMessage.html,
-          text: existingUserMessage.text,
+          subject: existingUserMessage.subject,
           templateId: existingUserMessage.templateId,
+          text: existingUserMessage.text,
+          to: email,
         });
         continue;
       }
@@ -325,25 +325,25 @@ export const sendExistingUserTripInvites = async (
       const { token, tokenHash } = createToken();
       const saved = await upsertPendingTripInvitation({
         admin: input.admin,
-        tripId: input.tripId,
         email,
+        expiresAt: inviteExpiresAt(now()),
         inviterId: input.inviterId,
         tokenHash,
-        expiresAt: inviteExpiresAt(now()),
+        tripId: input.tripId,
       });
       if (!saved) continue;
 
       const claimMessage = buildTripClaimInviteMessage({
+        claimUrl: claimUrlFromOrigin(input.origin, token),
         inviterName,
         tripName,
-        claimUrl: claimUrlFromOrigin(input.origin, token),
       });
       await mail({
-        to: email,
-        subject: claimMessage.subject,
         html: claimMessage.html,
-        text: claimMessage.text,
+        subject: claimMessage.subject,
         templateId: claimMessage.templateId,
+        text: claimMessage.text,
+        to: email,
       });
     } catch {
       // Keep a generic success even if lookup, insert, or mail fails for one address.

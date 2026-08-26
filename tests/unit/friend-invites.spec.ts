@@ -2,6 +2,7 @@ import { describe, expect, it, vi } from 'vitest';
 import {
   friendsUrlFromOrigin,
   GENERIC_FRIEND_INVITE_RESULT,
+  listSentFriendEmails,
   parseFriendInviteBody,
   sendFriendEmailInvite,
 } from '@/server/utils/friendInvites';
@@ -51,14 +52,14 @@ describe('friend email invite helpers', () => {
 
 describe('sendFriendEmailInvite', () => {
   const inviter = {
+    email: 'owner@example.com',
     first_name: 'Jimmie',
     last_name: 'Jackson',
-    email: 'owner@example.com',
     trail_name: null,
   };
   const matched = {
-    id: OTHER_ID,
     email: 'pat@example.com',
+    id: OTHER_ID,
   };
 
   it('creates a friend request and emails an existing user', async () => {
@@ -67,26 +68,26 @@ describe('sendFriendEmailInvite', () => {
       profiles: [createThenableQuery({ data: inviter, error: null })],
     });
     const adminFrom = queuedFrom({
-      friend_invite_attempts: [
-        createThenableQuery({ data: [], error: null }),
-        createThenableQuery({ data: [{ id: 1 }], error: null }),
-      ],
-      profiles: [createThenableQuery({ data: [matched], error: null })],
-      friends: [createThenableQuery({ data: null, error: null })],
       friend_invitations: [
         createThenableQuery({ data: null, error: null }),
         createThenableQuery({ data: [{ id: 42 }], error: null }),
       ],
+      friend_invite_attempts: [
+        createThenableQuery({ data: [], error: null }),
+        createThenableQuery({ data: [{ id: 1 }], error: null }),
+      ],
+      friends: [createThenableQuery({ data: null, error: null })],
       notifications: [createThenableQuery({ data: [{ id: 1 }], error: null })],
+      profiles: [createThenableQuery({ data: [matched], error: null })],
     });
 
     await expect(sendFriendEmailInvite({
-      inviterId: OWNER_ID,
-      email: 'pat@example.com',
-      origin: 'https://app.gearcloset.io',
-      userClient: asClient(createSupabaseMock({ from: userFrom })),
       admin: asClient(createSupabaseMock({ from: adminFrom })),
+      email: 'pat@example.com',
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
       send,
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
     }))
       .resolves
       .toEqual(GENERIC_FRIEND_INVITE_RESULT);
@@ -97,8 +98,8 @@ describe('sendFriendEmailInvite', () => {
       .toHaveBeenCalledWith('notifications');
     expect(send)
       .toHaveBeenCalledWith(expect.objectContaining({
-        to: 'pat@example.com',
         templateId: 'friend-request',
+        to: 'pat@example.com',
       }));
     expect(send.mock.calls[0]?.[0].html)
       .toContain('/friends');
@@ -118,12 +119,12 @@ describe('sendFriendEmailInvite', () => {
     });
 
     await expect(sendFriendEmailInvite({
-      inviterId: OWNER_ID,
-      email: 'new.friend@example.com',
-      origin: 'https://app.gearcloset.io',
-      userClient: asClient(createSupabaseMock({ from: userFrom })),
       admin: asClient(createSupabaseMock({ from: adminFrom })),
+      email: 'new.friend@example.com',
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
       send,
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
     }))
       .resolves
       .toEqual(GENERIC_FRIEND_INVITE_RESULT);
@@ -133,8 +134,8 @@ describe('sendFriendEmailInvite', () => {
       .toHaveBeenCalledWith('friend_invitations');
     expect(send)
       .toHaveBeenCalledWith(expect.objectContaining({
-        to: 'new.friend@example.com',
         templateId: 'friend-request',
+        to: 'new.friend@example.com',
       }));
     expect(send.mock.calls[0]?.[0].html)
       .toContain('https://app.gearcloset.io/');
@@ -156,12 +157,12 @@ describe('sendFriendEmailInvite', () => {
     });
 
     await expect(sendFriendEmailInvite({
-      inviterId: OWNER_ID,
-      email: 'owner@example.com',
-      origin: 'https://app.gearcloset.io',
-      userClient: asClient(createSupabaseMock({ from: userFrom })),
       admin: asClient(createSupabaseMock({ from: adminFrom })),
+      email: 'owner@example.com',
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
       send,
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
     }))
       .resolves
       .toEqual(GENERIC_FRIEND_INVITE_RESULT);
@@ -184,12 +185,12 @@ describe('sendFriendEmailInvite', () => {
     });
 
     await expect(sendFriendEmailInvite({
-      inviterId: OWNER_ID,
-      email: 'new.friend@example.com',
-      origin: 'https://app.gearcloset.io',
-      userClient: asClient(createSupabaseMock({ from: userFrom })),
       admin: asClient(createSupabaseMock({ from: adminFrom })),
+      email: 'new.friend@example.com',
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
       send,
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
     }))
       .rejects
       .toMatchObject({ name: 'InviteError', statusCode: 500 });
@@ -215,12 +216,12 @@ describe('sendFriendEmailInvite', () => {
     });
 
     await expect(sendFriendEmailInvite({
-      inviterId: OWNER_ID,
-      email: 'new.friend@example.com',
-      origin: 'https://app.gearcloset.io',
-      userClient: asClient(createSupabaseMock({ from: userFrom })),
       admin: asClient(createSupabaseMock({ from: adminFrom })),
+      email: 'new.friend@example.com',
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
       send,
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
     }))
       .rejects
       .toMatchObject({ name: 'InviteError', statusCode: 500 });
@@ -228,5 +229,74 @@ describe('sendFriendEmailInvite', () => {
     expect(send)
       .not
       .toHaveBeenCalled();
+  });
+});
+
+describe('listSentFriendEmails', () => {
+  it('returns distinct latest recipient emails for the inviter', async () => {
+    const query = createThenableQuery({
+      data: [
+        { created_at: '2026-08-26T12:00:00.000Z', email: 'Pat@Example.com' },
+        { created_at: '2026-08-25T09:00:00.000Z', email: 'other@example.com' },
+      ],
+      error: null,
+    });
+    const adminFrom = queuedFrom({
+      friend_invite_attempts: [query],
+    });
+
+    await expect(listSentFriendEmails({
+      admin: asClient(createSupabaseMock({ from: adminFrom })),
+      inviterId: OWNER_ID,
+    }))
+      .resolves
+      .toEqual([
+        { email: 'pat@example.com', lastSentAt: '2026-08-26T12:00:00.000Z' },
+        { email: 'other@example.com', lastSentAt: '2026-08-25T09:00:00.000Z' },
+      ]);
+
+    expect(query.eq)
+      .toHaveBeenCalledWith('profile_id', OWNER_ID);
+  });
+});
+
+describe('sendFriendEmailInvite attempt email', () => {
+  it('stores the recipient email on the rate-limit row', async () => {
+    const send = vi.fn(async (_input: SendMailInput) => ({ id: 'email_1' }));
+    const insertQuery = createThenableQuery({ data: [{ id: 1 }], error: null });
+    const userFrom = queuedFrom({
+      profiles: [createThenableQuery({
+        data: {
+          email: 'owner@example.com',
+          first_name: 'Jimmie',
+          last_name: 'Jackson',
+          trail_name: null,
+        },
+        error: null,
+      })],
+    });
+    const adminFrom = queuedFrom({
+      friend_invite_attempts: [
+        createThenableQuery({ data: [], error: null }),
+        insertQuery,
+      ],
+      profiles: [createThenableQuery({ data: [], error: null })],
+    });
+
+    await sendFriendEmailInvite({
+      admin: asClient(createSupabaseMock({ from: adminFrom })),
+      email: 'new.friend@example.com',
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
+      send,
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
+    });
+
+    expect(insertQuery.insert)
+      .toHaveBeenCalledWith({
+        email: 'new.friend@example.com',
+        email_count: 1,
+        profile_id: OWNER_ID,
+      });
   });
 });

@@ -89,9 +89,9 @@ export const formatMailFrom = (from: string) => {
 export const readMailerConfig = (): MailerConfig => {
   const config = useRuntimeConfig();
   return {
+    allowlist: parseMailAllowlist(String(config.mailAllowlist ?? '')),
     apiKey: String(config.resendApiKey ?? ''),
     from: formatMailFrom(String(config.mailFrom ?? '')),
-    allowlist: parseMailAllowlist(String(config.mailAllowlist ?? '')),
   };
 };
 
@@ -128,11 +128,11 @@ export const sendMail = async (
   const mailer = extras?.client ?? useResendClient(config);
   const { data, error } = await mailer.emails.send({
     from: formatMailFrom(config.from),
-    to,
-    subject: input.subject,
     html: input.html,
-    text: input.text,
+    subject: input.subject,
     tags: tagValue ? [{ name: 'template', value: tagValue }] : undefined,
+    text: input.text,
+    to,
   });
 
   if (error || !data?.id) {

@@ -6,10 +6,10 @@
   const $store = useClosetStore();
 
   const details = reactive([
-    { title: 'Worn', weight: 0, color: '' },
-    { title: 'Consumable', weight: 0, color: '' },
-    { title: 'Base', weight: 0, color: '' },
-    { title: 'Total', weight: 0, color: '' },
+    { color: '', title: 'Worn', weight: 0 },
+    { color: '', title: 'Consumable', weight: 0 },
+    { color: '', title: 'Base', weight: 0 },
+    { color: '', title: 'Total', weight: 0 },
   ]);
   watchEffect(() => {
     if ($store.data.selectedPack) {

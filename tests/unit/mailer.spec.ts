@@ -2,9 +2,9 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { formatMailFrom, sendMail, type MailClient, type MailerConfig } from '@/server/utils/mailer';
 
 const defaultConfig: MailerConfig = {
+  allowlist: [],
   apiKey: 're_test',
   from: 'Gear Closet <noreply@example.com>',
-  allowlist: [],
 };
 
 function mailClient (send: MailClient['emails']['send']): MailClient {
@@ -33,11 +33,11 @@ describe('sendMail', () => {
       });
 
     await expect(sendMail({
-      to: 'pat@example.com',
-      subject: 'Trip invite',
       html: '<p>Join the trip</p>',
-      text: 'Join the trip',
+      subject: 'Trip invite',
       templateId: 'trip-invite',
+      text: 'Join the trip',
+      to: 'pat@example.com',
     }, { client: mailClient(send), config }))
       .resolves
       .toEqual({ id: 'email_123' });
@@ -45,11 +45,11 @@ describe('sendMail', () => {
     expect(send)
       .toHaveBeenCalledWith({
         from: 'Gear Closet <noreply@example.com>',
-        to: ['pat@example.com'],
-        subject: 'Trip invite',
         html: '<p>Join the trip</p>',
-        text: 'Join the trip',
+        subject: 'Trip invite',
         tags: [{ name: 'template', value: 'trip-invite' }],
+        text: 'Join the trip',
+        to: ['pat@example.com'],
       });
   });
 
@@ -62,9 +62,9 @@ describe('sendMail', () => {
       });
 
     await sendMail({
-      to: 'pat@example.com',
-      subject: 'Hi',
       html: '<p>Hi</p>',
+      subject: 'Hi',
+      to: 'pat@example.com',
     }, { client: mailClient(send), config });
 
     expect(send)
@@ -78,9 +78,9 @@ describe('sendMail', () => {
     const send = vi.fn();
 
     await expect(sendMail({
-      to: 'other@example.com',
-      subject: 'Hi',
       html: '<p>Hi</p>',
+      subject: 'Hi',
+      to: 'other@example.com',
     }, { client: mailClient(send), config }))
       .rejects
       .toMatchObject({ statusCode: 400 });
@@ -94,9 +94,9 @@ describe('sendMail', () => {
     const send = vi.fn();
 
     await expect(sendMail({
-      to: 'pat@example.com',
-      subject: 'Hi',
       html: '<p>Hi</p>',
+      subject: 'Hi',
+      to: 'pat@example.com',
     }, { client: mailClient(send), config }))
       .rejects
       .toMatchObject({ statusCode: 500 });
@@ -110,9 +110,9 @@ describe('sendMail', () => {
       });
 
     await expect(sendMail({
-      to: 'pat@example.com',
-      subject: 'Hi',
       html: '<p>Hi</p>',
+      subject: 'Hi',
+      to: 'pat@example.com',
     }, { client: mailClient(send), config }))
       .rejects
       .toMatchObject({ statusCode: 502 });

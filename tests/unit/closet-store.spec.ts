@@ -107,30 +107,30 @@ describe('stores/closet', () => {
 
     it('replaces the temp id after a successful create', async () => {
       const createdItem = {
+        consumable: null,
+        created_at: new Date()
+          .toISOString(),
+        generic_type: 'Description',
         id: 9001,
         name: 'New Item',
-        generic_type: 'Description',
         price: 0,
-        consumable: null,
-        worn: null,
+        profile_id: supabaseUser.value!.sub,
         quantity: 1,
-        unit: 'g',
-        weight: '0',
-        url: null,
         slug: 'x',
-        created_at: new Date()
-          .toISOString(),
+        unit: 'g',
         updated_at: new Date()
           .toISOString(),
-        profile_id: supabaseUser.value!.sub,
+        url: null,
+        weight: '0',
+        worn: null,
       };
       const createdCategoryItem = {
-        id: 8001,
         category_id: 1,
-        item_id: 9001,
-        position: 99,
         created_at: new Date()
           .toISOString(),
+        id: 8001,
+        item_id: 9001,
+        position: 99,
         updated_at: new Date()
           .toISOString(),
       };

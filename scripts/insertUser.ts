@@ -18,13 +18,13 @@ async function insertUser (email: string, password: string) {
   try {
     const { data, error } = await supabase.auth.signUp({
       email,
-      password,
       options: {
         data: {
           first_name: 'John',
           last_name: 'Doe',
         },
       },
+      password,
     });
     if (error || !data?.user) {
       console.error(`Error signing up user: ${JSON.stringify(error)}`);

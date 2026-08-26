@@ -37,9 +37,9 @@ export default defineEventHandler(async (event) => {
 
     return await claimTripInvite({
       admin,
-      userId: user.sub,
-      userEmail: profile?.email ?? (typeof user.email === 'string' ? user.email : null),
       token,
+      userEmail: profile?.email ?? (typeof user.email === 'string' ? user.email : null),
+      userId: user.sub,
     });
   } catch (err) {
     if (isError(err)) throw err;

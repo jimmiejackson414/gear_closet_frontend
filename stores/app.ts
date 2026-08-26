@@ -14,10 +14,10 @@ export const useAppStore = defineStore('app', () => {
   ) => {
     const { toast } = useToast();
     toast({
-      title,
       description,
-      variant,
       icon,
+      title,
+      variant,
     });
   };
 
@@ -42,13 +42,13 @@ export const useAppStore = defineStore('app', () => {
   };
 
   return {
+    closeDrawer,
     drawer,
     loading,
     notifyDefault,
-    notifyPositive,
-    notifyNegative,
     notifyInfo,
+    notifyNegative,
+    notifyPositive,
     toggleDrawer,
-    closeDrawer,
   };
 });

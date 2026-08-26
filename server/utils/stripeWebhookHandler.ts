@@ -24,9 +24,9 @@ export const verifyStripeWebhookSignature = (
       tags: { 'stripe.webhook': 'signature' },
     });
     const wrapped = createError({
+      cause: err,
       statusCode: 400,
       statusMessage: 'Invalid Stripe webhook signature',
-      cause: err,
     });
     markSentryReported(wrapped);
     throw wrapped;
@@ -68,13 +68,13 @@ export function stripeWebhookHandler (handler: WebhookHandler) {
     const event = verifyStripeWebhookSignature(stripe, payload, signature, webhookSecret);
 
     const data = await handler(event, {
-      stripe,
       $event: e,
+      stripe,
     });
 
     return {
-      ok: true,
       data,
+      ok: true,
     };
   });
 }

@@ -38,11 +38,11 @@ export default defineEventHandler(async (event) => {
     const admin = serverSupabaseServiceRole<Database>(event);
 
     return await sendFriendEmailInvite({
-      inviterId: user.sub,
+      admin,
       email: parsed.email,
+      inviterId: user.sub,
       origin: getRequestURL(event).origin,
       userClient: supabase,
-      admin,
     });
   } catch (err) {
     if (isError(err)) throw err;

@@ -17,7 +17,7 @@
       .min(8),
   }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
+  const { handleSubmit, isFieldDirty, isSubmitting } = useForm({
     validationSchema: formSchema,
   });
 
@@ -52,8 +52,8 @@
   const handleOAuthSignin = async (provider: Provider) => {
     try {
       const { error } = await supabase.auth.signInWithOAuth({
-        provider,
         options: { redirectTo: authCallbackUrl(window.location.origin) },
+        provider,
       });
 
       if (error) {

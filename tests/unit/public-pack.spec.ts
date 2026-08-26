@@ -40,11 +40,11 @@ vi.mock('@/utils/avatar', async (importOriginal) => {
 });
 
 vi.mock('@/utils/displayName', () => ({
-  initials: vi.fn(() => 'GC'),
   friendlyUsername: vi.fn((user) => {
     if (!user) return '';
     return user.trail_name || `${user.first_name || ''} ${user.last_name || ''}`.trim();
   }),
+  initials: vi.fn(() => 'GC'),
 }));
 
 const supabaseUser = vi.hoisted(() => ({
@@ -64,32 +64,32 @@ const routeSlug = vi.hoisted(() => ({
 mockNuxtImport('useSupabaseUser', () => () => supabaseUser.current);
 mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
 mockNuxtImport('useRoute', () => () => ({
-  params: { slug: routeSlug.value },
   meta: { public: true },
+  params: { slug: routeSlug.value },
 }));
 
 const publicProfile = {
-  id: selectedPack.profile_id,
-  first_name: 'Pat',
-  last_name: 'Packer',
-  trail_name: 'Trailfox',
-  image: null,
-  email: 'pat@example.com',
-  role: 'USER',
-  measuring_system: 'IMPERIAL',
-  needs_free_resource_selection: false,
-  onboard_date: null,
   address_1: null,
   address_2: null,
   city: null,
-  state: null,
   country: null,
   created_at: null,
-  updated_at: null,
   deactivated_at: null,
-  location: null,
+  email: 'pat@example.com',
+  first_name: 'Pat',
   fts: null,
+  id: selectedPack.profile_id,
+  image: null,
+  last_name: 'Packer',
+  location: null,
+  measuring_system: 'IMPERIAL',
+  needs_free_resource_selection: false,
+  onboard_date: null,
+  role: 'USER',
   slug: 'pat-packer',
+  state: null,
+  trail_name: 'Trailfox',
+  updated_at: null,
 };
 
 describe('pages/p/packs/[slug]', () => {
@@ -110,9 +110,9 @@ describe('pages/p/packs/[slug]', () => {
   it('does not leak a private pack to guests', async () => {
     const privatePack = {
       ...structuredClone(selectedPack),
+      comments: [],
       private: true,
       profile: publicProfile,
-      comments: [],
     };
 
     supabaseClient.current = createSupabaseMock({
@@ -139,11 +139,11 @@ describe('pages/p/packs/[slug]', () => {
     supabaseUser.current!.value = { sub: 'trip-mate-id' };
     const privatePack = {
       ...structuredClone(selectedPack),
-      private: true,
-      name: 'Trail Private',
-      profile: publicProfile,
-      comments: [],
       categories: [],
+      comments: [],
+      name: 'Trail Private',
+      private: true,
+      profile: publicProfile,
     } as PublicPack;
 
     supabaseClient.current = createSupabaseMock({
@@ -188,11 +188,11 @@ describe('pages/p/packs/[slug]', () => {
   it('loads a public pack without crashing', async () => {
     const publicPack = {
       ...structuredClone(selectedPack),
-      private: false,
-      name: 'Shared Summer',
-      profile: publicProfile,
-      comments: [],
       categories: [],
+      comments: [],
+      name: 'Shared Summer',
+      private: false,
+      profile: publicProfile,
     } as PublicPack;
 
     supabaseClient.current = createSupabaseMock({
@@ -217,12 +217,12 @@ describe('pages/p/packs/[slug]', () => {
   it('explains when comments are disabled', async () => {
     const publicPack = {
       ...structuredClone(selectedPack),
-      private: false,
       allow_comments: false,
-      name: 'Quiet Pack',
-      profile: publicProfile,
-      comments: [],
       categories: [],
+      comments: [],
+      name: 'Quiet Pack',
+      private: false,
+      profile: publicProfile,
     } as PublicPack;
 
     supabaseClient.current = createSupabaseMock({

@@ -59,23 +59,23 @@
       .min(2),
     last_name: z.string()
       .min(2),
-    trail_name: z.string()
-      .optional(),
     measuring_system: z.union([
       z.literal(MeasuringSystem.IMPERIAL),
       z.literal(MeasuringSystem.METRIC),
     ]),
+    trail_name: z.string()
+      .optional(),
   }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting } = useForm({
-    keepValuesOnUnmount: true,
-    validationSchema: formSchema,
+  const { handleSubmit, isFieldDirty, isSubmitting } = useForm({
     initialValues: {
       first_name: $store.profile?.first_name ?? undefined,
       last_name: $store.profile?.last_name ?? undefined,
-      trail_name: $store.profile?.trail_name ?? undefined,
       measuring_system: $store.profile?.measuring_system as MeasuringSystem ?? undefined,
+      trail_name: $store.profile?.trail_name ?? undefined,
     },
+    keepValuesOnUnmount: true,
+    validationSchema: formSchema,
   });
 
   /**
@@ -97,9 +97,9 @@
   const hasStripeBilling = ref(false);
   const subscriptionData = ref<SubscriptionApiResponse>({
     customer: undefined,
-    paymentMethods: [],
-    nextBillingDate: 0,
     invoices: [],
+    nextBillingDate: 0,
+    paymentMethods: [],
     subscriptions: [],
   });
 
@@ -133,9 +133,9 @@
 
   const emptyStripeBilling = (): SubscriptionApiResponse => ({
     customer: undefined,
-    paymentMethods: [],
-    nextBillingDate: null,
     invoices: [],
+    nextBillingDate: null,
+    paymentMethods: [],
     subscriptions: [],
   });
 

@@ -51,9 +51,9 @@ export default defineEventHandler(async (event) => {
 
     if (!stripeCustomerId) {
       stripeCustomerId = await ensureStripeCustomerId(stripe, {
-        profileId: user.sub,
         email: user.email,
         name: `${profile.first_name} ${profile.last_name}`,
+        profileId: user.sub,
       });
 
       try {

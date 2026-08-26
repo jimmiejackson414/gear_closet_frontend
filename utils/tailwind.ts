@@ -3,46 +3,46 @@
  * Tailwind v4 removed `resolveConfig`; CSS variables are the source of truth.
  */
 export const themeColors = {
-  primary: {
-    DEFAULT: 'hsl(var(--primary))',
-    light: 'hsl(var(--primary-light))',
-    foreground: 'hsl(var(--primary-foreground))',
-  },
-  secondary: {
-    DEFAULT: 'hsl(var(--secondary))',
-    light: 'hsl(var(--secondary-light))',
-    foreground: 'hsl(var(--secondary-foreground))',
-  },
-  destructive: {
-    DEFAULT: 'hsl(var(--destructive))',
-    light: 'hsl(var(--destructive-light))',
-    foreground: 'hsl(var(--destructive-foreground))',
-  },
-  muted: {
-    DEFAULT: 'hsl(var(--muted))',
-    foreground: 'hsl(var(--muted-foreground))',
-  },
   accent: {
-    DEFAULT: 'hsl(var(--accent))',
-    light: 'hsl(var(--accent-light))',
-    foreground: 'hsl(var(--accent-foreground))',
     alt: 'hsl(var(--accent-alt))',
-  },
-  tertiary: {
-    DEFAULT: 'hsl(var(--tertiary))',
-    foreground: 'hsl(var(--tertiary-foreground))',
+    DEFAULT: 'hsl(var(--accent))',
+    foreground: 'hsl(var(--accent-foreground))',
+    light: 'hsl(var(--accent-light))',
   },
   card: {
     DEFAULT: 'hsl(var(--card))',
     foreground: 'hsl(var(--card-foreground))',
   },
+  destructive: {
+    DEFAULT: 'hsl(var(--destructive))',
+    foreground: 'hsl(var(--destructive-foreground))',
+    light: 'hsl(var(--destructive-light))',
+  },
   // Legacy palette keys still referenced by a few non-CSS call sites
   gray: {
     '500': '#6b7280',
   },
-  warning: '#f59e0b',
+  muted: {
+    DEFAULT: 'hsl(var(--muted))',
+    foreground: 'hsl(var(--muted-foreground))',
+  },
   positive: '#22c55e',
+  primary: {
+    DEFAULT: 'hsl(var(--primary))',
+    foreground: 'hsl(var(--primary-foreground))',
+    light: 'hsl(var(--primary-light))',
+  },
+  secondary: {
+    DEFAULT: 'hsl(var(--secondary))',
+    foreground: 'hsl(var(--secondary-foreground))',
+    light: 'hsl(var(--secondary-light))',
+  },
+  tertiary: {
+    DEFAULT: 'hsl(var(--tertiary))',
+    foreground: 'hsl(var(--tertiary-foreground))',
+  },
   'text-positive': '#22c55e',
+  warning: '#f59e0b',
 } as const;
 
 const tailwind = {

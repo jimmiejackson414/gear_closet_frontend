@@ -17,7 +17,7 @@
   }>();
 
   const delegatedProps = computed(() => {
-    const { class: _, variant, checked, ...delegated } = props;
+    const { checked, class: _, variant, ...delegated } = props;
 
     return {
       ...delegated,

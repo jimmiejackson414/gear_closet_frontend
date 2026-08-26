@@ -273,25 +273,25 @@ export const hslVarToHex = async (hslVar: string): Promise<string> => {
 
 const generateThemeOptions = (): Array<Option> => {
   const office = [
-    { label: Theme.BLUE6, value: Theme.BLUE6, colors: Blue6 },
-    { label: Theme.BLUEGREEN6, value: Theme.BLUEGREEN6, colors: BlueGreen6 },
-    { label: Theme.BREEZE6, value: Theme.BREEZE6, colors: Breeze6 },
-    { label: Theme.CELESTIAL6, value: Theme.CELESTIAL6, colors: Celestial6 },
-    { label: Theme.CIRCUIT6, value: Theme.CIRCUIT6, colors: Circuit6 },
-    { label: Theme.DAMASK6, value: Theme.DAMASK6, colors: Damask6 },
-    { label: Theme.DEPTH6, value: Theme.DEPTH6, colors: Depth6 },
-    { label: Theme.FLOW6, value: Theme.FLOW6, colors: Flow6 },
-    { label: Theme.FORTE6, value: Theme.FORTE6, colors: Forte6 },
-    { label: Theme.GENESIS6, value: Theme.GENESIS6, colors: Genesis6 },
-    { label: Theme.IONBOARDROOM6, value: Theme.IONBOARDROOM6, colors: IonBoardroom6 },
-    { label: Theme.KILTER6, value: Theme.KILTER6, colors: Kilter6 },
+    { colors: Blue6, label: Theme.BLUE6, value: Theme.BLUE6 },
+    { colors: BlueGreen6, label: Theme.BLUEGREEN6, value: Theme.BLUEGREEN6 },
+    { colors: Breeze6, label: Theme.BREEZE6, value: Theme.BREEZE6 },
+    { colors: Celestial6, label: Theme.CELESTIAL6, value: Theme.CELESTIAL6 },
+    { colors: Circuit6, label: Theme.CIRCUIT6, value: Theme.CIRCUIT6 },
+    { colors: Damask6, label: Theme.DAMASK6, value: Theme.DAMASK6 },
+    { colors: Depth6, label: Theme.DEPTH6, value: Theme.DEPTH6 },
+    { colors: Flow6, label: Theme.FLOW6, value: Theme.FLOW6 },
+    { colors: Forte6, label: Theme.FORTE6, value: Theme.FORTE6 },
+    { colors: Genesis6, label: Theme.GENESIS6, value: Theme.GENESIS6 },
+    { colors: IonBoardroom6, label: Theme.IONBOARDROOM6, value: Theme.IONBOARDROOM6 },
+    { colors: Kilter6, label: Theme.KILTER6, value: Theme.KILTER6 },
   ];
 
   const tableau = [
-    { label: Theme.TABLEAU10, value: Theme.TABLEAU10, colors: Tableau10 },
-    { label: Theme.COLORBLIND10, value: Theme.COLORBLIND10, colors: ColorBlind10 },
-    { label: Theme.JEWELBRIGHT9, value: Theme.JEWELBRIGHT9, colors: JewelBright9 },
-    { label: Theme.HUECIRCLE19, value: Theme.HUECIRCLE19, colors: HueCircle19 },
+    { colors: Tableau10, label: Theme.TABLEAU10, value: Theme.TABLEAU10 },
+    { colors: ColorBlind10, label: Theme.COLORBLIND10, value: Theme.COLORBLIND10 },
+    { colors: JewelBright9, label: Theme.JEWELBRIGHT9, value: Theme.JEWELBRIGHT9 },
+    { colors: HueCircle19, label: Theme.HUECIRCLE19, value: Theme.HUECIRCLE19 },
   ];
 
   return [office, tableau].flat();

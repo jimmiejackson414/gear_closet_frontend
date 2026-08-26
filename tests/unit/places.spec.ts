@@ -24,13 +24,13 @@ describe('places', () => {
     expect(mapGeoapifyAutocomplete({
       results: [
         {
-          name: 'Hannegan Trailhead',
           county: 'Whatcom County',
-          state_code: 'WA',
           formatted: 'Hannegan Trailhead, Forest Road 32, Whatcom County, WA, United States of America',
           lat: 48.9102084,
           lon: -121.5917136,
+          name: 'Hannegan Trailhead',
           place_id: 'abc',
+          state_code: 'WA',
         },
         {
           formatted: 'Springer Mountain, GA, United States',
@@ -44,17 +44,17 @@ describe('places', () => {
     }))
       .toEqual([
         {
-          name: 'Hannegan Trailhead',
           label: 'Hannegan Trailhead, Whatcom County, WA',
           lat: 48.9102084,
           lng: -121.5917136,
+          name: 'Hannegan Trailhead',
           placeId: 'abc',
         },
         {
-          name: 'Springer Mountain',
           label: 'Springer Mountain, GA, United States',
           lat: 34.6265,
           lng: -84.1938,
+          name: 'Springer Mountain',
           placeId: 'def',
         },
       ]);
@@ -66,20 +66,20 @@ describe('places', () => {
         {
           geometry: { coordinates: ['-121.5917136', '48.9102084'] },
           properties: {
-            name: 'Hannegan Trailhead',
             county: 'Whatcom County',
-            state_code: 'WA',
+            name: 'Hannegan Trailhead',
             place_id: 'geo',
+            state_code: 'WA',
           },
         },
       ],
     }))
       .toEqual([
         {
-          name: 'Hannegan Trailhead',
           label: 'Hannegan Trailhead, Whatcom County, WA',
           lat: 48.9102084,
           lng: -121.5917136,
+          name: 'Hannegan Trailhead',
           placeId: 'geo',
         },
       ]);
@@ -115,10 +115,10 @@ describe('places', () => {
 
   it('uses the place name without city and state for saved labels', () => {
     expect(placeShortName({
-      name: 'Hannegan Pass',
       label: 'Hannegan Pass, Whatcom, WA',
       lat: 48.88,
       lng: -121.53,
+      name: 'Hannegan Pass',
       placeId: 'pass',
     }))
       .toBe('Hannegan Pass');

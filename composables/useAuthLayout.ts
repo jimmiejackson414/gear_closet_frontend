@@ -6,8 +6,8 @@ const useAuthLayout = () => {
   const publicId = `${folder}/background${rand}`;
 
   const backgroundImage = reactive({
-    image: `https://res.cloudinary.com/${cloudName}/image/upload/f_auto/${publicId}`,
     fill: logoColor(publicId),
+    image: `https://res.cloudinary.com/${cloudName}/image/upload/f_auto/${publicId}`,
   });
 
   return { backgroundImage };

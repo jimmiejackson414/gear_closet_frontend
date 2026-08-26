@@ -39,13 +39,13 @@
       },
       style: {
         base: {
-          color: tailwind.theme.colors.primary.DEFAULT,
-          fontFamily: '"Lato", Helvetica, sans-serif',
-          fontSmoothing: 'antialiased',
-          fontSize: '16px',
           '::placeholder': {
             color: '#aab7c4',
           },
+          color: tailwind.theme.colors.primary.DEFAULT,
+          fontFamily: '"Lato", Helvetica, sans-serif',
+          fontSize: '16px',
+          fontSmoothing: 'antialiased',
         },
         invalid: {
           color: tailwind.theme.colors.destructive.DEFAULT,
@@ -72,9 +72,9 @@
     try {
       isSubmitting.value = true;
 
-      const { paymentMethod, error: createError } = await stripe.value.createPaymentMethod({
-        type: 'card',
+      const { error: createError, paymentMethod } = await stripe.value.createPaymentMethod({
         card: cardElement,
+        type: 'card',
       });
 
       if (createError || !paymentMethod) {
@@ -83,8 +83,8 @@
       }
 
       await $fetch('/api/stripe/payment-method', {
-        method: 'PUT',
         body: { paymentMethodId: paymentMethod.id },
+        method: 'PUT',
       });
 
       $appStore.notifyPositive('Payment method updated successfully!');

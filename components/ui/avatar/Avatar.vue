@@ -10,8 +10,8 @@
     shape?: AvatarVariants['shape']
   }>(), {
     class: '',
-    size: 'sm',
     shape: 'circle',
+    size: 'sm',
   });
 </script>
 

@@ -14,51 +14,51 @@ function packWithItems (
   }>,
 ): ExtendedPack {
   return {
-    id: 1,
-    name: 'Test Pack',
-    slug: 'test',
-    created_at: '',
-    updated_at: '',
-    profile_id: 'x',
-    theme: 'BLUE6',
-    private: false,
     allow_comments: true,
     categories: [
       {
-        id: 1,
-        name: 'Cat',
-        unit: 'g',
-        slug: 'c',
-        pack_id: 1,
-        position: 1,
-        created_at: '',
-        updated_at: '',
         category_items: items.map((item, index) => ({
-          id: index + 1,
           category_id: 1,
-          item_id: index + 1,
-          position: index + 1,
           created_at: '',
-          updated_at: '',
+          id: index + 1,
           item: {
+            consumable: item.consumable ?? false,
+            created_at: '',
+            generic_type: '',
             id: index + 1,
             name: `Item ${index + 1}`,
-            generic_type: '',
             price: item.price ?? 0,
-            consumable: item.consumable ?? false,
-            worn: item.worn ?? false,
-            quantity: item.quantity ?? 1,
-            unit: item.unit ?? 'oz',
-            weight: item.weight ?? '0',
-            url: null,
-            slug: `i-${index + 1}`,
-            created_at: '',
-            updated_at: '',
             profile_id: 'x',
+            quantity: item.quantity ?? 1,
+            slug: `i-${index + 1}`,
+            unit: item.unit ?? 'oz',
+            updated_at: '',
+            url: null,
+            weight: item.weight ?? '0',
+            worn: item.worn ?? false,
           },
+          item_id: index + 1,
+          position: index + 1,
+          updated_at: '',
         })),
+        created_at: '',
+        id: 1,
+        name: 'Cat',
+        pack_id: 1,
+        position: 1,
+        slug: 'c',
+        unit: 'g',
+        updated_at: '',
       },
     ],
+    created_at: '',
+    id: 1,
+    name: 'Test Pack',
+    private: false,
+    profile_id: 'x',
+    slug: 'test',
+    theme: 'BLUE6',
+    updated_at: '',
   } as ExtendedPack;
 }
 
@@ -66,25 +66,25 @@ describe('utils/packMath', () => {
   describe('calculatePackPrices', () => {
     it('returns zeros for empty / missing categories', () => {
       expect(calculatePackPrices(undefined as any))
-        .toEqual({ total: 0, base: 0, worn: 0, consumable: 0 });
+        .toEqual({ base: 0, consumable: 0, total: 0, worn: 0 });
       expect(calculatePackPrices({ ...packWithItems([]), categories: [] }))
-        .toEqual({ total: 0, base: 0, worn: 0, consumable: 0 });
+        .toEqual({ base: 0, consumable: 0, total: 0, worn: 0 });
     });
 
     it('splits base / worn / consumable prices', () => {
       const pack = packWithItems([
-        { price: 100, consumable: false, worn: false },
-        { price: 50, worn: true, consumable: false },
-        { price: 25, consumable: true, worn: false },
-        { price: 10, consumable: true, worn: true },
+        { consumable: false, price: 100, worn: false },
+        { consumable: false, price: 50, worn: true },
+        { consumable: true, price: 25, worn: false },
+        { consumable: true, price: 10, worn: true },
       ]);
 
       expect(calculatePackPrices(pack))
         .toEqual({
-          total: 185,
           base: 100,
-          worn: 60, // 50 + 10
           consumable: 35, // 25 + 10
+          total: 185,
+          worn: 60, // 50 + 10
         });
     });
   });
@@ -92,8 +92,8 @@ describe('utils/packMath', () => {
   describe('calculatePackWeights', () => {
     it('converts to mg and applies quantity', () => {
       const pack = packWithItems([
-        { weight: '1', unit: 'oz', quantity: 2, consumable: false, worn: false },
-        { weight: '10', unit: 'g', quantity: 1, worn: true, consumable: false },
+        { consumable: false, quantity: 2, unit: 'oz', weight: '1', worn: false },
+        { consumable: false, quantity: 1, unit: 'g', weight: '10', worn: true },
       ]);
 
       const ozMg = convert(1, 'oz' as Mass)
@@ -114,7 +114,7 @@ describe('utils/packMath', () => {
 
     it('handles empty pack without throwing', () => {
       expect(calculatePackWeights({ ...packWithItems([]), categories: [] }))
-        .toEqual({ total: 0, base: 0, worn: 0, consumable: 0 });
+        .toEqual({ base: 0, consumable: 0, total: 0, worn: 0 });
     });
   });
 });

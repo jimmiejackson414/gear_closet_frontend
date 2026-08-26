@@ -5,7 +5,7 @@
   } from '@/utils/authRedirect';
   import type { ProfileLayoutResponse } from '@/types/profile';
 
-  definePageMeta({ layout: 'auth-layout', colorMode: 'light' });
+  definePageMeta({ colorMode: 'light', layout: 'auth-layout' });
 
   useHead({ title: 'Signing in' });
 

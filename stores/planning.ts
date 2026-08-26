@@ -26,16 +26,16 @@ export interface PlanningPageData {
 
 export function normalizePlanningPageData (raw: PlanningPageData | null | undefined): PlanningPageData {
   return {
-    trips: raw?.trips ?? [],
+    errors: raw?.errors,
+    friends: raw?.friends ?? [],
     pack: coercePlanningPack(raw?.pack),
     party_packs: coercePartyPacks(raw?.party_packs),
-    trip_details: raw?.trip_details ?? [],
-    todos: raw?.todos ?? [],
-    shopping_items: raw?.shopping_items ?? [],
-    friends: raw?.friends ?? [],
     pending_invites: raw?.pending_invites ?? [],
     poll: raw?.poll ?? undefined,
-    errors: raw?.errors,
+    shopping_items: raw?.shopping_items ?? [],
+    todos: raw?.todos ?? [],
+    trip_details: raw?.trip_details ?? [],
+    trips: raw?.trips ?? [],
   };
 }
 
@@ -58,15 +58,15 @@ function coercePartyPacks (raw: PlanningPageData['party_packs'] | unknown): Part
 
 export const usePlanningStore = defineStore('planning', () => {
   const data = ref<PlanningPageData>({
-    trips: [],
+    friends: [],
     pack: undefined,
     party_packs: [],
-    trip_details: [],
-    todos: [],
-    shopping_items: [],
-    friends: [],
     pending_invites: [],
     poll: undefined,
+    shopping_items: [],
+    todos: [],
+    trip_details: [],
+    trips: [],
   });
   const pageLoading = ref(true);
   /** True while refetching after the initial load; previous data stays visible. */
@@ -213,11 +213,11 @@ export const usePlanningStore = defineStore('planning', () => {
       const supabase = useSupabaseClient<Database>();
       const { data: newDetail, error } = await supabase.from('trip_details')
         .insert({
-          trip_id: Number(selectedTripId.value),
           title: payload.title,
+          trip_id: Number(selectedTripId.value),
           type: payload.type,
-          value: payload.value ?? null,
           url: payload.url ?? null,
+          value: payload.value ?? null,
         })
         .select();
 
@@ -439,26 +439,26 @@ export const usePlanningStore = defineStore('planning', () => {
   };
 
   return {
+    batchUpdateShoppingItems,
+    batchUpdateTodos,
+    canEditSelectedTrip,
+    createShoppingItem,
+    createTodo,
+    createTripDetail,
     data,
-    pageLoading,
+    deleteTripDetail,
+    fetchGeneration,
+    fetchPlanningPage,
     isRefreshing,
+    isSelectedTripOwner,
+    pageLoading,
+    selectedTrip,
     selectedTripId,
+    updateShoppingItem,
+    updateTodo,
+    updateTrip,
+    updateTripDetail,
     viewedPackProfileId,
     viewTripPack,
-    fetchGeneration,
-    selectedTrip,
-    isSelectedTripOwner,
-    canEditSelectedTrip,
-    fetchPlanningPage,
-    updateTrip,
-    createTripDetail,
-    updateTripDetail,
-    deleteTripDetail,
-    createTodo,
-    updateTodo,
-    batchUpdateTodos,
-    createShoppingItem,
-    updateShoppingItem,
-    batchUpdateShoppingItems,
   };
 });

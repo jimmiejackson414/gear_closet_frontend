@@ -1,17 +1,17 @@
 <script lang='ts' setup>
   definePageMeta({
-    layout: 'auth-layout',
     colorMode: 'light',
+    layout: 'auth-layout',
   });
 
   useHead({
-    title: 'Register',
     meta: [
       {
-        name: 'description',
         content: 'Register for an account',
+        name: 'description',
       },
     ],
+    title: 'Register',
   });
 </script>
 

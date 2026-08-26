@@ -37,7 +37,7 @@
         query: { tripId: props.tripId },
       });
     },
-    { watch: [weatherKey], server: false },
+    { server: false, watch: [weatherKey] },
   );
 
   const weather = computed(() => weatherAsync.data.value);
@@ -74,7 +74,7 @@
 
   const formatDay = (isoDate: string) => {
     const date = new Date(`${isoDate}T00:00:00`);
-    return date.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' });
+    return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short', weekday: 'short' });
   };
 
   const aqiClass = (snapshot: AirQualitySnapshot) => {

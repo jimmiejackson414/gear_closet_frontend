@@ -36,13 +36,13 @@ export const convertCurrency = (
 ) => {
   const currency = isoCurrencies[currencyCode] ?? USD;
   const amount = dinero({ amount: Number(num), currency });
-  return toDecimal(amount, ({ value, currency: c }) =>
+  return toDecimal(amount, ({ currency: c, value }) =>
     Number(value)
       .toLocaleString('en-US', {
-        style: 'currency',
         currency: c.code,
-        minimumFractionDigits: 2,
         maximumFractionDigits: 2,
+        minimumFractionDigits: 2,
+        style: 'currency',
       }));
 };
 

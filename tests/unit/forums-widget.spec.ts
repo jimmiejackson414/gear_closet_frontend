@@ -16,15 +16,15 @@ type ForumsWidgetProps = {
 };
 
 const mountForumsWidget = (props: ForumsWidgetProps) => mountSuspended(ForumsWidget, {
-  props,
   global: testMountGlobals(),
+  props,
 });
 
 describe('ForumsWidget', () => {
   it('renders skeleton while loading', async () => {
     const wrapper = await mountForumsWidget({
+      data: { categories: [], latest_posts: [] },
       loading: true,
-      data: { latest_posts: [], categories: [] },
     });
 
     expect(wrapper.findComponent({ name: 'GcSkeleton' })
@@ -37,8 +37,8 @@ describe('ForumsWidget', () => {
 
   it('renders an empty community state when there are no posts', async () => {
     const wrapper = await mountForumsWidget({
+      data: { categories: [], latest_posts: [] },
       loading: false,
-      data: { latest_posts: [], categories: [] },
     });
 
     expect(wrapper.text())
@@ -52,9 +52,9 @@ describe('ForumsWidget', () => {
 
   it('renders fetch error separately from empty posts', async () => {
     const wrapper = await mountForumsWidget({
-      loading: false,
+      data: { categories: [], latest_posts: [] },
       error: true,
-      data: { latest_posts: [], categories: [] },
+      loading: false,
     });
 
     expect(wrapper.text())
@@ -63,11 +63,11 @@ describe('ForumsWidget', () => {
 
   it('renders posts and categories when data is present', async () => {
     const wrapper = await mountForumsWidget({
-      loading: false,
       data: {
-        latest_posts: forumPosts.latest_posts,
         categories: forumPosts.categories,
+        latest_posts: forumPosts.latest_posts,
       },
+      loading: false,
     });
     const store = useUserStore();
     store.profile = {
@@ -103,8 +103,8 @@ describe('ForumsWidget', () => {
 
   it('renders a paid empty community state with an Open forums CTA', async () => {
     const wrapper = await mountForumsWidget({
+      data: { categories: [], latest_posts: [] },
       loading: false,
-      data: { latest_posts: [], categories: [] },
     });
     const store = useUserStore();
     store.profile = {
@@ -128,11 +128,11 @@ describe('ForumsWidget', () => {
 
   it('shows a visible upgrade banner for Free users when posts exist', async () => {
     const wrapper = await mountForumsWidget({
-      loading: false,
       data: {
-        latest_posts: forumPosts.latest_posts,
         categories: forumPosts.categories,
+        latest_posts: forumPosts.latest_posts,
       },
+      loading: false,
     });
     const store = useUserStore();
     store.profile = {

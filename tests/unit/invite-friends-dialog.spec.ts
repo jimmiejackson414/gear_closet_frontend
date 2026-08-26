@@ -14,12 +14,12 @@ vi.mock('@/components/ui/toast', () => ({
 
 const extraProfile = {
   ...tripFriends[0]!.friend_profile!,
-  id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
   email: 'other.friend@example.com',
   first_name: 'Other',
+  id: 'aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa',
+  image: null,
   last_name: 'Friend',
   trail_name: null,
-  image: null,
 };
 
 const supabaseUser = vi.hoisted(() => ({
@@ -37,16 +37,16 @@ mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
 mockNuxtImport('$fetch', () => fetchMock);
 
 const planningState = {
-  pageLoading: false,
-  selectedTripId: String(trips[0]!.id),
   data: {
-    trips,
     friends: tripFriends,
     pending_invites: [],
-    trip_details: [],
-    todos: [],
     shopping_items: [],
+    todos: [],
+    trip_details: [],
+    trips,
   },
+  pageLoading: false,
+  selectedTripId: String(trips[0]!.id),
 };
 
 describe('InviteFriendsDialog', () => {
@@ -69,12 +69,12 @@ describe('InviteFriendsDialog', () => {
       },
       rpc: () => Promise.resolve({
         data: {
-          trips,
           friends: tripFriends,
           pending_invites: [],
-          trip_details: [],
-          todos: [],
           shopping_items: [],
+          todos: [],
+          trip_details: [],
+          trips,
         },
         error: null,
       }),
@@ -83,8 +83,8 @@ describe('InviteFriendsDialog', () => {
 
   it('renders friend search and an email field', async () => {
     await mountSuspended(InviteFriendsDialog, {
-      global: testMountGlobals({ planning: planningState }),
       attachTo: document.body,
+      global: testMountGlobals({ planning: planningState }),
       props: { isOpen: true },
     });
 
@@ -100,8 +100,8 @@ describe('InviteFriendsDialog', () => {
 
   it('marks friends already on the trip as disabled', async () => {
     const wrapper = await mountSuspended(InviteFriendsDialog, {
-      global: testMountGlobals({ planning: planningState }),
       attachTo: document.body,
+      global: testMountGlobals({ planning: planningState }),
       props: { isOpen: true },
     });
     const select = wrapper.findComponent({ name: 'Multiselect' });
@@ -122,8 +122,8 @@ describe('InviteFriendsDialog', () => {
 
   it('posts emails to the server invite API and shows generic success copy', async () => {
     const wrapper = await mountSuspended(InviteFriendsDialog, {
-      global: testMountGlobals({ planning: planningState }),
       attachTo: document.body,
+      global: testMountGlobals({ planning: planningState }),
       props: { isOpen: true },
     });
 
@@ -144,8 +144,8 @@ describe('InviteFriendsDialog', () => {
     await vi.waitFor(() => {
       expect(fetchMock)
         .toHaveBeenCalledWith('/api/trips/2/invites', {
-          method: 'POST',
           body: { emails: ['pat@example.com'] },
+          method: 'POST',
         });
     });
 

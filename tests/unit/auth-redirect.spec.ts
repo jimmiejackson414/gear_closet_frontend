@@ -44,7 +44,7 @@ describe('authRedirect', () => {
       onboardDate: null,
       savedPath: '/planning?trip=12',
     }))
-      .toEqual({ path: '/onboarding', consumeSavedPath: false });
+      .toEqual({ consumeSavedPath: false, path: '/onboarding' });
   });
 
   it('returns onboarded users to the saved path', () => {
@@ -52,16 +52,16 @@ describe('authRedirect', () => {
       onboardDate: '2026-01-01T00:00:00.000Z',
       savedPath: '/planning?trip=12',
     }))
-      .toEqual({ path: '/planning?trip=12', consumeSavedPath: true });
+      .toEqual({ consumeSavedPath: true, path: '/planning?trip=12' });
   });
 
   it('sends password recovery to reset-password', () => {
     expect(destinationAfterAuth({
+      isPasswordRecovery: true,
       onboardDate: '2026-01-01T00:00:00.000Z',
       savedPath: '/planning',
-      isPasswordRecovery: true,
     }))
-      .toEqual({ path: '/reset-password', consumeSavedPath: false });
+      .toEqual({ consumeSavedPath: false, path: '/reset-password' });
     expect(isPasswordRecoveryCallback('recovery', ''))
       .toBe(true);
     expect(isPasswordRecoveryCallback(undefined, '#type=recovery&access_token=x'))
@@ -86,11 +86,11 @@ describe('authRedirect', () => {
       onboardDate: '2026-01-01T00:00:00.000Z',
       savedPath: planningTripPath('gc1.abc'),
     }))
-      .toEqual({ path: '/planning?trip=gc1.abc', consumeSavedPath: true });
+      .toEqual({ consumeSavedPath: true, path: '/planning?trip=gc1.abc' });
     expect(destinationAfterAuth({
       onboardDate: null,
       savedPath: planningTripPath('gc1.abc'),
     }))
-      .toEqual({ path: '/onboarding', consumeSavedPath: false });
+      .toEqual({ consumeSavedPath: false, path: '/onboarding' });
   });
 });

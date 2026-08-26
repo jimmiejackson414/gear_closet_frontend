@@ -39,13 +39,13 @@ export default defineEventHandler(async (): Promise<ForumResponse> => {
 
     const [latestPostData, categoriesData] = await Promise.all([
       $fetch<ForumLatestPosts>(`${forumsUrl}/posts`, {
-        method: 'GET',
         headers,
+        method: 'GET',
         signal: controller.signal,
       }),
       $fetch<ForumCategories>(`${forumsUrl}/categories`, {
-        method: 'GET',
         headers,
+        method: 'GET',
         signal: controller.signal,
       }),
     ]);
@@ -56,8 +56,8 @@ export default defineEventHandler(async (): Promise<ForumResponse> => {
     const categories = categoriesData?.category_list?.categories ?? [];
 
     return {
-      latest_posts,
       categories,
+      latest_posts,
     };
   } catch (err) {
     return throwPublicError(err, {

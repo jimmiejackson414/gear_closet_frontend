@@ -50,12 +50,12 @@ function seedLifetimeProfile () {
     ...profile,
     subscriptions: [{
       ...existing,
-      stripe_subscription_id: null,
       prices: {
         ...existing.prices,
-        identifier: 'LIFE',
         description: 'Lifetime',
+        identifier: 'LIFE',
       },
+      stripe_subscription_id: null,
     }],
   } as ProfileApiResponse;
 }

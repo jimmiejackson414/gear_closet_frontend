@@ -77,8 +77,8 @@ export default defineEventHandler(async (event) => {
     );
 
     await updateSubscriptionRecord(admin, {
-      profileId: user.sub,
       priceId: price.id,
+      profileId: user.sub,
       stripeSubscription: updatedStripeSubscription,
     });
 

@@ -30,9 +30,9 @@ export const throwPublicError = (
     tags: input.tags,
   });
   const wrapped = createError({
+    cause: error,
     statusCode: input.statusCode,
     statusMessage: input.statusMessage,
-    cause: error,
   });
   markSentryReported(wrapped);
   throw wrapped;

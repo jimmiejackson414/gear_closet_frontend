@@ -7,8 +7,8 @@
   }
 
   withDefaults(defineProps<Props>(), {
-    title: '',
     subtitle: '',
+    title: '',
   });
 </script>
 

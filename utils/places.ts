@@ -89,10 +89,10 @@ export function mapGeoapifyAutocomplete (
     if (!label) continue;
 
     places.push({
-      name: name || shortPlaceLabel(label),
       label,
       lat,
       lng,
+      name: name || shortPlaceLabel(label),
       placeId: result.place_id == null ? null : String(result.place_id),
     });
   }
@@ -157,8 +157,8 @@ function geoapifyRows (
     const coordinates = feature.geometry?.coordinates ?? [];
     return {
       ...properties,
-      lon: properties.lon ?? coordinates[0],
       lat: properties.lat ?? coordinates[1],
+      lon: properties.lon ?? coordinates[0],
     };
   });
 }

@@ -41,9 +41,9 @@ describe('reportServerError', () => {
       tags: { route: '/api/forumPosts' },
     }))
       .toThrow(expect.objectContaining({
+        cause,
         statusCode: 500,
         statusMessage: 'An error occurred while fetching posts',
-        cause,
       }));
 
     expect(Sentry.captureException)

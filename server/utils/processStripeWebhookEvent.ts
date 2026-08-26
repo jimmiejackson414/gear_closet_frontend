@@ -24,9 +24,9 @@ type PostgrestErrorLike = { message?: string } | null;
 function failOnError (error: PostgrestErrorLike, message: string) {
   if (!error) return;
   throw createError({
+    cause: error,
     statusCode: 500,
     statusMessage: message,
-    cause: error,
   });
 }
 
@@ -60,8 +60,8 @@ export async function processStripeWebhookEvent (
         const { data, error } = await supabase
           .from('customers')
           .insert({
-            stripe_customer_id: customer.id,
             profile_id: customer.metadata.profile_id as string,
+            stripe_customer_id: customer.id,
           })
           .select();
 
@@ -102,19 +102,19 @@ export async function processStripeWebhookEvent (
         const { data, error } = await supabase
           .from('subscriptions')
           .insert({
-            profile_id: subscription.metadata.profile_id as string,
-            stripe_subscription_id: subscription.id,
-            status: subscription.status as SubscriptionStatus,
-            metadata: subscription.metadata,
-            price_id: subscriptionItem.price.id,
-            quantity: subscriptionItem.quantity,
-            cancel_at_period_end: subscription.cancel_at_period_end,
-            current_period_start: new Date(period.current_period_start * 1000)
-              .toISOString(),
-            current_period_end: new Date(period.current_period_end * 1000)
-              .toISOString(),
             cancel_at: subscription.cancel_at ? new Date(subscription.cancel_at * 1000)
               .toISOString() : null,
+            cancel_at_period_end: subscription.cancel_at_period_end,
+            current_period_end: new Date(period.current_period_end * 1000)
+              .toISOString(),
+            current_period_start: new Date(period.current_period_start * 1000)
+              .toISOString(),
+            metadata: subscription.metadata,
+            price_id: subscriptionItem.price.id,
+            profile_id: subscription.metadata.profile_id as string,
+            quantity: subscriptionItem.quantity,
+            status: subscription.status as SubscriptionStatus,
+            stripe_subscription_id: subscription.id,
           })
           .select();
 
@@ -136,17 +136,17 @@ export async function processStripeWebhookEvent (
         const { error } = await supabase
           .from('subscriptions')
           .update({
-            status: subscription.status as SubscriptionStatus,
+            cancel_at: subscription.cancel_at ? new Date(subscription.cancel_at * 1000)
+              .toISOString() : null,
+            cancel_at_period_end: subscription.cancel_at_period_end,
+            current_period_end: new Date(period.current_period_end * 1000)
+              .toISOString(),
+            current_period_start: new Date(period.current_period_start * 1000)
+              .toISOString(),
             metadata: subscription.metadata,
             price_id: subscriptionItem.price.id,
             quantity: subscriptionItem.quantity,
-            cancel_at_period_end: subscription.cancel_at_period_end,
-            current_period_start: new Date(period.current_period_start * 1000)
-              .toISOString(),
-            current_period_end: new Date(period.current_period_end * 1000)
-              .toISOString(),
-            cancel_at: subscription.cancel_at ? new Date(subscription.cancel_at * 1000)
-              .toISOString() : null,
+            status: subscription.status as SubscriptionStatus,
           })
           .eq('stripe_subscription_id', subscription.id);
 
@@ -174,9 +174,9 @@ export async function processStripeWebhookEvent (
         const { error } = await supabase
           .from('subscriptions')
           .update({
-            status: subscription.status as SubscriptionStatus,
             canceled_at: new Date()
               .toISOString(),
+            status: subscription.status as SubscriptionStatus,
           })
           .eq('stripe_subscription_id', subscription.id);
 
@@ -199,13 +199,13 @@ export async function processStripeWebhookEvent (
         const { data, error } = await supabase
           .from('products')
           .insert({
-            id: product.id,
             active: product.active,
-            name: product.name.toUpperCase() as SubscriptionLevel,
             description: product.description,
+            environment: product.livemode ? 'production' : 'test',
+            id: product.id,
             image: product.images[0],
             metadata: product.metadata,
-            environment: product.livemode ? 'production' : 'test',
+            name: product.name.toUpperCase() as SubscriptionLevel,
           })
           .select();
 
@@ -224,11 +224,11 @@ export async function processStripeWebhookEvent (
           .from('products')
           .update({
             active: product.active,
-            name: product.name.toUpperCase() as SubscriptionLevel,
             description: product.description,
+            environment: product.livemode ? 'production' : 'test',
             image: product.images[0],
             metadata: product.metadata,
-            environment: product.livemode ? 'production' : 'test',
+            name: product.name.toUpperCase() as SubscriptionLevel,
           })
           .eq('id', product.id);
 
@@ -262,17 +262,17 @@ export async function processStripeWebhookEvent (
         const { data, error } = await supabase
           .from('prices')
           .insert({
-            id: price.id,
-            product_id: price.product as string,
             active: price.active,
-            description: price.nickname,
-            unit_amount: price.unit_amount,
             currency: price.currency,
-            type: price.type,
+            description: price.nickname,
+            environment: price.livemode ? 'production' : 'test',
+            id: price.id,
             interval: price.recurring?.interval as 'day' | 'week' | 'month' | 'year' | undefined,
             interval_count: price.recurring?.interval_count,
             metadata: price.metadata,
-            environment: price.livemode ? 'production' : 'test',
+            product_id: price.product as string,
+            type: price.type,
+            unit_amount: price.unit_amount,
           })
           .select();
 
@@ -290,16 +290,16 @@ export async function processStripeWebhookEvent (
         const { error } = await supabase
           .from('prices')
           .update({
-            product_id: price.product as string,
             active: price.active,
-            description: price.nickname,
-            unit_amount: price.unit_amount,
             currency: price.currency,
-            type: price.type,
+            description: price.nickname,
+            environment: price.livemode ? 'production' : 'test',
             interval: price.recurring?.interval as 'day' | 'week' | 'month' | 'year' | undefined,
             interval_count: price.recurring?.interval_count,
             metadata: price.metadata,
-            environment: price.livemode ? 'production' : 'test',
+            product_id: price.product as string,
+            type: price.type,
+            unit_amount: price.unit_amount,
           })
           .eq('id', price.id);
 

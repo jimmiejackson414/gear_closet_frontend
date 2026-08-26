@@ -148,20 +148,20 @@
 
       if (friendsToInvite.value.length) {
         const existingFriendsPayload = friendsToInvite.value.map((f: Tables<'profiles'>) => ({
-          trip_id: tripId,
+          invited_by_id: user.value?.sub as string,
           profile_id: f.id,
           status: TripFriendStatus.PENDING,
-          invited_by_id: user.value?.sub as string,
+          trip_id: tripId,
         }));
         const { error } = await supabase.from('trip_friends')
           .insert(existingFriendsPayload);
 
         const notificationsPayload = friendsToInvite.value.map((f: Tables<'profiles'>) => ({
-          title: NotificationKind.TRIP_INVITE,
           content: `${friendlyUsername($userStore.profile)} invited you to a trip!`,
-          read_on_date: null,
           profile_id: f.id,
+          read_on_date: null,
           sender_id: user.value?.sub,
+          title: NotificationKind.TRIP_INVITE,
         })) as TablesInsert<'notifications'>;
 
         await supabase.from('notifications')
@@ -178,8 +178,8 @@
 
       if (emailed.length) {
         await $fetch(`/api/trips/${tripId}/invites`, {
-          method: 'POST',
           body: { emails: emailed },
+          method: 'POST',
         });
       }
 

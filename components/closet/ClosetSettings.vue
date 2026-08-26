@@ -17,8 +17,8 @@
 
   const packOptions = computed(() => $store.data.allPacks.map(p => ({
     label: p.name,
-    value: p.id,
     locked: isResourceLocked(p),
+    value: p.id,
   })) as Array<SelectOption & { locked?: boolean }>);
 
   const createBlocked = computed(() =>

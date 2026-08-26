@@ -31,8 +31,8 @@ describe('friends search helpers', () => {
   });
 
   it('merges profile hits and drops the current user', () => {
-    const self = { id: 'me', email: 'me@example.com' };
-    const other = { id: 'them', email: 'pat@example.com' };
+    const self = { email: 'me@example.com', id: 'me' };
+    const other = { email: 'pat@example.com', id: 'them' };
 
     expect(mergeProfileSearchResults([[self, other], [other]], 'me'))
       .toEqual([other]);

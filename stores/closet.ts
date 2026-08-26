@@ -46,8 +46,8 @@ export const useClosetStore = defineStore('closet', () => {
   const activeCategoryId = ref<number | undefined>(undefined);
   const activeItem = ref<Tables<'items'> | undefined>(undefined);
   const data = ref<ClosetPageData>({
-    selectedPack: undefined,
     allPacks: [],
+    selectedPack: undefined,
   });
   const dialogStates = ref({
     addUrlDialog: false,
@@ -139,15 +139,15 @@ export const useClosetStore = defineStore('closet', () => {
 
       // Optimistic update for category item
       const optimisticCategoryItem = {
-        id: tempId,
         category_id: categoryId,
-        item_id: tempId,
-        position: (category?.category_items?.length ?? 0) + 1,
         created_at: new Date()
           .toISOString(),
+        id: tempId,
+        item: optimisticItem,
+        item_id: tempId,
+        position: (category?.category_items?.length ?? 0) + 1,
         updated_at: new Date()
           .toISOString(),
-        item: optimisticItem,
       };
 
       // Optimistically update category's category_items
@@ -188,8 +188,8 @@ export const useClosetStore = defineStore('closet', () => {
       const finalCategoryItem = {
         ...optimisticCategoryItem,
         id: createdCatItem.id,
-        item_id: created.id,
         item: created,
+        item_id: created.id,
       };
 
       // Final optimistic update of category items
@@ -385,13 +385,13 @@ export const useClosetStore = defineStore('closet', () => {
   return {
     activeCategoryId,
     activeItem,
+    createItem,
     data,
     dialogStates,
-    fetchGeneration,
-    pageLoading,
-    isPublicRoute,
     fetchClosetPage,
-    createItem,
+    fetchGeneration,
+    isPublicRoute,
+    pageLoading,
     updateCategoryItems,
     updateItem,
   };

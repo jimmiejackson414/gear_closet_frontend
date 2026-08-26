@@ -40,16 +40,16 @@ describe('stores/planning', () => {
     it('fills empty arrays for null/undefined payloads', () => {
       expect(normalizePlanningPageData(undefined))
         .toEqual({
-          trips: [],
+          errors: undefined,
+          friends: [],
           pack: undefined,
           party_packs: [],
-          trip_details: [],
-          todos: [],
-          shopping_items: [],
-          friends: [],
           pending_invites: [],
           poll: undefined,
-          errors: undefined,
+          shopping_items: [],
+          todos: [],
+          trip_details: [],
+          trips: [],
         });
       expect(normalizePlanningPageData(null).trips)
         .toEqual([]);
@@ -71,8 +71,8 @@ describe('stores/planning', () => {
 
     it('keeps nested friend_profile from the RPC payload', () => {
       const normalized = normalizePlanningPageData({
-        trips,
         friends: tripFriends,
+        trips,
       } as any);
       expect(normalized.friends)
         .toEqual(tripFriends);
@@ -82,8 +82,8 @@ describe('stores/planning', () => {
 
     it('treats an empty pack array from the RPC as no pack', () => {
       const normalized = normalizePlanningPageData({
-        trips,
         pack: [] as unknown as PlanningPageData['pack'],
+        trips,
       } as any);
       expect(normalized.pack)
         .toBeUndefined();
@@ -91,17 +91,17 @@ describe('stores/planning', () => {
 
     it('coerces nested party packs and ignores a non-array party_packs payload', () => {
       const normalized = normalizePlanningPageData({
-        trips,
         party_packs: [
-          { profile_id: 'friend-id', display_name: 'Junebug', pack: [] },
+          { display_name: 'Junebug', pack: [], profile_id: 'friend-id' },
         ],
+        trips,
       } as any);
       expect(normalized.party_packs[0]?.pack)
         .toBeUndefined();
 
       const empty = normalizePlanningPageData({
-        trips,
         party_packs: {} as unknown as PlanningPageData['party_packs'],
+        trips,
       } as any);
       expect(empty.party_packs)
         .toEqual([]);
@@ -128,11 +128,11 @@ describe('stores/planning', () => {
 
       deferreds[0]!.resolve({
         data: {
-          trips: [trips[0]],
-          todos: [],
-          shopping_items: [],
           friends: [],
+          shopping_items: [],
+          todos: [],
           trip_details: [],
+          trips: [trips[0]],
         },
         error: null,
       });
@@ -143,11 +143,11 @@ describe('stores/planning', () => {
 
       deferreds[1]!.resolve({
         data: {
-          trips: [trips[1]],
-          todos: [],
-          shopping_items: [],
           friends: [],
+          shopping_items: [],
+          todos: [],
           trip_details: [],
+          trips: [trips[1]],
         },
         error: null,
       });
@@ -165,11 +165,11 @@ describe('stores/planning', () => {
       supabaseClient.current = createSupabaseMock({
         rpc: () => Promise.resolve({
           data: {
-            trips,
-            todos: [],
-            shopping_items: [],
             friends: [],
+            shopping_items: [],
+            todos: [],
             trip_details: [],
+            trips,
           },
           error: null,
         }),
@@ -202,11 +202,11 @@ describe('stores/planning', () => {
 
       resolveRefresh!({
         data: {
-          trips,
-          todos: [],
-          shopping_items: [],
           friends: [],
+          shopping_items: [],
+          todos: [],
           trip_details: [],
+          trips,
         },
         error: null,
       });
@@ -219,7 +219,7 @@ describe('stores/planning', () => {
   describe('updateTodo', () => {
     it('updates local todo state on success', async () => {
       const todo = { ...todos[0]! };
-      const updated = { ...todo, title: 'Updated todo', completed: true };
+      const updated = { ...todo, completed: true, title: 'Updated todo' };
       supabaseClient.current = createSupabaseMock({
         from: () => createThenableQuery({ data: [updated], error: null }),
       });
@@ -228,10 +228,10 @@ describe('stores/planning', () => {
       store.data.todos = [{ ...todo }];
       store.selectedTripId = String(todo.trip_id);
 
-      await store.updateTodo(todo, { title: 'Updated todo', completed: true });
+      await store.updateTodo(todo, { completed: true, title: 'Updated todo' });
 
       expect(store.data.todos[0])
-        .toMatchObject({ title: 'Updated todo', completed: true });
+        .toMatchObject({ completed: true, title: 'Updated todo' });
     });
 
     it('toasts and leaves list unchanged on failure', async () => {
@@ -269,12 +269,12 @@ describe('stores/planning', () => {
     });
 
     it('upserts and replaces todos for the matching resource type', async () => {
-      const userTodo = { ...todos[0]!, id: 1, resource_type: ResourceType.USER, completed: false };
+      const userTodo = { ...todos[0]!, completed: false, id: 1, resource_type: ResourceType.USER };
       const groupTodo = {
         ...todos[0]!,
+        completed: false,
         id: 2,
         resource_type: ResourceType.GROUP,
-        completed: false,
         title: 'Group chore',
       };
       const updated = [
@@ -302,14 +302,14 @@ describe('stores/planning', () => {
   describe('batchUpdateShoppingItems', () => {
     it('upserts completed flags for matching shopping items', async () => {
       const item = {
-        id: 1,
-        title: 'Socks',
         completed: false,
-        quantity: 1,
-        trip_id: 2,
-        profile_id: '61b66be5-d199-48d5-898a-c521dd6b59cc',
-        resource_type: ResourceType.USER,
         created_at: '2024-04-21T01:21:08.285444+00:00',
+        id: 1,
+        profile_id: '61b66be5-d199-48d5-898a-c521dd6b59cc',
+        quantity: 1,
+        resource_type: ResourceType.USER,
+        title: 'Socks',
+        trip_id: 2,
         updated_at: '2024-04-21T01:21:08.285444+00:00',
       };
       const updated = [{ ...item, completed: true }];
@@ -412,8 +412,8 @@ describe('stores/planning', () => {
       const payload = {
         title: 'Campsite notes',
         type: TripDetailsType.HIKE,
-        value: 'Bring a bear can',
         url: null,
+        value: 'Bring a bear can',
       };
       const created = {
         ...tripDetails[0]!,

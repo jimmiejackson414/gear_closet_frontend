@@ -6,8 +6,8 @@
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    variant: 'primary',
     size: 'md',
+    variant: 'primary',
   });
 
   const computedClasses = computed(() => {

@@ -29,8 +29,8 @@ export function validatePollForm (input: {
   }
 
   return {
-    ok: Object.keys(errors).length === 0,
     errors,
     filledAnswers,
+    ok: Object.keys(errors).length === 0,
   };
 }

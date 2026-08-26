@@ -65,10 +65,10 @@
   const initialFiles = computed(() => {
     if (props.file) {
       return [{
-        source: props.file,
         options: {
           type: 'local',
         },
+        source: props.file,
       }];
     }
     return [];

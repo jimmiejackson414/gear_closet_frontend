@@ -43,18 +43,18 @@ describe('trip friend helpers', () => {
     expect(options)
       .toEqual([
         {
-          label: 'on-trip',
-          value: 'on-trip',
-          image: null,
           disabled: true,
+          image: null,
+          label: 'on-trip',
           status: 'PENDING',
+          value: 'on-trip',
         },
         {
-          label: 'available',
-          value: 'available',
-          image: null,
           disabled: false,
+          image: null,
+          label: 'available',
           status: undefined,
+          value: 'available',
         },
       ]);
   });
@@ -69,7 +69,7 @@ describe('trip friend helpers', () => {
     expect(parseInviteEmail('already.on@example.com', [], onTripEmails))
       .toEqual({ error: 'That person is already on this trip.' });
     expect(parseInviteEmail('new.person@example.com', ['new.person@example.com'], onTripEmails))
-      .toEqual({ email: 'new.person@example.com', duplicate: true });
+      .toEqual({ duplicate: true, email: 'new.person@example.com' });
     expect(parseInviteEmail('  New.Person@example.com  ', [], onTripEmails))
       .toEqual({ email: 'new.person@example.com' });
     expect(parseInviteEmail('pending@example.com', [], pendingInviteEmailSet([
