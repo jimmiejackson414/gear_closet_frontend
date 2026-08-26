@@ -64,11 +64,15 @@ export const sendFriendEmailInvite = async (input: SendFriendEmailInviteInput) =
     throw new InviteError('Too many invites. Try again later.', 429);
   }
 
-  await input.admin.from('friend_invite_attempts')
+  const { error: insertError } = await input.admin.from('friend_invite_attempts')
     .insert({
       profile_id: input.inviterId,
       email_count: 1,
     });
+
+  if (insertError) {
+    throw new InviteError('Unable to send invites', 500);
+  }
 
   const { data: inviter } = await input.userClient
     .from('profiles')

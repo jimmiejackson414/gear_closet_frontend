@@ -170,4 +170,63 @@ describe('sendFriendEmailInvite', () => {
       .not
       .toHaveBeenCalled();
   });
+
+  it('fails closed on unexpected rate-limit lookup errors', async () => {
+    const send = vi.fn(async (_input: SendMailInput) => ({ id: 'email_1' }));
+    const userFrom = queuedFrom({
+      profiles: [createThenableQuery({ data: inviter, error: null })],
+    });
+    const adminFrom = queuedFrom({
+      friend_invite_attempts: [createThenableQuery({
+        data: null,
+        error: { code: '42501', message: 'permission denied' },
+      })],
+    });
+
+    await expect(sendFriendEmailInvite({
+      inviterId: OWNER_ID,
+      email: 'new.friend@example.com',
+      origin: 'https://app.gearcloset.io',
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
+      admin: asClient(createSupabaseMock({ from: adminFrom })),
+      send,
+    }))
+      .rejects
+      .toMatchObject({ name: 'InviteError', statusCode: 500 });
+
+    expect(send)
+      .not
+      .toHaveBeenCalled();
+  });
+
+  it('fails closed when recording a rate-limit attempt fails', async () => {
+    const send = vi.fn(async (_input: SendMailInput) => ({ id: 'email_1' }));
+    const userFrom = queuedFrom({
+      profiles: [createThenableQuery({ data: inviter, error: null })],
+    });
+    const adminFrom = queuedFrom({
+      friend_invite_attempts: [
+        createThenableQuery({ data: [], error: null }),
+        createThenableQuery({
+          data: null,
+          error: { code: '42501', message: 'permission denied' },
+        }),
+      ],
+    });
+
+    await expect(sendFriendEmailInvite({
+      inviterId: OWNER_ID,
+      email: 'new.friend@example.com',
+      origin: 'https://app.gearcloset.io',
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
+      admin: asClient(createSupabaseMock({ from: adminFrom })),
+      send,
+    }))
+      .rejects
+      .toMatchObject({ name: 'InviteError', statusCode: 500 });
+
+    expect(send)
+      .not
+      .toHaveBeenCalled();
+  });
 });

@@ -10,7 +10,7 @@ import {
   parseFriendInviteBody,
   sendFriendEmailInvite,
 } from '@/server/utils/friendInvites';
-import { reportServerError } from '@/server/utils/reportServerError';
+import { reportServerError, throwPublicError } from '@/server/utils/reportServerError';
 import { InviteError } from '@/server/utils/tripInvites';
 import type { Database } from '@/types';
 
@@ -47,16 +47,19 @@ export default defineEventHandler(async (event) => {
   } catch (err) {
     if (isError(err)) throw err;
     if (err instanceof InviteError) {
+      if (err.statusCode >= 500) {
+        reportServerError(err, { tags: { route: '/api/friends/invites' } });
+      }
       throw createError({
         statusCode: err.statusCode,
         statusMessage: err.message,
       });
     }
 
-    reportServerError(err, { tags: { route: '/api/friends/invites' } });
-    throw createError({
+    throwPublicError(err, {
       statusCode: 500,
       statusMessage: 'Unable to send invites',
+      tags: { route: '/api/friends/invites' },
     });
   }
 });
