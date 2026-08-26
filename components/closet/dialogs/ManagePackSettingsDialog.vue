@@ -93,7 +93,7 @@
         if (pack) {
           $store.data.selectedPack = { ...$store.data.selectedPack, ...pack } as ExtendedPack;
         }
-        $appStore.notifyPositive('Successfully updated your pack theme.');
+        $appStore.notifyPositive('Successfully updated pack settings.');
         $store.dialogStates.managePackSettingsDialog = false;
       }
     } catch {
