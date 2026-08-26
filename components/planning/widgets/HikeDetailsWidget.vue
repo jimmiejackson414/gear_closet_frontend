@@ -1,6 +1,6 @@
 <script lang='ts' setup>
   import { TripDetailsType, type Tables, type TablesUpdate } from '@/types';
-  import { coordsFromPlace } from '@/utils/places';
+  import { coordsFromPlace, placeShortName } from '@/utils/places';
   import type { PlaceSuggestion } from '@/types/places';
 
   const $store = usePlanningStore();
@@ -38,7 +38,7 @@
   const saveOrigin = (place: PlaceSuggestion | null, label?: string) => {
     const coords = coordsFromPlace(place);
     updateTrip({
-      starting_point: place?.label ?? label ?? $store.selectedTrip?.starting_point,
+      starting_point: place ? placeShortName(place) : (label ?? $store.selectedTrip?.starting_point),
       origin_lat: coords.lat,
       origin_lng: coords.lng,
       origin_place_id: coords.placeId,
@@ -48,7 +48,7 @@
   const saveDestination = (place: PlaceSuggestion | null, label?: string) => {
     const coords = coordsFromPlace(place);
     updateTrip({
-      ending_point: place?.label ?? label ?? $store.selectedTrip?.ending_point,
+      ending_point: place ? placeShortName(place) : (label ?? $store.selectedTrip?.ending_point),
       destination_lat: coords.lat,
       destination_lng: coords.lng,
       destination_place_id: coords.placeId,

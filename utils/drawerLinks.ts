@@ -1,4 +1,5 @@
 import { IconDoorOpen, IconHome, IconListTodo, IconMessagesSquare, IconUserCircle2, IconUsers } from '#components';
+import { FORUMS_COMING_SOON } from '@/utils/forums';
 
 export type LinkItem = {
   to: string;
@@ -7,11 +8,11 @@ export type LinkItem = {
   disabled: boolean;
   requiresSubscription: boolean;
   requiresSubscriptionCopy?: string;
+  comingSoon?: boolean;
+  comingSoonCopy?: string;
 };
 
 export const drawerLinks = () => {
-  const $store = useUserStore();
-
   return [
     {
       to: 'index',
@@ -45,7 +46,9 @@ export const drawerLinks = () => {
       to: 'forums',
       title: 'Forums',
       icon: IconMessagesSquare,
-      disabled: !$store.isPaidMember,
+      disabled: true,
+      comingSoon: true,
+      comingSoonCopy: FORUMS_COMING_SOON,
       requiresSubscription: true,
       requiresSubscriptionCopy: 'The forums are only available to paid members. Upgrade in Profile.',
     },

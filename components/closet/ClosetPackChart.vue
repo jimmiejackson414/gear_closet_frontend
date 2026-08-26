@@ -50,7 +50,14 @@
       splitLine: { show: false },
       axisLabel: { formatter: (value: number) => `${value} lbs` },
     },
-    grid: { show: false },
+    grid: {
+      show: false,
+      containLabel: true,
+      top: 8,
+      right: 12,
+      bottom: 8,
+      left: 8,
+    },
     series: [
       {
         data: seriesData.value.map((d) => d.weight),
@@ -142,7 +149,7 @@
         Pack Summary
       </typography>
     </div>
-    <div class="mt-0 mb-4 w-auto h-50 lg:h-93.75">
+    <div class="mt-0 mb-4 w-auto h-80 lg:h-93.75">
       <client-only>
         <v-chart
           ref="chartRef"

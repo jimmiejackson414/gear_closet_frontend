@@ -29,23 +29,23 @@
 </script>
 
 <template>
-  <div class="flex flex-col">
-    <div class="flex justify-between items-center mb-10">
+  <div class="flex flex-col min-w-0">
+    <div class="flex justify-between items-center mb-4">
       <div class="flex items-center">
-        <icon-bar-chart-3 class="h-6 mr-6 text-primary dark:text-primary-light w-6" />
+        <icon-bar-chart-3 class="h-6 mr-4 sm:mr-6 text-primary dark:text-primary-light w-6 shrink-0" />
         <typography class="font-bold!">
           Stats
         </typography>
       </div>
     </div>
-    <div class="grid grid-cols-2 gap-6 h-full pb-4">
+    <div class="grid grid-cols-2 gap-2 sm:gap-4 h-full pb-4">
       <div
         v-for="detail in details"
         :key="detail.title"
-        class="border border-dashed border-gray-400 p-4 rounded-2xl w-auto"
+        class="border border-dashed border-gray-400 p-3 sm:p-4 rounded-2xl min-w-0"
         data-testid="pack-summary-detail">
         <typography
-          class="font-bold"
+          class="font-bold truncate"
           data-testid="detail-title"
           variant="large">
           {{ detail.title }}

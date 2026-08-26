@@ -101,7 +101,7 @@
 </script>
 
 <template>
-  <div class="container-full mx-auto px-4 lg:px-12 py-6">
+  <div class="w-full min-w-0 lg:py-6">
     <div class="grid grid-cols-12 gap-4 md:gap-8">
       <card class="bg-charlie-brown col-span-12 md:col-span-9 grow px-4 sm:px-6 py-8 rounded-3xl shadow-xs">
         <gc-navbar page-title="Dashboard" />

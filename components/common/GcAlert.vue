@@ -26,8 +26,10 @@
 
 <template>
   <div :class="classList">
-    <p
-      class="mb-0 text-sm"
-      v-html="message" />
+    <typography
+      class="mb-0"
+      variant="small">
+      <span v-html="message" />
+    </typography>
   </div>
 </template>

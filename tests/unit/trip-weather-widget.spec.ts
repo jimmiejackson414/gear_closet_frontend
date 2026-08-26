@@ -29,6 +29,7 @@ const forecast = {
 
 describe('TripWeatherWidget', () => {
   beforeEach(() => {
+    fetchMock.mockReset();
     fetchMock.mockResolvedValue(forecast);
   });
 
@@ -64,6 +65,7 @@ describe('TripWeatherWidget', () => {
           data: {
             trips: [{
               ...trips[0]!,
+              starting_date: '2026-08-30T00:00:00Z',
               origin_lat: 34.6265,
               origin_lng: -84.1938,
               starting_point: 'Springer Mountain',
@@ -101,6 +103,42 @@ describe('TripWeatherWidget', () => {
       expect(fetchMock.mock.calls.length)
         .toBe(callsAfterMount + 2);
     });
+
+    wrapper.unmount();
+  });
+
+  it('does not fetch weather until a starting date is selected', async () => {
+    const wrapper = await mountSuspended(TripWeatherWidget, {
+      props: { tripId: trips[0]!.id },
+      global: testMountGlobals({
+        planning: {
+          selectedTripId: String(trips[0]!.id),
+          data: {
+            trips: [{
+              ...trips[0]!,
+              origin_lat: 34.6265,
+              origin_lng: -84.1938,
+              starting_point: 'Springer Mountain',
+              starting_date: null,
+            }],
+          },
+        },
+      }),
+    });
+
+    await wrapper.vm.$nextTick();
+    expect(fetchMock)
+      .not
+      .toHaveBeenCalled();
+    expect(wrapper.text())
+      .toContain('Select a starting date for weather information.');
+    const helper = wrapper.findAll('p')
+      .find(node => node.text()
+        .includes('Select a starting date'));
+    expect(helper?.classes())
+      .toEqual(expect.arrayContaining(['text-base']));
+    expect(helper?.element.parentElement?.className)
+      .toContain('text-muted-foreground');
 
     wrapper.unmount();
   });

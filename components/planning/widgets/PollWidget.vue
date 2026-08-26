@@ -65,9 +65,9 @@
     <div class="flex justify-between items-center py-4">
       <div class="flex items-center">
         <icon-vote class="h-6 mr-6 text-primary w-6" />
-        <p class="font-bold! text-base">
+        <typography class="font-bold!">
           Poll
-        </p>
+        </typography>
       </div>
       <div
         v-if="canAccessSettings"

@@ -13,6 +13,7 @@ import {
 import { throwPublicError } from '@/server/utils/reportServerError';
 import { WEATHER_AVAILABLE_WITHIN_DAYS, type TripWeatherPlaceForecast, type TripWeatherResponse, type WeatherUnits } from '@/types/weather';
 import {
+  hasTripStartDate,
   shouldUseForecast,
   weatherLocationsFromTrip,
   weatherUnitsFromMeasuringSystem,
@@ -91,6 +92,9 @@ export default defineEventHandler(async (event): Promise<TripWeatherResponse> =>
     const locations = weatherLocationsFromTrip(trip);
     if (!locations.length) {
       return { status: 'needs_place' };
+    }
+    if (!hasTripStartDate(trip.starting_date)) {
+      return { status: 'needs_date' };
     }
     if (!shouldUseForecast(trip.starting_date)) {
       return {

@@ -26,9 +26,9 @@
   <card class="px-4 sm:px-8 py-4 rounded-3xl">
     <div class="justify-start items-center grid grid-cols-[auto_auto_1fr] py-4">
       <icon-check-square-2 class="mr-6 w-6 h-6 text-primary" />
-      <p class="font-bold! text-base">
+      <typography class="font-bold!">
         Shopping Items
-      </p>
+      </typography>
       <button-root
         v-if="!$store.pageLoading && $store.data?.shopping_items.length"
         aria-label="Add shopping item"
@@ -41,9 +41,9 @@
     </div>
     <gc-skeleton v-if="$store.pageLoading" />
     <gc-empty-state v-else-if="!$store.pageLoading && !$store.data?.shopping_items.length">
-      <p class="mb-4 text-base">
+      <typography class="mb-4">
         You haven't added any shopping items to this trip yet!
-      </p>
+      </typography>
       <button-root
         size="sm"
         variant="outline"
@@ -66,7 +66,9 @@
           </tabs-trigger>
         </tabs-list>
         <tabs-content :value="ResourceType.USER">
-          <div v-if="userItems.length">
+          <div
+            v-if="userItems.length"
+            class="overflow-x-auto min-w-0">
             <table-root class="w-full">
               <table-header>
                 <table-row no-hover-effect>
@@ -114,12 +116,14 @@
           </div>
           <typography
             v-else
-            class="text-base text-center">
+            class="text-center">
             No shopping items yet.
           </typography>
         </tabs-content>
         <tabs-content :value="ResourceType.GROUP">
-          <div v-if="groupItems.length">
+          <div
+            v-if="groupItems.length"
+            class="overflow-x-auto min-w-0">
             <table-root class="w-full">
               <table-header>
                 <table-row no-hover-effect>
@@ -167,7 +171,7 @@
           </div>
           <typography
             v-else
-            class="text-base text-center">
+            class="text-center">
             No group shopping items yet.
           </typography>
         </tabs-content>

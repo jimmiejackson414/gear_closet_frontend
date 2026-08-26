@@ -37,6 +37,10 @@ export const useAppStore = defineStore('app', () => {
     drawer.value = !drawer.value;
   };
 
+  const closeDrawer = () => {
+    drawer.value = false;
+  };
+
   return {
     drawer,
     loading,
@@ -45,5 +49,6 @@ export const useAppStore = defineStore('app', () => {
     notifyNegative,
     notifyInfo,
     toggleDrawer,
+    closeDrawer,
   };
 });

@@ -163,9 +163,9 @@
         <typography class="font-bold text-xl">
           {{ errorCopy.title }}
         </typography>
-        <p class="text-muted-foreground">
+        <typography class="text-muted-foreground">
           {{ errorCopy.description }}
-        </p>
+        </typography>
         <nuxt-link
           class="self-center"
           to="/">
@@ -180,11 +180,11 @@
         <typography class="font-bold text-xl">
           You're invited
         </typography>
-        <p class="text-muted-foreground">
+        <typography class="text-muted-foreground">
           {{ preview.inviterName }} invited you to
           <span class="font-medium text-foreground">{{ preview.tripName }}</span>
           on Gear Closet.
-        </p>
+        </typography>
         <div
           v-if="isLoggedIn"
           class="flex justify-center">

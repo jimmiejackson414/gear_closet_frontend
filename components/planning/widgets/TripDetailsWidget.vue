@@ -64,9 +64,9 @@
   <card class="px-4 sm:px-8 py-4 rounded-3xl">
     <div class="justify-start items-center grid grid-cols-[auto_auto_1fr]">
       <icon-footprints class="mr-6 w-6 h-6 text-primary" />
-      <p class="font-bold! text-base">
+      <typography class="font-bold!">
         Trip Details
-      </p>
+      </typography>
       <button-root
         v-if="!$store.pageLoading && tripDetails.length && $store.canEditSelectedTrip"
         aria-label="Add trip detail"
@@ -136,9 +136,9 @@
         </div>
       </div>
       <gc-empty-state v-if="!tripDetails.length">
-        <p class="mb-4 text-base">
+        <typography class="mb-4">
           You haven't added any trip details yet!
-        </p>
+        </typography>
         <button-root
           v-if="$store.canEditSelectedTrip"
           size="sm"

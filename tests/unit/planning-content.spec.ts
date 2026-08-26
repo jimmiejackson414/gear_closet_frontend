@@ -76,7 +76,23 @@ describe('PlanningContent', () => {
 
   it('moves weather above todos after a forecast is fetched', async () => {
     fetchMock.mockResolvedValue(forecast);
-    const wrapper = await mountPlanningContent();
+    const wrapper = await mountSuspended(PlanningContent, {
+      global: {
+        ...testMountGlobals({
+          planning: {
+            pageLoading: false,
+            selectedTripId: String(trips[0]!.id),
+            data: {
+              trips: [{
+                ...trips[0]!,
+                starting_date: '2026-08-30T00:00:00Z',
+              }],
+            },
+          },
+        }),
+        stubs: sidebarStubs,
+      },
+    });
 
     await vi.waitFor(() => {
       expect(wrapper.get('[data-testid="planning-weather-slot"]')

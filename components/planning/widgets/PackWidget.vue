@@ -189,9 +189,9 @@
     <div class="flex flex-wrap justify-between items-center gap-2 py-4">
       <div class="flex items-center gap-2 sm:gap-4 min-w-0">
         <icon-backpack class="mr-2 w-6 h-6 text-primary shrink-0" />
-        <p class="font-bold! text-base shrink-0">
+        <typography class="font-bold! shrink-0">
           Pack
-        </p>
+        </typography>
         <button-root
           v-if="!viewingOwnPack"
           data-testid="pack-widget-my-pack"
@@ -237,9 +237,9 @@
     </div>
     <gc-skeleton v-if="$store.pageLoading" />
     <gc-empty-state v-else-if="!displayedPack && !$store.pageLoading">
-      <p class="mb-4 text-base">
+      <typography class="mb-4">
         {{ viewingOwnPack ? "You haven't added a pack to this trip yet!" : 'This person has not added a pack to this trip yet.' }}
-      </p>
+      </typography>
       <button-root
         v-if="canManagePack"
         size="sm"
@@ -249,7 +249,7 @@
       </button-root>
     </gc-empty-state>
     <div v-else-if="displayedPack">
-      <h5 class="text-base-lg">
+      <typography class="text-base-lg">
         Selected Pack:
         <span class="font-black">{{ displayedPack?.name }}</span>
         <span
@@ -257,7 +257,7 @@
           class="ml-1 text-muted-foreground font-normal">
           ({{ viewedPackOwnerLabel }})
         </span>
-      </h5>
+      </typography>
       <div class="mx-auto mt-0 mb-4 w-full h-100">
         <client-only>
           <v-chart

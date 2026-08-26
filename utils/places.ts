@@ -78,7 +78,7 @@ export function mapGeoapifyAutocomplete (
     const lng = asCoord(result.lon);
     if (lat == null || lng == null) continue;
 
-    const name = result.name || result.address_line1 || null;
+    const name = (result.name || result.address_line1 || '').trim() || null;
     const area = [result.city || result.county, result.state_code || result.state]
       .filter(Boolean)
       .join(', ');
@@ -89,6 +89,7 @@ export function mapGeoapifyAutocomplete (
     if (!label) continue;
 
     places.push({
+      name: name || shortPlaceLabel(label),
       label,
       lat,
       lng,
@@ -131,6 +132,17 @@ export function coordsFromPlace (place: PlaceSuggestion | null): {
     return { lat: null, lng: null, placeId: null };
   }
   return { lat: place.lat, lng: place.lng, placeId: place.placeId };
+}
+
+export function shortPlaceLabel (label: string): string {
+  const first = label.split(',')[0]?.trim();
+  return first || label.trim();
+}
+
+export function placeShortName (place: PlaceSuggestion): string {
+  const named = place.name?.trim();
+  if (named) return named;
+  return shortPlaceLabel(place.label);
 }
 
 function geoapifyRows (

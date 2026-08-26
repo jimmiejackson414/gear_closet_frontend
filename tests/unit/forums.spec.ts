@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import {
   FORUMS_APP_PATH,
+  FORUMS_COMING_SOON,
   FORUMS_UPGRADE_PATH,
   forumsAppPath,
   forumsCategoryUrl,
@@ -25,6 +26,8 @@ describe('forums helpers', () => {
       .toBe('/forums?category=general&categoryId=4');
     expect(FORUMS_UPGRADE_PATH)
       .toBe('/profile?tab=subscription');
+    expect(FORUMS_COMING_SOON)
+      .toBe('Forums (coming soon)');
   });
 
   it('resolves a Discourse destination from /forums query params', () => {

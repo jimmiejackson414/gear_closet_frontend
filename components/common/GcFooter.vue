@@ -6,14 +6,14 @@
 <template>
   <footer class="bg-background fixed bottom-0 inset-x-0 px-8 py-4">
     <div class="flex justify-center">
-      <p class="text-base">
+      <typography>
         <span
           aria-label="copyright"
           role="img">
           &#169;
         </span>
         {{ ' ' }}Gear Closet {{ copyrightYear() }}
-      </p>
+      </typography>
     </div>
   </footer>
 </template>

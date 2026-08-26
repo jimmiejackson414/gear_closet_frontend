@@ -3,6 +3,7 @@ import {
   airQualityLabel,
   clampForecastRange,
   dailyMaxAqi,
+  hasTripStartDate,
   shouldUseForecast,
   tripWeatherWatchKey,
   usAqiCategory,
@@ -29,6 +30,12 @@ describe('tripWeather', () => {
       .toBe(false);
     expect(shouldUseForecast('2026-10-01T00:00:00Z', now))
       .toBe(false);
+    expect(shouldUseForecast(null, now))
+      .toBe(false);
+    expect(hasTripStartDate(null))
+      .toBe(false);
+    expect(hasTripStartDate('2026-08-30T00:00:00Z'))
+      .toBe(true);
   });
 
   it('clamps the forecast range to today through the horizon', () => {
@@ -142,5 +149,8 @@ describe('tripWeather', () => {
     expect(origin)
       .not
       .toBe(newDestination);
+    expect(tripWeatherWatchKey(2, { starting_date: '2026-08-30T00:00:00Z' }))
+      .not
+      .toBe(tripWeatherWatchKey(2, { starting_date: null }));
   });
 });

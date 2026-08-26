@@ -1,4 +1,6 @@
 <script lang="ts" setup>
+  import { cn } from '@/lib/utils';
+
   interface Props {
     variant?: 'h1' | 'h2' | 'h3' | 'h4' | 'h5' | 'p' | 'blockquote' | 'large' | 'lead' | 'small' | 'muted';
     class?: string;
@@ -26,7 +28,7 @@
     h3: 'scroll-m-20 text-2xl font-semibold tracking-tight',
     h4: 'scroll-m-20 text-xl font-semibold tracking-tight',
     h5: 'scroll-m-20 text-lg font-semibold tracking-tight',
-    p: 'leading-7 font-normal',
+    p: 'text-base',
     blockquote: 'mt-6 border-l-2 pl-6 italic',
     large: 'text-lg font-semibold',
     lead: 'text-xl text-muted-foreground',
@@ -36,8 +38,7 @@
 
   const tag = computed(() => tagMap[props.variant || 'p']);
 
-  const computedClass = computed(() => [classMap[props.variant || 'p'], props.class].filter(Boolean)
-    .join(' '));
+  const computedClass = computed(() => cn(classMap[props.variant || 'p'], props.class));
 </script>
 
 <template>

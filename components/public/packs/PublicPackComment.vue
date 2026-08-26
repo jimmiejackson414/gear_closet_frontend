@@ -183,27 +183,28 @@
               class="p-4 rounded-xl w-fit comment__body"
               :class="comment.profile_id === user?.sub ? 'bg-primary-light/40' : 'bg-gray-200'">
               <div class="flex justify-start items-center gap-4">
-                <p
-                  class="font-bold text-sm"
-                  :class="comment.deleted_at ? 'text-gray-400' : 'text-gray-900'">
+                <typography
+                  class="font-bold"
+                  :class="comment.deleted_at ? 'text-gray-400' : 'text-gray-900'"
+                  variant="small">
                   {{ friendlyUsername(comment.profile) }}
-                </p>
-                <p
-                  class="text-sm"
-                  :class="comment.deleted_at ? 'text-gray-400' : 'text-gray-500'">
+                </typography>
+                <typography
+                  :class="comment.deleted_at ? 'text-gray-400' : 'text-gray-500'"
+                  variant="small">
                   {{ formattedTime(comment.created_at) }}
-                </p>
+                </typography>
               </div>
-              <p
+              <typography
                 v-if="comment.deleted_at"
                 class="text-gray-400 italic">
                 This comment has been deleted
-              </p>
-              <p
+              </typography>
+              <typography
                 v-else
                 class="mt-2">
                 {{ comment.text }}
-              </p>
+              </typography>
             </div>
             <!-- actions -->
             <div
@@ -240,9 +241,9 @@
               @click="[replyingTo = false, newReplyValue = undefined]">
               Cancel
             </button-root>
-            <p class="text-muted-foreground text-sm">
+            <typography variant="muted">
               Commenting as <span class="font-bold">{{ commentingAsName }}</span>
-            </p>
+            </typography>
             <button-root
               :disabled="submitting"
               :loading="submitting"
@@ -272,25 +273,26 @@
                   class="p-4 rounded-xl w-fit comment__body"
                   :class="reply.profile_id === user?.sub ? 'bg-primary-light/40' : 'bg-gray-200'">
                   <div class="flex justify-start items-center gap-4">
-                    <p
-                      class="font-bold text-sm"
-                      :class="reply.deleted_at ? 'text-gray-400' : 'text-gray-900'">
+                    <typography
+                      class="font-bold"
+                      :class="reply.deleted_at ? 'text-gray-400' : 'text-gray-900'"
+                      variant="small">
                       {{ friendlyUsername(reply.profile) }}
-                    </p>
-                    <p
-                      class="text-sm"
-                      :class="reply.deleted_at ? 'text-gray-400' : 'text-gray-500'">
+                    </typography>
+                    <typography
+                      :class="reply.deleted_at ? 'text-gray-400' : 'text-gray-500'"
+                      variant="small">
                       {{ formattedTime(reply.created_at) }}
-                    </p>
+                    </typography>
                   </div>
-                  <p
+                  <typography
                     v-if="reply.deleted_at"
                     class="text-gray-400 italic">
                     This reply has been deleted
-                  </p>
-                  <p v-else>
+                  </typography>
+                  <typography v-else>
                     {{ reply.text }}
-                  </p>
+                  </typography>
                 </div>
                 <!-- actions -->
                 <div

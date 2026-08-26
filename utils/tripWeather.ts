@@ -19,13 +19,20 @@ export function weatherUnitsFromMeasuringSystem (
   return system === 'METRIC' ? 'metric' : 'imperial';
 }
 
+export function hasTripStartDate (
+  startingDateIso: string | null | undefined,
+): startingDateIso is string {
+  if (!startingDateIso) return false;
+  const start = new Date(startingDateIso);
+  return !Number.isNaN(start.getTime());
+}
+
 export function shouldUseForecast (
   startingDateIso: string | null | undefined,
   now = new Date(),
 ): boolean {
-  if (!startingDateIso) return true;
+  if (!hasTripStartDate(startingDateIso)) return false;
   const start = new Date(startingDateIso);
-  if (Number.isNaN(start.getTime())) return true;
   const horizon = new Date(now);
   horizon.setUTCDate(horizon.getUTCDate() + WEATHER_AVAILABLE_WITHIN_DAYS);
   return start.getTime() <= horizon.getTime();
@@ -130,6 +137,8 @@ type TripWeatherPlaceFields = {
   destination_lat?: number | null
   destination_lng?: number | null
   ending_point?: string | null
+  starting_date?: string | null
+  ending_date?: string | null
 };
 
 export type WeatherLocation = {
@@ -184,6 +193,8 @@ export function tripWeatherWatchKey (
     trip?.destination_lat ?? '',
     trip?.destination_lng ?? '',
     trip?.ending_point ?? '',
+    trip?.starting_date ?? '',
+    trip?.ending_date ?? '',
   ].join('|');
 }
 

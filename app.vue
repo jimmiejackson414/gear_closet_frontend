@@ -19,7 +19,11 @@
 
 <template>
   <config-provider :use-id="ssrId">
-    <div class="bg-background h-full">
+    <div class="h-full">
+      <nuxt-loading-indicator
+        color="hsl(var(--primary))"
+        :height="3"
+        :throttle="0" />
       <suspense>
         <nuxt-layout>
           <nuxt-page />
@@ -37,13 +41,12 @@
   .page-leave-active,
   .layout-enter-active,
   .layout-leave-active {
-    transition: all 0.4s;
+    transition: opacity 0.15s ease;
   }
   .page-enter-from,
   .page-leave-to,
   .layout-enter-from,
   .layout-leave-to {
     opacity: 0;
-    filter: blur(1rem);
   }
 </style>
