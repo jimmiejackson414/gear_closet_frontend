@@ -631,7 +631,7 @@ describe('Planning Page', async () => {
       document.body.innerHTML = '';
     });
 
-    it('shows New shopping item as a placeholder for an untitled item', async () => {
+    it('shows New item as a placeholder for an untitled item', async () => {
       const wrapper = await mountSuspended(ShoppingListWidget, {
         attachTo: document.body,
         global: testMountGlobals({
@@ -658,7 +658,7 @@ describe('Planning Page', async () => {
 
       expect(wrapper.get('.text-gray-400')
         .text())
-        .toBe('New shopping item');
+        .toBe('New item');
       wrapper.unmount();
     });
 
@@ -708,7 +708,7 @@ describe('Planning Page', async () => {
         .trigger('click');
       await vi.waitFor(() => {
         expect((document.body.querySelector('input[name="title"]') as HTMLInputElement | null)?.placeholder)
-          .toBe('New shopping item');
+          .toBe('New item');
       });
       wrapper.unmount();
     });
