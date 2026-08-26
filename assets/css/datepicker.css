@@ -24,10 +24,12 @@
   border-color: hsl(var(--input));
   box-shadow: none;
   transition: none;
+  padding-inline-end: 2.25rem;
 }
 
 .dp--main.gc-dp .dp--input.gc-dp-input.dp--input-icon-pad {
   padding-inline-start: 2.25rem !important;
+  padding-inline-end: 2.25rem !important;
 }
 
 .dp--main.gc-dp .dp--input.gc-dp-input:hover:not(.dp--input-focus) {
@@ -43,6 +45,10 @@
   inset-inline-start: 0.75rem;
   padding: 0;
   color: var(--color-gray-400);
+}
+
+.dp--main.gc-dp .dp--clear-btn {
+  inset-inline-end: 0.75rem;
 }
 
 .dp--main.gc-dp .dp--input-icons {

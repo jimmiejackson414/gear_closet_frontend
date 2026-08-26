@@ -14,34 +14,39 @@
     isOpen: boolean;
   }
 
-  defineProps<Props>();
+  const props = defineProps<Props>();
   const emits = defineEmits<{
     (event: 'onClose'): void;
   }>();
 
   const $store = usePlanningStore();
+
+  /** Empty string is valid for optional inputs; min length only applies when filled. */
+  const optionalText = (min: number, max: number) => z.union([
+    z.literal(''),
+    z.string()
+      .min(min)
+      .max(max),
+  ])
+    .optional();
+
   const formSchema = toTypedSchema(z.object({
-    dateRange: z.array(z.date())
-      .length(2)
+    dateRange: z.union([
+      z.tuple([z.date(), z.date()]),
+      z.undefined(),
+      z.null(),
+    ])
       .optional(),
-    description: z.string()
-      .min(3)
-      .max(500)
-      .optional(),
-    ending_point: z.string()
-      .min(3)
-      .max(200)
-      .optional(),
-    name: z.string()
-      .min(3)
+    description: optionalText(3, 500),
+    ending_point: optionalText(3, 200),
+    name: z.string({ required_error: 'Trip name is required.' })
+      .trim()
+      .min(3, 'Trip name must be at least 3 characters.')
       .max(50),
-    starting_point: z.string()
-      .min(3)
-      .max(200)
-      .optional(),
+    starting_point: optionalText(3, 200),
   }));
 
-  const { handleSubmit, isFieldDirty, isSubmitting } = useForm({
+  const { handleSubmit, isFieldDirty, isSubmitting, resetForm, setFieldValue } = useForm({
     validationSchema: formSchema,
   });
 
@@ -70,9 +75,33 @@
    * Creates a new trip.
    */
   const $appStore = useAppStore();
-  const dateRange = ref([]);
+  const dateRange = ref<Date[]>([]);
   const originPlace = ref<PlaceSuggestion | null>(null);
   const destinationPlace = ref<PlaceSuggestion | null>(null);
+  const datePickerKey = ref(0);
+
+  const onDateRangeUpdate = (value: Date[] | null) => {
+    dateRange.value = value ?? [];
+    setFieldValue('dateRange', value?.length === 2 ? [value[0]!, value[1]!] : undefined);
+  };
+
+  const resetCreateForm = () => {
+    dateRange.value = [];
+    originPlace.value = null;
+    destinationPlace.value = null;
+    resetForm();
+    datePickerKey.value += 1;
+  };
+
+  watch(() => props.isOpen, (open) => {
+    if (!open) resetCreateForm();
+  });
+
+  const optionalValue = (value: string | undefined | null) => {
+    const trimmed = value?.trim();
+    return trimmed ? trimmed : null;
+  };
+
   const onSubmit = handleSubmit(async (values) => {
     try {
       isSubmitting.value = true;
@@ -81,19 +110,19 @@
       const origin = coordsFromPlace(originPlace.value);
       const destination = coordsFromPlace(destinationPlace.value);
       const payload: TablesInsert<'trips'> = {
-        description: values.description,
+        description: optionalValue(values.description),
         destination_lat: destination.lat,
         destination_lng: destination.lng,
         destination_place_id: destination.placeId,
-        ending_date: values.dateRange?.[1]?.toISOString(),
-        ending_point: values.ending_point,
-        name: values.name,
+        ending_date: dateRange.value[1]?.toISOString() ?? null,
+        ending_point: optionalValue(values.ending_point),
+        name: values.name.trim(),
         origin_lat: origin.lat,
         origin_lng: origin.lng,
         origin_place_id: origin.placeId,
         profile_id: user.value?.sub as string,
-        starting_date: values.dateRange?.[0]?.toISOString(),
-        starting_point: values.starting_point,
+        starting_date: dateRange.value[0]?.toISOString() ?? null,
+        starting_point: optionalValue(values.starting_point),
       };
       const { data: createdTrip, error } = await supabase.from('trips')
         .insert([payload])
@@ -102,6 +131,7 @@
       if (error) { $appStore.notifyNegative('There was an error creating a new trip.'); }
       else {
         $appStore.notifyPositive('Successfully created a new trip!');
+        resetCreateForm();
         emits('onClose');
         const trip = createdTrip?.[0];
         if (trip) {
@@ -144,9 +174,11 @@
               <form-control>
                 <input-root
                   :disabled="isSubmitting"
+                  placeholder="John Muir Trail 2026"
                   :prepend-icon="IconBackpack"
                   v-bind="componentField" />
               </form-control>
+              <form-message />
             </form-item>
           </form-field>
 
@@ -156,13 +188,15 @@
             name="description"
             :validate-on-blur="!isFieldDirty">
             <form-item>
-              <form-label>Description</form-label>
+              <form-label>Description (optional)</form-label>
               <form-control>
                 <input-root
                   :disabled="isSubmitting"
+                  placeholder="A week on the High Sierra"
                   :prepend-icon="IconText"
                   v-bind="componentField" />
               </form-control>
+              <form-message />
             </form-item>
           </form-field>
 
@@ -172,7 +206,7 @@
             name="starting_point"
             :validate-on-blur="!isFieldDirty">
             <form-item>
-              <form-label>Trip Origin</form-label>
+              <form-label>Trip Origin (optional)</form-label>
               <form-control>
                 <gc-place-search
                   :disabled="isSubmitting"
@@ -180,6 +214,7 @@
                   v-bind="componentField"
                   @select="originPlace = $event" />
               </form-control>
+              <form-message />
             </form-item>
           </form-field>
 
@@ -189,7 +224,7 @@
             name="ending_point"
             :validate-on-blur="!isFieldDirty">
             <form-item>
-              <form-label>Trip Destination</form-label>
+              <form-label>Trip Destination (optional)</form-label>
               <form-control>
                 <gc-place-search
                   :disabled="isSubmitting"
@@ -197,6 +232,7 @@
                   v-bind="componentField"
                   @select="destinationPlace = $event" />
               </form-control>
+              <form-message />
             </form-item>
           </form-field>
 
@@ -206,8 +242,9 @@
             name="dateRange"
             :validate-on-blur="!isFieldDirty">
             <form-item>
-              <form-label>Start and End Dates</form-label>
+              <form-label>Start and End Dates (optional)</form-label>
               <vue-date-picker
+                :key="datePickerKey"
                 v-bind="datePickerFieldBind(componentField)"
                 ref="datePicker"
                 :action-row="{ showNow: false, showPreview: false, showCancel: false, showSelect: true }"
@@ -221,11 +258,12 @@
                 :range="{ partialRange: false }"
                 :time-config="{ enableTimePicker: false }"
                 :ui="{ calendarCell: 'gc-dp-cell', input: 'gc-dp-input' }"
-                @update:model-value="dateRange = $event">
+                @update:model-value="onDateRangeUpdate">
                 <template #input-icon>
                   <icon-calendar class="w-4 h-4 text-gray-400" />
                 </template>
               </vue-date-picker>
+              <form-message />
             </form-item>
           </form-field>
         </form>

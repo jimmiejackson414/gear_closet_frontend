@@ -278,6 +278,22 @@ describe('stores/planning', () => {
         .toMatchObject({ completed: true, title: 'Updated todo' });
     });
 
+    it('saves a title onto a todo that was created empty', async () => {
+      const todo = { ...todos[0]!, title: null };
+      const updated = { ...todo, title: 'Pack rain gear' };
+      supabaseClient.current = createSupabaseMock({
+        from: () => createThenableQuery({ data: [updated], error: null }),
+      });
+
+      const store = usePlanningStore();
+      store.data.todos = [{ ...todo }];
+
+      await store.updateTodo(todo, { title: 'Pack rain gear' });
+
+      expect(store.data.todos[0]?.title)
+        .toBe('Pack rain gear');
+    });
+
     it('toasts and leaves list unchanged on failure', async () => {
       const todo = { ...todos[0]! };
       supabaseClient.current = createSupabaseMock({
@@ -293,6 +309,73 @@ describe('stores/planning', () => {
 
       expect(store.data.todos[0]?.title)
         .toBe(todo.title);
+      expect(notifySpy)
+        .toHaveBeenCalledWith('nope');
+    });
+  });
+
+  describe('createTodo', () => {
+    it('inserts a todo with an empty title', async () => {
+      const created = { ...todos[0]!, id: 99, title: null };
+      const query = createThenableQuery({ data: [created], error: null });
+      supabaseClient.current = createSupabaseMock({
+        from: (table: string) => {
+          if (table !== 'todos') throw new Error(`Unexpected table ${table}`);
+          return query;
+        },
+      });
+
+      const store = usePlanningStore();
+      store.selectedTripId = String(todos[0]!.trip_id);
+      store.data.todos = [];
+
+      const createdTodo = await store.createTodo(ResourceType.USER);
+
+      expect(query.insert)
+        .toHaveBeenCalledWith(expect.objectContaining({
+          completed: false,
+          resource_type: ResourceType.USER,
+          title: null,
+          trip_id: todos[0]!.trip_id,
+        }));
+      expect(createdTodo)
+        .toEqual(created);
+      expect(store.data.todos)
+        .toEqual([created]);
+    });
+  });
+
+  describe('deleteTodo', () => {
+    it('removes the todo from local state on success', async () => {
+      supabaseClient.current = createSupabaseMock({
+        from: () => createThenableQuery({ data: null, error: null }),
+      });
+
+      const store = usePlanningStore();
+      store.data.todos = [{ ...todos[0]! }];
+
+      const ok = await store.deleteTodo(todos[0]!.id);
+      expect(ok)
+        .toBe(true);
+      expect(store.data.todos)
+        .toEqual([]);
+    });
+
+    it('keeps the todo when delete fails', async () => {
+      supabaseClient.current = createSupabaseMock({
+        from: () => createThenableQuery({ data: null, error: { message: 'nope' } }),
+      });
+
+      const store = usePlanningStore();
+      const appStore = useAppStore();
+      const notifySpy = vi.spyOn(appStore, 'notifyNegative');
+      store.data.todos = [{ ...todos[0]! }];
+
+      const ok = await store.deleteTodo(todos[0]!.id);
+      expect(ok)
+        .toBe(false);
+      expect(store.data.todos)
+        .toHaveLength(1);
       expect(notifySpy)
         .toHaveBeenCalledWith('nope');
     });
@@ -368,6 +451,76 @@ describe('stores/planning', () => {
 
       expect(store.data.shopping_items[0]?.completed)
         .toBe(true);
+    });
+  });
+
+  describe('createShoppingItem', () => {
+    it('inserts a shopping item with an empty title', async () => {
+      const created = {
+        completed: false,
+        created_at: '2024-04-21T01:21:08.285444+00:00',
+        id: 99,
+        profile_id: SESSION_USER_ID,
+        quantity: 1,
+        resource_type: ResourceType.USER,
+        title: null,
+        trip_id: 2,
+        updated_at: '2024-04-21T01:21:08.285444+00:00',
+      };
+      const query = createThenableQuery({ data: [created], error: null });
+      supabaseClient.current = createSupabaseMock({
+        from: (table: string) => {
+          if (table !== 'shopping_list_items') throw new Error(`Unexpected table ${table}`);
+          return query;
+        },
+      });
+
+      const store = usePlanningStore();
+      store.selectedTripId = '2';
+      store.data.shopping_items = [];
+
+      const createdItem = await store.createShoppingItem(ResourceType.USER);
+
+      expect(query.insert)
+        .toHaveBeenCalledWith(expect.objectContaining({
+          completed: false,
+          quantity: 1,
+          resource_type: ResourceType.USER,
+          title: null,
+          trip_id: 2,
+        }));
+      expect(createdItem)
+        .toEqual(created);
+      expect(store.data.shopping_items)
+        .toEqual([created]);
+    });
+  });
+
+  describe('deleteShoppingItem', () => {
+    it('removes the shopping item from local state on success', async () => {
+      const item = {
+        completed: false,
+        created_at: '2024-04-21T01:21:08.285444+00:00',
+        id: 1,
+        profile_id: SESSION_USER_ID,
+        quantity: 1,
+        resource_type: ResourceType.USER,
+        title: null,
+        trip_id: 2,
+        updated_at: '2024-04-21T01:21:08.285444+00:00',
+      };
+      supabaseClient.current = createSupabaseMock({
+        from: () => createThenableQuery({ data: null, error: null }),
+      });
+
+      const store = usePlanningStore();
+      store.data.shopping_items = [item];
+
+      const ok = await store.deleteShoppingItem(item.id);
+      expect(ok)
+        .toBe(true);
+      expect(store.data.shopping_items)
+        .toEqual([]);
     });
   });
 

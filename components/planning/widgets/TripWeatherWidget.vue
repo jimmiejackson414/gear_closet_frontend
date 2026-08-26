@@ -42,11 +42,6 @@
 
   const weather = computed(() => weatherAsync.data.value);
   const pending = computed(() => weatherAsync.pending.value);
-  const hasForecast = defineModel<boolean>('hasForecast', { default: false });
-
-  watch(() => weather.value?.status === 'forecast', (value) => {
-    hasForecast.value = value;
-  }, { immediate: true });
 
   const unitSymbol = computed(() => {
     if (weather.value && 'units' in weather.value) {
@@ -144,36 +139,56 @@
             {{ place.currentAirQuality.aqi }} {{ airQualityLabel(place.currentAirQuality.category) }}
           </span>
         </typography>
-        <ul class="divide-y divide-border">
-          <li
-            v-for="day in place.days"
-            :key="`${place.kind}-${day.date}`"
-            class="flex items-center gap-3 py-2">
-            <component
-              :is="iconFor(day.weatherCode)"
-              class="w-5 h-5 text-primary shrink-0" />
-            <span class="flex-1 text-sm">{{ formatDay(day.date) }}</span>
-            <span class="tabular-nums text-sm">
-              {{ Math.round(day.high) }}{{ unitSymbol }} / {{ Math.round(day.low) }}{{ unitSymbol }}
-            </span>
-            <span
-              v-if="day.precipChance != null"
-              class="w-12 tabular-nums text-muted-foreground text-sm text-right">
-              {{ Math.round(day.precipChance) }}%
-            </span>
-            <span
-              v-if="day.airQuality"
-              class="w-28 tabular-nums text-sm text-right"
-              :class="aqiClass(day.airQuality)">
-              AQI {{ day.airQuality.aqi }}
-            </span>
-          </li>
-        </ul>
+        <div class="overflow-x-auto min-w-0">
+          <table-root class="w-full">
+            <table-header>
+              <table-row no-hover-effect>
+                <table-head class="h-auto py-2 px-4 font-bold">
+                  Day
+                </table-head>
+                <table-head class="h-auto py-2 px-4 font-bold text-right">
+                  Temp
+                </table-head>
+                <table-head class="h-auto py-2 px-4 w-16 font-bold text-right">
+                  Precip
+                </table-head>
+                <table-head class="h-auto py-2 px-4 w-20 font-bold text-right">
+                  AQI
+                </table-head>
+              </table-row>
+            </table-header>
+            <table-body>
+              <table-row
+                v-for="day in place.days"
+                :key="`${place.kind}-${day.date}`">
+                <table-cell class="py-2 px-4 text-sm">
+                  <div class="flex items-center gap-2">
+                    <component
+                      :is="iconFor(day.weatherCode)"
+                      class="w-5 h-5 text-primary shrink-0" />
+                    <span>{{ formatDay(day.date) }}</span>
+                  </div>
+                </table-cell>
+                <table-cell class="py-2 px-4 tabular-nums text-sm text-right">
+                  {{ Math.round(day.high) }}{{ unitSymbol }} / {{ Math.round(day.low) }}{{ unitSymbol }}
+                </table-cell>
+                <table-cell class="py-2 px-4 w-16 tabular-nums text-muted-foreground text-sm text-right">
+                  {{ day.precipChance != null ? `${Math.round(day.precipChance)}%` : '—' }}
+                </table-cell>
+                <table-cell
+                  class="py-2 px-4 w-20 tabular-nums text-sm text-right"
+                  :class="day.airQuality ? aqiClass(day.airQuality) : 'text-muted-foreground'">
+                  {{ day.airQuality ? day.airQuality.aqi : '—' }}
+                </table-cell>
+              </table-row>
+            </table-body>
+          </table-root>
+        </div>
       </div>
     </div>
     <typography
       v-if="weather?.status === 'forecast'"
-      class="mt-3"
+      class="mt-4 text-right text-xs text-muted-foreground"
       variant="muted">
       {{ OPEN_METEO_ATTRIBUTION }}
     </typography>

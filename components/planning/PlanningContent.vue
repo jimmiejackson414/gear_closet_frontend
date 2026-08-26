@@ -1,6 +1,5 @@
 <script lang='ts' setup>
   const $store = usePlanningStore();
-  const weatherHasForecast = ref(false);
 </script>
 
 <template>
@@ -20,35 +19,25 @@
 
         <!-- Hike Details -->
         <hike-details-widget />
+
+        <div
+          v-if="$store.selectedTrip"
+          data-testid="planning-weather-slot">
+          <trip-weather-widget :trip-id="$store.selectedTrip.id" />
+        </div>
       </div>
 
       <div
         class="flex flex-col gap-6"
         data-testid="planning-sidebar">
-        <div class="order-1">
-          <trip-friends-widget />
-        </div>
-        <div
-          v-if="$store.selectedTrip"
-          :class="weatherHasForecast ? 'order-2' : 'order-4'"
-          data-testid="planning-weather-slot">
-          <trip-weather-widget
-            v-model:has-forecast="weatherHasForecast"
-            :trip-id="$store.selectedTrip.id" />
-        </div>
-        <div
-          :class="weatherHasForecast ? 'order-3' : 'order-2'"
-          data-testid="planning-todos-slot">
+        <trip-friends-widget />
+        <div data-testid="planning-todos-slot">
           <todos-widget />
         </div>
-        <div
-          :class="weatherHasForecast ? 'order-4' : 'order-3'"
-          data-testid="planning-shopping-slot">
+        <div data-testid="planning-shopping-slot">
           <shopping-list-widget />
         </div>
-        <div class="order-5">
-          <poll-widget />
-        </div>
+        <poll-widget />
       </div>
     </div>
   </div>

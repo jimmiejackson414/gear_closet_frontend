@@ -325,14 +325,17 @@ export const usePlanningStore = defineStore('planning', () => {
           completed: false,
           profile_id: user.value?.sub as string,
           resource_type: resourceType,
-          title: 'New todo',
+          title: null,
           trip_id: Number(selectedTripId.value),
         })
         .select();
 
       if (newTodo?.length && !error) {
         const todo = newTodo[0];
-        if (todo) data.value.todos.push(todo);
+        if (todo) {
+          data.value.todos.push(todo);
+          return todo;
+        }
       } else if (error) {
         $appStore.notifyNegative(error.message || 'There was an error creating a new todo.');
       }
@@ -361,6 +364,29 @@ export const usePlanningStore = defineStore('planning', () => {
       }
     } catch {
       $appStore.notifyNegative('There was an error updating the todo.');
+    }
+  };
+
+  const deleteTodo = async (id: number) => {
+    const $appStore = useAppStore();
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const { error } = await supabase.from('todos')
+        .delete()
+        .eq('id', id);
+
+      if (!error) {
+        const index = data.value.todos.findIndex((todo) => todo.id === id);
+        if (index !== -1) {
+          data.value.todos.splice(index, 1);
+        }
+        return true;
+      }
+      $appStore.notifyNegative(error.message || 'There was an error deleting the todo.');
+      return false;
+    } catch {
+      $appStore.notifyNegative('There was an error deleting the todo.');
+      return false;
     }
   };
 
@@ -400,14 +426,17 @@ export const usePlanningStore = defineStore('planning', () => {
           profile_id: user.value?.sub as string,
           quantity: 1,
           resource_type: resourceType,
-          title: 'New shopping item',
+          title: null,
           trip_id: Number(selectedTripId.value),
         })
         .select();
 
       if (newItem?.length && !error) {
         const item = newItem[0];
-        if (item) data.value.shopping_items.push(item);
+        if (item) {
+          data.value.shopping_items.push(item);
+          return item;
+        }
       } else if (error) {
         $appStore.notifyNegative(error.message || 'There was an error creating a new shopping item.');
       }
@@ -439,6 +468,29 @@ export const usePlanningStore = defineStore('planning', () => {
       }
     } catch {
       $appStore.notifyNegative('There was an error updating the shopping item.');
+    }
+  };
+
+  const deleteShoppingItem = async (id: number) => {
+    const $appStore = useAppStore();
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const { error } = await supabase.from('shopping_list_items')
+        .delete()
+        .eq('id', id);
+
+      if (!error) {
+        const index = data.value.shopping_items.findIndex((item) => item.id === id);
+        if (index !== -1) {
+          data.value.shopping_items.splice(index, 1);
+        }
+        return true;
+      }
+      $appStore.notifyNegative(error.message || 'There was an error deleting the shopping item.');
+      return false;
+    } catch {
+      $appStore.notifyNegative('There was an error deleting the shopping item.');
+      return false;
     }
   };
 
@@ -476,6 +528,8 @@ export const usePlanningStore = defineStore('planning', () => {
     createTripDetail,
     data,
     deleteSelectedTrip,
+    deleteShoppingItem,
+    deleteTodo,
     deleteTripDetail,
     fetchGeneration,
     fetchPlanningPage,

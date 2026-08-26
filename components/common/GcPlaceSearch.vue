@@ -83,7 +83,9 @@
     model.value = text;
     if (pickedLabel.value && text !== pickedLabel.value) {
       pickedLabel.value = null;
-      emit('select', null);
+      if (props.variant === 'form') {
+        emit('select', null);
+      }
     }
     search(text);
   };
@@ -100,6 +102,12 @@
     didFinish.value = true;
   };
 
+  const captureEditBaseline = () => {
+    const baseline = (model.value ?? '').trim() || null;
+    pickedLabel.value = baseline;
+    query.value = model.value ?? '';
+  };
+
   const finishEditing = () => {
     if (didFinish.value) return;
     didFinish.value = true;
@@ -107,8 +115,9 @@
     if (props.variant === 'inline') {
       editing.value = false;
     }
-    if (!pickedLabel.value || query.value !== pickedLabel.value) {
-      emit('commit', query.value.trim());
+    const trimmed = query.value.trim();
+    if (!pickedLabel.value || trimmed !== pickedLabel.value) {
+      emit('commit', trimmed);
     }
   };
 
@@ -117,6 +126,9 @@
     clearFinishTimer();
     didFinish.value = false;
     editing.value = true;
+    if (props.variant === 'inline' && pickedLabel.value == null) {
+      pickedLabel.value = (model.value ?? '').trim() || null;
+    }
     if (query.value.trim().length >= 2) {
       search(query.value);
     }
@@ -126,6 +138,7 @@
     if (props.disabled) return;
     clearFinishTimer();
     didFinish.value = false;
+    captureEditBaseline();
     editing.value = true;
     nextTick(() => {
       inputRef.value?.focusInput();
@@ -150,16 +163,22 @@
 
   const showInput = computed(() => props.variant === 'form' || editing.value);
   const displayValue = computed(() => model.value || props.placeholder);
+  const rootClass = computed(() => {
+    if (props.variant === 'inline') {
+      return showInput.value ? 'relative w-auto max-w-full min-w-48' : 'relative w-auto max-w-full';
+    }
+    return 'relative w-full';
+  });
 </script>
 
 <template>
   <div
     ref="rootRef"
-    class="relative w-full"
+    :class="rootClass"
     data-testid="place-search">
     <button
       v-if="variant === 'inline' && !showInput"
-      class="w-full text-left"
+      class="text-left"
       data-testid="place-search-trigger"
       :disabled="disabled"
       type="button"

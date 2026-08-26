@@ -36,22 +36,60 @@
   const updateTrip = (payload: TablesUpdate<'trips'>) => $store.updateTrip(payload);
 
   const saveOrigin = (place: PlaceSuggestion | null, label?: string) => {
-    const coords = coordsFromPlace(place);
+    const trip = $store.selectedTrip;
+    if (!trip) return;
+
+    if (place) {
+      const coords = coordsFromPlace(place);
+      updateTrip({
+        origin_lat: coords.lat,
+        origin_lng: coords.lng,
+        origin_place_id: coords.placeId,
+        starting_point: placeShortName(place),
+      });
+      return;
+    }
+
+    if (label === undefined) return;
+
+    const nextLabel = label.trim();
+    const currentLabel = trip.starting_point?.trim() ?? '';
+    if (nextLabel === currentLabel) return;
+
     updateTrip({
-      origin_lat: coords.lat,
-      origin_lng: coords.lng,
-      origin_place_id: coords.placeId,
-      starting_point: place ? placeShortName(place) : (label ?? $store.selectedTrip?.starting_point),
+      origin_lat: null,
+      origin_lng: null,
+      origin_place_id: null,
+      starting_point: nextLabel || null,
     });
   };
 
   const saveDestination = (place: PlaceSuggestion | null, label?: string) => {
-    const coords = coordsFromPlace(place);
+    const trip = $store.selectedTrip;
+    if (!trip) return;
+
+    if (place) {
+      const coords = coordsFromPlace(place);
+      updateTrip({
+        destination_lat: coords.lat,
+        destination_lng: coords.lng,
+        destination_place_id: coords.placeId,
+        ending_point: placeShortName(place),
+      });
+      return;
+    }
+
+    if (label === undefined) return;
+
+    const nextLabel = label.trim();
+    const currentLabel = trip.ending_point?.trim() ?? '';
+    if (nextLabel === currentLabel) return;
+
     updateTrip({
-      destination_lat: coords.lat,
-      destination_lng: coords.lng,
-      destination_place_id: coords.placeId,
-      ending_point: place ? placeShortName(place) : (label ?? $store.selectedTrip?.ending_point),
+      destination_lat: null,
+      destination_lng: null,
+      destination_place_id: null,
+      ending_point: nextLabel || null,
     });
   };
 </script>
@@ -76,7 +114,7 @@
     </div>
     <gc-skeleton v-if="$store.pageLoading" />
     <div v-else>
-      <div class="flex sm:flex-row flex-col sm:items-center gap-2 sm:gap-6">
+      <div class="flex sm:flex-row flex-col sm:flex-wrap sm:items-center gap-x-3 gap-y-2">
         <gc-place-search
           :disabled="!$store.canEditSelectedTrip"
           :model-value="$store.selectedTrip?.starting_point"
