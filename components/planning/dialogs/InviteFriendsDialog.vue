@@ -11,10 +11,13 @@
     tripFriendStatusVariant,
     type FriendSelectOption,
   } from '@/utils/tripFriends';
+  import { parsePositiveTripId } from '@/utils/trips';
   import type { SelectOption } from '@/types/ui';
 
   interface Props {
     isOpen: boolean;
+    tripId?: number | null;
+    tripName?: string | null;
   }
 
   const props = defineProps<Props>();
@@ -44,6 +47,13 @@
       emails.add(email);
     }
     return emails;
+  });
+
+  const pinnedTripId = ref<number | null>(null);
+
+  const inviteHeading = computed(() => {
+    const name = props.tripName?.trim();
+    return name ? `Invite to ${name}` : 'Invite to trip';
   });
 
   const canSubmit = computed(() =>
@@ -139,11 +149,16 @@
   const inviteFriends = async () => {
     if (!canSubmit.value) return;
 
+    const tripId = pinnedTripId.value ?? parsePositiveTripId(props.tripId);
+    if (tripId == null) {
+      $appStore.notifyNegative('Select a trip before inviting friends.');
+      return;
+    }
+
     try {
       submitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const user = useSupabaseUser();
-      const tripId = Number($store.selectedTripId);
       let invitedFriendsOk = false;
 
       if (friendsToInvite.value.length) {
@@ -199,9 +214,19 @@
     }
   };
 
-  watch(() => props.isOpen, (open) => {
-    if (!open) resetForm();
-  });
+  watch(
+    () => ({ open: props.isOpen, tripId: props.tripId }),
+    ({ open, tripId }) => {
+      if (!open) {
+        resetForm();
+        pinnedTripId.value = null;
+        return;
+      }
+      const parsed = parsePositiveTripId(tripId);
+      if (parsed != null) pinnedTripId.value = parsed;
+    },
+    { immediate: true },
+  );
 </script>
 
 <template>
@@ -212,7 +237,7 @@
       @interact-outside="handleClose">
       <dialog-header>
         <dialog-title>
-          Invite to trip
+          {{ inviteHeading }}
         </dialog-title>
         <dialog-description>
           Friends on your list get an in-app invite. Anyone else can be invited by email — they'll get a link to join even if they don't have an account yet.

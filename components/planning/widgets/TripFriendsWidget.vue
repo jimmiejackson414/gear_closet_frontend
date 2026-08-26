@@ -1,5 +1,7 @@
 <script lang='ts' setup>
   import { tripFriendStatusLabel, tripFriendStatusVariant } from '@/utils/tripFriends';
+  import { parsePositiveTripId } from '@/utils/trips';
+  import type { PendingTripInvite } from '@/types/planning';
 
   const $store = usePlanningStore();
   const $appStore = useAppStore();
@@ -7,7 +9,26 @@
   const pageLoading = toRef($store, 'pageLoading');
 
   const isInviteModalOpen = ref(false);
+  const inviteTripId = ref<number | null>(null);
+  const inviteTripName = ref<string | null>(null);
   const resendingEmail = ref<string | null>(null);
+
+  const openInviteDialog = () => {
+    const id = parsePositiveTripId($store.selectedTrip?.id ?? $store.selectedTripId);
+    if (id == null) {
+      $appStore.notifyNegative('Select a trip before inviting friends.');
+      return;
+    }
+    inviteTripId.value = id;
+    inviteTripName.value = $store.selectedTrip?.name ?? null;
+    isInviteModalOpen.value = true;
+  };
+
+  const closeInviteDialog = () => {
+    isInviteModalOpen.value = false;
+    inviteTripId.value = null;
+    inviteTripName.value = null;
+  };
 
   const canInvite = computed(() =>
     !pageLoading.value && $store.canEditSelectedTrip);
@@ -22,9 +43,11 @@
   const isViewingFriendPack = (profileId: string) =>
     $store.viewedPackProfileId === profileId;
 
-  const resendInvite = async (email: string) => {
-    const tripId = Number($store.selectedTripId);
-    if (!tripId || resendingEmail.value) return;
+  const resendInvite = async (invite: PendingTripInvite) => {
+    const tripId = parsePositiveTripId(invite.trip_id)
+      ?? parsePositiveTripId($store.selectedTrip?.id ?? $store.selectedTripId);
+    if (tripId == null || resendingEmail.value) return;
+    const email = invite.email;
 
     try {
       resendingEmail.value = email;
@@ -63,7 +86,7 @@
         data-testid="trip-friends-invite"
         size="icon"
         type="button"
-        @click="isInviteModalOpen = true">
+        @click="openInviteDialog">
         <icon-plus aria-hidden="true" />
       </button-root>
     </div>
@@ -83,7 +106,7 @@
         data-testid="trip-friends-empty-invite"
         size="sm"
         variant="outline"
-        @click="isInviteModalOpen = true">
+        @click="openInviteDialog">
         Invite Friends
       </button-root>
     </gc-empty-state>
@@ -155,7 +178,7 @@
               size="sm"
               type="button"
               variant="outline"
-              @click="resendInvite(invite.email)">
+              @click="resendInvite(invite)">
               Resend
             </button-root>
           </div>
@@ -167,5 +190,7 @@
   <!-- Invite Friends Modal -->
   <lazy-invite-friends-dialog
     :is-open="isInviteModalOpen"
-    @on-close="isInviteModalOpen = false" />
+    :trip-id="inviteTripId"
+    :trip-name="inviteTripName"
+    @on-close="closeInviteDialog" />
 </template>

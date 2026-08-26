@@ -1,5 +1,5 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import InviteFriendsDialog from '@/components/planning/dialogs/InviteFriendsDialog.vue';
 import { tripFriends, trips } from '@/tests/unit/mocks/planning.mock';
 import {
@@ -7,6 +7,7 @@ import {
   createThenableQuery,
 } from '@/tests/unit/mocks/supabase.mock';
 import { testMountGlobals } from './helpers';
+import type { VueWrapper } from '@vue/test-utils';
 
 vi.mock('@/components/ui/toast', () => ({
   useToast: () => ({ toast: vi.fn() }),
@@ -50,6 +51,8 @@ const planningState = {
 };
 
 describe('InviteFriendsDialog', () => {
+  let wrapper: VueWrapper<unknown> | undefined;
+
   beforeEach(() => {
     supabaseUser.value = { sub: '61b66be5-d199-48d5-898a-c521dd6b59cc' };
     fetchMock.mockReset();
@@ -81,15 +84,25 @@ describe('InviteFriendsDialog', () => {
     });
   });
 
+  afterEach(() => {
+    wrapper?.unmount();
+    wrapper = undefined;
+    document.body.innerHTML = '';
+  });
+
   it('renders friend search and an email field', async () => {
-    await mountSuspended(InviteFriendsDialog, {
+    wrapper = await mountSuspended(InviteFriendsDialog, {
       attachTo: document.body,
       global: testMountGlobals({ planning: planningState }),
-      props: { isOpen: true },
+      props: {
+        isOpen: true,
+        tripId: trips[0]!.id,
+        tripName: trips[0]!.name,
+      },
     });
 
     expect(document.body.textContent)
-      .toContain('Invite to trip');
+      .toContain('Invite to My first trip');
     expect(document.body.textContent)
       .toContain('in-app invite');
     expect(document.body.querySelector('input[type="email"]'))
@@ -99,10 +112,14 @@ describe('InviteFriendsDialog', () => {
   });
 
   it('marks friends already on the trip as disabled', async () => {
-    const wrapper = await mountSuspended(InviteFriendsDialog, {
+    wrapper = await mountSuspended(InviteFriendsDialog, {
       attachTo: document.body,
       global: testMountGlobals({ planning: planningState }),
-      props: { isOpen: true },
+      props: {
+        isOpen: true,
+        tripId: trips[0]!.id,
+        tripName: trips[0]!.name,
+      },
     });
     const select = wrapper.findComponent({ name: 'Multiselect' });
 
@@ -121,10 +138,14 @@ describe('InviteFriendsDialog', () => {
   });
 
   it('posts emails to the server invite API and shows generic success copy', async () => {
-    const wrapper = await mountSuspended(InviteFriendsDialog, {
+    wrapper = await mountSuspended(InviteFriendsDialog, {
       attachTo: document.body,
       global: testMountGlobals({ planning: planningState }),
-      props: { isOpen: true },
+      props: {
+        isOpen: true,
+        tripId: trips[0]!.id,
+        tripName: trips[0]!.name,
+      },
     });
 
     const emailInput = document.body.querySelector('input[type="email"]') as HTMLInputElement;
@@ -155,5 +176,50 @@ describe('InviteFriendsDialog', () => {
     expect(document.body.textContent)
       .not
       .toMatch(/no account found|account exists/i);
+  });
+
+  it('posts to the trip passed in as a prop, not the store selectedTripId', async () => {
+    wrapper = await mountSuspended(InviteFriendsDialog, {
+      attachTo: document.body,
+      global: testMountGlobals({
+        planning: {
+          ...planningState,
+          selectedTripId: String(trips[0]!.id),
+        },
+      }),
+      props: {
+        isOpen: true,
+        tripId: trips[1]!.id,
+        tripName: trips[1]!.name,
+      },
+    });
+
+    expect(document.body.textContent)
+      .toContain('Invite to Appalachian Trail');
+
+    const emailInput = document.body.querySelector('input[type="email"]') as HTMLInputElement;
+    emailInput.value = 'pat@example.com';
+    emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+    await wrapper.vm.$nextTick();
+
+    (document.body.querySelector('[data-testid="invite-email-add"]') as HTMLButtonElement).click();
+    await wrapper.vm.$nextTick();
+    await vi.waitFor(() => {
+      expect(document.body.textContent)
+        .toContain('pat@example.com');
+    });
+
+    (document.body.querySelector('[data-testid="invite-submit"]') as HTMLButtonElement).click();
+
+    await vi.waitFor(() => {
+      expect(fetchMock)
+        .toHaveBeenCalledWith(`/api/trips/${trips[1]!.id}/invites`, {
+          body: { emails: ['pat@example.com'] },
+          method: 'POST',
+        });
+    });
+    expect(fetchMock)
+      .not
+      .toHaveBeenCalledWith(`/api/trips/${trips[0]!.id}/invites`, expect.anything());
   });
 });

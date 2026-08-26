@@ -214,6 +214,50 @@ describe('stores/planning', () => {
       expect(store.isRefreshing)
         .toBe(false);
     });
+
+    it('selects the requested trip even when payload ids are strings', async () => {
+      supabaseClient.current = createSupabaseMock({
+        rpc: () => Promise.resolve({
+          data: {
+            friends: [],
+            shopping_items: [],
+            todos: [],
+            trip_details: [],
+            trips: trips.map((trip) => ({ ...trip, id: String(trip.id) as unknown as number })),
+          },
+          error: null,
+        }),
+      });
+
+      const store = usePlanningStore();
+      await store.fetchPlanningPage(trips[1]!.id);
+
+      expect(store.selectedTripId)
+        .toBe(String(trips[1]!.id));
+    });
+
+    it('does not fall back to the first trip when the requested trip is missing', async () => {
+      supabaseClient.current = createSupabaseMock({
+        rpc: () => Promise.resolve({
+          data: {
+            friends: [],
+            shopping_items: [],
+            todos: [],
+            trip_details: [],
+            trips,
+          },
+          error: null,
+        }),
+      });
+
+      const store = usePlanningStore();
+      await store.fetchPlanningPage(99);
+
+      expect(store.selectedTripId)
+        .toBe('99');
+      expect(store.selectedTrip)
+        .toBeUndefined();
+    });
   });
 
   describe('updateTodo', () => {

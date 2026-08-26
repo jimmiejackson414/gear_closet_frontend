@@ -5,7 +5,7 @@
     isFreeCreateBlocked,
     LOCKED_RESOURCE_TIP,
   } from '@/utils/planLimits';
-  import { isTripLockedForUser, ownedTrips } from '@/utils/trips';
+  import { findTripById, isTripLockedForUser, ownedTrips, parsePositiveTripId } from '@/utils/trips';
   import type { Tables } from '@/types';
   import type { SelectOption } from '@/types/ui';
   import type { AcceptableValue } from 'reka-ui';
@@ -42,16 +42,18 @@
   const handleSelectTrip = async (value: AcceptableValue) => {
     if (value == null || value === '') return;
 
-    const tripId = Number(value);
-    const trip = $store.data.trips.find((t) => t.id === tripId);
+    const tripId = parsePositiveTripId(value);
+    if (tripId == null) return;
+
+    const trip = findTripById($store.data.trips, tripId);
     if (isTripLockedForUser(trip, userId.value, $userStore.isPaidMember)) {
       $appStore.notifyNegative(LOCKED_RESOURCE_TIP);
       return;
     }
 
     const cookie = useCookie('selectedTripId');
-    cookie.value = encrypt(String(value));
-    $store.selectedTripId = String(value);
+    cookie.value = encrypt(String(tripId));
+    $store.selectedTripId = String(tripId);
 
     if ($route.query.trip != null) {
       const nextQuery = { ...$route.query };
@@ -71,7 +73,6 @@
   <div class="flex flex-wrap justify-between lg:justify-end items-center gap-3 sm:gap-6 mb-8">
     <div class="flex justify-center items-center gap-3 sm:gap-4 min-w-0">
       <select-root
-        :default-value="String($store.selectedTripId)"
         :model-value="$store.selectedTripId"
         @update:model-value="handleSelectTrip">
         <select-trigger class="min-w-0 w-40 sm:min-w-45 sm:w-auto">

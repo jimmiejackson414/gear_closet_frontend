@@ -44,6 +44,18 @@ describe('Planning Page', async () => {
         .toEqual(trips.map(trip => String(trip.id)));
     });
 
+    it('keeps the trip select controlled by selectedTripId', async () => {
+      const store = usePlanningStore();
+      store.$patch({ data: { trips }, selectedTripId: String(trips[1]?.id) });
+      await wrapper.vm.$nextTick();
+
+      const select = wrapper.findComponent({ name: 'SelectRoot' });
+      expect(select.props('modelValue'))
+        .toBe(String(trips[1]?.id));
+      expect(select.props('defaultValue'))
+        .toBeUndefined();
+    });
+
     it('disables New Trip button when isPaidMember is false and data.trips length is greater than or equal to 1', async () => {
       const store = usePlanningStore();
       const userStore = useUserStore();

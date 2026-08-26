@@ -1,6 +1,6 @@
 <script lang="ts" setup>
   import { lockedDeepLinkMessage, resolveLockedFallback } from '@/utils/planLimits';
-  import { isTripLockedForUser } from '@/utils/trips';
+  import { findTripById, isTripLockedForUser, parsePositiveTripId } from '@/utils/trips';
 
   const $store = usePlanningStore();
   const $userStore = useUserStore();
@@ -17,12 +17,18 @@
   const resolveTripId = (): number => {
     const fromQuery = $route.query?.trip;
     if (fromQuery != null && fromQuery !== '') {
-      return Number(decrypt(fromQuery)) || 0;
+      return parsePositiveTripId(decrypt(fromQuery)) ?? 0;
     }
     if ($cookie.value) {
-      return Number(decrypt($cookie.value)) || 0;
+      return parsePositiveTripId(decrypt($cookie.value)) ?? 0;
     }
     return 0;
+  };
+
+  const persistSelectedTripCookie = () => {
+    const tripId = parsePositiveTripId($store.selectedTripId);
+    if (tripId == null) return;
+    $cookie.value = encrypt(String(tripId));
   };
 
   const hasTripQuery = () => $route.query.trip != null && $route.query.trip !== '';
@@ -41,7 +47,7 @@
   const fallbackFromLockedTrip = async (fromQuery: boolean) => {
     if ($userStore.isPaidMember) return;
 
-    const selected = $store.data.trips.find((t) => String(t.id) === $store.selectedTripId);
+    const selected = findTripById($store.data.trips, $store.selectedTripId);
     const fallback = resolveLockedFallback(
       selected,
       $store.data.trips,
@@ -64,6 +70,7 @@
   onMounted(async () => {
     await $store.fetchPlanningPage(resolveTripId());
     await fallbackFromLockedTrip(hasTripQuery());
+    persistSelectedTripCookie();
   });
 
   // Deep-link / browser navigation with ?trip= should refetch that trip.
@@ -72,9 +79,10 @@
     async (tripQuery, previous) => {
       if (tripQuery === previous) return;
       if (tripQuery == null || tripQuery === '') return;
-      const id = Number(decrypt(tripQuery)) || 0;
+      const id = parsePositiveTripId(decrypt(tripQuery)) ?? 0;
       await $store.fetchPlanningPage(id);
       await fallbackFromLockedTrip(true);
+      persistSelectedTripCookie();
     },
   );
 

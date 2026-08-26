@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 import { TripDetailsType } from '@/types';
 import { resolveLockedFallback } from '@/utils/planLimits';
 import {
+  findTripById,
   isOwnedTrip,
   isTripLockedForUser,
   ownedTrips,
+  parsePositiveTripId,
   STARTER_TRIP_DETAILS,
   starterDetailValue,
 } from '@/utils/trips';
@@ -14,6 +16,30 @@ const invited = { id: 2, locked_at: null, profile_id: 'them' };
 const lockedOwned = { id: 3, locked_at: '2026-01-01T00:00:00Z', profile_id: 'me' };
 
 describe('utils/trips', () => {
+  it('parses positive trip ids from numbers or numeric strings', () => {
+    expect(parsePositiveTripId(5))
+      .toBe(5);
+    expect(parsePositiveTripId('5'))
+      .toBe(5);
+    expect(parsePositiveTripId(0))
+      .toBeNull();
+    expect(parsePositiveTripId('not-a-trip'))
+      .toBeNull();
+  });
+
+  it('finds a trip by id without requiring matching types', () => {
+    const listed = [
+      { id: 2, name: 'First' },
+      { id: '5' as unknown as number, name: 'Fifth' },
+    ];
+    expect(findTripById(listed, 5)?.name)
+      .toBe('Fifth');
+    expect(findTripById(listed, '2')?.name)
+      .toBe('First');
+    expect(findTripById(listed, 99))
+      .toBeUndefined();
+  });
+
   it('detects owned vs invitee trips', () => {
     expect(isOwnedTrip(owned, 'me'))
       .toBe(true);
