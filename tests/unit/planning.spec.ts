@@ -8,7 +8,7 @@ import HikeDetailsWidget from '@/components/planning/widgets/HikeDetailsWidget.v
 import TripDetailsWidget from '@/components/planning/widgets/TripDetailsWidget.vue';
 import { usePlanningStore } from '@/stores/planning';
 import { TripDetailsType } from '@/types';
-import { isButtonDisabled, isDialogRootOpen, testMountGlobals } from './helpers';
+import { getMenuItemsFromBody, isButtonDisabled, isDialogRootOpen, openDropdownMenu, testMountGlobals } from './helpers';
 import { tripDetails, trips } from './mocks/planning.mock';
 
 describe('Planning Page', async () => {
@@ -116,6 +116,52 @@ describe('Planning Page', async () => {
         .find(b => b.text()
           .includes('New Trip'))!;
       expect(isButtonDisabled(newTripButton))
+        .toBe(false);
+    });
+
+    it('shows delete trip for the owner and hides it for an invitee', async () => {
+      wrapper.unmount();
+      wrapper = await mountSuspended(PlanningSettings, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            data: { trips },
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+          },
+          user: {
+            profile: { id: trips[0]?.profile_id },
+          },
+        }),
+      });
+
+      expect(wrapper.find('[data-testid="trip-actions"]')
+        .exists())
+        .toBe(true);
+
+      await openDropdownMenu(wrapper);
+      expect(getMenuItemsFromBody()
+        .some(item => item.textContent?.includes('Delete trip')))
+        .toBe(true);
+
+      wrapper.unmount();
+      document.body.innerHTML = '';
+      wrapper = await mountSuspended(PlanningSettings, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            data: { trips: trips.map(trip => ({ ...trip, profile_id: 'someone-else' })) },
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+          },
+          user: {
+            profile: { id: 'invitee-user' },
+          },
+        }),
+      });
+
+      expect(wrapper.find('[data-testid="trip-actions"]')
+        .exists())
         .toBe(false);
     });
   });

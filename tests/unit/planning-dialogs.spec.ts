@@ -1,8 +1,10 @@
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import DeletePollDialog from '@/components/planning/dialogs/DeletePollDialog.vue';
+import DeleteTripDialog from '@/components/planning/dialogs/DeleteTripDialog.vue';
 import ModifyPollDialog from '@/components/planning/dialogs/ModifyPollDialog.vue';
 import { usePlanningStore } from '@/stores/planning';
+import { trips } from '@/tests/unit/mocks/planning.mock';
 import { createSupabaseMock } from '@/tests/unit/mocks/supabase.mock';
 import { findBodyButton, isAlertDialogOpen, isDialogRootOpen, testMountGlobals } from './helpers';
 
@@ -120,5 +122,30 @@ describe('DeletePollDialog', () => {
       .toHaveBeenCalled();
     expect(isAlertDialogOpen(wrapper))
       .toBe(true);
+  });
+});
+
+describe('DeleteTripDialog', () => {
+  it('renders the selected trip name', async () => {
+    const wrapper = await mountSuspended(DeleteTripDialog, {
+      attachTo: document.body,
+      global: testMountGlobals({
+        planning: {
+          data: { trips },
+          selectedTripId: String(trips[0]!.id),
+        },
+      }),
+      props: { isOpen: true },
+    });
+
+    expect(isAlertDialogOpen(wrapper))
+      .toBe(true);
+    expect(document.body.textContent)
+      .toContain('Delete trip');
+    expect(document.body.textContent)
+      .toContain(trips[0]!.name);
+
+    wrapper.unmount();
+    document.body.innerHTML = '';
   });
 });

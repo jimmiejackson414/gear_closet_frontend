@@ -211,6 +211,31 @@ export const usePlanningStore = defineStore('planning', () => {
     }
   };
 
+  const deleteSelectedTrip = async () => {
+    const $appStore = useAppStore();
+    const tripId = parsePositiveTripId(selectedTripId.value);
+    if (tripId == null || !isSelectedTripOwner.value) {
+      $appStore.notifyNegative('There was an error deleting the trip.');
+      return false;
+    }
+
+    try {
+      const supabase = useSupabaseClient<Database>();
+      const { error } = await supabase.rpc('delete_trip', { p_trip_id: tripId });
+      if (error) {
+        $appStore.notifyNegative('There was an error deleting the trip.');
+        return false;
+      }
+
+      await fetchPlanningPage(0);
+      $appStore.notifyPositive('Trip deleted successfully.');
+      return true;
+    } catch {
+      $appStore.notifyNegative('There was an error deleting the trip.');
+      return false;
+    }
+  };
+
   const createTripDetail = async (payload: Pick<TablesInsert<'trip_details'>, 'title' | 'type' | 'value' | 'url'>) => {
     const $appStore = useAppStore();
     try {
@@ -450,6 +475,7 @@ export const usePlanningStore = defineStore('planning', () => {
     createTodo,
     createTripDetail,
     data,
+    deleteSelectedTrip,
     deleteTripDetail,
     fetchGeneration,
     fetchPlanningPage,

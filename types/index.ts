@@ -1355,6 +1355,7 @@ export type Database = {
         Args: { answers: string[]; question: string; trip_id: number }
         Returns: Json
       }
+      delete_trip: { Args: { p_trip_id: number }; Returns: undefined }
       get_closet_page_data: { Args: { p_pack_id: number }; Returns: Json }
       get_dashboard_data: { Args: never; Returns: Json }
       get_planning_page_data: { Args: { p_trip_id: number }; Returns: Json }

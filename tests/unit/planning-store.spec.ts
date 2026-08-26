@@ -431,6 +431,77 @@ describe('stores/planning', () => {
     });
   });
 
+  describe('deleteSelectedTrip', () => {
+    it('does not delete when the user does not own the trip', async () => {
+      const rpc = vi.fn();
+      supabaseClient.current = createSupabaseMock({ rpc });
+
+      const store = usePlanningStore();
+      store.data.trips = [{ ...trips[0]!, profile_id: 'someone-else' }];
+      store.selectedTripId = String(trips[0]!.id);
+
+      const ok = await store.deleteSelectedTrip();
+      expect(ok)
+        .toBe(false);
+      expect(rpc)
+        .not
+        .toHaveBeenCalled();
+    });
+
+    it('deletes the owned trip and loads the remaining list', async () => {
+      const rpc = vi.fn((fn: string) => {
+        if (fn === 'delete_trip') return Promise.resolve({ data: null, error: null });
+        return Promise.resolve({
+          data: {
+            friends: [],
+            shopping_items: [],
+            todos: [],
+            trip_details: [],
+            trips: [trips[1]],
+          },
+          error: null,
+        });
+      });
+      supabaseClient.current = createSupabaseMock({ rpc });
+
+      const store = usePlanningStore();
+      store.pageLoading = false;
+      store.data.trips = [...trips];
+      store.selectedTripId = String(trips[0]!.id);
+
+      const ok = await store.deleteSelectedTrip();
+      expect(ok)
+        .toBe(true);
+      expect(rpc)
+        .toHaveBeenCalledWith('delete_trip', { p_trip_id: trips[0]!.id });
+      expect(store.selectedTripId)
+        .toBe(String(trips[1]!.id));
+    });
+
+    it('toasts and skips refetch when the rpc fails', async () => {
+      const rpc = vi.fn((fn: string) => {
+        if (fn === 'delete_trip') {
+          return Promise.resolve({ data: null, error: { message: 'nope' } });
+        }
+        return Promise.resolve({ data: { trips }, error: null });
+      });
+      supabaseClient.current = createSupabaseMock({ rpc });
+
+      const store = usePlanningStore();
+      store.pageLoading = false;
+      store.data.trips = [...trips];
+      store.selectedTripId = String(trips[0]!.id);
+
+      const ok = await store.deleteSelectedTrip();
+      expect(ok)
+        .toBe(false);
+      expect(store.selectedTripId)
+        .toBe(String(trips[0]!.id));
+      expect(rpc.mock.calls.some(call => call[0] === 'get_planning_page_data'))
+        .toBe(false);
+    });
+  });
+
   describe('viewTripPack', () => {
     it('toggles a friend pack and resets when the selected trip changes', () => {
       const store = usePlanningStore();
