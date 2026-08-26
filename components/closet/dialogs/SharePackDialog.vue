@@ -10,11 +10,13 @@
   const isPrivatePack = computed(() => Boolean($store.data.selectedPack?.private));
   const packName = computed(() => $store.data.selectedPack?.name ?? 'this pack');
 
-  const copyTooltip = {
+  const copyTooltip = computed(() => ({
     appendTo: () => document.body,
-    content: 'Copy link to clipboard',
+    content: isPrivatePack.value
+      ? 'Make the pack public before copying a share link'
+      : 'Copy link to clipboard',
     placement: 'top' as const,
-  };
+  }));
 
   const copyToClipboard = () => {
     copy(shareLink.value);
@@ -39,8 +41,14 @@
           Share your pack
         </dialog-title>
         <dialog-description>
-          Anyone with this link can view {{ packName }} — no account required. They will see a
-          read-only pack list and can sign in to leave comments if you allow them.
+          <template v-if="isPrivatePack">
+            Turn off Private in pack settings to give anyone a read-only link without signing in.
+            Signed-in trip members who already have access can still open this URL.
+          </template>
+          <template v-else>
+            Anyone with this link can view {{ packName }} — no account required. They will see a
+            read-only pack list and can sign in to leave comments if you allow them.
+          </template>
         </dialog-description>
       </dialog-header>
       <div class="flex flex-col gap-4">
@@ -51,8 +59,7 @@
             {{ packName }} is private
           </p>
           <p class="mt-1 text-muted-foreground">
-            This link will not work for most people. Turn off Private in pack settings to share
-            the list publicly, or only send the link to trip members who already have access.
+            Turn off Private in pack settings to share the list publicly, or only send the link to trip members who already have access.
           </p>
         </div>
         <div class="flex items-end gap-4 w-full">
@@ -70,6 +77,7 @@
             v-tippy="copyTooltip"
             aria-label="Copy link to clipboard"
             class="flex justify-center justify-self-end items-center mb-2 rounded-full w-8 h-8 transition duration-150 ease-out cursor-pointer"
+            :disabled="isPrivatePack"
             @click="copyToClipboard">
             <icon-copy class="w-6 h-6 transition duration-150 ease-out cursor-pointer" />
           </button-root>

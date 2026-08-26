@@ -1,3 +1,4 @@
+import { ref } from 'vue';
 import { mockNuxtImport, mountSuspended } from '@nuxt/test-utils/runtime';
 import { type VueWrapper } from '@vue/test-utils';
 import convert from 'convert';
@@ -535,7 +536,12 @@ describe('Closet Page', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(ManagePackSettingsDialog, {
         attachTo: document.body,
-        global: testMountGlobals(),
+        global: {
+          ...testMountGlobals(closetWithPacks),
+          provide: {
+            dialogMode: ref<'create' | 'update'>('update'),
+          },
+        },
       });
     });
 
@@ -565,6 +571,20 @@ describe('Closet Page', async () => {
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(false);
+    });
+
+    it('reflects private and allow_comments from the selected pack', async () => {
+      const store = useClosetStore();
+      store.dialogStates.managePackSettingsDialog = true;
+      await wrapper.vm.$nextTick();
+
+      const switches = document.body.querySelectorAll('[role="switch"]');
+      expect(switches)
+        .toHaveLength(2);
+      expect(switches[0]?.getAttribute('data-state'))
+        .toBe('checked');
+      expect(switches[1]?.getAttribute('data-state'))
+        .toBe('checked');
     });
   });
 
@@ -720,6 +740,9 @@ describe('Closet Page', async () => {
 
     it('builds a public share link from the selected pack slug', async () => {
       const store = useClosetStore();
+      if (store.data.selectedPack) {
+        store.data.selectedPack.private = false;
+      }
       store.dialogStates.sharePackDialog = true;
       await wrapper.vm.$nextTick();
 
@@ -742,6 +765,9 @@ describe('Closet Page', async () => {
         .toContain('is private');
       expect(document.body.textContent)
         .toContain('Turn off Private in pack settings');
+      const copyButton = document.body.querySelector('button[aria-label="Copy link to clipboard"]') as HTMLButtonElement;
+      expect(copyButton?.disabled)
+        .toBe(true);
     });
 
     it('closes the dialog correctly', async () => {
