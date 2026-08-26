@@ -107,6 +107,37 @@ describe('TripWeatherWidget', () => {
     wrapper.unmount();
   });
 
+  it('shows column headers for the forecast table', async () => {
+    const wrapper = await mountSuspended(TripWeatherWidget, {
+      global: testMountGlobals({
+        planning: {
+          data: {
+            trips: [{
+              ...trips[0]!,
+              origin_lat: 34.6265,
+              origin_lng: -84.1938,
+              starting_date: '2026-08-30T00:00:00Z',
+              starting_point: 'Springer Mountain',
+            }],
+          },
+          selectedTripId: String(trips[0]!.id),
+        },
+      }),
+      props: { tripId: trips[0]!.id },
+    });
+
+    await vi.waitFor(() => {
+      expect(wrapper.text())
+        .toContain('Day');
+    });
+    expect(wrapper.text())
+      .toContain('Precip');
+    expect(wrapper.text())
+      .toContain('AQI');
+
+    wrapper.unmount();
+  });
+
   it('does not fetch weather until a starting date is selected', async () => {
     const wrapper = await mountSuspended(TripWeatherWidget, {
       global: testMountGlobals({

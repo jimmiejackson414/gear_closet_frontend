@@ -12,10 +12,16 @@
     return $store.data.todos.filter(t => t.resource_type === ResourceType.GROUP);
   });
 
-  const createTodo = () => $store.createTodo(activeTab.value);
+  const pendingTitleEditId = ref<number | null>(null);
+
+  const createTodo = async () => {
+    const todo = await $store.createTodo(activeTab.value);
+    pendingTitleEditId.value = todo?.id ?? null;
+  };
   const updateTodo = (todo: Tables<'todos'>, payload: Parameters<typeof $store.updateTodo>[1]) => {
     return $store.updateTodo(todo, payload);
   };
+  const deleteTodo = (todo: Tables<'todos'>) => $store.deleteTodo(todo.id);
   const batchUpdateTodos = (completed: boolean | 'indeterminate', resourceType: ResourceType) => {
     return $store.batchUpdateTodos(completed, resourceType);
   };
@@ -79,24 +85,46 @@
                   <table-head class="font-bold">
                     Title
                   </table-head>
+                  <table-head class="w-10 pr-0">
+                    <span class="sr-only">Actions</span>
+                  </table-head>
                 </table-row>
               </table-header>
               <table-body>
                 <table-row
                   v-for="todo in userTodos"
-                  :key="todo.id">
-                  <table-cell>
+                  :key="todo.id"
+                  class="group">
+                  <table-cell class="py-2 px-4">
                     <checkbox
                       :checked="todo.completed"
                       @update:checked="updateTodo(todo, { completed: $event })" />
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="py-2 px-4">
                     <gc-inline-edit
                       :model-value="todo.title ?? undefined"
                       name="title"
-                      @update:model-value="updateTodo(todo, { title: $event as string })">
-                      {{ todo.title }}
+                      placeholder="New todo"
+                      :start-editing="todo.id === pendingTitleEditId"
+                      @update:model-value="updateTodo(todo, { title: $event as string | null })">
+                      <span :class="todo.completed ? 'line-through text-muted-foreground' : undefined">
+                        {{ todo.title }}
+                      </span>
                     </gc-inline-edit>
+                  </table-cell>
+                  <table-cell class="py-2 px-4 w-10 pr-0 text-right">
+                    <button-root
+                      aria-label="Delete todo"
+                      class="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 rounded-full"
+                      data-testid="delete-todo"
+                      size="icon"
+                      type="button"
+                      variant="ghost"
+                      @click="deleteTodo(todo)">
+                      <icon-trash
+                        aria-hidden="true"
+                        class="h-4 w-4" />
+                    </button-root>
                   </table-cell>
                 </table-row>
               </table-body>
@@ -123,24 +151,46 @@
                   <table-head class="font-bold">
                     Title
                   </table-head>
+                  <table-head class="w-10 pr-0">
+                    <span class="sr-only">Actions</span>
+                  </table-head>
                 </table-row>
               </table-header>
               <table-body>
                 <table-row
                   v-for="todo in groupTodos"
-                  :key="todo.id">
-                  <table-cell>
+                  :key="todo.id"
+                  class="group">
+                  <table-cell class="py-2 px-4">
                     <checkbox
                       :checked="todo.completed"
                       @update:checked="updateTodo(todo, { completed: $event })" />
                   </table-cell>
-                  <table-cell>
+                  <table-cell class="py-2 px-4">
                     <gc-inline-edit
                       :model-value="todo.title ?? undefined"
                       name="title"
-                      @update:model-value="updateTodo(todo, { title: $event as string })">
-                      {{ todo.title }}
+                      placeholder="New todo"
+                      :start-editing="todo.id === pendingTitleEditId"
+                      @update:model-value="updateTodo(todo, { title: $event as string | null })">
+                      <span :class="todo.completed ? 'line-through text-muted-foreground' : undefined">
+                        {{ todo.title }}
+                      </span>
                     </gc-inline-edit>
+                  </table-cell>
+                  <table-cell class="py-2 px-4 w-10 pr-0 text-right">
+                    <button-root
+                      aria-label="Delete todo"
+                      class="opacity-100 sm:opacity-0 sm:group-hover:opacity-100 rounded-full"
+                      data-testid="delete-todo"
+                      size="icon"
+                      type="button"
+                      variant="ghost"
+                      @click="deleteTodo(todo)">
+                      <icon-trash
+                        aria-hidden="true"
+                        class="h-4 w-4" />
+                    </button-root>
                   </table-cell>
                 </table-row>
               </table-body>

@@ -5,11 +5,13 @@ import ModifyDetailDialog from '@/components/planning/dialogs/ModifyDetailDialog
 import PlanningEmptyState from '@/components/planning/PlanningEmptyState.vue';
 import PlanningSettings from '@/components/planning/PlanningSettings.vue';
 import HikeDetailsWidget from '@/components/planning/widgets/HikeDetailsWidget.vue';
+import ShoppingListWidget from '@/components/planning/widgets/ShoppingListWidget.vue';
+import TodosWidget from '@/components/planning/widgets/TodosWidget.vue';
 import TripDetailsWidget from '@/components/planning/widgets/TripDetailsWidget.vue';
 import { usePlanningStore } from '@/stores/planning';
 import { TripDetailsType } from '@/types';
 import { getMenuItemsFromBody, isButtonDisabled, isDialogRootOpen, openDropdownMenu, testMountGlobals } from './helpers';
-import { tripDetails, trips } from './mocks/planning.mock';
+import { todos, tripDetails, trips } from './mocks/planning.mock';
 
 describe('Planning Page', async () => {
   describe('PlanningSettings.vue', async () => {
@@ -271,6 +273,42 @@ describe('Planning Page', async () => {
         .toBe('Ending point');
     });
 
+    it('does not clear origin coords when the starting point edit is cancelled unchanged', async () => {
+      vi.useFakeTimers();
+      const store = usePlanningStore();
+      const userStore = useUserStore();
+      const tripWithCoords = {
+        ...trips[0]!,
+        origin_lat: 48.88,
+        origin_lng: -121.53,
+        origin_place_id: 'pass',
+        starting_point: 'Hannegan Pass',
+      };
+      store.$patch({
+        data: { trip_details: tripDetails, trips: [tripWithCoords] },
+        pageLoading: false,
+        selectedTripId: String(tripWithCoords.id),
+      });
+      userStore.$patch({
+        profile: { id: tripWithCoords.profile_id } as any,
+      });
+      const updateSpy = vi.spyOn(store, 'updateTrip');
+      await wrapper.vm.$nextTick();
+
+      const placeSearch = wrapper.findAll('[data-testid="place-search-trigger"]')[0];
+      await placeSearch!.trigger('click');
+      await wrapper.vm.$nextTick();
+
+      const input = wrapper.get('input');
+      await input.trigger('blur');
+      await vi.advanceTimersByTimeAsync(200);
+
+      expect(updateSpy)
+        .not
+        .toHaveBeenCalled();
+      vi.useRealTimers();
+    });
+
     it('renders the Create New Detail icon button if hike details are present', async () => {
       const store = usePlanningStore();
       const userStore = useUserStore();
@@ -491,6 +529,254 @@ describe('Planning Page', async () => {
         .toBeNull();
       expect(document.body.querySelector('[data-testid="create-detail"]'))
         .toBeTruthy();
+      wrapper.unmount();
+    });
+  });
+
+  describe('TodosWidget.vue', () => {
+    afterEach(() => {
+      document.body.innerHTML = '';
+    });
+
+    it('shows New todo as a placeholder for an untitled item', async () => {
+      const wrapper = await mountSuspended(TodosWidget, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            data: { todos: [{ ...todos[0]!, title: null }], trips },
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+          },
+        }),
+      });
+
+      expect(wrapper.get('.text-gray-400')
+        .text())
+        .toBe('New todo');
+      wrapper.unmount();
+    });
+
+    it('opens the new todo title for typing after create', async () => {
+      const wrapper = await mountSuspended(TodosWidget, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            data: { todos, trips },
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+          },
+        }),
+      });
+      const store = usePlanningStore();
+      vi.spyOn(store, 'createTodo')
+        .mockImplementation(async () => {
+          const todo = { ...todos[0]!, id: 99, title: null };
+          store.data.todos.push(todo);
+          return todo;
+        });
+
+      await wrapper.get('[aria-label="Add todo"]')
+        .trigger('click');
+      await vi.waitFor(() => {
+        expect((document.body.querySelector('input[name="title"]') as HTMLInputElement | null)?.placeholder)
+          .toBe('New todo');
+      });
+      wrapper.unmount();
+    });
+
+    it('deletes a todo from the row action', async () => {
+      const wrapper = await mountSuspended(TodosWidget, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            data: { todos, trips },
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+          },
+        }),
+      });
+      const store = usePlanningStore();
+      const deleteSpy = vi.spyOn(store, 'deleteTodo')
+        .mockResolvedValue(true);
+
+      await wrapper.get('[data-testid="delete-todo"]')
+        .trigger('click');
+
+      expect(deleteSpy)
+        .toHaveBeenCalledWith(todos[0]!.id);
+      wrapper.unmount();
+    });
+
+    it('strikes through a completed todo title', async () => {
+      const wrapper = await mountSuspended(TodosWidget, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            data: { todos: [{ ...todos[0]!, completed: true }], trips },
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+          },
+        }),
+      });
+
+      expect(wrapper.get('.line-through')
+        .text())
+        .toContain(todos[0]!.title);
+      wrapper.unmount();
+    });
+  });
+
+  describe('ShoppingListWidget.vue', () => {
+    afterEach(() => {
+      document.body.innerHTML = '';
+    });
+
+    it('shows New item as a placeholder for an untitled item', async () => {
+      const wrapper = await mountSuspended(ShoppingListWidget, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            data: {
+              shopping_items: [{
+                completed: false,
+                created_at: null,
+                id: 1,
+                profile_id: trips[0]!.profile_id,
+                quantity: 1,
+                resource_type: 'USER',
+                title: null,
+                trip_id: trips[0]!.id,
+                updated_at: null,
+              }],
+              trips,
+            },
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+          },
+        }),
+      });
+
+      expect(wrapper.get('.text-gray-400')
+        .text())
+        .toBe('New item');
+      wrapper.unmount();
+    });
+
+    it('opens the new shopping item title for typing after create', async () => {
+      const wrapper = await mountSuspended(ShoppingListWidget, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            data: {
+              shopping_items: [{
+                completed: false,
+                created_at: null,
+                id: 1,
+                profile_id: trips[0]!.profile_id,
+                quantity: 1,
+                resource_type: 'USER',
+                title: 'Fuel',
+                trip_id: trips[0]!.id,
+                updated_at: null,
+              }],
+              trips,
+            },
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+          },
+        }),
+      });
+      const store = usePlanningStore();
+      vi.spyOn(store, 'createShoppingItem')
+        .mockImplementation(async () => {
+          const item = {
+            completed: false,
+            created_at: null,
+            id: 99,
+            profile_id: trips[0]!.profile_id,
+            quantity: 1,
+            resource_type: 'USER' as const,
+            title: null,
+            trip_id: trips[0]!.id,
+            updated_at: null,
+          };
+          store.data.shopping_items.push(item);
+          return item;
+        });
+
+      await wrapper.get('[aria-label="Add shopping item"]')
+        .trigger('click');
+      await vi.waitFor(() => {
+        expect((document.body.querySelector('input[name="title"]') as HTMLInputElement | null)?.placeholder)
+          .toBe('New item');
+      });
+      wrapper.unmount();
+    });
+
+    it('deletes a shopping item from the row action', async () => {
+      const wrapper = await mountSuspended(ShoppingListWidget, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            data: {
+              shopping_items: [{
+                completed: false,
+                created_at: null,
+                id: 7,
+                profile_id: trips[0]!.profile_id,
+                quantity: 1,
+                resource_type: 'USER',
+                title: 'Fuel',
+                trip_id: trips[0]!.id,
+                updated_at: null,
+              }],
+              trips,
+            },
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+          },
+        }),
+      });
+      const store = usePlanningStore();
+      const deleteSpy = vi.spyOn(store, 'deleteShoppingItem')
+        .mockResolvedValue(true);
+
+      await wrapper.get('[data-testid="delete-shopping-item"]')
+        .trigger('click');
+
+      expect(deleteSpy)
+        .toHaveBeenCalledWith(7);
+      wrapper.unmount();
+    });
+
+    it('strikes through a completed shopping item title', async () => {
+      const wrapper = await mountSuspended(ShoppingListWidget, {
+        attachTo: document.body,
+        global: testMountGlobals({
+          planning: {
+            data: {
+              shopping_items: [{
+                completed: true,
+                created_at: null,
+                id: 7,
+                profile_id: trips[0]!.profile_id,
+                quantity: 1,
+                resource_type: 'USER',
+                title: 'Fuel',
+                trip_id: trips[0]!.id,
+                updated_at: null,
+              }],
+              trips,
+            },
+            pageLoading: false,
+            selectedTripId: String(trips[0]?.id),
+          },
+        }),
+      });
+
+      expect(wrapper.get('.line-through')
+        .text())
+        .toContain('Fuel');
       wrapper.unmount();
     });
   });

@@ -49,6 +49,29 @@ describe('GcPlaceSearch', () => {
       .toBe(false);
   });
 
+  it('does not commit when the inline label is unchanged', async () => {
+    const wrapper = await mountSuspended(GcPlaceSearch, {
+      global: testMountGlobals(),
+      props: {
+        modelValue: 'Hannegan Pass',
+        placeholder: 'Starting point',
+        variant: 'inline',
+      },
+    });
+
+    vi.useFakeTimers();
+    await wrapper.get('[data-testid="place-search-trigger"]')
+      .trigger('click');
+    await wrapper.vm.$nextTick();
+
+    const input = wrapper.get('input');
+    await input.trigger('blur');
+    await vi.advanceTimersByTimeAsync(200);
+
+    expect(wrapper.emitted('commit'))
+      .toBeUndefined();
+  });
+
   it('commits the typed label when the inline input blurs', async () => {
     const wrapper = await mountSuspended(GcPlaceSearch, {
       global: testMountGlobals(),
