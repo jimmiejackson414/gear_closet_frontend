@@ -16,6 +16,7 @@ import PackSummaryEmptyState from '@/components/closet/dialogs/PackSummaryEmptyS
 import RemoveItemDialog from '@/components/closet/dialogs/RemoveItemDialog.vue';
 import SharePackDialog from '@/components/closet/dialogs/SharePackDialog.vue';
 import PackItemsTable from '@/components/closet/PackItemsTable.vue';
+import { useAppStore } from '@/stores/app';
 import { useClosetStore } from '@/stores/closet';
 import { createSupabaseMock } from '@/tests/unit/mocks/supabase.mock';
 import {
@@ -570,10 +571,26 @@ describe('Closet Page', async () => {
   describe('CsvUploadDialog.vue', async () => {
     let wrapper: VueWrapper<any>;
 
+    const lighterPackCsv = [
+      'Item Name,Category,desc,qty,weight,unit,url,price,worn,consumable',
+      'Stove,Kitchen,MSR Pocket Rocket 2,1,3.7,ounce,,29.99,,',
+    ].join('\n');
+
     beforeEach(async () => {
+      supabaseClient.current = createSupabaseMock({
+        rpc: (fn) => {
+          if (fn === 'import_csv_data') {
+            return Promise.resolve({
+              data: { imported_count: 1 },
+              error: null,
+            });
+          }
+          return Promise.resolve({ data: null, error: null });
+        },
+      });
       wrapper = await mountSuspended(CsvUploadDialog, {
         attachTo: document.body,
-        global: testMountGlobals(),
+        global: testMountGlobals(closetWithPacks),
       });
     });
 
@@ -601,6 +618,76 @@ describe('Closet Page', async () => {
       findBodyButton('Cancel')
         ?.click();
       await wrapper.vm.$nextTick();
+      expect(isDialogRootOpen(wrapper))
+        .toBe(false);
+    });
+
+    it('keeps import disabled until a valid CSV is parsed', async () => {
+      const store = useClosetStore();
+      store.dialogStates.uploadCsvDialog = true;
+      await wrapper.vm.$nextTick();
+
+      expect(findBodyButton('Import items')?.disabled)
+        .toBe(true);
+
+      const input = document.body.querySelector('#file-upload') as HTMLInputElement;
+      const file = new File([lighterPackCsv], 'lighterpack.csv', { type: 'text/csv' });
+      Object.defineProperty(input, 'files', { value: [file] });
+      input.dispatchEvent(new Event('change'));
+      await wrapper.vm.$nextTick();
+      await vi.waitFor(() => {
+        expect(findBodyButton('Import items')?.disabled)
+          .toBe(false);
+      });
+
+      expect(document.body.textContent)
+        .toContain('Ready to import 1 item.');
+    });
+
+    it('imports parsed rows and refetches the closet page', async () => {
+      const store = useClosetStore();
+      const fetchClosetPage = vi.spyOn(store, 'fetchClosetPage')
+        .mockResolvedValue(undefined);
+      const appStore = useAppStore();
+      const notifyPositive = vi.spyOn(appStore, 'notifyPositive');
+
+      store.dialogStates.uploadCsvDialog = true;
+      await wrapper.vm.$nextTick();
+
+      const input = document.body.querySelector('#file-upload') as HTMLInputElement;
+      const file = new File([lighterPackCsv], 'lighterpack.csv', { type: 'text/csv' });
+      Object.defineProperty(input, 'files', { value: [file] });
+      input.dispatchEvent(new Event('change'));
+      await wrapper.vm.$nextTick();
+      await vi.waitFor(() => {
+        expect(findBodyButton('Import items')?.disabled)
+          .toBe(false);
+      });
+
+      findBodyButton('Import items')
+        ?.click();
+      await wrapper.vm.$nextTick();
+      await vi.waitFor(() => {
+        expect(fetchClosetPage)
+          .toHaveBeenCalledWith(store.data.selectedPack?.id);
+        expect(notifyPositive)
+          .toHaveBeenCalledWith('Successfully imported 1 item.');
+      });
+
+      expect(supabaseClient.current?.rpc)
+        .toHaveBeenCalledWith('import_csv_data', expect.objectContaining({
+          csv_data: [expect.objectContaining({
+            category: 'Kitchen',
+            item_name: 'Stove',
+            price: 2999,
+            unit: 'oz',
+          })],
+          p_pack_id: store.data.selectedPack?.id,
+        }));
+      await vi.waitFor(() => {
+        expect(store.dialogStates.uploadCsvDialog)
+          .toBe(false);
+      });
       expect(isDialogRootOpen(wrapper))
         .toBe(false);
     });

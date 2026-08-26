@@ -112,7 +112,7 @@
               </span>
               <div
                 v-else
-                class="py-3">
+                class="px-4 py-3">
                 <typography
                   class="text-muted-foreground text-center"
                   variant="small">
