@@ -70,57 +70,54 @@
 </script>
 
 <template>
-  <div class="flex flex-wrap justify-between lg:justify-end items-center gap-3 sm:gap-6 mb-8">
-    <div class="flex justify-center items-center gap-3 sm:gap-4 min-w-0">
-      <dropdown-menu v-if="$store.isSelectedTripOwner">
-        <dropdown-menu-trigger aria-label="Trip actions">
-          <icon-settings
-            aria-hidden="true"
-            class="w-6 h-6"
-            data-testid="trip-actions" />
-        </dropdown-menu-trigger>
-        <dropdown-menu-content>
-          <dropdown-menu-label>
-            Actions
-          </dropdown-menu-label>
-          <dropdown-menu-separator />
-          <dropdown-menu-item
-            :disabled="!$store.selectedTrip || $store.pageLoading"
-            @select="emits('openDeleteDialog')">
-            Delete trip
-          </dropdown-menu-item>
-        </dropdown-menu-content>
-      </dropdown-menu>
-      <select-root
-        :model-value="$store.selectedTripId"
-        @update:model-value="handleSelectTrip">
-        <select-trigger class="min-w-0 w-40 sm:min-w-45 sm:w-auto">
-          <span v-if="!$store.selectedTripId">Selected Trip</span>
-          <select-value placeholder="Selected Trip" />
-        </select-trigger>
-        <select-content>
-          <select-group v-if="tripOptions.length">
-            <select-item
-              v-for="trip in tripOptions"
-              :key="trip.value"
-              :disabled="trip.locked"
-              hide-checkmark
-              :value="String(trip.value)">
-              {{ trip.label }}
-            </select-item>
-          </select-group>
-          <select-group v-else>
-            <select-item
-              disabled
-              hide-checkmark
-              value="0">
-              No trips found
-            </select-item>
-          </select-group>
-        </select-content>
-      </select-root>
-    </div>
-
+  <gc-page-toolbar title="Planning">
+    <dropdown-menu v-if="$store.isSelectedTripOwner">
+      <dropdown-menu-trigger aria-label="Trip actions">
+        <icon-settings
+          aria-hidden="true"
+          class="w-6 h-6"
+          data-testid="trip-actions" />
+      </dropdown-menu-trigger>
+      <dropdown-menu-content>
+        <dropdown-menu-label>
+          Actions
+        </dropdown-menu-label>
+        <dropdown-menu-separator />
+        <dropdown-menu-item
+          :disabled="!$store.selectedTrip || $store.pageLoading"
+          @select="emits('openDeleteDialog')">
+          Delete trip
+        </dropdown-menu-item>
+      </dropdown-menu-content>
+    </dropdown-menu>
+    <select-root
+      :model-value="$store.selectedTripId"
+      @update:model-value="handleSelectTrip">
+      <select-trigger class="min-w-0 w-40 sm:min-w-45 sm:w-auto">
+        <span v-if="!$store.selectedTripId">Selected Trip</span>
+        <select-value placeholder="Selected Trip" />
+      </select-trigger>
+      <select-content>
+        <select-group v-if="tripOptions.length">
+          <select-item
+            v-for="trip in tripOptions"
+            :key="trip.value"
+            :disabled="trip.locked"
+            hide-checkmark
+            :value="String(trip.value)">
+            {{ trip.label }}
+          </select-item>
+        </select-group>
+        <select-group v-else>
+          <select-item
+            disabled
+            hide-checkmark
+            value="0">
+            No trips found
+          </select-item>
+        </select-group>
+      </select-content>
+    </select-root>
     <div v-tippy="{ content: createBlocked ? FREE_TRIP_CREATE_TIP : '' }">
       <button-root
         :disabled="$store.pageLoading || createBlocked"
@@ -128,5 +125,5 @@
         New Trip
       </button-root>
     </div>
-  </div>
+  </gc-page-toolbar>
 </template>

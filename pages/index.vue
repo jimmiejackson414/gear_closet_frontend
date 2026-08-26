@@ -105,7 +105,7 @@
     <div class="grid grid-cols-12 gap-4 md:gap-8">
       <card class="bg-charlie-brown col-span-12 md:col-span-9 grow px-4 sm:px-6 py-8 rounded-3xl shadow-xs">
         <gc-navbar page-title="Dashboard" />
-        <div class="grid grid-cols-12 gap-4 md:gap-8 mt-8">
+        <div class="grid grid-cols-12 gap-4 md:gap-8 mt-4">
           <div class="col-span-12 md:col-span-8 space-y-4">
             <upcoming-trips-widget
               :data="data.trips"

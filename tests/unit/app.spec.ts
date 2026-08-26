@@ -147,7 +147,7 @@ describe('App', async () => {
         .toBe('Close navigation');
     });
 
-    it('stacks the welcome message below the toolbar on mobile', async () => {
+    it('stacks the page title below the toolbar on mobile', async () => {
       const nav = wrapper.get('nav');
       expect(nav.classes())
         .toEqual(expect.arrayContaining(['flex-col', 'lg:flex-row']));
@@ -157,6 +157,21 @@ describe('App', async () => {
       expect(wrapper.get('[data-testid="nav-toolbar"]')
         .classes())
         .toEqual(expect.arrayContaining(['lg:order-2']));
+    });
+
+    it('hides the page title block when compactHeader is enabled', async () => {
+      wrapper.unmount();
+      wrapper = await mountSuspended(GcNavbar, {
+        global: testMountGlobals(),
+        props: {
+          compactHeader: true,
+          pageTitle: 'Planning',
+        },
+      });
+
+      expect(wrapper.find('[data-testid="page-title"]')
+        .exists())
+        .toBe(false);
     });
   });
 
