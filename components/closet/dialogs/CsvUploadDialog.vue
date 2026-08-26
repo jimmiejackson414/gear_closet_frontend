@@ -24,6 +24,29 @@
         && $store.data.selectedPack?.id,
     ));
 
+  const fileInputRef = ref<HTMLInputElement | null>(null);
+  const fileLabel = computed(() => file.value?.name ?? 'No file selected');
+
+  const existingItemCount = computed(() => {
+    const categories = $store.data.selectedPack?.categories ?? [];
+    return categories.reduce(
+      (sum, category) => sum + (category.category_items?.length ?? 0),
+      0,
+    );
+  });
+
+  const packName = computed(() => $store.data.selectedPack?.name ?? 'this pack');
+
+  const chooseFile = () => {
+    fileInputRef.value?.click();
+  };
+
+  const templateTooltip = {
+    appendTo: () => document.body,
+    content: 'Download template',
+    placement: 'top' as const,
+  };
+
   const parseFile = async (selectedFile: File | undefined) => {
     if (!selectedFile) return;
 
@@ -137,6 +160,9 @@
         message: undefined,
         status: undefined,
       };
+      if (fileInputRef.value) {
+        fileInputRef.value.value = '';
+      }
     }
   });
 
@@ -154,23 +180,58 @@
       <dialog-header>
         <dialog-title>Import from CSV</dialog-title>
         <dialog-description>
-          Export your list from LighterPack (Share → Export to CSV), then upload it here to add
-          items to this pack. Re-importing the same file may create duplicate items.
+          Export your list from LighterPack (Share → Export to CSV), or download the CSV template
+          and fill it in manually, then upload the file here.
         </dialog-description>
       </dialog-header>
-      <div class="flex flex-col items-center gap-6">
-        <div class="flex flex-col gap-1.5 w-full">
+      <div class="flex flex-col gap-4 w-full">
+        <div
+          v-if="existingItemCount"
+          class="bg-muted/50 px-4 py-3 border rounded-lg text-sm">
+          <p class="font-medium">
+            {{ packName }} already has {{ existingItemCount }} item{{ existingItemCount === 1 ? '' : 's' }}.
+          </p>
+          <p class="mt-1 text-muted-foreground">
+            Imported items will be inserted into {{ packName }} — nothing is removed or updated.
+            Matching category names get new items appended; new categories are created as needed.
+            Importing the same file again will create duplicates.
+          </p>
+        </div>
+        <div class="flex flex-col gap-2">
           <label-root for="file-upload">
-            LighterPack or Gear Closet CSV
+            CSV file
           </label-root>
-          <input-root
+          <div class="flex flex-col sm:flex-row sm:items-center gap-2">
+            <div class="flex flex-1 items-center gap-3 bg-background px-3 py-2 border border-input rounded-md min-h-10 min-w-0">
+              <button-root
+                size="sm"
+                type="button"
+                variant="secondary"
+                @click="chooseFile">
+                Choose file
+              </button-root>
+              <typography
+                class="flex-1 truncate text-sm"
+                :class="file ? 'text-foreground' : 'text-muted-foreground'"
+                variant="small">
+                {{ fileLabel }}
+              </typography>
+            </div>
+            <a
+              v-tippy="templateTooltip"
+              aria-label="Download template"
+              class="inline-flex shrink-0 justify-center items-center hover:bg-accent rounded-md w-9 h-9 text-foreground hover:text-accent-foreground transition-colors"
+              href="gear_closet_template.csv">
+              <icon-download class="w-4 h-4" />
+            </a>
+          </div>
+          <input
             id="file-upload"
+            ref="fileInputRef"
             accept=".csv"
+            class="sr-only"
             type="file"
-            @change="onFileChange" />
-          <a
-            class="inline-block text-hyperlink"
-            href="gear_closet_template.csv">Download CSV template</a>
+            @change="onFileChange">
           <typography
             v-if="parsingResult.message"
             :class="parsingResult.status === 'failure' ? 'text-destructive' : 'text-muted-foreground'"

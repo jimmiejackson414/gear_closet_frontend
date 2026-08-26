@@ -24,6 +24,12 @@
   ]);
 
   const $store = useClosetStore();
+  const isDesktop = useMediaQuery('(min-width: 1024px)');
+
+  const xAxisLabelOptions = (showLabels: boolean) =>
+    showLabels
+      ? { margin: 24, overflow: 'break' as const, rotate: 30, show: true, width: 100 }
+      : { show: false };
 
   /** Derived series in lbs — avoid deep-watching nested category edits. */
   const seriesData = computed(() =>
@@ -33,10 +39,9 @@
     })),
   );
 
-  /* Bar Chart Options */
   const legendTextColor = ref('');
-  const chartRef = ref<InstanceType<typeof VChart> | undefined>(undefined);
-  const chartOptions = ref<EChartsOption>({
+
+  const chartOptions = computed<EChartsOption>(() => ({
     animationDuration: 300,
     grid: {
       bottom: 8,
@@ -61,7 +66,6 @@
     ],
     tooltip: {
       formatter: (params: TopLevelFormatterParams) => {
-        // Trigger is 'item', but the callback type still allows the array form.
         const value = Array.isArray(params) ? params[0] : params;
         const point = value ? seriesData.value[value.dataIndex] : undefined;
         return (`
@@ -80,9 +84,9 @@
       trigger: 'item',
     },
     xAxis: {
-      axisLabel: { margin: 24, overflow: 'break', rotate: 30, width: 100 },
+      axisLabel: xAxisLabelOptions(isDesktop.value),
       axisLine: { lineStyle: { color: legendTextColor.value } },
-      axisTick: { alignWithLabel: true },
+      axisTick: { alignWithLabel: true, show: isDesktop.value },
       data: seriesData.value.map((d) => d.name),
       type: 'category',
     },
@@ -91,7 +95,7 @@
       splitLine: { show: false },
       type: 'value',
     },
-  });
+  }));
 
   /**
    * Dynamically update the legend text color based on the current theme.
@@ -100,45 +104,12 @@
     await nextTick();
     await new Promise(resolve => setTimeout(resolve, 100));
     legendTextColor.value = await hslVarToHex('hsl(var(--card-foreground))');
-
-    chartRef.value?.setOption({
-      xAxis: {
-        axisLine: { lineStyle: { color: legendTextColor.value } },
-      },
-      yAxis: {
-        axisLine: { lineStyle: { color: legendTextColor.value } },
-      },
-    });
   };
 
   updateLegendTextColor();
 
   const colorMode = useColorMode();
   watch(() => colorMode.value, () => updateLegendTextColor());
-
-  watch(() => $store.data.selectedPack?.theme, (newTheme) => {
-    chartRef.value?.setOption({
-      series: [{
-        itemStyle: {
-          color: (params: CallbackDataParams) => {
-            const theme = findTheme(newTheme as Theme);
-            return theme[params.dataIndex % theme.length] ?? '';
-          },
-        },
-      }],
-    });
-  });
-
-  watch(seriesData, (data) => {
-    chartRef.value?.setOption({
-      series: [{
-        data: data.map((d) => d.weight),
-      }],
-      xAxis: {
-        data: data.map((d) => d.name),
-      },
-    });
-  });
 </script>
 
 <template>
@@ -149,10 +120,9 @@
         Pack Summary
       </typography>
     </div>
-    <div class="mt-0 mb-4 w-auto h-80 lg:h-93.75">
+    <div class="mt-4 lg:mt-6 mb-4 w-auto h-80 lg:h-93.75">
       <client-only>
         <v-chart
-          ref="chartRef"
           :autoresize="true"
           :option="chartOptions" />
       </client-only>

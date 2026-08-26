@@ -19,7 +19,8 @@
     $store.setProfile(data.value ?? null);
 
     const $router = useRouter();
-    if (!error.value && data.value && !data.value.onboard_date) {
+    const route = useRoute();
+    if (!error.value && data.value && !data.value.onboard_date && !route.meta.public) {
       $router.push('/onboarding');
     }
 

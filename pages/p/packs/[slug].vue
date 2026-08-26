@@ -72,6 +72,8 @@
           )
         `)
         .eq('slug', (Array.isArray($route.params.slug) ? $route.params.slug[0] : $route.params.slug) as string)
+        .order('position', { ascending: true, referencedTable: 'categories' })
+        .order('position', { ascending: true, referencedTable: 'categories.category_items' })
         .order('created_at', { ascending: false, referencedTable: 'comments' })
         .order('created_at', { ascending: false, referencedTable: 'comments.replies' })
         .maybeSingle();
