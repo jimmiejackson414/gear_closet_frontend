@@ -7,14 +7,18 @@
  * localize titles.
  */
 export enum NotificationKind {
-  WELCOME = 'Welcome!',
+  FRIEND_ACCEPTED = 'Friend request accepted',
   FRIEND_REQUEST = 'New Friend Request',
   TRIP_INVITE = "You've been invited to a trip!",
+  TRIP_INVITE_ACCEPTED = 'Trip invite accepted',
+  WELCOME = 'Welcome!',
 }
 
 const NOTIFICATION_ROUTES: Partial<Record<NotificationKind, { name: string }>> = {
+  [NotificationKind.FRIEND_ACCEPTED]: { name: 'friends' },
   [NotificationKind.FRIEND_REQUEST]: { name: 'friends' },
   [NotificationKind.TRIP_INVITE]: { name: 'index' },
+  [NotificationKind.TRIP_INVITE_ACCEPTED]: { name: 'index' },
 };
 
 export function notificationRoute (title: string | null | undefined) {

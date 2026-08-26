@@ -4,7 +4,6 @@
   definePageMeta({ layout: 'page-layout' });
 
   const {
-    activeTab,
     closeInvite,
     crewFilter,
     currentFriends,
@@ -30,6 +29,8 @@
     sentInvites,
     sharedTripCountFor,
   } = useFriendsPage();
+
+  const activeTab = ref<'crew' | 'requests' | 'sent'>('crew');
 
   await fetchFriendPage();
 
@@ -79,27 +80,33 @@
 
     <tabs
       v-model="activeTab"
-      class="w-full min-w-0"
-      default-value="crew">
+      class="w-full min-w-0">
       <tabs-list class="grid grid-cols-3 w-full min-w-0">
         <tabs-trigger
           class="px-1.5 sm:px-3 min-w-0"
+          data-testid="friends-tab-crew"
           value="crew">
           Crew {{ currentFriends.length }}
         </tabs-trigger>
         <tabs-trigger
           class="px-1.5 sm:px-3 min-w-0"
+          data-testid="friends-tab-requests"
           value="requests">
           Requests {{ requests.length }}
         </tabs-trigger>
         <tabs-trigger
           class="px-1.5 sm:px-3 min-w-0"
+          data-testid="friends-tab-sent"
           value="sent">
           Sent {{ sentCount }}
         </tabs-trigger>
       </tabs-list>
 
-      <tabs-content value="crew">
+      <div
+        v-if="activeTab === 'crew'"
+        class="mt-2"
+        role="tabpanel"
+        tabindex="0">
         <div
           v-if="currentFriends.length"
           class="flex flex-col gap-4 mt-4">
@@ -128,7 +135,9 @@
             No friends match that filter.
           </typography>
         </div>
-        <gc-empty-state v-else>
+        <gc-empty-state
+          v-else
+          data-testid="friends-crew-empty">
           <typography class="mb-4">
             You haven't connected with any friends quite yet.
           </typography>
@@ -142,9 +151,13 @@
             Invite
           </button-root>
         </gc-empty-state>
-      </tabs-content>
+      </div>
 
-      <tabs-content value="requests">
+      <div
+        v-else-if="activeTab === 'requests'"
+        class="mt-2"
+        role="tabpanel"
+        tabindex="0">
         <ul
           v-if="requests.length"
           class="flex flex-col mt-2 divide-y">
@@ -157,9 +170,23 @@
               @decline="handleDeclineRequest" />
           </li>
         </ul>
-      </tabs-content>
+        <gc-empty-state
+          v-else
+          data-testid="friends-requests-empty">
+          <typography class="mb-4">
+            You don't have any incoming requests.
+          </typography>
+          <typography class="text-sm">
+            When someone wants to connect, they'll show up here.
+          </typography>
+        </gc-empty-state>
+      </div>
 
-      <tabs-content value="sent">
+      <div
+        v-else
+        class="mt-2"
+        role="tabpanel"
+        tabindex="0">
         <ul
           v-if="sentCount"
           class="flex flex-col mt-2 divide-y">
@@ -210,7 +237,23 @@
             </friend-row>
           </li>
         </ul>
-      </tabs-content>
+        <gc-empty-state
+          v-else
+          data-testid="friends-sent-empty">
+          <typography class="mb-4">
+            You haven't sent any invites yet.
+          </typography>
+          <typography class="mb-4 text-sm">
+            Use Invite to send a friend request or email and get started.
+          </typography>
+          <button-root
+            size="sm"
+            variant="outline"
+            @click="openInvite">
+            Invite
+          </button-root>
+        </gc-empty-state>
+      </div>
     </tabs>
 
     <friend-invite-dialog

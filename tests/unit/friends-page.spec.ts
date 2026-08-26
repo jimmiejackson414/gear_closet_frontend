@@ -32,6 +32,11 @@ const emptyClient = () => createSupabaseMock({
   rpc: () => createThenableQuery({ data: [], error: null }),
 });
 
+const emptyStateVisible = (wrapper: Awaited<ReturnType<typeof mountSuspended>>, testId: string) => {
+  const empty = wrapper.find(`[data-testid="${testId}"]`);
+  return empty.exists() && empty.isVisible();
+};
+
 describe('Friends page', () => {
   beforeEach(() => {
     supabaseUser.value = { sub: '61b66be5-d199-48d5-898a-c521dd6b59cc' };
@@ -65,6 +70,40 @@ describe('Friends page', () => {
       .toContain("You don't have any pending requests");
     expect(wrapper.text())
       .toContain("You haven't connected with any friends quite yet.");
+    expect(emptyStateVisible(wrapper, 'friends-requests-empty'))
+      .toBe(false);
+    expect(emptyStateVisible(wrapper, 'friends-sent-empty'))
+      .toBe(false);
+  });
+
+  it('explains empty requests and points sent invites at Invite', async () => {
+    const wrapper = await mountSuspended(FriendsPage, {
+      global: testMountGlobals(),
+    });
+    const vm = wrapper.vm as unknown as { activeTab: 'crew' | 'requests' | 'sent' };
+
+    vm.activeTab = 'requests';
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.get('[data-testid="friends-requests-empty"]')
+      .text())
+      .toContain("You don't have any incoming requests.");
+    expect(emptyStateVisible(wrapper, 'friends-sent-empty'))
+      .toBe(false);
+    expect(emptyStateVisible(wrapper, 'friends-crew-empty'))
+      .toBe(false);
+
+    vm.activeTab = 'sent';
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.get('[data-testid="friends-sent-empty"]')
+      .text())
+      .toContain("You haven't sent any invites yet.");
+    expect(wrapper.get('[data-testid="friends-sent-empty"]')
+      .text())
+      .toContain('Use Invite to send a friend request or email');
+    expect(emptyStateVisible(wrapper, 'friends-requests-empty'))
+      .toBe(false);
   });
 
   it('filters crew locally and banners incoming requests', async () => {

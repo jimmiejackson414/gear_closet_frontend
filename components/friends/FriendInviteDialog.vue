@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  import { IconMail } from '#components';
   import { type Database, type Tables } from '@/types';
   import {
     friendDirectoryStatusLabel,
@@ -69,6 +70,8 @@
   const canSubmit = computed(() =>
     friendsToInvite.value.length > 0 || emailsToInvite.value.length > 0);
 
+  const canAddEmail = computed(() => Boolean(parseFriendSearchEmail(emailInput.value)));
+
   const searchDirectory = async (searchTerm: string) => {
     if (!searchTerm?.trim()) {
       searchResults.value = [];
@@ -134,6 +137,8 @@
   };
 
   const addEmail = () => {
+    if (!canAddEmail.value) return;
+
     const parsed = parseFriendInviteChipEmail(
       emailInput.value,
       emailsToInvite.value,
@@ -225,7 +230,7 @@
           Invite friends
         </dialog-title>
         <dialog-description>
-          People already on Gear Closet get an in-app request. Anyone else gets the friend-request email.
+          People already on Gear Closet get an in-app request. Anyone else gets an email invite.
         </dialog-description>
       </dialog-header>
       <div class="flex flex-col gap-6 mt-4 w-full">
@@ -272,11 +277,12 @@
               data-testid="invite-email-input"
               :disabled="submitting"
               placeholder="friend@example.com"
+              :prepend-icon="IconMail"
               type="email"
               @keydown.enter.prevent="addEmail" />
             <button-root
               data-testid="invite-email-add"
-              :disabled="submitting"
+              :disabled="submitting || !canAddEmail"
               type="button"
               variant="outline"
               @click="addEmail">

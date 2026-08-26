@@ -75,14 +75,22 @@
   });
 
   const serverOptions = {
-    load: (source: string, load: (blob: Blob) => void) => {
+    load: (source: string, load: (blob: Blob) => void, error: (message?: string) => void) => {
       fetch(source)
-        .then(response => response.blob())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`Avatar failed to load (${response.status})`);
+          }
+          return response.blob();
+        })
         .then(blob => {
           load(blob);
           if (props.file) {
             loadedExistingFile.value = true;
           }
+        })
+        .catch(() => {
+          error('Unable to load avatar');
         });
     },
   };

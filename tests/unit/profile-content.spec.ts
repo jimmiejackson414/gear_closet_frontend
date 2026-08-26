@@ -5,7 +5,6 @@ import ProfileContent from '@/components/profile/ProfileContent.vue';
 import { useUserStore } from '@/stores/user';
 import { profile } from '@/tests/unit/mocks/app.mock';
 import { createSupabaseMock, createThenableQuery } from '@/tests/unit/mocks/supabase.mock';
-import type { ProfileApiResponse } from '@/types/profile';
 
 const toast = vi.hoisted(() => vi.fn());
 
@@ -34,10 +33,11 @@ mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
 function seedFreeProfile () {
   const userStore = useUserStore();
   const { subscriptions: _s, ...profileWithoutSubscription } = profile;
+  // Pinia's unwrapped ProfileApiResponse is too deep for a structural assign (TS2589).
   userStore.profile = {
     ...profileWithoutSubscription,
     subscriptions: [],
-  } as ProfileApiResponse;
+  } as never;
 }
 
 function seedLifetimeProfile () {
@@ -57,7 +57,7 @@ function seedLifetimeProfile () {
       },
       stripe_subscription_id: null,
     }],
-  } as ProfileApiResponse;
+  } as never;
 }
 
 describe('components/profile/ProfileContent', () => {
@@ -165,5 +165,29 @@ describe('components/profile/ProfileContent', () => {
     expect(wrapper.text())
       .not
       .toContain('Next Billing Date');
+  });
+
+  it('clears password fields after a successful update', async () => {
+    const updateUser = vi.fn()
+      .mockResolvedValue({ data: {}, error: null });
+    Object.assign(supabaseClient.current ?? {}, {
+      auth: { updateUser },
+    });
+
+    const wrapper = await mountSuspended(ProfileContent);
+    const vm = wrapper.vm as any;
+    vm.newPassword = 'newpass123';
+    vm.confirmPassword = 'newpass123';
+
+    await vm.handleUpdatePassword();
+
+    expect(updateUser)
+      .toHaveBeenCalledWith({ password: 'newpass123' });
+    expect(vm.newPassword)
+      .toBe('');
+    expect(vm.confirmPassword)
+      .toBe('');
+    expect(toast)
+      .toHaveBeenCalled();
   });
 });
