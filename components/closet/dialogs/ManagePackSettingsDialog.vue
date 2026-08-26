@@ -186,8 +186,8 @@
             </div>
             <form-control>
               <switch-root
-                :checked="value"
-                @update:checked="handleChange" />
+                :model-value="value"
+                @update:model-value="handleChange" />
             </form-control>
           </form-item>
         </form-field>
@@ -208,8 +208,8 @@
             </div>
             <form-control>
               <switch-root
-                :checked="value"
-                @update:checked="handleChange" />
+                :model-value="value"
+                @update:model-value="handleChange" />
             </form-control>
           </form-item>
         </form-field>

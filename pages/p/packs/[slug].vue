@@ -19,13 +19,18 @@
   type PublicPackGateReason = 'not_found' | 'error';
   const packGateReason = ref<PublicPackGateReason | null>(null);
 
+  const packSlug = computed(() => {
+    const raw = Array.isArray($route.params.slug) ? $route.params.slug[0] : $route.params.slug;
+    return typeof raw === 'string' ? raw.trim() : '';
+  });
+
   const showPackGate = computed(() => packGateReason.value !== null);
 
   const packGateCopy = computed(() => {
     switch (packGateReason.value) {
     case 'not_found':
       return {
-        description: 'This link may be incorrect, or the pack may have been removed.',
+        description: 'This link may be incorrect, the pack may have been removed, or it may not be shared publicly. Pack owners can turn off Private in pack settings to share a link with anyone.',
         title: 'Pack not found',
       };
     case 'error':
@@ -71,7 +76,7 @@
             )
           )
         `)
-        .eq('slug', (Array.isArray($route.params.slug) ? $route.params.slug[0] : $route.params.slug) as string)
+        .eq('slug', packSlug.value)
         .order('position', { ascending: true, referencedTable: 'categories' })
         .order('position', { ascending: true, referencedTable: 'categories.category_items' })
         .order('created_at', { ascending: false, referencedTable: 'comments' })
