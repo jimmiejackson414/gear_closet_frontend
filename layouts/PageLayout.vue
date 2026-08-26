@@ -31,6 +31,10 @@
   }
 
   useNotificationHydration();
+
+  const compactHeader = computed(() =>
+    ['closet', 'friends', 'planning'].includes(String($route.name)),
+  );
 </script>
 
 <template>
@@ -44,11 +48,12 @@
           :class="$route.name === 'onboarding' ? 'px-4 pt-4 pb-14' : 'pt-4 pb-20 lg:pl-20 lg:pt-9'">
           <gc-navbar
             v-if="!minimal && $route.name !== 'onboarding'"
-            :page-title="props.pageTitle || capitalize($route.name as string)" />
+            :compact-header="compactHeader"
+            :page-title="compactHeader ? '' : (props.pageTitle || capitalize($route.name as string))" />
           <gc-navbar-alt
             v-else
             :align-logo="alignLogo" />
-          <div class="py-6">
+          <div :class="compactHeader ? 'pt-5 sm:pt-6 pb-6' : 'py-6'">
             <slot />
           </div>
           <free-resource-selection-dialog />

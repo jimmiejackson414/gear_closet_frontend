@@ -47,7 +47,7 @@
 
 <template>
   <div class="mx-auto pb-8 w-full min-w-0 max-w-full lg:max-w-5xl">
-    <div class="flex justify-end mb-4">
+    <gc-page-toolbar title="Friends">
       <button-root
         aria-label="Invite friends"
         class="rounded-full"
@@ -59,7 +59,7 @@
           class="size-4" />
         Invite
       </button-root>
-    </div>
+    </gc-page-toolbar>
 
     <div
       v-if="requests.length && activeTab === 'crew'"

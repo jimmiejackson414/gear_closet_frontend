@@ -2,10 +2,12 @@
   import { useUserStore } from '@/stores/user';
 
   interface Props {
-    pageTitle?: string;
+    compactHeader?: boolean
+    pageTitle?: string
   }
 
   withDefaults(defineProps<Props>(), {
+    compactHeader: false,
     pageTitle: '',
   });
 
@@ -13,14 +15,6 @@
   const $appStore = useAppStore();
 
   const shouldShowBadge = computed(() => ( $store.unreadNotifications?.length ?? 0 ) > 0);
-  const welcomeMessage = computed(() => {
-    if ($store.profile?.first_name) {
-      const arr = ['Hello', 'Welcome', 'Hey'];
-      const rand = Math.floor(Math.random() * arr.length);
-      return `${arr[rand]}, ${$store.profile.first_name}!`;
-    }
-    return 'Welcome!';
-  });
 
   const isDropdownOpen = ref(false);
   const notificationDropdown = ref<any | null>(null);
@@ -131,19 +125,10 @@
       </div>
     </div>
     <div
+      v-if="!compactHeader && pageTitle"
       class="lg:flex-1 lg:order-1 min-w-0 page-title"
       data-testid="page-title">
-      <typography
-        class="text-base-lg"
-        data-testid="welcome-message">
-        <span class="mr-2">&#128075;</span>
-        <client-only>
-          {{ welcomeMessage }}
-        </client-only>
-      </typography>
-      <h1
-        v-if="pageTitle"
-        class="mt-2 lg:mt-4 text-2xl sm:text-3xl">
+      <h1 class="text-2xl sm:text-3xl">
         {{ pageTitle }}
       </h1>
     </div>
