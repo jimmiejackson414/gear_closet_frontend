@@ -6,6 +6,7 @@ import {
   isPasswordRecoveryCallback,
   pathAfterOnboarding,
   planningTripPath,
+  publicPackPath,
   safeInternalPath,
 } from '@/utils/authRedirect';
 
@@ -92,5 +93,19 @@ describe('authRedirect', () => {
       savedPath: planningTripPath('gc1.abc'),
     }))
       .toEqual({ consumeSavedPath: false, path: '/onboarding' });
+  });
+
+  it('builds a public pack return path with an optional comments tab', () => {
+    expect(publicPackPath('abc-123'))
+      .toBe('/p/packs/abc-123');
+    expect(publicPackPath('abc-123', 'comments'))
+      .toBe('/p/packs/abc-123?tab=comments');
+    expect(publicPackPath('  '))
+      .toBeNull();
+    expect(destinationAfterAuth({
+      onboardDate: '2026-01-01T00:00:00.000Z',
+      savedPath: publicPackPath('abc-123', 'comments'),
+    }))
+      .toEqual({ consumeSavedPath: true, path: '/p/packs/abc-123?tab=comments' });
   });
 });

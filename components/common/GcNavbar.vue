@@ -51,6 +51,7 @@
       <div class="lg:hidden grow" />
       <div class="flex items-center gap-3 sm:gap-8">
         <span
+          v-if="!colorMode.forced"
           v-tippy="{ content: 'Toggle color mode' }"
           class="flex">
           <button-root

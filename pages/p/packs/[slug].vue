@@ -1,4 +1,5 @@
 <script lang='ts' setup>
+  import { publicPackPath } from '@/utils/authRedirect';
   import tailwind from '@/utils/tailwind';
   import type { Database } from '@/types';
   import type { PublicPack } from '@/types/closet';
@@ -6,7 +7,6 @@
 
   const user = useSupabaseUser();
   const $userStore = useUserStore();
-  // TODO: Figure out way to access user to dynamically set colorMode. Currently causes 500 error.
   definePageMeta({ layout: 'public-layout', public: true });
 
   /**
@@ -15,6 +15,7 @@
   const $appStore = useAppStore();
   const $store = useClosetStore();
   const $route = useRoute();
+  const redirectInfo = useSupabaseCookieRedirect();
   /** Set only after fetch from the loaded pack — never from stale Pinia state. */
   type PublicPackGateReason = 'not_found' | 'error';
   const packGateReason = ref<PublicPackGateReason | null>(null);
@@ -23,6 +24,17 @@
     const raw = Array.isArray($route.params.slug) ? $route.params.slug[0] : $route.params.slug;
     return typeof raw === 'string' ? raw.trim() : '';
   });
+
+  const saveAuthReturnPath = (tab?: 'comments') => {
+    const path = publicPackPath(packSlug.value, tab);
+    if (path) {
+      redirectInfo.path.value = path;
+    }
+  };
+
+  if (!user.value) {
+    saveAuthReturnPath($route.query.tab === 'comments' ? 'comments' : undefined);
+  }
 
   const showPackGate = computed(() => packGateReason.value !== null);
 
@@ -50,6 +62,12 @@
     if (!pack.private) return true;
     return pack.profile_id === uid;
   });
+
+  enum TableTabs {
+    DETAILS,
+    COMMENTS,
+  }
+  const activeTab = ref(TableTabs.DETAILS);
 
   const fetchPack = async () => {
     try {
@@ -105,6 +123,10 @@
     }
   };
   await fetchPack();
+
+  if ($route.query.tab === 'comments' && $store.data.selectedPack?.allow_comments) {
+    activeTab.value = TableTabs.COMMENTS;
+  }
 
 
   /**
@@ -166,15 +188,6 @@
     friendlyUsername($userStore.profile) || 'you',
   );
 
-  /**
-   * Tabs functionality
-   */
-  enum TableTabs {
-    DETAILS,
-    COMMENTS,
-  }
-  const activeTab = ref(TableTabs.DETAILS);
-
   const commentsDisabledCopy = 'The pack owner has turned off comments for this pack.';
 
   useHead({ title: selectedPackName.value || 'Public Pack' });
@@ -235,7 +248,7 @@
               id="comments"
               aria-labelledby="comments-tab"
               role="tabpanel">
-              <div class="flex flex-col items-start mx-auto px-6 py-6 max-w-6xl">
+              <div class="flex flex-col mx-auto px-6 py-6 w-full max-w-6xl">
                 <!-- Compose: public packs, or the owner of a private pack -->
                 <template v-if="canComposeComment">
                   <textarea-root
@@ -257,20 +270,25 @@
                   </div>
                   <separator class="mb-4" />
                 </template>
-                <typography
+                <div
                   v-else-if="!user"
-                  class="mb-4 text-muted-foreground text-sm">
+                  class="flex flex-col items-center gap-3 bg-muted/40 mb-6 py-8 border border-muted-foreground/25 border-dashed rounded-xl w-full text-center">
+                  <typography class="max-w-md text-muted-foreground text-sm">
+                    Sign in to leave a comment on this pack list.
+                  </typography>
                   <nuxt-link
-                    class="font-semibold text-primary hover:underline"
-                    :to="{ name: 'login' }">
-                    Sign in
+                    data-testid="public-pack-sign-in"
+                    :to="{ name: 'login' }"
+                    @click="saveAuthReturnPath('comments')">
+                    <button-root size="sm">
+                      Sign in
+                    </button-root>
                   </nuxt-link>
-                  to leave a comment.
-                </typography>
+                </div>
 
                 <!-- Comment list: visible to guests and signed-in users -->
                 <gc-empty-state
-                  v-if="!($store.data.selectedPack as PublicPack)?.comments?.length"
+                  v-if="user && !($store.data.selectedPack as PublicPack)?.comments?.length"
                   class="mx-auto">
                   <typography>
                     Be the first to comment!
@@ -318,7 +336,8 @@
             <nuxt-link
               v-if="!user"
               class="w-full"
-              :to="{ name: 'login' }">
+              :to="{ name: 'login' }"
+              @click="saveAuthReturnPath()">
               <button-root
                 class="w-full"
                 variant="secondary">

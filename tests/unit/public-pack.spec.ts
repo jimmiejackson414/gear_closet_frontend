@@ -61,11 +61,28 @@ const routeSlug = vi.hoisted(() => ({
   value: 'test-pack-slug',
 }));
 
+const routeQuery = vi.hoisted(() => ({
+  value: {} as Record<string, string>,
+}));
+
+const redirectPath = vi.hoisted(() => ({
+  value: null as string | null,
+}));
+
 mockNuxtImport('useSupabaseUser', () => () => supabaseUser.current);
 mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
+mockNuxtImport('useSupabaseCookieRedirect', () => () => ({
+  path: redirectPath,
+  pluck: () => {
+    const saved = redirectPath.value;
+    redirectPath.value = null;
+    return saved;
+  },
+}));
 mockNuxtImport('useRoute', () => () => ({
   meta: { public: true },
   params: { slug: routeSlug.value },
+  query: routeQuery.value,
 }));
 
 const publicProfile = {
@@ -97,6 +114,8 @@ describe('pages/p/packs/[slug]', () => {
     setActivePinia(createPinia());
     supabaseUser.current!.value = null;
     routeSlug.value = 'test-pack-slug';
+    routeQuery.value = {};
+    redirectPath.value = null;
     supabaseClient.current = createSupabaseMock();
   });
 
@@ -233,5 +252,79 @@ describe('pages/p/packs/[slug]', () => {
 
     expect(wrapper.text())
       .toContain('The pack owner has turned off comments for this pack.');
+  });
+
+  it('stores a return path for guests visiting a public pack', async () => {
+    const publicPack = {
+      ...structuredClone(selectedPack),
+      allow_comments: true,
+      categories: [],
+      comments: [],
+      name: 'Shared Summer',
+      private: false,
+      profile: publicProfile,
+    } as PublicPack;
+
+    supabaseClient.current = createSupabaseMock({
+      from: () => createThenableQuery({ data: publicPack, error: null }),
+    });
+
+    await mountSuspended(PublicPackPage);
+
+    expect(redirectPath.value)
+      .toBe('/p/packs/test-pack-slug');
+  });
+
+  it('stores the comments tab in the return path when signing in from comments', async () => {
+    routeQuery.value = { tab: 'comments' };
+
+    const publicPack = {
+      ...structuredClone(selectedPack),
+      allow_comments: true,
+      categories: [],
+      comments: [],
+      name: 'Shared Summer',
+      private: false,
+      profile: publicProfile,
+    } as PublicPack;
+
+    supabaseClient.current = createSupabaseMock({
+      from: () => createThenableQuery({ data: publicPack, error: null }),
+    });
+
+    const wrapper = await mountSuspended(PublicPackPage);
+    redirectPath.value = '/p/packs/test-pack-slug';
+
+    await wrapper.find('[data-testid="public-pack-sign-in"]')
+      .trigger('click');
+
+    expect(redirectPath.value)
+      .toBe('/p/packs/test-pack-slug?tab=comments');
+  });
+
+  it('opens the comments tab when returning with ?tab=comments', async () => {
+    routeQuery.value = { tab: 'comments' };
+
+    const publicPack = {
+      ...structuredClone(selectedPack),
+      allow_comments: true,
+      categories: [],
+      comments: [],
+      name: 'Shared Summer',
+      private: false,
+      profile: publicProfile,
+    } as PublicPack;
+
+    supabaseClient.current = createSupabaseMock({
+      from: () => createThenableQuery({ data: publicPack, error: null }),
+    });
+
+    const wrapper = await mountSuspended(PublicPackPage);
+
+    expect(redirectPath.value)
+      .toBe('/p/packs/test-pack-slug?tab=comments');
+    expect(wrapper.find('[data-testid="public-pack-sign-in"]')
+      .exists())
+      .toBe(true);
   });
 });

@@ -57,6 +57,16 @@ export function planningTripPath (encryptedTripId: string): string {
   return `/planning?trip=${encryptedTripId}`;
 }
 
+/** Return path for a shared public pack page (optional comments tab). */
+export function publicPackPath (slug: string, tab?: 'comments'): string | null {
+  const trimmed = slug.trim();
+  if (!trimmed) return null;
+
+  const base = `/p/packs/${encodeURIComponent(trimmed)}`;
+  const path = tab === 'comments' ? `${base}?tab=comments` : base;
+  return safeInternalPath(path);
+}
+
 export function isPasswordRecoveryCallback (queryType: unknown, hash: string): boolean {
   if (queryType === 'recovery') return true;
   return hash.includes('type=recovery');
