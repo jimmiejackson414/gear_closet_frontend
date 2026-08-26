@@ -23,6 +23,21 @@ export const STARTER_TRIP_DETAILS = [
   },
 ] as const;
 
+export function parsePositiveTripId (value: unknown): number | null {
+  const id = Number(value);
+  if (!Number.isInteger(id) || id <= 0) return null;
+  return id;
+}
+
+export function findTripById<T extends { id?: number | string | null }> (
+  trips: T[],
+  id: unknown,
+): T | undefined {
+  const parsed = parsePositiveTripId(id);
+  if (parsed == null) return undefined;
+  return trips.find((trip) => parsePositiveTripId(trip.id) === parsed);
+}
+
 export function isOwnedTrip (
   trip: { profile_id?: string | null } | null | undefined,
   userId: string | null | undefined,

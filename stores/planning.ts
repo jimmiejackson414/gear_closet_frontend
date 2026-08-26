@@ -1,6 +1,7 @@
 import { computed, ref, watch } from "vue";
 import { defineStore } from "pinia";
 import { ResourceType } from "@/types";
+import { findTripById, parsePositiveTripId } from "@/utils/trips";
 import type { Database, Tables, TablesInsert, TablesUpdate } from "@/types";
 import type { ExtendedPack } from "@/types/closet";
 import type { ExtendedPoll, ExtendedTripFriend, PendingTripInvite } from "@/types/planning";
@@ -90,7 +91,7 @@ export const usePlanningStore = defineStore('planning', () => {
   };
 
   const selectedTrip = computed(() =>
-    data.value.trips.find(trip => String(trip.id) === selectedTripId.value));
+    findTripById(data.value.trips, selectedTripId.value));
 
   const isSelectedTripOwner = computed(() => {
     const session = useSupabaseUser();
@@ -130,7 +131,8 @@ export const usePlanningStore = defineStore('planning', () => {
 
     try {
       const supabase = useSupabaseClient<Database>();
-      const resolvedTripId = Number.isFinite(tripId) ? tripId : 0;
+      const requestedId = parsePositiveTripId(tripId);
+      const resolvedTripId = requestedId ?? 0;
 
       const { data: pageData, error } = await supabase
         .rpc('get_planning_page_data', { p_trip_id: resolvedTripId });
@@ -157,13 +159,15 @@ export const usePlanningStore = defineStore('planning', () => {
       }
 
       const firstTrip = next.trips[0];
-      const preferredId = resolvedTripId || firstTrip?.id;
-      const nextSelectedTrip = preferredId != null
-        ? next.trips.find((trip: Tables<'trips'>) => trip.id === preferredId)
-        : undefined;
+      const nextSelectedTrip = requestedId != null
+        ? findTripById(next.trips, requestedId)
+        : firstTrip;
 
       if (nextSelectedTrip) {
         selectedTripId.value = String(nextSelectedTrip.id);
+      } else if (requestedId != null) {
+        // Keep the requested id so a later invite cannot silently target another trip.
+        selectedTripId.value = String(requestedId);
       } else if (firstTrip) {
         selectedTripId.value = String(firstTrip.id);
       } else {
