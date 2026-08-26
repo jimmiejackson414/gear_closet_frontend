@@ -1,16 +1,23 @@
 <script lang='ts' setup>
+  import { sharedTripSubtitle } from '@/utils/friendsPage';
   import type { ExtendedFriend } from '@/types/planning';
 
   interface Props {
     friend: ExtendedFriend;
+    sharedTripCount?: number;
   }
 
-  defineProps<Props>();
+  const props = withDefaults(defineProps<Props>(), {
+    sharedTripCount: undefined,
+  });
   const emits = defineEmits<{
     removed: [friendshipId: number];
   }>();
 
   const showRemoveDialog = ref(false);
+
+  const subtitle = computed(() =>
+    props.sharedTripCount == null ? undefined : sharedTripSubtitle(props.sharedTripCount));
 
   const handleRemoved = (friendshipId: number) => {
     emits('removed', friendshipId);
@@ -18,15 +25,12 @@
 </script>
 
 <template>
-  <card class="duration-200 ease-out flex justify-center items-center flex-col max-w-50 my-4 px-8 py-4 rounded-3xl shadow-xs hover:shadow-md transition w-full min-w-0">
-    <gc-avatar
+  <div>
+    <friend-row
+      :image="friend.friend.image"
       :initials="initials(friend.friend)"
-      size="xl"
-      :url="friend.friend.image" />
-    <div class="flex items-center flex-col mt-4 gap-2">
-      <typography class="font-bold text-center">
-        {{ friendlyUsername(friend.friend, { includeTrailName: true }) }}
-      </typography>
+      :subtitle="subtitle"
+      :title="friendlyUsername(friend.friend, { includeTrailName: true })">
       <button-root
         aria-label="Remove friend"
         size="sm"
@@ -34,11 +38,11 @@
         @click="showRemoveDialog = true">
         Remove
       </button-root>
-    </div>
+    </friend-row>
     <remove-friend-dialog
       :friend="friend"
       :is-open="showRemoveDialog"
       @close="showRemoveDialog = false"
       @removed="handleRemoved" />
-  </card>
+  </div>
 </template>

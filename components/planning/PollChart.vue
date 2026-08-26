@@ -51,9 +51,9 @@
       const supabase = useSupabaseClient<Database>();
       const { data: newVote, error } = await supabase.from('profile_answers')
         .insert({
-          profile_id: user.value?.sub,
           answer_id: answer.id,
           poll_id: props.poll.id,
+          profile_id: user.value?.sub,
         })
         .select();
 
@@ -87,8 +87,8 @@
       const { data, error } = await supabase.from('answers')
         .insert({
           content: newAnswer.value,
-          question_id: props.poll.question.id,
           profile_id: user.value?.sub,
+          question_id: props.poll.question.id,
         })
         .select();
 

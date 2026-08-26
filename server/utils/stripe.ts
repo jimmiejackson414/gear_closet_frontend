@@ -14,7 +14,7 @@ export function getSubscriptionItemPeriod (subscription: Stripe.Subscription) {
   }
 
   return {
-    current_period_start: item.current_period_start,
     current_period_end: item.current_period_end,
+    current_period_start: item.current_period_start,
   };
 }

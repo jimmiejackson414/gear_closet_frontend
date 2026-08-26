@@ -7,8 +7,8 @@
   const submitting = ref(false);
   const file = ref<File | undefined>(undefined);
   const parsingResult = ref<{ status?: 'success' | 'failure', message?: string }>({
-    status: undefined,
     message: undefined,
+    status: undefined,
   });
 
   /**
@@ -18,26 +18,26 @@
     if (!file) return;
     return new Promise((resolve, reject) => {
       Papa.parse(file, {
-        header: true,
+        complete: (results: ParseResult<Record<string, unknown>>) => {
+          parsingResult.value = {
+            message: 'Successfully parsed CSV file!',
+            status: 'success',
+          };
+          resolve(results);
+        },
         dynamicTyping: true,
+        error: (err) => {
+          parsingResult.value = {
+            message: 'There was an error parsing the CSV file.',
+            status: 'failure',
+          };
+          reject(err);
+        },
+        header: true,
         skipEmptyLines: true,
         transformHeader: (header: string) => header.toLowerCase()
           .trim()
           .replace(/\s/g, '_'),
-        complete: (results: ParseResult<Record<string, unknown>>) => {
-          parsingResult.value = {
-            status: 'success',
-            message: 'Successfully parsed CSV file!',
-          };
-          resolve(results);
-        },
-        error: (err) => {
-          parsingResult.value = {
-            status: 'failure',
-            message: 'There was an error parsing the CSV file.',
-          };
-          reject(err);
-        },
       });
     });
   };
@@ -45,7 +45,7 @@
   const onFileChange = async (event: Event) => {
     const input = event.target as HTMLInputElement;
     file.value = input.files?.[0];
-    parsingResult.value = { status: undefined, message: undefined };
+    parsingResult.value = { message: undefined, status: undefined };
     if (!file.value) return;
     try {
       await parseFile(file.value);
@@ -67,8 +67,8 @@
       if (parseResults.data?.length) {
         const { data: createdCategoryData, error } = await supabase
           .rpc('import_csv_data', {
-            p_pack_id: $store.data.selectedPack?.id as number,
             csv_data: parseResults.data,
+            p_pack_id: $store.data.selectedPack?.id as number,
           });
 
         if (createdCategoryData && !error) {
@@ -94,8 +94,8 @@
     if (!newValue) {
       file.value = undefined;
       parsingResult.value = {
-        status: undefined,
         message: undefined,
+        status: undefined,
       };
     }
   });

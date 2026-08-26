@@ -45,11 +45,11 @@ const allPacks = [
 
 const closetWithPacks = {
   closet: {
-    pageLoading: false,
     data: {
       allPacks,
       selectedPack: structuredClone(selectedPack),
     },
+    pageLoading: false,
   },
 };
 
@@ -59,13 +59,13 @@ describe('Closet Page', async () => {
 
     beforeEach(async () => {
       wrapper = await mountSuspended(ClosetSettings, {
+        attachTo: document.body,
         global: testMountGlobals({
           closet: {
-            pageLoading: false,
             data: { allPacks: [], selectedPack: undefined },
+            pageLoading: false,
           },
         }),
-        attachTo: document.body,
       });
     });
 
@@ -176,8 +176,8 @@ describe('Closet Page', async () => {
       const wrapper = await mountSuspended(ClosetEmptyState, {
         global: testMountGlobals({
           closet: {
-            pageLoading: false,
             data: { allPacks: [], selectedPack: undefined },
+            pageLoading: false,
           },
         }),
       });
@@ -201,11 +201,11 @@ describe('Closet Page', async () => {
       const wrapper = await mountSuspended(PackSummaryEmptyState, {
         global: testMountGlobals({
           closet: {
-            pageLoading: false,
             data: {
               allPacks,
               selectedPack: { ...selectedPack, categories: [] },
             },
+            pageLoading: false,
           },
         }),
       });
@@ -226,8 +226,8 @@ describe('Closet Page', async () => {
       const wrapper = await mountSuspended(ClosetPackDetails, {
         global: testMountGlobals({
           closet: {
-            pageLoading: false,
             data: { allPacks, selectedPack: pack },
+            pageLoading: false,
           },
         }),
       });
@@ -306,17 +306,17 @@ describe('Closet Page', async () => {
       supabaseClient.current = createSupabaseMock({
         rpc: () => Promise.resolve({
           data: {
+            category_items: [],
+            created_at: new Date()
+              .toISOString(),
             id: 99,
             name: 'Category Name',
             pack_id: selectedPack.id,
+            position: 1,
             slug: 'new-category',
             unit: 'g',
-            position: 1,
-            created_at: new Date()
-              .toISOString(),
             updated_at: new Date()
               .toISOString(),
-            category_items: [],
           },
           error: null,
         }),
@@ -325,11 +325,11 @@ describe('Closet Page', async () => {
       const wrapper = await mountSuspended(ClosetPackCategories, {
         global: testMountGlobals({
           closet: {
-            pageLoading: false,
             data: {
               allPacks,
               selectedPack: structuredClone(selectedPack),
             },
+            pageLoading: false,
           },
         }),
       });
@@ -357,11 +357,11 @@ describe('Closet Page', async () => {
       wrapper = await mountSuspended(PackItemsTable, {
         global: testMountGlobals({
           closet: {
-            pageLoading: false,
             data: {
               allPacks,
               selectedPack: structuredClone(selectedPack),
             },
+            pageLoading: false,
           },
         }),
       });
@@ -388,18 +388,18 @@ describe('Closet Page', async () => {
 
       spy.mockImplementation(() => {
         store.data.selectedPack!.categories[0]!.category_items.push({
-          id: 0,
           category_id: 1,
-          item_id: 0,
-          position: 8,
           created_at: new Date()
             .toISOString(),
-          updated_at: new Date()
-            .toISOString(),
+          id: 0,
           item: {
             ...generateItem(),
             id: 0,
           } as Tables<'items'>,
+          item_id: 0,
+          position: 8,
+          updated_at: new Date()
+            .toISOString(),
         });
       });
 
@@ -533,8 +533,8 @@ describe('Closet Page', async () => {
 
     beforeEach(async () => {
       wrapper = await mountSuspended(ManagePackSettingsDialog, {
-        global: testMountGlobals(),
         attachTo: document.body,
+        global: testMountGlobals(),
       });
     });
 
@@ -572,8 +572,8 @@ describe('Closet Page', async () => {
 
     beforeEach(async () => {
       wrapper = await mountSuspended(CsvUploadDialog, {
-        global: testMountGlobals(),
         attachTo: document.body,
+        global: testMountGlobals(),
       });
     });
 
@@ -611,8 +611,8 @@ describe('Closet Page', async () => {
 
     beforeEach(async () => {
       wrapper = await mountSuspended(SharePackDialog, {
-        global: testMountGlobals(),
         attachTo: document.body,
+        global: testMountGlobals(),
       });
     });
 
@@ -650,8 +650,8 @@ describe('Closet Page', async () => {
 
     beforeEach(async () => {
       wrapper = await mountSuspended(DeleteCategoryDialog, {
-        global: testMountGlobals(),
         attachTo: document.body,
+        global: testMountGlobals(),
       });
     });
 
@@ -689,8 +689,8 @@ describe('Closet Page', async () => {
 
     beforeEach(async () => {
       wrapper = await mountSuspended(DeletePackDialog, {
-        global: testMountGlobals(),
         attachTo: document.body,
+        global: testMountGlobals(),
       });
     });
 
@@ -728,8 +728,8 @@ describe('Closet Page', async () => {
 
     beforeEach(async () => {
       wrapper = await mountSuspended(RemoveItemDialog, {
-        global: testMountGlobals(),
         attachTo: document.body,
+        global: testMountGlobals(),
       });
     });
 
@@ -767,8 +767,8 @@ describe('Closet Page', async () => {
 
     beforeEach(async () => {
       wrapper = await mountSuspended(AddUrlDialog, {
-        global: testMountGlobals(),
         attachTo: document.body,
+        global: testMountGlobals(),
       });
     });
 

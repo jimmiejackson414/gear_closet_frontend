@@ -13,9 +13,9 @@
   const props = withDefaults(defineProps<Props>(), {
     border: false,
     class: '',
-    url: undefined,
     initials: undefined,
     size: 'md',
+    url: undefined,
   });
 
   const sizeClass = computed(() => {

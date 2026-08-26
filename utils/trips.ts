@@ -12,13 +12,13 @@ export function starterDetailValue (type: TripDetailsType): string {
 
 export const STARTER_TRIP_DETAILS = [
   {
-    type: TripDetailsType.TRIP,
     title: STARTER_DETAIL_TITLE,
+    type: TripDetailsType.TRIP,
     value: starterDetailValue(TripDetailsType.TRIP),
   },
   {
-    type: TripDetailsType.HIKE,
     title: STARTER_DETAIL_TITLE,
+    type: TripDetailsType.HIKE,
     value: starterDetailValue(TripDetailsType.HIKE),
   },
 ] as const;

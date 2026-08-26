@@ -54,8 +54,8 @@ export function clampForecastRange (
   const start = tripStart < today ? today : tripStart;
   const end = tripEnd > horizonDate ? horizonDate : tripEnd;
   return {
-    start,
     end: end < start ? start : end,
+    start,
   };
 }
 
@@ -160,9 +160,9 @@ export function weatherLocationsFromTrip (trip: TripWeatherPlaceFields): Weather
     originKey = coordsKey(trip.origin_lat, trip.origin_lng);
     locations.push({
       kind: 'origin',
+      label: trip.starting_point?.trim() || 'Starting point',
       lat: trip.origin_lat,
       lng: trip.origin_lng,
-      label: trip.starting_point?.trim() || 'Starting point',
     });
   }
 
@@ -171,9 +171,9 @@ export function weatherLocationsFromTrip (trip: TripWeatherPlaceFields): Weather
     if (destinationKey !== originKey) {
       locations.push({
         kind: 'destination',
+        label: trip.ending_point?.trim() || 'Ending point',
         lat: trip.destination_lat,
         lng: trip.destination_lng,
-        label: trip.ending_point?.trim() || 'Ending point',
       });
     }
   }

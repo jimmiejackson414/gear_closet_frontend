@@ -44,12 +44,12 @@ export default defineEventHandler(async (event) => {
     const admin = serverSupabaseServiceRole<Database>(event);
 
     return await sendExistingUserTripInvites({
-      tripId,
-      inviterId: user.sub,
-      emails: parsed.emails,
-      origin: getRequestURL(event).origin,
-      userClient: supabase,
       admin,
+      emails: parsed.emails,
+      inviterId: user.sub,
+      origin: getRequestURL(event).origin,
+      tripId,
+      userClient: supabase,
     });
   } catch (err) {
     if (isError(err)) throw err;

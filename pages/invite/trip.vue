@@ -58,23 +58,23 @@
     switch (reason) {
     case 'expired':
       return {
-        title: 'This invite has expired',
         description: 'Ask the trip owner to send a new invitation.',
+        title: 'This invite has expired',
       };
     case 'used':
       return {
-        title: 'This invite has already been used',
         description: 'If you already joined, open Planning from your dashboard.',
+        title: 'This invite has already been used',
       };
     case 'email_mismatch':
       return {
-        title: 'This invite was sent to a different email',
         description: 'Sign in with the address that received the invitation.',
+        title: 'This invite was sent to a different email',
       };
     case 'invalid':
       return {
-        title: 'This invite link is invalid',
         description: 'The link may be incorrect, or the invitation may have been removed.',
+        title: 'This invite link is invalid',
       };
     default:
       return null;
@@ -123,8 +123,8 @@
     claiming.value = true;
     try {
       claimResult.value = await $fetch<TripInviteClaimResult>('/api/trip-invites/claim', {
-        method: 'POST',
         body: { token: token.value },
+        method: 'POST',
       });
       if (claimResult.value.ok) {
         await goToClaimedTrip(claimResult.value.tripId);

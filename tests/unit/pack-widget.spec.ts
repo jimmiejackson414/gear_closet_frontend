@@ -11,8 +11,8 @@ import type { VueWrapper } from '@vue/test-utils';
 vi.mock('vue-echarts', () => ({
   default: {
     name: 'VChart',
-    template: '<div data-testid="pack-chart-stub" />',
     props: ['option', 'autoresize'],
+    template: '<div data-testid="pack-chart-stub" />',
   },
 }));
 
@@ -31,42 +31,42 @@ mockNuxtImport('useSupabaseUser', () => () => supabaseUser);
 mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
 mockNuxtImport('hslVarToHex', () => async () => '#000000');
 mockNuxtImport('useColorMode', () => () => ({
-  value: 'light',
   preference: 'light',
+  value: 'light',
 }));
 
 const friendPack = {
   ...selectedPack,
   id: 99,
   name: 'Junebug Pack',
-  slug: 'junebug-pack-slug',
   profile_id: FRIEND_ID,
+  slug: 'junebug-pack-slug',
 };
 
 const planningState = {
-  pageLoading: false,
-  selectedTripId: String(trips[0]!.id),
   data: {
-    trips,
+    friends: [],
     pack: selectedPack,
     party_packs: [{
-      profile_id: FRIEND_ID,
       display_name: 'Shelly Borga',
       pack: friendPack,
+      profile_id: FRIEND_ID,
     }],
-    friends: [],
     pending_invites: [],
-    trip_details: [],
-    todos: [],
     shopping_items: [],
+    todos: [],
+    trip_details: [],
+    trips,
   },
+  pageLoading: false,
+  selectedTripId: String(trips[0]!.id),
 };
 
 const dialogStubs = {
-  LazyChangePackDialog: true,
-  LazyChangePackThemeDialog: true,
   ChangePackDialog: true,
   ChangePackThemeDialog: true,
+  LazyChangePackDialog: true,
+  LazyChangePackThemeDialog: true,
 };
 
 const mountPackWidget = () => mountSuspended(PackWidget, {

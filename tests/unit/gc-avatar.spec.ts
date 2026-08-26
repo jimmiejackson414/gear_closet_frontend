@@ -38,9 +38,9 @@ describe('GcAvatar', () => {
   it('loads a sized transform and falls back to the original on error', async () => {
     const wrapper = await mountSuspended(GcAvatar, {
       props: {
+        initials: 'SB',
         size: 'xs',
         url: 'user/avatar.jpg',
-        initials: 'SB',
       },
     });
 

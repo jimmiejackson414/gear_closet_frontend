@@ -23,20 +23,20 @@ function asClient (mock: ReturnType<typeof createSupabaseMock>) {
 
 function stripeSubscription (overrides: Partial<Stripe.Subscription> = {}): Stripe.Subscription {
   return {
-    id: 'sub_123',
-    status: 'active',
-    ended_at: null,
     cancel_at_period_end: false,
+    ended_at: null,
+    id: 'sub_123',
     items: {
       data: [
         {
+          current_period_end: 1_700_086_400,
+          current_period_start: 1_700_000_000,
           id: 'si_123',
           price: { id: 'price_annual' },
-          current_period_start: 1_700_000_000,
-          current_period_end: 1_700_086_400,
         },
       ],
     },
+    status: 'active',
     ...overrides,
   } as Stripe.Subscription;
 }
@@ -44,12 +44,12 @@ function stripeSubscription (overrides: Partial<Stripe.Subscription> = {}): Stri
 function createStripeMock () {
   return {
     customers: {
-      search: vi.fn(),
       create: vi.fn(),
+      search: vi.fn(),
     },
     subscriptions: {
-      list: vi.fn(),
       create: vi.fn(),
+      list: vi.fn(),
       update: vi.fn(),
     },
   } as unknown as Stripe;
@@ -73,8 +73,8 @@ describe('stripeSubscriptionCreate helpers', () => {
       .toBe('cus_existing');
     expect(stripe.customers.search)
       .toHaveBeenCalledWith({
-        query: `metadata['profile_id']:'user-1'`,
         limit: 1,
+        query: `metadata['profile_id']:'user-1'`,
       });
   });
 
@@ -82,9 +82,9 @@ describe('stripeSubscriptionCreate helpers', () => {
     const stripe = createStripeMock();
 
     await expect(ensureStripeCustomerId(stripe, {
-      profileId: 'user-1',
-      name: 'Pat Packer',
       existingDbCustomerId: 'cus_db',
+      name: 'Pat Packer',
+      profileId: 'user-1',
     }))
       .resolves
       .toBe('cus_db');
@@ -103,9 +103,9 @@ describe('stripeSubscriptionCreate helpers', () => {
       .mockResolvedValue({ data: [{ id: 'cus_found' }] } as any);
 
     await expect(ensureStripeCustomerId(stripe, {
-      profileId: 'user-1',
       email: 'pat@example.com',
       name: 'Pat Packer',
+      profileId: 'user-1',
     }))
       .resolves
       .toBe('cus_found');
@@ -123,9 +123,9 @@ describe('stripeSubscriptionCreate helpers', () => {
       .mockResolvedValue({ id: 'cus_new' } as any);
 
     await expect(ensureStripeCustomerId(stripe, {
-      profileId: 'user-1',
       email: 'pat@example.com',
       name: 'Pat Packer',
+      profileId: 'user-1',
     }))
       .resolves
       .toBe('cus_new');
@@ -133,8 +133,8 @@ describe('stripeSubscriptionCreate helpers', () => {
     expect(stripe.customers.create)
       .toHaveBeenCalledWith({
         email: 'pat@example.com',
-        name: 'Pat Packer',
         metadata: { profile_id: 'user-1' },
+        name: 'Pat Packer',
       }, {
         idempotencyKey: 'gc-customer-user-1',
       });
@@ -151,18 +151,18 @@ describe('stripeSubscriptionCreate helpers', () => {
         id: 'sub_existing',
         items: {
           data: [{
+            current_period_end: 1_700_086_400,
+            current_period_start: 1_700_000_000,
             id: 'si_123',
             price: { id: 'price_monthly' },
-            current_period_start: 1_700_000_000,
-            current_period_end: 1_700_086_400,
           }],
         },
       } as any) as any);
 
     await expect(ensureStripeSubscription(stripe, {
-      profileId: 'user-1',
       customerId: 'cus_123',
       priceId: 'price_monthly',
+      profileId: 'user-1',
     }))
       .resolves
       .toMatchObject({ id: 'sub_existing' });
@@ -184,9 +184,9 @@ describe('stripeSubscriptionCreate helpers', () => {
       .mockResolvedValue(stripeSubscription() as any);
 
     await ensureStripeSubscription(stripe, {
-      profileId: 'user-1',
       customerId: 'cus_123',
       priceId: 'price_annual',
+      profileId: 'user-1',
     });
 
     expect(stripe.subscriptions.create)
@@ -235,10 +235,10 @@ describe('createOrSyncPaidSubscription', () => {
       stripe,
       asClient(createSupabaseMock({ from })),
       {
-        profileId: 'user-1',
         email: 'pat@example.com',
         name: 'Pat Packer',
         priceId: 'price_annual',
+        profileId: 'user-1',
       },
     ))
       .resolves
@@ -261,16 +261,16 @@ describe('createOrSyncPaidSubscription', () => {
 
     vi.spyOn(persistStripeBilling, 'getExistingBilling')
       .mockResolvedValueOnce({
-        stripeCustomerId: null,
         hasSubscription: false,
+        stripeCustomerId: null,
       })
       .mockResolvedValueOnce({
-        stripeCustomerId: null,
         hasSubscription: false,
+        stripeCustomerId: null,
       })
       .mockResolvedValue({
-        stripeCustomerId: 'cus_retry',
         hasSubscription: false,
+        stripeCustomerId: 'cus_retry',
       });
 
     const insertCustomerRow = vi.spyOn(persistStripeBilling, 'insertCustomerRow')
@@ -282,10 +282,10 @@ describe('createOrSyncPaidSubscription', () => {
       stripe,
       asClient(createSupabaseMock()),
       {
-        profileId: 'user-1',
         email: 'pat@example.com',
         name: 'Pat Packer',
         priceId: 'price_annual',
+        profileId: 'user-1',
       },
     ))
       .resolves
@@ -304,9 +304,9 @@ describe('createOrSyncPaidSubscription', () => {
       });
     expect(insertSubscriptionRow)
       .toHaveBeenCalledWith(expect.anything(), expect.objectContaining({
+        priceId: 'price_annual',
         profileId: 'user-1',
         stripeSubscription: expect.objectContaining({ id: 'sub_retry' }),
-        priceId: 'price_annual',
       }));
   });
 });

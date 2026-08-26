@@ -60,8 +60,8 @@ export function useDrawerNav () {
     isActiveRoute,
     isLightMode,
     linkLabel,
-    linkTo,
     links,
+    linkTo,
     onDrawerLinkClick,
   };
 }

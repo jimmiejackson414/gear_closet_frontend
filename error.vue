@@ -5,8 +5,8 @@
 
   const props = defineProps({
     error: {
-      type: Object as () => NuxtError,
       required: true,
+      type: Object as () => NuxtError,
     },
   });
 

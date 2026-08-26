@@ -60,6 +60,12 @@ export type ExtendedFriendInvite = Tables<'friend_invitations'> & {
   sender: Tables<'profiles'>;
 };
 
+/** Distinct latest off-platform friend invite, from `friend_invite_attempts`. */
+export type SentFriendEmail = {
+  email: string;
+  lastSentAt: string;
+};
+
 export type ExtendedPoll = Tables<'polls'> & {
   question: Tables<'questions'>;
   answers: Tables<'answers'>[];

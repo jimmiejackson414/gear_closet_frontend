@@ -1,14 +1,14 @@
 <script lang='ts' setup>
-  definePageMeta({ layout: 'public-layout', colorMode: 'light' });
+  definePageMeta({ colorMode: 'light', layout: 'public-layout' });
 
   useHead({
-    title: 'Forum Guidelines',
     meta: [
       {
-        name: 'description',
         content: 'Community guidelines for the Gear Closet forums.',
+        name: 'description',
       },
     ],
+    title: 'Forum Guidelines',
   });
 </script>
 

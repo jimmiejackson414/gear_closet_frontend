@@ -39,11 +39,11 @@
       const { error } = await supabase
         .from('trip_friends')
         .update({
-          status,
           accepted_invite_on: status === TripFriendStatus.ACCEPTED
             ? new Date()
               .toISOString()
             : null,
+          status,
         })
         .eq('id', invite.id);
 

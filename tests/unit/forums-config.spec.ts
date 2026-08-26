@@ -12,7 +12,7 @@ describe('forumsConfig', () => {
     expect(isForumsConfigured('http://localhost:3000'))
       .toBe(true);
     expect(EMPTY_FORUM_RESPONSE)
-      .toEqual({ latest_posts: [], categories: [] });
+      .toEqual({ categories: [], latest_posts: [] });
   });
 
   it('strips a trailing slash from the forums URL', () => {

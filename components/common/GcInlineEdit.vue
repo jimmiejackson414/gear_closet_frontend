@@ -14,18 +14,18 @@
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    placeholder: '',
-    hideEditBtn: false,
     disabled: false,
-    type: 'text',
-    size: 'md',
+    hideEditBtn: false,
     inputClasses: 'w-full',
+    placeholder: '',
+    size: 'md',
     spanClasses: undefined,
+    type: 'text',
   });
 
   const modelValue = defineModel<string | number | null>({
-    required: false,
     default: null,
+    required: false,
   });
 
   const isEditing = ref(false);

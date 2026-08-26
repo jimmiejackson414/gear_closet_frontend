@@ -5,7 +5,6 @@ import ProfileContent from '@/components/profile/ProfileContent.vue';
 import { useUserStore } from '@/stores/user';
 import { profile } from '@/tests/unit/mocks/app.mock';
 import { createSupabaseMock, createThenableQuery } from '@/tests/unit/mocks/supabase.mock';
-import type { ProfileApiResponse } from '@/types/profile';
 
 const toast = vi.hoisted(() => vi.fn());
 
@@ -34,10 +33,11 @@ mockNuxtImport('useSupabaseClient', () => () => supabaseClient.current);
 function seedFreeProfile () {
   const userStore = useUserStore();
   const { subscriptions: _s, ...profileWithoutSubscription } = profile;
+  // Pinia's unwrapped ProfileApiResponse is too deep for a structural assign (TS2589).
   userStore.profile = {
     ...profileWithoutSubscription,
     subscriptions: [],
-  } as ProfileApiResponse;
+  } as never;
 }
 
 function seedLifetimeProfile () {
@@ -50,14 +50,14 @@ function seedLifetimeProfile () {
     ...profile,
     subscriptions: [{
       ...existing,
-      stripe_subscription_id: null,
       prices: {
         ...existing.prices,
-        identifier: 'LIFE',
         description: 'Lifetime',
+        identifier: 'LIFE',
       },
+      stripe_subscription_id: null,
     }],
-  } as ProfileApiResponse;
+  } as never;
 }
 
 describe('components/profile/ProfileContent', () => {

@@ -259,18 +259,21 @@ export type Database = {
       friend_invite_attempts: {
         Row: {
           created_at: string
+          email: string | null
           email_count: number
           id: number
           profile_id: string
         }
         Insert: {
           created_at?: string
+          email?: string | null
           email_count?: number
           id?: number
           profile_id: string
         }
         Update: {
           created_at?: string
+          email?: string | null
           email_count?: number
           id?: number
           profile_id?: string

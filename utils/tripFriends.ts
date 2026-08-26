@@ -78,11 +78,11 @@ export const toFriendSelectOptions = <T extends { id: string; image: string | nu
   profiles.map((profile) => {
     const status = onTripByProfileId.get(profile.id);
     return {
-      label: labelFor(profile),
-      value: profile.id,
-      image: profile.image,
       disabled: Boolean(status),
+      image: profile.image,
+      label: labelFor(profile),
       status,
+      value: profile.id,
     };
   });
 
@@ -91,16 +91,16 @@ export const toExtendedTripFriend = (
   friend: TripFriendRecord,
   friendProfile: Tables<'profiles'> | null,
 ): ExtendedTripFriend => ({
-  id: friend.id,
-  trip_id: friend.trip_id,
-  profile_id: friend.profile_id,
-  invited_by_id: friend.invited_by_id,
-  status: friend.status,
-  invite_token: friend.invite_token,
   accepted_invite_on: friend.accepted_invite_on,
   created_at: friend.created_at,
-  updated_at: friend.updated_at,
   friend_profile: friendProfile,
+  id: friend.id,
+  invite_token: friend.invite_token,
+  invited_by_id: friend.invited_by_id,
+  profile_id: friend.profile_id,
+  status: friend.status,
+  trip_id: friend.trip_id,
+  updated_at: friend.updated_at,
 });
 
 export const parseInviteEmail = (
@@ -118,7 +118,7 @@ export const parseInviteEmail = (
     return { error: 'That person is already on this trip.' };
   }
   if (alreadyQueued.includes(email)) {
-    return { email, duplicate: true };
+    return { duplicate: true, email };
   }
   return { email };
 };

@@ -44,8 +44,8 @@ const { useSupabaseClient } = vi.hoisted(() => {
 });
 mockNuxtImport('useSupabaseClient', () => useSupabaseClient);
 mockNuxtImport('useColorMode', () => () => ({
-  value: 'light',
   preference: 'light',
+  value: 'light',
 }));
 
 describe('App', async () => {

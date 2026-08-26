@@ -32,13 +32,13 @@ function queuedFrom (
 }
 
 const pendingInvite = {
-  id: 11,
-  email: 'pat@example.com',
-  status: 'PENDING' as const,
-  expires_at: '2026-09-03T12:00:00.000Z',
   claimed_profile_id: null,
-  trip_id: 2,
+  email: 'pat@example.com',
+  expires_at: '2026-09-03T12:00:00.000Z',
+  id: 11,
   invited_by_id: OWNER_ID,
+  status: 'PENDING' as const,
+  trip_id: 2,
 };
 
 describe('trip invite claim helpers', () => {
@@ -55,25 +55,25 @@ describe('trip invite claim helpers', () => {
 
   it('previews a valid token without exposing the invitee email', async () => {
     const adminFrom = queuedFrom({
-      trip_invitations: [createThenableQuery({ data: pendingInvite, error: null })],
-      trips: [createThenableQuery({ data: { name: 'AT Thru' }, error: null })],
       profiles: [createThenableQuery({
         data: {
+          email: 'owner@example.com',
           first_name: 'Jimmie',
           last_name: 'Jackson',
-          email: 'owner@example.com',
           trail_name: null,
         },
         error: null,
       })],
+      trip_invitations: [createThenableQuery({ data: pendingInvite, error: null })],
+      trips: [createThenableQuery({ data: { name: 'AT Thru' }, error: null })],
     });
 
     await expect(previewTripInvite(asClient(createSupabaseMock({ from: adminFrom })), TOKEN, NOW))
       .resolves
       .toEqual({
+        inviterName: 'Jimmie Jackson',
         status: 'ok',
         tripName: 'AT Thru',
-        inviterName: 'Jimmie Jackson',
       });
   });
 
@@ -92,8 +92,8 @@ describe('trip invite claim helpers', () => {
       trip_invitations: [createThenableQuery({
         data: {
           ...pendingInvite,
-          status: 'CLAIMED',
           claimed_profile_id: OTHER_ID,
+          status: 'CLAIMED',
         },
         error: null,
       })],
@@ -112,30 +112,30 @@ describe('trip invite claim helpers', () => {
 
   it('claims a valid token once and accepts the trip friend', async () => {
     const adminFrom = queuedFrom({
-      trip_invitations: [
-        createThenableQuery({ data: pendingInvite, error: null }),
-        createThenableQuery({ data: { id: 11 }, error: null }),
-      ],
-      trip_friends: [createThenableQuery({ data: [{ id: 99 }], error: null })],
-      trips: [createThenableQuery({ data: { name: 'AT Thru' }, error: null })],
+      notifications: [createThenableQuery({ data: [{ id: 1 }], error: null })],
       profiles: [createThenableQuery({
         data: {
+          email: 'owner@example.com',
           first_name: 'Jimmie',
           last_name: 'Jackson',
-          email: 'owner@example.com',
           trail_name: null,
         },
         error: null,
       })],
-      notifications: [createThenableQuery({ data: [{ id: 1 }], error: null })],
+      trip_friends: [createThenableQuery({ data: [{ id: 99 }], error: null })],
+      trip_invitations: [
+        createThenableQuery({ data: pendingInvite, error: null }),
+        createThenableQuery({ data: { id: 11 }, error: null }),
+      ],
+      trips: [createThenableQuery({ data: { name: 'AT Thru' }, error: null })],
     });
 
     await expect(claimTripInvite({
       admin: asClient(createSupabaseMock({ from: adminFrom })),
-      userId: USER_ID,
-      userEmail: 'Pat@example.com',
-      token: TOKEN,
       now: NOW,
+      token: TOKEN,
+      userEmail: 'Pat@example.com',
+      userId: USER_ID,
     }))
       .resolves
       .toEqual({ ok: true, tripId: 2 });
@@ -155,10 +155,10 @@ describe('trip invite claim helpers', () => {
     });
     await expect(claimTripInvite({
       admin: asClient(createSupabaseMock({ from: expiredFrom })),
-      userId: USER_ID,
-      userEmail: 'pat@example.com',
-      token: TOKEN,
       now: NOW,
+      token: TOKEN,
+      userEmail: 'pat@example.com',
+      userId: USER_ID,
     }))
       .resolves
       .toEqual({ ok: false, reason: 'expired' });
@@ -167,18 +167,18 @@ describe('trip invite claim helpers', () => {
       trip_invitations: [createThenableQuery({
         data: {
           ...pendingInvite,
-          status: 'CLAIMED',
           claimed_profile_id: OTHER_ID,
+          status: 'CLAIMED',
         },
         error: null,
       })],
     });
     await expect(claimTripInvite({
       admin: asClient(createSupabaseMock({ from: usedFrom })),
-      userId: USER_ID,
-      userEmail: 'pat@example.com',
-      token: TOKEN,
       now: NOW,
+      token: TOKEN,
+      userEmail: 'pat@example.com',
+      userId: USER_ID,
     }))
       .resolves
       .toEqual({ ok: false, reason: 'used' });
@@ -188,10 +188,10 @@ describe('trip invite claim helpers', () => {
     });
     await expect(claimTripInvite({
       admin: asClient(createSupabaseMock({ from: mismatchFrom })),
-      userId: USER_ID,
-      userEmail: 'other@example.com',
-      token: TOKEN,
       now: NOW,
+      token: TOKEN,
+      userEmail: 'other@example.com',
+      userId: USER_ID,
     }))
       .resolves
       .toEqual({ ok: false, reason: 'email_mismatch' });
@@ -199,29 +199,29 @@ describe('trip invite claim helpers', () => {
 
   it('treats a token already claimed by this user as success', async () => {
     const adminFrom = queuedFrom({
-      trip_invitations: [createThenableQuery({
-        data: {
-          ...pendingInvite,
-          status: 'CLAIMED',
-          claimed_profile_id: USER_ID,
-        },
-        error: null,
-      })],
       trip_friends: [
         createThenableQuery({ data: null, error: { code: '23505' } }),
         createThenableQuery({ data: null, error: null }),
       ],
+      trip_invitations: [createThenableQuery({
+        data: {
+          ...pendingInvite,
+          claimed_profile_id: USER_ID,
+          status: 'CLAIMED',
+        },
+        error: null,
+      })],
     });
 
     await expect(claimTripInvite({
       admin: asClient(createSupabaseMock({ from: adminFrom })),
-      userId: USER_ID,
-      userEmail: 'pat@example.com',
-      token: TOKEN,
       now: NOW,
+      token: TOKEN,
+      userEmail: 'pat@example.com',
+      userId: USER_ID,
     }))
       .resolves
-      .toEqual({ ok: true, tripId: 2, alreadyClaimed: true });
+      .toEqual({ alreadyClaimed: true, ok: true, tripId: 2 });
 
     expect(adminFrom)
       .toHaveBeenCalledWith('trip_friends');

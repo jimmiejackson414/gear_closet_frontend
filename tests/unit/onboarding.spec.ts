@@ -48,10 +48,10 @@ describe('completeOnboardingPlan', () => {
       .mockResolvedValue({ success: true });
 
     await completeOnboardingPlan({
-      plan: SubscriptionLevel.FREE,
-      lifetimePromo: true,
       grantLifetime,
+      lifetimePromo: true,
       markOnboarded,
+      plan: SubscriptionLevel.FREE,
     });
 
     expect(grantLifetime)
@@ -67,10 +67,10 @@ describe('completeOnboardingPlan', () => {
       .mockResolvedValue({ success: true });
 
     await completeOnboardingPlan({
-      plan: SubscriptionLevel.ANNUAL,
-      lifetimePromo: true,
       grantLifetime,
+      lifetimePromo: true,
       markOnboarded,
+      plan: SubscriptionLevel.ANNUAL,
     });
 
     expect(grantLifetime)
@@ -87,10 +87,10 @@ describe('completeOnboardingPlan', () => {
       .mockResolvedValue({ success: true });
 
     await completeOnboardingPlan({
-      plan: SubscriptionLevel.LIFE,
-      lifetimePromo: true,
       grantLifetime,
+      lifetimePromo: true,
       markOnboarded,
+      plan: SubscriptionLevel.LIFE,
     });
 
     expect(grantLifetime)
@@ -110,10 +110,10 @@ describe('completeOnboardingPlan', () => {
       .mockResolvedValue({ success: true });
 
     await completeOnboardingPlan({
-      plan: SubscriptionLevel.LIFE,
-      lifetimePromo: false,
       grantLifetime,
+      lifetimePromo: false,
       markOnboarded,
+      plan: SubscriptionLevel.LIFE,
     });
 
     expect(grantLifetime)
@@ -129,10 +129,10 @@ describe('completeOnboardingPlan', () => {
     const markOnboarded = vi.fn();
 
     await expect(completeOnboardingPlan({
-      plan: SubscriptionLevel.LIFE,
-      lifetimePromo: true,
       grantLifetime,
+      lifetimePromo: true,
       markOnboarded,
+      plan: SubscriptionLevel.LIFE,
     }))
       .rejects
       .toThrow('Unable to start your subscription.');
@@ -147,9 +147,9 @@ describe('completeOnboardingPlan', () => {
     const markOnboarded = vi.fn();
 
     await expect(completeOnboardingPlan({
-      plan: null,
       grantLifetime,
       markOnboarded,
+      plan: null,
     }))
       .rejects
       .toThrow('Select a plan to continue.');

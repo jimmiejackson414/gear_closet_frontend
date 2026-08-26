@@ -12,9 +12,11 @@ import {
 } from '@/server/utils/tripInvites';
 import { FriendRequestStatus } from '@/types';
 import { friendlyUsername } from '@/utils/displayName';
+import { distinctLatestEmails } from '@/utils/friendsPage';
 import { parseFriendSearchEmail } from '@/utils/friendsSearch';
 import { NotificationKind } from '@/utils/notifications';
 import type { Database } from '@/types';
+import type { SentFriendEmail } from '@/types/planning';
 import type { SupabaseClient } from '@supabase/supabase-js';
 
 export const GENERIC_FRIEND_INVITE_RESULT = { ok: true as const };
@@ -66,8 +68,9 @@ export const sendFriendEmailInvite = async (input: SendFriendEmailInviteInput) =
 
   const { error: insertError } = await input.admin.from('friend_invite_attempts')
     .insert({
-      profile_id: input.inviterId,
+      email: input.email,
       email_count: 1,
+      profile_id: input.inviterId,
     });
 
   if (insertError) {
@@ -123,8 +126,8 @@ export const sendFriendEmailInvite = async (input: SendFriendEmailInviteInput) =
       const { error: insertError } = await input.admin
         .from('friend_invitations')
         .insert({
-          sender_id: input.inviterId,
           recipient_id: profile.id,
+          sender_id: input.inviterId,
           status: FriendRequestStatus.PENDING,
         });
 
@@ -134,40 +137,61 @@ export const sendFriendEmailInvite = async (input: SendFriendEmailInviteInput) =
 
       await input.admin.from('notifications')
         .insert({
-          title: NotificationKind.FRIEND_REQUEST,
           content: `You have a new friend request from ${inviterName}.`,
-          read_on_date: null,
           profile_id: profile.id,
+          read_on_date: null,
           sender_id: input.inviterId,
+          title: NotificationKind.FRIEND_REQUEST,
         });
     }
 
     const message = renderFriendRequestEmail({
-      senderName: inviterName,
       actionUrl: friendsUrlFromOrigin(input.origin),
+      senderName: inviterName,
     });
     await mail({
-      to: input.email,
-      subject: message.subject,
       html: message.html,
-      text: message.text,
+      subject: message.subject,
       templateId: message.templateId,
+      text: message.text,
+      to: input.email,
     });
 
     return GENERIC_FRIEND_INVITE_RESULT;
   }
 
   const message = renderFriendRequestEmail({
-    senderName: inviterName,
     actionUrl: acceptUrlFromOrigin(input.origin),
+    senderName: inviterName,
   });
   await mail({
-    to: input.email,
-    subject: message.subject,
     html: message.html,
-    text: message.text,
+    subject: message.subject,
     templateId: message.templateId,
+    text: message.text,
+    to: input.email,
   });
 
   return GENERIC_FRIEND_INVITE_RESULT;
+};
+
+const SENT_EMAIL_LIMIT = 200;
+
+export const listSentFriendEmails = async (input: {
+  inviterId: string;
+  admin: InviteClient;
+}): Promise<SentFriendEmail[]> => {
+  const { data, error } = await input.admin
+    .from('friend_invite_attempts')
+    .select('email, created_at')
+    .eq('profile_id', input.inviterId)
+    .not('email', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(SENT_EMAIL_LIMIT);
+
+  if (error) {
+    throw new InviteError('Unable to load invites', 500);
+  }
+
+  return distinctLatestEmails(data ?? []);
 };

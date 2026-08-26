@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const { subscription, paymentMethodId } = await readBody(event);
+  const { paymentMethodId, subscription } = await readBody(event);
 
   if (!isPaidPlanIdentifier(subscription)) {
     throw createError({
@@ -54,11 +54,11 @@ export default defineEventHandler(async (event) => {
     }
 
     return await createOrSyncPaidSubscription(stripe, admin, {
-      profileId: user.sub,
       email: user.email,
       name: `${profile.first_name} ${profile.last_name}`,
-      priceId: price.id,
       paymentMethodId: typeof paymentMethodId === 'string' ? paymentMethodId : undefined,
+      priceId: price.id,
+      profileId: user.sub,
     });
   } catch (err) {
     if (isError(err)) throw err;

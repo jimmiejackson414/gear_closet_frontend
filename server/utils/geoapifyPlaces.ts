@@ -58,16 +58,16 @@ async function fetchGeoapifyPlaces (
     ? 'https://api.geoapify.com/v1/geocode/search'
     : 'https://api.geoapify.com/v1/geocode/autocomplete';
   const payload = await $fetch<GeoapifyAutocompleteResponse>(path, {
-    method: 'GET',
-    timeout: 8000,
     headers: { Accept: 'application/json' },
+    method: 'GET',
     query: {
-      text,
-      format: 'json',
-      limit: 10,
-      lang: 'en',
       apiKey,
+      format: 'json',
+      lang: 'en',
+      limit: 10,
+      text,
     },
+    timeout: 8000,
   });
   return mapGeoapifyAutocomplete(payload);
 }

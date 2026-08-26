@@ -29,8 +29,8 @@
     try {
       resendingEmail.value = email;
       await $fetch(`/api/trips/${tripId}/invites`, {
-        method: 'POST',
         body: { emails: [email] },
+        method: 'POST',
       });
       $appStore.notifyPositive('Invites sent.');
       void $store.fetchPlanningPage(tripId);

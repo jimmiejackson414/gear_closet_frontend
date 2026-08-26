@@ -16,9 +16,9 @@
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    placeholder: 'Begin searching...',
     disabled: false,
     loading: false,
+    placeholder: 'Begin searching...',
   });
   const emit = defineEmits<{
     (e: 'search', query: string): void;

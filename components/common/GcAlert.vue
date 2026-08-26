@@ -7,8 +7,8 @@
   export type Severity = 'error' | 'warning' | 'positive' | 'info';
 
   const props = withDefaults(defineProps<Props>(), {
-    severity: 'error',
     message: '',
+    severity: 'error',
   });
 
   const classList = computed(() => {

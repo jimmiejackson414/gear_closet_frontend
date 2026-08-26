@@ -11,8 +11,8 @@ type InitialState = NonNullable<TestingOptions['initialState']>;
 export function createTestPinia (initialState?: InitialState, options: TestingOptions = {}) {
   return createTestingPinia({
     createSpy: vi.fn,
-    stubActions: false,
     initialState,
+    stubActions: false,
     ...options,
   });
 }

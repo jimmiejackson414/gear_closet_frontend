@@ -72,7 +72,7 @@ export const calculateCategoryQuantity = (category: ExtendedCategory) => {
  */
 export const calculatePackPrices = (pack: ExtendedPack) => {
   const data = {
-    total: 0, base: 0, worn: 0, consumable: 0,
+    base: 0, consumable: 0, total: 0, worn: 0,
   };
 
   if (!pack || !pack?.categories?.length) return data;
@@ -107,7 +107,7 @@ export const calculatePackPrices = (pack: ExtendedPack) => {
  */
 export const calculatePackWeights = (pack: ExtendedPack) => {
   const data = {
-    total: 0, base: 0, worn: 0, consumable: 0,
+    base: 0, consumable: 0, total: 0, worn: 0,
   };
 
   pack?.categories?.forEach(cat => {
@@ -166,11 +166,11 @@ export const generateItem = (): TablesInsert<'items'> => ({
 export const weightOptions = ({ shortLabel = false } = {}) =>
   Object.values(ItemUnit)
     .map(value => ({
-      value,
       label: shortLabel
         ? value
         : value === ItemUnit.g ? 'Grams (g)' :
           value === ItemUnit.kg ? 'Kilograms (kg)' :
             value === ItemUnit.oz ? 'Ounces (oz)' :
               value === ItemUnit.lb ? 'Pounds (lb)' : value,
+      value,
     }));

@@ -37,21 +37,21 @@
   });
 
   const valuesFromDetail = (detail: Tables<'trip_details'> | undefined) => ({
-    title: detail?.title ?? '',
-    value: detail?.value ?? '',
     has_url: Boolean(detail?.url),
+    title: detail?.title ?? '',
     url: detail?.url ?? '',
+    value: detail?.value ?? '',
   });
 
   const formSchema = toTypedSchema(z.object({
+    has_url: z.boolean(),
     title: z.string()
       .min(3)
       .max(50),
+    url: z.string()
+      .optional(),
     value: z.string()
       .max(500)
-      .optional(),
-    has_url: z.boolean(),
-    url: z.string()
       .optional(),
   })
     .refine(data => !data.has_url || Boolean(data.url?.trim()), {
@@ -59,9 +59,9 @@
       path: ['url'],
     }));
 
-  const { isFieldDirty, handleSubmit, isSubmitting, values, setValues } = useForm({
-    validationSchema: formSchema,
+  const { handleSubmit, isFieldDirty, isSubmitting, setValues, values } = useForm({
     initialValues: valuesFromDetail(isCreate.value ? undefined : props.activeDetail),
+    validationSchema: formSchema,
   });
 
   const handleClose = () => {
@@ -83,8 +83,8 @@
       submitting.value = true;
       const fields = {
         title: v.title,
-        value: v.value,
         url: v.has_url && v.url?.trim() ? prependProtocol(v.url.trim()) : null,
+        value: v.value,
       };
       if (isCreate.value) {
         const created = await $store.createTripDetail({

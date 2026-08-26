@@ -41,7 +41,7 @@ describe('tripWeather', () => {
   it('clamps the forecast range to today through the horizon', () => {
     const now = new Date('2026-08-25T12:00:00Z');
     expect(clampForecastRange('2026-08-20T00:00:00Z', '2026-09-20T00:00:00Z', now))
-      .toEqual({ start: '2026-08-25', end: '2026-09-10' });
+      .toEqual({ end: '2026-09-10', start: '2026-08-25' });
   });
 
   it('maps WMO codes onto icon kinds', () => {
@@ -85,9 +85,9 @@ describe('tripWeather', () => {
     }))
       .toEqual([{
         kind: 'origin',
+        label: 'Springer Mountain',
         lat: 34.6265,
         lng: -84.1938,
-        label: 'Springer Mountain',
       }]);
 
     expect(weatherLocationsFromTrip({
@@ -97,28 +97,28 @@ describe('tripWeather', () => {
     }))
       .toEqual([{
         kind: 'destination',
+        label: 'Mount Katahdin',
         lat: 45.9044,
         lng: -68.9213,
-        label: 'Mount Katahdin',
       }]);
 
     expect(weatherLocationsFromTrip({
-      origin_lat: 48.75,
-      origin_lng: -121.68,
-      starting_point: 'Hannegan Trailhead',
       destination_lat: 48.75,
       destination_lng: -121.68,
       ending_point: 'Hannegan Trailhead',
+      origin_lat: 48.75,
+      origin_lng: -121.68,
+      starting_point: 'Hannegan Trailhead',
     }))
       .toHaveLength(1);
 
     expect(weatherLocationsFromTrip({
-      origin_lat: 34.6265,
-      origin_lng: -84.1938,
-      starting_point: 'Springer Mountain',
       destination_lat: 45.9044,
       destination_lng: -68.9213,
       ending_point: 'Mount Katahdin',
+      origin_lat: 34.6265,
+      origin_lng: -84.1938,
+      starting_point: 'Springer Mountain',
     }))
       .toHaveLength(2);
   });
@@ -135,12 +135,12 @@ describe('tripWeather', () => {
       starting_point: 'Hannegan Trailhead',
     });
     const newDestination = tripWeatherWatchKey(2, {
-      origin_lat: 34.6,
-      origin_lng: -84.2,
-      starting_point: 'Springer Mountain',
       destination_lat: 45.9,
       destination_lng: -68.9,
       ending_point: 'Mount Katahdin',
+      origin_lat: 34.6,
+      origin_lng: -84.2,
+      starting_point: 'Springer Mountain',
     });
 
     expect(origin)

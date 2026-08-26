@@ -10,27 +10,27 @@
 
   /** Fresh blank form each time — avoid a module-level mutable singleton. */
   const createBlankModalForm = (): PollForm => ({
+    answers: [{
+      content: '',
+      created_at: '',
+      id: 0,
+      profile_id: '',
+      question_id: 0,
+      updated_at: '',
+    }],
     question: {
+      created_at: '',
       id: 0,
       poll_id: 0,
-      created_at: '',
-      updated_at: '',
       profile_id: '',
       title: '',
-    },
-    answers: [{
-      id: 0,
-      question_id: 0,
-      created_at: '',
       updated_at: '',
-      profile_id: '',
-      content: '',
-    }],
+    },
   });
 
   const clonePollToForm = (poll: ExtendedPoll): PollForm => ({
-    question: { ...poll.question },
     answers: (poll.answers ?? []).map(answer => ({ ...answer })),
+    question: { ...poll.question },
   });
 
   const $store = usePlanningStore();

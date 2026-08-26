@@ -9,31 +9,31 @@ const fetchMock = vi.hoisted(() => vi.fn());
 mockNuxtImport('$fetch', () => fetchMock);
 
 const sidebarStubs = {
-  PackWidget: true,
-  TripDetailsWidget: true,
   HikeDetailsWidget: true,
-  TripFriendsWidget: true,
-  TodosWidget: true,
-  ShoppingListWidget: true,
+  PackWidget: true,
   PollWidget: true,
+  ShoppingListWidget: true,
+  TodosWidget: true,
+  TripDetailsWidget: true,
+  TripFriendsWidget: true,
 };
 
 const forecast = {
-  status: 'forecast' as const,
-  units: 'imperial' as const,
   places: [{
-    kind: 'origin' as const,
-    placeLabel: 'Springer Mountain',
     currentAirQuality: null,
     days: [{
+      airQuality: null,
       date: '2026-08-26',
       high: 70,
       low: 50,
       precipChance: 10,
       weatherCode: 0,
-      airQuality: null,
     }],
+    kind: 'origin' as const,
+    placeLabel: 'Springer Mountain',
   }],
+  status: 'forecast' as const,
+  units: 'imperial' as const,
 };
 
 async function mountPlanningContent () {
@@ -41,9 +41,9 @@ async function mountPlanningContent () {
     global: {
       ...testMountGlobals({
         planning: {
+          data: { trips },
           pageLoading: false,
           selectedTripId: String(trips[0]!.id),
-          data: { trips },
         },
       }),
       stubs: sidebarStubs,
@@ -80,14 +80,14 @@ describe('PlanningContent', () => {
       global: {
         ...testMountGlobals({
           planning: {
-            pageLoading: false,
-            selectedTripId: String(trips[0]!.id),
             data: {
               trips: [{
                 ...trips[0]!,
                 starting_date: '2026-08-30T00:00:00Z',
               }],
             },
+            pageLoading: false,
+            selectedTripId: String(trips[0]!.id),
           },
         }),
         stubs: sidebarStubs,

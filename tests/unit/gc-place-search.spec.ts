@@ -9,7 +9,7 @@ mockNuxtImport('$fetch', () => fetchMock);
 
 describe('GcPlaceSearch', () => {
   beforeEach(() => {
-    fetchMock.mockResolvedValue({ places: [], attribution: 'Powered by Geoapify' });
+    fetchMock.mockResolvedValue({ attribution: 'Powered by Geoapify', places: [] });
   });
 
   afterEach(async () => {
@@ -19,12 +19,12 @@ describe('GcPlaceSearch', () => {
 
   it('keeps the inline input open after clicking the starting point', async () => {
     const wrapper = await mountSuspended(GcPlaceSearch, {
+      global: testMountGlobals(),
       props: {
-        variant: 'inline',
         modelValue: 'Springer Mountain',
         placeholder: 'Starting point',
+        variant: 'inline',
       },
-      global: testMountGlobals(),
     });
 
     vi.useFakeTimers();
@@ -51,12 +51,12 @@ describe('GcPlaceSearch', () => {
 
   it('commits the typed label when the inline input blurs', async () => {
     const wrapper = await mountSuspended(GcPlaceSearch, {
+      global: testMountGlobals(),
       props: {
-        variant: 'inline',
         modelValue: 'Springer Mountain',
         placeholder: 'Starting point',
+        variant: 'inline',
       },
-      global: testMountGlobals(),
     });
 
     vi.useFakeTimers();
@@ -75,23 +75,23 @@ describe('GcPlaceSearch', () => {
 
   it('fills the field with the short place name when a suggestion is selected', async () => {
     fetchMock.mockResolvedValue({
+      attribution: 'Powered by Geoapify',
       places: [{
-        name: 'Hannegan Pass',
         label: 'Hannegan Pass, Whatcom, WA',
         lat: 48.88,
         lng: -121.53,
+        name: 'Hannegan Pass',
         placeId: 'pass',
       }],
-      attribution: 'Powered by Geoapify',
     });
 
     const wrapper = await mountSuspended(GcPlaceSearch, {
+      global: testMountGlobals(),
       props: {
-        variant: 'inline',
         modelValue: '',
         placeholder: 'Starting point',
+        variant: 'inline',
       },
-      global: testMountGlobals(),
     });
 
     vi.useFakeTimers();

@@ -61,11 +61,11 @@
     try {
       isSubmitting.value = true;
       await $fetch('/api/plan/free-selection', {
-        method: 'POST',
         body: {
           packId: packs.value.length ? selectedPackId.value ?? null : null,
           tripId: trips.value.length ? selectedTripId.value ?? null : null,
         },
+        method: 'POST',
       });
 
       if ($userStore.profile) {

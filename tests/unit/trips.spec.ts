@@ -9,9 +9,9 @@ import {
   starterDetailValue,
 } from '@/utils/trips';
 
-const owned = { id: 1, profile_id: 'me', locked_at: null };
-const invited = { id: 2, profile_id: 'them', locked_at: null };
-const lockedOwned = { id: 3, profile_id: 'me', locked_at: '2026-01-01T00:00:00Z' };
+const owned = { id: 1, locked_at: null, profile_id: 'me' };
+const invited = { id: 2, locked_at: null, profile_id: 'them' };
+const lockedOwned = { id: 3, locked_at: '2026-01-01T00:00:00Z', profile_id: 'me' };
 
 describe('utils/trips', () => {
   it('detects owned vs invitee trips', () => {

@@ -25,16 +25,16 @@
     switch (packGateReason.value) {
     case 'not_found':
       return {
-        title: 'Pack not found',
         description: 'This link may be incorrect, or the pack may have been removed.',
+        title: 'Pack not found',
       };
     case 'error':
       return {
-        title: 'Couldn\'t load this pack',
         description: 'Something went wrong while loading this pack. Please try again.',
+        title: 'Couldn\'t load this pack',
       };
     default:
-      return { title: '', description: '' };
+      return { description: '', title: '' };
     }
   });
 
@@ -72,8 +72,8 @@
           )
         `)
         .eq('slug', (Array.isArray($route.params.slug) ? $route.params.slug[0] : $route.params.slug) as string)
-        .order('created_at', { referencedTable: 'comments', ascending: false })
-        .order('created_at', { referencedTable: 'comments.replies', ascending: false })
+        .order('created_at', { ascending: false, referencedTable: 'comments' })
+        .order('created_at', { ascending: false, referencedTable: 'comments.replies' })
         .maybeSingle();
 
       if (error) throw error;
@@ -135,7 +135,7 @@
           )
         `)
         .eq('id', data?.[0]?.id as number)
-        .order('created_at', { referencedTable: 'replies', ascending: false })
+        .order('created_at', { ascending: false, referencedTable: 'replies' })
         .maybeSingle();
 
       if (!comment || commentError) throw commentError;

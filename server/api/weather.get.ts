@@ -21,7 +21,7 @@ import {
 } from '@/utils/tripWeather';
 import type { Database } from '@/types';
 
-const emptyAirQuality: TripAirQuality = { current: null, byDate: {} };
+const emptyAirQuality: TripAirQuality = { byDate: {}, current: null };
 
 async function forecastForLocation (
   location: WeatherLocation,
@@ -35,22 +35,22 @@ async function forecastForLocation (
     })
       .catch(() => emptyAirQuality),
     fetchForecastWeather({
+      endingDate: dates.endingDate,
       lat: location.lat,
       lng: location.lng,
       startingDate: dates.startingDate,
-      endingDate: dates.endingDate,
       units,
     }),
   ]);
 
   return {
-    kind: location.kind,
-    placeLabel: location.label,
     currentAirQuality: airQuality.current,
     days: days.map(day => ({
       ...day,
       airQuality: airQuality.byDate[day.date] ?? null,
     })),
+    kind: location.kind,
+    placeLabel: location.label,
   };
 }
 
@@ -98,8 +98,8 @@ export default defineEventHandler(async (event): Promise<TripWeatherResponse> =>
     }
     if (!shouldUseForecast(trip.starting_date)) {
       return {
-        status: 'too_far',
         availableWithinDays: WEATHER_AVAILABLE_WITHIN_DAYS,
+        status: 'too_far',
       };
     }
 
@@ -110,16 +110,16 @@ export default defineEventHandler(async (event): Promise<TripWeatherResponse> =>
     const units = weatherUnitsFromMeasuringSystem(profile?.measuring_system);
 
     return {
-      status: 'forecast',
-      units,
       places: await Promise.all(locations.map(location => forecastForLocation(
         location,
         {
-          startingDate: trip.starting_date,
           endingDate: trip.ending_date,
+          startingDate: trip.starting_date,
         },
         units,
       ))),
+      status: 'forecast',
+      units,
     };
   } catch (err) {
     if (isError(err)) throw err;

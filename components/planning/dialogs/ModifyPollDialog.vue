@@ -22,14 +22,14 @@
   const $store = usePlanningStore();
 
   const validationErrors = reactive({
-    question: '',
     answers: '',
+    question: '',
   });
 
   /** Deep clone so edits never share nested question/answers with the live store. */
   const cloneForm = (form: PollForm): PollForm => ({
-    question: { ...form.question },
     answers: form.answers.map(answer => ({ ...answer })),
+    question: { ...form.question },
   });
 
   const localForm = reactive<PollForm>(cloneForm(props.form));
@@ -53,8 +53,8 @@
 
   const submitPoll = async () => {
     const validation = validatePollForm({
-      question: localForm.question?.title ?? '',
       answers: localForm.answers.map((answer) => answer.content ?? ''),
+      question: localForm.question?.title ?? '',
     });
 
     validationErrors.question = validation.errors.question ?? '';
@@ -77,9 +77,9 @@
       isSubmitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const { data: updatedPoll, error } = await supabase.rpc('update_poll', {
+        answers,
         poll_id: $store.data.poll?.id as number,
         question: localForm.question.title?.trim() ?? '',
-        answers,
       })
         .select();
 
@@ -106,9 +106,9 @@
       isSubmitting.value = true;
       const supabase = useSupabaseClient<Database>();
       const { data: newPoll, error } = await supabase.rpc('create_poll', {
-        trip_id: Number($store.selectedTripId),
-        question: localForm.question.title?.trim() ?? '',
         answers,
+        question: localForm.question.title?.trim() ?? '',
+        trip_id: Number($store.selectedTripId),
       })
         .single();
 
@@ -132,12 +132,12 @@
    */
   const addAnswer = () => {
     localForm.answers.push({
-      id: 0,
-      question_id: 0,
-      created_at: '',
-      updated_at: '',
-      profile_id: '',
       content: '',
+      created_at: '',
+      id: 0,
+      profile_id: '',
+      question_id: 0,
+      updated_at: '',
     });
   };
 

@@ -201,14 +201,14 @@ describe('stores/user', () => {
   describe('fetchNotification', () => {
     it('pushes when notification id is missing', async () => {
       const incoming = {
-        id: 99,
-        title: 'New',
-        read_on_date: null,
-        profile_id: profile.id,
-        sender_id: null,
         created_at: new Date()
           .toISOString(),
+        id: 99,
+        profile_id: profile.id,
+        read_on_date: null,
         sender: null,
+        sender_id: null,
+        title: 'New',
       };
       supabaseClient.current = createSupabaseMock({
         from: () => createThenableQuery({ data: incoming, error: null }),
@@ -246,14 +246,14 @@ describe('stores/user', () => {
 
     it('still fetches when profile is null', async () => {
       const incoming = {
-        id: 1,
-        title: 'Hello',
-        read_on_date: null,
-        profile_id: profile.id,
-        sender_id: null,
         created_at: new Date()
           .toISOString(),
+        id: 1,
+        profile_id: profile.id,
+        read_on_date: null,
         sender: null,
+        sender_id: null,
+        title: 'Hello',
       };
       supabaseClient.current = createSupabaseMock({
         from: () => createThenableQuery({ data: incoming, error: null }),

@@ -10,21 +10,21 @@ const fetchMock = vi.hoisted(() => vi.fn());
 mockNuxtImport('$fetch', () => fetchMock);
 
 const forecast = {
-  status: 'forecast' as const,
-  units: 'imperial' as const,
   places: [{
-    kind: 'origin' as const,
-    placeLabel: 'Springer Mountain',
     currentAirQuality: null,
     days: [{
+      airQuality: null,
       date: '2026-08-26',
       high: 70,
       low: 50,
       precipChance: 10,
       weatherCode: 0,
-      airQuality: null,
     }],
+    kind: 'origin' as const,
+    placeLabel: 'Springer Mountain',
   }],
+  status: 'forecast' as const,
+  units: 'imperial' as const,
 };
 
 describe('TripWeatherWidget', () => {
@@ -39,13 +39,13 @@ describe('TripWeatherWidget', () => {
 
   it('uses the same title styling as other planning widgets', async () => {
     const wrapper = await mountSuspended(TripWeatherWidget, {
-      props: { tripId: trips[0]!.id },
       global: testMountGlobals({
         planning: {
-          selectedTripId: String(trips[0]!.id),
           data: { trips },
+          selectedTripId: String(trips[0]!.id),
         },
       }),
+      props: { tripId: trips[0]!.id },
     });
 
     const title = wrapper.get('[data-testid="trip-weather-widget"] p');
@@ -58,21 +58,21 @@ describe('TripWeatherWidget', () => {
 
   it('refetches weather when the starting or ending point changes', async () => {
     const wrapper = await mountSuspended(TripWeatherWidget, {
-      props: { tripId: trips[0]!.id },
       global: testMountGlobals({
         planning: {
-          selectedTripId: String(trips[0]!.id),
           data: {
             trips: [{
               ...trips[0]!,
-              starting_date: '2026-08-30T00:00:00Z',
               origin_lat: 34.6265,
               origin_lng: -84.1938,
+              starting_date: '2026-08-30T00:00:00Z',
               starting_point: 'Springer Mountain',
             }],
           },
+          selectedTripId: String(trips[0]!.id),
         },
       }),
+      props: { tripId: trips[0]!.id },
     });
     const store = usePlanningStore();
 
@@ -109,21 +109,21 @@ describe('TripWeatherWidget', () => {
 
   it('does not fetch weather until a starting date is selected', async () => {
     const wrapper = await mountSuspended(TripWeatherWidget, {
-      props: { tripId: trips[0]!.id },
       global: testMountGlobals({
         planning: {
-          selectedTripId: String(trips[0]!.id),
           data: {
             trips: [{
               ...trips[0]!,
               origin_lat: 34.6265,
               origin_lng: -84.1938,
-              starting_point: 'Springer Mountain',
               starting_date: null,
+              starting_point: 'Springer Mountain',
             }],
           },
+          selectedTripId: String(trips[0]!.id),
         },
       }),
+      props: { tripId: trips[0]!.id },
     });
 
     await wrapper.vm.$nextTick();

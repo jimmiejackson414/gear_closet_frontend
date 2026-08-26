@@ -19,8 +19,8 @@ describe('Planning Page', async () => {
       wrapper = await mountSuspended(PlanningSettings, {
         global: testMountGlobals({
           planning: {
-            pageLoading: false,
             data: { trips: [] },
+            pageLoading: false,
           },
         }),
       });
@@ -113,8 +113,8 @@ describe('Planning Page', async () => {
       const wrapper = await mountSuspended(PlanningEmptyState, {
         global: testMountGlobals({
           planning: {
-            pageLoading: false,
             data: { trips: [] },
+            pageLoading: false,
           },
         }),
       });
@@ -140,8 +140,8 @@ describe('Planning Page', async () => {
       wrapper = await mountSuspended(HikeDetailsWidget, {
         global: testMountGlobals({
           planning: {
-            pageLoading: false,
             data: { trip_details: [] },
+            pageLoading: false,
           },
         }),
       });
@@ -180,9 +180,9 @@ describe('Planning Page', async () => {
     it('still shows origin, destination, and description when hike details are empty', async () => {
       const store = usePlanningStore();
       store.$patch({
-        data: { trips, trip_details: [] },
-        selectedTripId: String(trips[0]?.id),
+        data: { trip_details: [], trips },
         pageLoading: false,
+        selectedTripId: String(trips[0]?.id),
       });
       await wrapper.vm.$nextTick();
 
@@ -200,9 +200,9 @@ describe('Planning Page', async () => {
     it('uses distinct starting and ending point placeholders', async () => {
       const store = usePlanningStore();
       store.$patch({
-        data: { trips, trip_details: tripDetails },
-        selectedTripId: String(trips[0]?.id),
+        data: { trip_details: tripDetails, trips },
         pageLoading: false,
+        selectedTripId: String(trips[0]?.id),
       });
       await wrapper.vm.$nextTick();
 
@@ -217,9 +217,9 @@ describe('Planning Page', async () => {
       const store = usePlanningStore();
       const userStore = useUserStore();
       store.$patch({
-        data: { trips, trip_details: tripDetails },
-        selectedTripId: String(trips[0]?.id),
+        data: { trip_details: tripDetails, trips },
         pageLoading: false,
+        selectedTripId: String(trips[0]?.id),
       });
       userStore.$patch({
         profile: { id: trips[0]?.profile_id } as any,
@@ -260,9 +260,9 @@ describe('Planning Page', async () => {
         attachTo: document.body,
         global: testMountGlobals({
           planning: {
+            data: { trip_details: tripDetails, trips },
             pageLoading: false,
             selectedTripId: String(trips[0]?.id),
-            data: { trips, trip_details: tripDetails },
           },
           user: { profile: { id: trips[0]?.profile_id } },
         }),
@@ -285,9 +285,9 @@ describe('Planning Page', async () => {
         attachTo: document.body,
         global: testMountGlobals({
           planning: {
+            data: { trip_details: tripDetails, trips },
             pageLoading: false,
             selectedTripId: String(trips[0]?.id),
-            data: { trips, trip_details: tripDetails },
           },
           user: { profile: { id: trips[0]?.profile_id } },
         }),
@@ -322,9 +322,9 @@ describe('Planning Page', async () => {
         attachTo: document.body,
         global: testMountGlobals({
           planning: {
+            data: { trip_details: [], trips },
             pageLoading: false,
             selectedTripId: String(trips[0]?.id),
-            data: { trips, trip_details: [] },
           },
           user: { profile: { id: trips[0]?.profile_id } },
         }),
@@ -359,9 +359,9 @@ describe('Planning Page', async () => {
       const wrapper = await mountSuspended(TripDetailsWidget, {
         global: testMountGlobals({
           planning: {
+            data: { trip_details: [], trips },
             pageLoading: false,
             selectedTripId: String(trips[1]?.id),
-            data: { trips, trip_details: [] },
           },
         }),
       });
@@ -381,9 +381,9 @@ describe('Planning Page', async () => {
         attachTo: document.body,
         global: testMountGlobals({
           planning: {
+            data: { trip_details: tripDetails, trips },
             pageLoading: false,
             selectedTripId: String(trips[0]?.id),
-            data: { trips, trip_details: tripDetails },
           },
           user: { profile: { id: trips[0]?.profile_id } },
         }),
@@ -404,9 +404,9 @@ describe('Planning Page', async () => {
         attachTo: document.body,
         global: testMountGlobals({
           planning: {
+            data: { trip_details: tripDetails, trips },
             pageLoading: false,
             selectedTripId: String(trips[0]?.id),
-            data: { trips, trip_details: tripDetails },
           },
           user: { profile: { id: trips[0]?.profile_id } },
         }),
@@ -444,13 +444,13 @@ describe('Planning Page', async () => {
 
     it('renders the dialog when open with an active detail', async () => {
       const wrapper = await mountSuspended(ModifyDetailDialog, {
+        attachTo: document.body,
         global: testMountGlobals({
           planning: {
-            pageLoading: false,
             data: { trip_details: tripDetails },
+            pageLoading: false,
           },
         }),
-        attachTo: document.body,
         props: {
           activeDetail: tripDetails[0]!,
           isOpen: true,
@@ -490,13 +490,13 @@ describe('Planning Page', async () => {
 
     it('renders a create dialog without a Delete action', async () => {
       const wrapper = await mountSuspended(ModifyDetailDialog, {
+        attachTo: document.body,
         global: testMountGlobals({
           planning: {
-            pageLoading: false,
             data: { trip_details: [] },
+            pageLoading: false,
           },
         }),
-        attachTo: document.body,
         props: {
           detailType: TripDetailsType.HIKE,
           isOpen: true,

@@ -85,22 +85,22 @@ describe('invite email helpers', () => {
     expect(escapeHtml('<script>"x"'))
       .toBe('&lt;script&gt;&quot;x&quot;');
     expect(buildTripInviteMessage({
+      acceptUrl: 'https://app.gearcloset.io/',
       inviterName: 'Jimmie',
       tripName: 'AT Thru',
-      acceptUrl: 'https://app.gearcloset.io/',
     }))
       .toMatchObject({
-        templateId: 'trip-invite',
         subject: 'Jimmie invited you to a trip',
+        templateId: 'trip-invite',
       });
     expect(buildTripClaimInviteMessage({
+      claimUrl: 'https://app.gearcloset.io/invite/trip?token=abc',
       inviterName: 'Jimmie',
       tripName: 'AT Thru',
-      claimUrl: 'https://app.gearcloset.io/invite/trip?token=abc',
     }))
       .toMatchObject({
-        templateId: 'trip-invite-claim',
         subject: 'Jimmie invited you to a trip',
+        templateId: 'trip-invite-claim',
       });
     expect(claimUrlFromOrigin('https://app.gearcloset.io', 'raw-token'))
       .toBe('https://app.gearcloset.io/invite/trip?token=raw-token');
@@ -115,15 +115,15 @@ describe('invite email helpers', () => {
 describe('sendExistingUserTripInvites', () => {
   const trip = { id: 2, name: 'My first trip', profile_id: OWNER_ID };
   const inviter = {
+    email: 'owner@example.com',
     first_name: 'Jimmie',
     last_name: 'Jackson',
-    email: 'owner@example.com',
     trail_name: null,
   };
   const matched = {
-    id: OTHER_ID,
     email: 'pat@example.com',
     first_name: 'Pat',
+    id: OTHER_ID,
     last_name: 'Lee',
     trail_name: null,
   };
@@ -136,27 +136,27 @@ describe('sendExistingUserTripInvites', () => {
 
   it('inserts a pending trip friend, notification, and email for a matched profile', async () => {
     const userFrom = queuedFrom({
-      trips: [createThenableQuery({ data: trip, error: null })],
       profiles: [createThenableQuery({ data: inviter, error: null })],
+      trips: [createThenableQuery({ data: trip, error: null })],
     });
     const adminFrom = queuedFrom({
+      notifications: [createThenableQuery({ data: [{ id: 1 }], error: null })],
+      profiles: [createThenableQuery({ data: [matched], error: null })],
+      trip_friends: [createThenableQuery({ data: [{ id: 99 }], error: null })],
       trip_invite_attempts: [
         createThenableQuery({ data: [], error: null }),
         createThenableQuery({ data: [{ id: 1 }], error: null }),
       ],
-      profiles: [createThenableQuery({ data: [matched], error: null })],
-      trip_friends: [createThenableQuery({ data: [{ id: 99 }], error: null })],
-      notifications: [createThenableQuery({ data: [{ id: 1 }], error: null })],
     });
 
     await expect(sendExistingUserTripInvites({
-      tripId: 2,
-      inviterId: OWNER_ID,
-      emails: ['pat@example.com'],
-      origin: 'https://app.gearcloset.io',
-      userClient: asClient(createSupabaseMock({ from: userFrom })),
       admin: asClient(createSupabaseMock({ from: adminFrom })),
+      emails: ['pat@example.com'],
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
       send,
+      tripId: 2,
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
     }))
       .resolves
       .toEqual(GENERIC_INVITE_RESULT);
@@ -167,40 +167,40 @@ describe('sendExistingUserTripInvites', () => {
       .toHaveBeenCalledWith('notifications');
     expect(send)
       .toHaveBeenCalledWith(expect.objectContaining({
-        to: 'pat@example.com',
         templateId: 'trip-invite',
+        to: 'pat@example.com',
       }));
   });
 
   it('creates a pending invitation and claim email when the email does not match a profile', async () => {
     const userFrom = queuedFrom({
-      trips: [createThenableQuery({ data: trip, error: null })],
       profiles: [createThenableQuery({ data: inviter, error: null })],
+      trips: [createThenableQuery({ data: trip, error: null })],
     });
     const adminFrom = queuedFrom({
-      trip_invite_attempts: [
-        createThenableQuery({ data: [], error: null }),
-        createThenableQuery({ data: [{ id: 1 }], error: null }),
-      ],
       profiles: [createThenableQuery({ data: [], error: null })],
       trip_invitations: [
         createThenableQuery({ data: null, error: null }),
         createThenableQuery({ data: [{ id: 11 }], error: null }),
       ],
+      trip_invite_attempts: [
+        createThenableQuery({ data: [], error: null }),
+        createThenableQuery({ data: [{ id: 1 }], error: null }),
+      ],
     });
 
     await expect(sendExistingUserTripInvites({
-      tripId: 2,
-      inviterId: OWNER_ID,
-      emails: ['nobody@example.com'],
-      origin: 'https://app.gearcloset.io',
-      userClient: asClient(createSupabaseMock({ from: userFrom })),
       admin: asClient(createSupabaseMock({ from: adminFrom })),
-      send,
       createToken: () => ({
         token: 'raw-token',
         tokenHash: hashInviteToken('raw-token'),
       }),
+      emails: ['nobody@example.com'],
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
+      send,
+      tripId: 2,
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
     }))
       .resolves
       .toEqual(GENERIC_INVITE_RESULT);
@@ -212,41 +212,41 @@ describe('sendExistingUserTripInvites', () => {
       .toHaveBeenCalledWith('trip_friends');
     expect(send)
       .toHaveBeenCalledWith(expect.objectContaining({
-        to: 'nobody@example.com',
         templateId: 'trip-invite-claim',
         text: expect.stringContaining('/invite/trip?token=raw-token'),
+        to: 'nobody@example.com',
       }));
   });
 
   it('resends a pending invitation by rotating the token', async () => {
     const userFrom = queuedFrom({
-      trips: [createThenableQuery({ data: trip, error: null })],
       profiles: [createThenableQuery({ data: inviter, error: null })],
+      trips: [createThenableQuery({ data: trip, error: null })],
     });
     const adminFrom = queuedFrom({
-      trip_invite_attempts: [
-        createThenableQuery({ data: [], error: null }),
-        createThenableQuery({ data: [{ id: 1 }], error: null }),
-      ],
       profiles: [createThenableQuery({ data: [], error: null })],
       trip_invitations: [
         createThenableQuery({ data: { id: 7 }, error: null }),
         createThenableQuery({ data: [{ id: 7 }], error: null }),
       ],
+      trip_invite_attempts: [
+        createThenableQuery({ data: [], error: null }),
+        createThenableQuery({ data: [{ id: 1 }], error: null }),
+      ],
     });
 
     await expect(sendExistingUserTripInvites({
-      tripId: 2,
-      inviterId: OWNER_ID,
-      emails: ['nobody@example.com'],
-      origin: 'https://app.gearcloset.io',
-      userClient: asClient(createSupabaseMock({ from: userFrom })),
       admin: asClient(createSupabaseMock({ from: adminFrom })),
-      send,
       createToken: () => ({
         token: 'rotated-token',
         tokenHash: hashInviteToken('rotated-token'),
       }),
+      emails: ['nobody@example.com'],
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
+      send,
+      tripId: 2,
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
     }))
       .resolves
       .toEqual(GENERIC_INVITE_RESULT);
@@ -260,29 +260,29 @@ describe('sendExistingUserTripInvites', () => {
 
   it('does not insert a second pending row when the unique constraint fires', async () => {
     const userFrom = queuedFrom({
-      trips: [createThenableQuery({ data: trip, error: null })],
       profiles: [createThenableQuery({ data: inviter, error: null })],
+      trips: [createThenableQuery({ data: trip, error: null })],
     });
     const adminFrom = queuedFrom({
-      trip_invite_attempts: [
-        createThenableQuery({ data: [], error: null }),
-        createThenableQuery({ data: [{ id: 1 }], error: null }),
-      ],
       profiles: [createThenableQuery({ data: [matched], error: null })],
       trip_friends: [createThenableQuery({
         data: null,
         error: { code: '23505', message: 'duplicate' },
       })],
+      trip_invite_attempts: [
+        createThenableQuery({ data: [], error: null }),
+        createThenableQuery({ data: [{ id: 1 }], error: null }),
+      ],
     });
 
     await expect(sendExistingUserTripInvites({
-      tripId: 2,
-      inviterId: OWNER_ID,
-      emails: ['pat@example.com'],
-      origin: 'https://app.gearcloset.io',
-      userClient: asClient(createSupabaseMock({ from: userFrom })),
       admin: asClient(createSupabaseMock({ from: adminFrom })),
+      emails: ['pat@example.com'],
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
       send,
+      tripId: 2,
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
     }))
       .resolves
       .toEqual(GENERIC_INVITE_RESULT);
@@ -304,13 +304,13 @@ describe('sendExistingUserTripInvites', () => {
     });
 
     await expect(sendExistingUserTripInvites({
-      tripId: 2,
-      inviterId: OWNER_ID,
-      emails: ['pat@example.com'],
-      origin: 'https://app.gearcloset.io',
-      userClient: asClient(createSupabaseMock({ from: otherOwner })),
       admin: asClient(createSupabaseMock()),
+      emails: ['pat@example.com'],
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
       send,
+      tripId: 2,
+      userClient: asClient(createSupabaseMock({ from: otherOwner })),
     }))
       .rejects
       .toMatchObject({ name: 'InviteError', statusCode: 403 });
@@ -326,13 +326,13 @@ describe('sendExistingUserTripInvites', () => {
     });
 
     await expect(sendExistingUserTripInvites({
-      tripId: 2,
-      inviterId: OWNER_ID,
-      emails: ['pat@example.com'],
-      origin: 'https://app.gearcloset.io',
-      userClient: asClient(createSupabaseMock({ from: ownerFrom })),
       admin: asClient(createSupabaseMock({ from: limitedAdmin })),
+      emails: ['pat@example.com'],
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
       send,
+      tripId: 2,
+      userClient: asClient(createSupabaseMock({ from: ownerFrom })),
     }))
       .rejects
       .toMatchObject({ name: 'InviteError', statusCode: 429 });
@@ -350,24 +350,24 @@ describe('sendExistingUserTripInvites', () => {
       })],
     });
     const inviteeFrom = queuedFrom({
-      trips: [createThenableQuery({
-        data: { ...trip, profile_id: OTHER_ID },
-        error: null,
-      })],
       trip_friends: [createThenableQuery({
         data: { id: 1 },
+        error: null,
+      })],
+      trips: [createThenableQuery({
+        data: { ...trip, profile_id: OTHER_ID },
         error: null,
       })],
     });
 
     await expect(sendExistingUserTripInvites({
-      tripId: 2,
-      inviterId: OWNER_ID,
-      emails: ['pat@example.com'],
-      origin: 'https://app.gearcloset.io',
-      userClient: asClient(createSupabaseMock({ from: inviteeFrom })),
       admin: asClient(createSupabaseMock({ from: limitedAdmin })),
+      emails: ['pat@example.com'],
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
       send,
+      tripId: 2,
+      userClient: asClient(createSupabaseMock({ from: inviteeFrom })),
     }))
       .rejects
       .toMatchObject({ name: 'InviteError', statusCode: 429 });
@@ -376,27 +376,27 @@ describe('sendExistingUserTripInvites', () => {
   it('still returns generic success when mail delivery fails', async () => {
     send.mockRejectedValue(new Error('allowlist'));
     const userFrom = queuedFrom({
-      trips: [createThenableQuery({ data: trip, error: null })],
       profiles: [createThenableQuery({ data: inviter, error: null })],
+      trips: [createThenableQuery({ data: trip, error: null })],
     });
     const adminFrom = queuedFrom({
+      notifications: [createThenableQuery({ data: [{ id: 1 }], error: null })],
+      profiles: [createThenableQuery({ data: [matched], error: null })],
+      trip_friends: [createThenableQuery({ data: [{ id: 99 }], error: null })],
       trip_invite_attempts: [
         createThenableQuery({ data: [], error: null }),
         createThenableQuery({ data: [{ id: 1 }], error: null }),
       ],
-      profiles: [createThenableQuery({ data: [matched], error: null })],
-      trip_friends: [createThenableQuery({ data: [{ id: 99 }], error: null })],
-      notifications: [createThenableQuery({ data: [{ id: 1 }], error: null })],
     });
 
     await expect(sendExistingUserTripInvites({
-      tripId: 2,
-      inviterId: OWNER_ID,
-      emails: ['pat@example.com'],
-      origin: 'https://app.gearcloset.io',
-      userClient: asClient(createSupabaseMock({ from: userFrom })),
       admin: asClient(createSupabaseMock({ from: adminFrom })),
+      emails: ['pat@example.com'],
+      inviterId: OWNER_ID,
+      origin: 'https://app.gearcloset.io',
       send,
+      tripId: 2,
+      userClient: asClient(createSupabaseMock({ from: userFrom })),
     }))
       .resolves
       .toEqual(GENERIC_INVITE_RESULT);

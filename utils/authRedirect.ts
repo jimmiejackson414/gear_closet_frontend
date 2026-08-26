@@ -37,15 +37,15 @@ export function destinationAfterAuth (input: {
   isPasswordRecovery?: boolean;
 }): { path: string; consumeSavedPath: boolean } {
   if (input.isPasswordRecovery) {
-    return { path: '/reset-password', consumeSavedPath: false };
+    return { consumeSavedPath: false, path: '/reset-password' };
   }
 
   if (!input.onboardDate) {
-    return { path: '/onboarding', consumeSavedPath: false };
+    return { consumeSavedPath: false, path: '/onboarding' };
   }
 
   const saved = safeInternalPath(input.savedPath ?? null);
-  return { path: saved ?? '/', consumeSavedPath: true };
+  return { consumeSavedPath: true, path: saved ?? '/' };
 }
 
 export function pathAfterOnboarding (savedPath: string | null | undefined): string {

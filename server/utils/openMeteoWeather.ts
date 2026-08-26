@@ -45,8 +45,8 @@ function roundCoord (value: number): string {
 
 function unitParams (units: WeatherUnits) {
   return {
-    temperature_unit: units === 'imperial' ? 'fahrenheit' : 'celsius',
     precipitation_unit: units === 'imperial' ? 'inch' : 'mm',
+    temperature_unit: units === 'imperial' ? 'fahrenheit' : 'celsius',
   };
 }
 
@@ -72,16 +72,16 @@ export async function fetchForecastWeather (input: {
 
   const payload = await $fetch<OpenMeteoResponse>('https://api.open-meteo.com/v1/forecast', {
     method: 'GET',
-    timeout: 8000,
     query: {
+      daily: 'temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code',
+      end_date: range.end,
       latitude: input.lat,
       longitude: input.lng,
-      daily: 'temperature_2m_max,temperature_2m_min,precipitation_probability_max,weather_code',
-      timezone: 'auto',
       start_date: range.start,
-      end_date: range.end,
+      timezone: 'auto',
       ...unitParams(input.units),
     },
+    timeout: 8000,
   });
 
   const days = mapForecastDays(payload.daily);
@@ -99,21 +99,21 @@ export async function fetchAirQuality (input: {
 
   const payload = await $fetch<AirQualityPayload>('https://air-quality-api.open-meteo.com/v1/air-quality', {
     method: 'GET',
-    timeout: 8000,
     query: {
+      current: 'us_aqi',
+      domains: 'auto',
+      forecast_days: 7,
+      hourly: 'us_aqi',
       latitude: input.lat,
       longitude: input.lng,
-      current: 'us_aqi',
-      hourly: 'us_aqi',
-      forecast_days: 7,
       timezone: 'auto',
-      domains: 'auto',
     },
+    timeout: 8000,
   });
 
   const airQuality: TripAirQuality = {
-    current: airQualitySnapshot(payload.current?.us_aqi),
     byDate: dailyMaxAqi(payload.hourly?.time ?? [], payload.hourly?.us_aqi ?? []),
+    current: airQualitySnapshot(payload.current?.us_aqi),
   };
   airQualityCache.set(cacheKey, airQuality);
   return airQuality;
@@ -122,11 +122,11 @@ export async function fetchAirQuality (input: {
 function mapForecastDays (daily: OpenMeteoDaily | undefined): TripWeatherDay[] {
   if (!daily?.time?.length) return [];
   return daily.time.map((date, index) => ({
+    airQuality: null,
     date,
     high: daily.temperature_2m_max?.[index] ?? 0,
     low: daily.temperature_2m_min?.[index] ?? 0,
     precipChance: daily.precipitation_probability_max?.[index] ?? null,
     weatherCode: daily.weather_code?.[index] ?? 1,
-    airQuality: null,
   }));
 }

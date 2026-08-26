@@ -6,9 +6,9 @@
   import type { ComboboxRootEmits, ComboboxRootProps } from 'reka-ui';
 
   const props = withDefaults(defineProps<ComboboxRootProps & { class?: HTMLAttributes['class'] }>(), {
-    open: true,
-    modelValue: '',
     class: '',
+    modelValue: '',
+    open: true,
   });
 
   const emits = defineEmits<ComboboxRootEmits>();

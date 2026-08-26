@@ -62,8 +62,8 @@ const tripSummary = async (admin: InviteClient, invite: InvitationRow) => {
     .maybeSingle();
 
   return {
-    tripName: trip?.name?.trim() || 'a trip',
     inviterName: friendlyUsername(inviter) || 'A Gear Closet user',
+    tripName: trip?.name?.trim() || 'a trip',
   };
 };
 
@@ -78,11 +78,11 @@ const acceptInviteeOnTrip = async (input: {
   const { data: inserted, error: insertError } = await input.admin
     .from('trip_friends')
     .insert({
-      trip_id: input.tripId,
+      accepted_invite_on: acceptedAt,
+      invited_by_id: input.invitedById,
       profile_id: input.userId,
       status: TripFriendStatus.ACCEPTED,
-      invited_by_id: input.invitedById,
-      accepted_invite_on: acceptedAt,
+      trip_id: input.tripId,
     })
     .select('id');
 
@@ -95,8 +95,8 @@ const acceptInviteeOnTrip = async (input: {
   const { error: updateError } = await input.admin
     .from('trip_friends')
     .update({
-      status: TripFriendStatus.ACCEPTED,
       accepted_invite_on: acceptedAt,
+      status: TripFriendStatus.ACCEPTED,
     })
     .eq('trip_id', input.tripId)
     .eq('profile_id', input.userId)
@@ -140,10 +140,10 @@ export const claimTripInvite = async (input: {
   if (invite.claimed_profile_id === input.userId) {
     const accepted = await acceptInviteeOnTrip({
       admin: input.admin,
-      tripId: invite.trip_id,
-      userId: input.userId,
       invitedById: invite.invited_by_id,
       now,
+      tripId: invite.trip_id,
+      userId: input.userId,
     });
     if (!accepted.attached) return { ok: false, reason: 'invalid' };
     return success(true);
@@ -161,28 +161,28 @@ export const claimTripInvite = async (input: {
 
   const accepted = await acceptInviteeOnTrip({
     admin: input.admin,
-    tripId: invite.trip_id,
-    userId: input.userId,
     invitedById: invite.invited_by_id,
     now,
+    tripId: invite.trip_id,
+    userId: input.userId,
   });
   if (!accepted.attached) return { ok: false, reason: 'invalid' };
 
   const summary = await tripSummary(input.admin, invite);
   await input.admin.from('notifications')
     .insert({
-      title: NotificationKind.TRIP_INVITE,
       content: `${summary.inviterName} invited you to a trip!`,
-      read_on_date: null,
       profile_id: input.userId,
+      read_on_date: null,
       sender_id: invite.invited_by_id,
+      title: NotificationKind.TRIP_INVITE,
     });
 
   const { data: consumed, error: consumeError } = await input.admin
     .from('trip_invitations')
     .update({
-      status: TripInvitationStatus.CLAIMED,
       claimed_profile_id: input.userId,
+      status: TripInvitationStatus.CLAIMED,
       updated_at: now.toISOString(),
     })
     .eq('id', invite.id)

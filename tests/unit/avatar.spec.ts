@@ -42,9 +42,9 @@ describe('buildImageSrc', () => {
     expect(getPublicUrl)
       .toHaveBeenCalledWith('user/avatar.jpg', {
         transform: {
-          width: 64,
           height: 64,
           resize: 'cover',
+          width: 64,
         },
       });
   });
@@ -54,9 +54,9 @@ describe('buildImageSrc', () => {
     expect(getPublicUrl.mock.calls[0]?.[1])
       .toEqual({
         transform: {
-          width: 96,
           height: 96,
           resize: 'cover',
+          width: 96,
         },
       });
   });

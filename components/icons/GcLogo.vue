@@ -1,7 +1,7 @@
 <script lang='ts' setup>
   defineProps({
-    fill: { type: String, required: false, default: '#4a4a4a' },
-    width: { type: Number, required: false, default: 500 },
+    fill: { default: '#4a4a4a', required: false, type: String },
+    width: { default: 500, required: false, type: Number },
   });
 </script>
 

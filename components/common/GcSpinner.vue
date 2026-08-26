@@ -5,8 +5,8 @@
   }
 
   const props = withDefaults(defineProps<Props>(), {
-    variant: 'default',
     size: 'md',
+    variant: 'default',
   });
 
   const fillClass = computed(() => {

@@ -7,8 +7,8 @@
     variant?: BadgeVariants['variant']
     class?: HTMLAttributes['class']
   }>(), {
-    variant: 'default',
     class: '',
+    variant: 'default',
   });
 </script>
 

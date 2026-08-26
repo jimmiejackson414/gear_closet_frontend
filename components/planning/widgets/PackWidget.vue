@@ -78,13 +78,10 @@
   const legendTextColor = ref('');
   const chartOptions = computed<EChartsOption>(() => ({
     animationDuration: 300,
+    grid: {
+      bottom: '30%',
+    },
     legend: {
-      orient: 'vertical',
-      left: 'left',
-      top: 'center',
-      textStyle: {
-        color: legendTextColor.value,
-      },
       data: packCategories.value.map(category => ({
         name: category.name as string,
         textStyle: {
@@ -92,23 +89,23 @@
           width: 180,
         },
       })),
-    },
-    grid: {
-      bottom: '30%',
+      left: 'left',
+      orient: 'vertical',
+      textStyle: {
+        color: legendTextColor.value,
+      },
+      top: 'center',
     },
     media: [
       {
-        query: {
-          maxWidth: 600,
-        },
         option: {
-          legend: {
-            orient: 'horizontal',
-            left: 'center',
-            top: 'bottom',
-          },
           grid: {
             bottom: '20%',
+          },
+          legend: {
+            left: 'center',
+            orient: 'horizontal',
+            top: 'bottom',
           },
           series: [
             {
@@ -117,32 +114,33 @@
             },
           ],
         },
+        query: {
+          maxWidth: 600,
+        },
       },
     ],
     series: [
       {
-        name: 'Pack Categories',
-        type: 'pie',
-        radius: ['40%', '90%'],
         center: ['80%', '50%'],
-        left: 'center',
-        height: '100%',
         data: packSeriesData.value,
-        label: { show: false },
+        height: '100%',
         itemStyle: {
-          borderRadius: 8,
           borderColor: 'white',
+          borderRadius: 8,
           borderWidth: 2,
           color: (params: CallbackDataParams) => {
             const theme = findTheme(displayedPack.value?.theme as Theme);
             return theme[params.dataIndex % (theme.length || 1)] ?? '';
           },
         },
+        label: { show: false },
+        left: 'center',
+        name: 'Pack Categories',
+        radius: ['40%', '90%'],
+        type: 'pie',
       },
     ],
     tooltip: {
-      show: true,
-      trigger: 'item',
       formatter: (params: TopLevelFormatterParams) => {
         const value = Array.isArray(params) ? params[0] : params;
         const category = value ? displayedPack.value?.categories?.[value.dataIndex] : undefined;
@@ -164,6 +162,8 @@
           </div>
         `);
       },
+      show: true,
+      trigger: 'item',
     },
   }));
 

@@ -38,30 +38,17 @@
   const chartRef = ref<InstanceType<typeof VChart> | undefined>(undefined);
   const chartOptions = ref<EChartsOption>({
     animationDuration: 300,
-    xAxis: {
-      type: 'category',
-      axisLine: { lineStyle: { color: legendTextColor.value } },
-      axisTick: { alignWithLabel: true },
-      axisLabel: { rotate: 30, overflow: 'break', width: 100, margin: 24 },
-      data: seriesData.value.map((d) => d.name),
-    },
-    yAxis: {
-      type: 'value',
-      splitLine: { show: false },
-      axisLabel: { formatter: (value: number) => `${value} lbs` },
-    },
     grid: {
-      show: false,
-      containLabel: true,
-      top: 8,
-      right: 12,
       bottom: 8,
+      containLabel: true,
       left: 8,
+      right: 12,
+      show: false,
+      top: 8,
     },
     series: [
       {
         data: seriesData.value.map((d) => d.weight),
-        type: 'bar',
         itemStyle: {
           borderRadius: 5,
           color: (params: CallbackDataParams) => {
@@ -69,11 +56,10 @@
             return theme[params.dataIndex % theme.length] ?? '';
           },
         },
+        type: 'bar',
       },
     ],
     tooltip: {
-      show: true,
-      trigger: 'item',
       formatter: (params: TopLevelFormatterParams) => {
         // Trigger is 'item', but the callback type still allows the array form.
         const value = Array.isArray(params) ? params[0] : params;
@@ -90,6 +76,20 @@
           </div>
         `);
       },
+      show: true,
+      trigger: 'item',
+    },
+    xAxis: {
+      axisLabel: { margin: 24, overflow: 'break', rotate: 30, width: 100 },
+      axisLine: { lineStyle: { color: legendTextColor.value } },
+      axisTick: { alignWithLabel: true },
+      data: seriesData.value.map((d) => d.name),
+      type: 'category',
+    },
+    yAxis: {
+      axisLabel: { formatter: (value: number) => `${value} lbs` },
+      splitLine: { show: false },
+      type: 'value',
     },
   });
 
@@ -131,12 +131,12 @@
 
   watch(seriesData, (data) => {
     chartRef.value?.setOption({
-      xAxis: {
-        data: data.map((d) => d.name),
-      },
       series: [{
         data: data.map((d) => d.weight),
       }],
+      xAxis: {
+        data: data.map((d) => d.name),
+      },
     });
   });
 </script>

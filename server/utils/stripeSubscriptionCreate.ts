@@ -27,8 +27,8 @@ export async function findStripeCustomerIdForProfile (
   profileId: string,
 ): Promise<string | null> {
   const result = await stripe.customers.search({
-    query: `metadata['profile_id']:'${profileId}'`,
     limit: 1,
+    query: `metadata['profile_id']:'${profileId}'`,
   });
 
   return result.data[0]?.id ?? null;
@@ -57,8 +57,8 @@ export async function ensureStripeCustomerId (
 
   const customer = await stripe.customers.create({
     email: input.email ?? undefined,
-    name: input.name,
     metadata: { profile_id: input.profileId },
+    name: input.name,
   }, {
     idempotencyKey: customerIdempotencyKey(input.profileId),
   });
@@ -72,8 +72,8 @@ export async function findReusableStripeSubscription (
 ): Promise<Stripe.Subscription | null> {
   const subscriptions = await stripe.subscriptions.list({
     customer: customerId,
-    status: 'all',
     limit: 10,
+    status: 'all',
   });
 
   return subscriptions.data.find((subscription) =>
@@ -161,17 +161,17 @@ async function persistBillingRows (
   const billingAfterCustomer = await getExistingBilling(admin, input.profileId);
   if (billingAfterCustomer.hasSubscription) {
     await updateSubscriptionRecord(admin, {
-      profileId: input.profileId,
       priceId: input.priceId,
+      profileId: input.profileId,
       stripeSubscription: input.stripeSubscription,
     });
     return;
   }
 
   await insertSubscriptionRow(admin, {
+    priceId: input.priceId,
     profileId: input.profileId,
     stripeSubscription: input.stripeSubscription,
-    priceId: input.priceId,
   });
 }
 
@@ -192,24 +192,24 @@ export async function createOrSyncPaidSubscription (
   }
 
   const stripeCustomerId = await ensureStripeCustomerId(stripe, {
-    profileId: input.profileId,
     email: input.email,
-    name: input.name,
     existingDbCustomerId: existingBilling.stripeCustomerId,
+    name: input.name,
+    profileId: input.profileId,
   });
 
   const stripeSubscription = await ensureStripeSubscription(stripe, {
-    profileId: input.profileId,
     customerId: stripeCustomerId,
-    priceId: input.priceId,
     paymentMethodId: input.paymentMethodId,
+    priceId: input.priceId,
+    profileId: input.profileId,
   });
 
   await persistBillingRows(admin, {
+    priceId: input.priceId,
     profileId: input.profileId,
     stripeCustomerId,
     stripeSubscription,
-    priceId: input.priceId,
   });
 
   return { ok: true };

@@ -21,8 +21,8 @@
     const invited = Boolean(userId.value && t.profile_id && t.profile_id !== userId.value);
     return {
       label: locked ? `${t.name} (Locked)` : invited ? `${t.name} (Invited)` : t.name,
-      value: t.id,
       locked,
+      value: t.id,
     };
   }) as Array<SelectOption & { locked?: boolean }>);
 

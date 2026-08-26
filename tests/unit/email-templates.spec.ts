@@ -19,9 +19,9 @@ describe('email templates', () => {
       .toHaveLength(80);
 
     const omitted = renderTripInviteEmail({
+      acceptUrl: 'https://app.gearcloset.io/',
       inviterName: 'Jimmie',
       tripName: '   ',
-      acceptUrl: 'https://app.gearcloset.io/',
     });
     expect(omitted.html)
       .toContain('invited you to a trip on');
@@ -32,14 +32,14 @@ describe('email templates', () => {
 
   it('renders matching trip-invite copy that does not mention accounts', () => {
     const existing = renderTripInviteEmail({
+      acceptUrl: 'https://app.gearcloset.io/',
       inviterName: 'Jimmie <script>',
       tripName: 'AT Thru',
-      acceptUrl: 'https://app.gearcloset.io/',
     });
     const claim = renderTripInviteClaimEmail({
+      claimUrl: 'https://app.gearcloset.io/invite/trip?token=abc',
       inviterName: 'Jimmie <script>',
       tripName: 'AT Thru',
-      claimUrl: 'https://app.gearcloset.io/invite/trip?token=abc',
     });
 
     expect(existing.templateId)
@@ -78,14 +78,14 @@ describe('email templates', () => {
 
   it('renders an optional friend-request template without account copy', () => {
     const message = renderFriendRequestEmail({
-      senderName: 'Shelly',
       actionUrl: 'https://app.gearcloset.io/friends',
+      senderName: 'Shelly',
     });
 
     expect(message)
       .toMatchObject({
-        templateId: EMAIL_TEMPLATE_IDS.FRIEND_REQUEST,
         subject: 'Shelly sent you a friend request',
+        templateId: EMAIL_TEMPLATE_IDS.FRIEND_REQUEST,
       });
     expect(message.html)
       .toContain('View request');

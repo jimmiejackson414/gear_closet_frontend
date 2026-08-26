@@ -8,13 +8,13 @@
   definePageMeta({ layout: 'page-layout' });
 
   useHead({
-    title: 'Forums',
     meta: [
       {
-        name: 'description',
         content: 'Open the Gear Closet community forums.',
+        name: 'description',
       },
     ],
+    title: 'Forums',
   });
 
   const $store = useUserStore();

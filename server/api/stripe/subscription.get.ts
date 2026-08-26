@@ -64,10 +64,10 @@ export default defineEventHandler(async (event) => {
 
     return {
       customer: stripeCustomer,
-      subscriptions: subscriptions.data,
+      invoices: invoices.data,
       nextBillingDate,
       paymentMethods: paymentMethods.data,
-      invoices: invoices.data,
+      subscriptions: subscriptions.data,
     } as SubscriptionApiResponse;
   } catch (err) {
     if (isError(err)) throw err;

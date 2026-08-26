@@ -22,25 +22,44 @@ export default withNuxt(
       perfectionist,
     },
     rules: {
+      // Match prior @stylistic/js rules that aren't covered by Nuxt stylistic defaults
+      '@stylistic/comma-dangle': ['warn', 'always-multiline'],
+      '@stylistic/indent': ['warn', 2, { MemberExpression: 1, SwitchCase: 1 }],
+      '@stylistic/newline-per-chained-call': ['warn', { ignoreChainWithDepth: 1 }],
+      '@stylistic/no-trailing-spaces': 'warn',
+      '@stylistic/semi': ['warn', 'always'],
+      '@stylistic/space-before-function-paren': ['warn', 'always'],
+
+      '@typescript-eslint/ban-ts-comment': 'warn',
+      '@typescript-eslint/consistent-type-imports': 'off',
+      // Soften Nuxt/TS recommended rules that were not hard failures before
+      // Warn, not error: the remaining casts are known (see #112) but new ones
+      // should be visible rather than silently spreading.
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-import-type-side-effects': 'off',
+
+      '@typescript-eslint/no-invalid-void-type': 'off',
+      '@typescript-eslint/no-non-null-asserted-optional-chain': 'warn',
+      '@typescript-eslint/no-unused-expressions': 'warn',
+      '@typescript-eslint/no-unused-vars': 'warn',
+      curly: 'off',
+      'import/first': 'off',
+
+      'import/no-duplicates': 'warn',
       'no-console': process.env.NODE_ENV === 'production' ? 'error' : 'off',
       'no-debugger': process.env.NODE_ENV === 'production' ? 'error' : 'off',
-      curly: 'off',
-      'object-shorthand': ['warn', 'always'],
       // Core no-duplicate-imports isn't type-aware and flags every value + `import type`
       // pair from the same module, which the types-last grouping below encourages.
       'no-duplicate-imports': 'off',
-      'import/no-duplicates': 'warn',
-
+      'object-shorthand': ['warn', 'always'],
+      'perfectionist/sort-exports': 'warn',
       'perfectionist/sort-imports': [
         'warn',
         {
-          type: 'natural',
-          order: 'asc',
-          newlinesBetween: 0,
           customGroups: [
-            { groupName: 'vue', elementNamePattern: '^vue' },
-            { groupName: 'nuxt-components', elementNamePattern: '^#components' },
-            { groupName: 'supabase-server', elementNamePattern: '^#supabase' },
+            { elementNamePattern: '^vue', groupName: 'vue' },
+            { elementNamePattern: '^#components', groupName: 'nuxt-components' },
+            { elementNamePattern: '^#supabase', groupName: 'supabase-server' },
           ],
           groups: [
             'builtin',
@@ -53,6 +72,9 @@ export default withNuxt(
             ['type-external', 'type-internal', 'type-parent', 'type-sibling', 'type-index'],
             'unknown',
           ],
+          newlinesBetween: 0,
+          order: 'asc',
+          type: 'natural',
         },
       ],
       // Keep inline `type` specifiers last, matching the types-last group order above.
@@ -60,73 +82,13 @@ export default withNuxt(
         'warn',
         { groups: ['value-import', 'type-import'] },
       ],
-      'perfectionist/sort-exports': 'warn',
+      'perfectionist/sort-objects': [
+        'warn',
+        { order: 'asc', type: 'natural' },
+      ],
 
-      // Match prior @stylistic/js rules that aren't covered by Nuxt stylistic defaults
-      '@stylistic/comma-dangle': ['warn', 'always-multiline'],
-      '@stylistic/indent': ['warn', 2, { SwitchCase: 1, MemberExpression: 1 }],
-      '@stylistic/newline-per-chained-call': ['warn', { ignoreChainWithDepth: 1 }],
-      '@stylistic/no-trailing-spaces': 'warn',
-      '@stylistic/semi': ['warn', 'always'],
-      '@stylistic/space-before-function-paren': ['warn', 'always'],
-
-      // Soften Nuxt/TS recommended rules that were not hard failures before
-      // Warn, not error: the remaining casts are known (see #112) but new ones
-      // should be visible rather than silently spreading.
-      '@typescript-eslint/no-explicit-any': 'warn',
-      '@typescript-eslint/no-unused-vars': 'warn',
-      '@typescript-eslint/no-unused-expressions': 'warn',
-      '@typescript-eslint/consistent-type-imports': 'off',
-      '@typescript-eslint/no-import-type-side-effects': 'off',
-      '@typescript-eslint/no-non-null-asserted-optional-chain': 'warn',
-      '@typescript-eslint/ban-ts-comment': 'warn',
-      '@typescript-eslint/no-invalid-void-type': 'off',
-      'import/first': 'off',
-
-      // Vue-specific tweaks carried from .eslintrc.cjs
-      'vue/object-curly-spacing': ['warn', 'always'],
-      'vue/component-name-in-template-casing': ['warn', 'kebab-case', { registeredComponentsOnly: false }],
-      'vue/no-v-html': 'off',
-      // Vue 3 allows multi-root templates (e.g. page + scroll-to-top)
-      'vue/no-multiple-template-root': 'off',
-      'vue/html-closing-bracket-spacing': [
-        'warn',
-        {
-          selfClosingTag: 'always',
-        },
-      ],
-      'vue/html-closing-bracket-newline': [
-        'warn',
-        {
-          singleline: 'never',
-          multiline: 'never',
-        },
-      ],
-      'vue/html-indent': ['error'],
-      'vue/script-indent': [
-        'warn',
-        2,
-        {
-          baseIndent: 1,
-          switchCase: 0,
-        },
-      ],
-      'vue/block-order': [
-        'warn',
-        {
-          order: ['script', 'template', 'style'],
-        },
-      ],
-      'vue/padding-line-between-blocks': ['warn', 'always'],
-      'vue/first-attribute-linebreak': [
-        'warn',
-        {
-          singleline: 'beside',
-          multiline: 'below',
-        },
-      ],
-      'vue/component-api-style': ['warn', ['script-setup']],
       'vue/attributes-order': ['warn', {
+        alphabetical: true,
         order: [
           'DEFINITION',
           'LIST_RENDERING',
@@ -140,8 +102,50 @@ export default withNuxt(
           'EVENTS',
           'CONTENT',
         ],
-        alphabetical: true,
       }],
+      'vue/block-order': [
+        'warn',
+        {
+          order: ['script', 'template', 'style'],
+        },
+      ],
+      'vue/component-api-style': ['warn', ['script-setup']],
+      'vue/component-name-in-template-casing': ['warn', 'kebab-case', { registeredComponentsOnly: false }],
+      'vue/first-attribute-linebreak': [
+        'warn',
+        {
+          multiline: 'below',
+          singleline: 'beside',
+        },
+      ],
+      'vue/html-closing-bracket-newline': [
+        'warn',
+        {
+          multiline: 'never',
+          singleline: 'never',
+        },
+      ],
+      'vue/html-closing-bracket-spacing': [
+        'warn',
+        {
+          selfClosingTag: 'always',
+        },
+      ],
+      'vue/html-indent': ['error'],
+      // Vue 3 allows multi-root templates (e.g. page + scroll-to-top)
+      'vue/no-multiple-template-root': 'off',
+      'vue/no-v-html': 'off',
+      // Vue-specific tweaks carried from .eslintrc.cjs
+      'vue/object-curly-spacing': ['warn', 'always'],
+      'vue/padding-line-between-blocks': ['warn', 'always'],
+      'vue/script-indent': [
+        'warn',
+        2,
+        {
+          baseIndent: 1,
+          switchCase: 0,
+        },
+      ],
     },
   },
   {

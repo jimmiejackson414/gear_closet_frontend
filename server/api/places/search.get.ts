@@ -23,7 +23,7 @@ export default defineEventHandler(async (event): Promise<PlaceSearchResponse> =>
     const raw = getQuery(event).q;
     const query = typeof raw === 'string' ? raw.trim() : '';
     if (query.length < 2) {
-      return { places: [], attribution: GEOAPIFY_ATTRIBUTION };
+      return { attribution: GEOAPIFY_ATTRIBUTION, places: [] };
     }
 
     const config = useRuntimeConfig(event);
@@ -36,7 +36,7 @@ export default defineEventHandler(async (event): Promise<PlaceSearchResponse> =>
       });
     }
     const places = await searchPlaces(query, apiKey);
-    return { places, attribution: GEOAPIFY_ATTRIBUTION };
+    return { attribution: GEOAPIFY_ATTRIBUTION, places };
   } catch (err) {
     if (isError(err)) throw err;
     return throwPublicError(err, {
