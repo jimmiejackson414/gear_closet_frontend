@@ -65,13 +65,32 @@
   };
 
   const emits = defineEmits<{
-    (event: 'openDialog'): void;
+    (event: 'openDialog' | 'openDeleteDialog'): void;
   }>();
 </script>
 
 <template>
   <div class="flex flex-wrap justify-between lg:justify-end items-center gap-3 sm:gap-6 mb-8">
     <div class="flex justify-center items-center gap-3 sm:gap-4 min-w-0">
+      <dropdown-menu v-if="$store.isSelectedTripOwner">
+        <dropdown-menu-trigger aria-label="Trip actions">
+          <icon-settings
+            aria-hidden="true"
+            class="w-6 h-6"
+            data-testid="trip-actions" />
+        </dropdown-menu-trigger>
+        <dropdown-menu-content>
+          <dropdown-menu-label>
+            Actions
+          </dropdown-menu-label>
+          <dropdown-menu-separator />
+          <dropdown-menu-item
+            :disabled="!$store.selectedTrip || $store.pageLoading"
+            @select="emits('openDeleteDialog')">
+            Delete trip
+          </dropdown-menu-item>
+        </dropdown-menu-content>
+      </dropdown-menu>
       <select-root
         :model-value="$store.selectedTripId"
         @update:model-value="handleSelectTrip">

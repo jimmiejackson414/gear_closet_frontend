@@ -87,6 +87,7 @@
   );
 
   const isCreateTripDialogOpen = ref(false);
+  const isDeleteTripDialogOpen = ref(false);
 </script>
 
 <template>
@@ -96,7 +97,9 @@
       kind="trip"
       @dismiss="showLockedDeepLinkBanner = false" />
 
-    <planning-settings @open-dialog="isCreateTripDialogOpen = true" />
+    <planning-settings
+      @open-delete-dialog="isDeleteTripDialogOpen = true"
+      @open-dialog="isCreateTripDialogOpen = true" />
 
     <planning-empty-state
       v-if="!$store.data.trips.length && !$store.pageLoading"
@@ -107,5 +110,9 @@
     <lazy-create-trip-dialog
       :is-open="isCreateTripDialogOpen"
       @on-close="isCreateTripDialogOpen = false" />
+
+    <lazy-delete-trip-dialog
+      :is-open="isDeleteTripDialogOpen"
+      @on-close="isDeleteTripDialogOpen = false" />
   </div>
 </template>

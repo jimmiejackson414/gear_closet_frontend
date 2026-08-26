@@ -126,7 +126,7 @@
             :hide-navigation="['time']"
             :model-value="dateRange"
             placeholder="Start and End Dates"
-            range
+            :range="{ partialRange: false }"
             :time-config="{ enableTimePicker: false }"
             :ui="{ calendarCell: 'gc-dp-cell', input: 'gc-dp-input' }"
             @update:model-value="

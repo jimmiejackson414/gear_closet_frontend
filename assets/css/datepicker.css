@@ -1,0 +1,65 @@
+/*
+  Unlayered so these beat @vuepic/vue-datepicker's unlayered vendor CSS.
+  Input chrome matches components/ui/input/Input.vue.
+*/
+.dp--main.gc-dp {
+  --dp-border-color: hsl(var(--input));
+  --dp-border-color-hover: hsl(var(--input));
+  --dp-border-color-focus: hsl(var(--input));
+  --dp-border-radius: calc(var(--radius) - 2px);
+  --dp-font-family: inherit;
+  --dp-font-size: 0.875rem;
+  --dp-icon-color: var(--color-gray-400);
+  --dp-input-icon-padding: 2.25rem;
+  --dp-input-padding: 0.5rem 0.75rem;
+}
+
+.dp--main.gc-dp .dp--input.gc-dp-input {
+  @apply flex h-10 w-full rounded-md border border-input bg-transparent px-3 py-2 font-sans text-sm text-foreground shadow-none ring-offset-background placeholder:text-gray-400 placeholder:opacity-100 focus-visible:outline-hidden disabled:cursor-not-allowed disabled:opacity-50 dark:bg-background;
+  font-family: inherit;
+  font-size: 0.875rem;
+  line-height: 1.25rem;
+  color: hsl(var(--foreground));
+  background-color: transparent;
+  border-color: hsl(var(--input));
+  box-shadow: none;
+  transition: none;
+}
+
+.dp--main.gc-dp .dp--input.gc-dp-input.dp--input-icon-pad {
+  padding-inline-start: 2.25rem !important;
+}
+
+.dp--main.gc-dp .dp--input.gc-dp-input:hover:not(.dp--input-focus) {
+  border-color: hsl(var(--input));
+}
+
+.dp--main.gc-dp .dp--input.gc-dp-input.dp--input-focus {
+  @apply outline-hidden ring-2 ring-ring ring-offset-2;
+  border-color: hsl(var(--input));
+}
+
+.dp--main.gc-dp .dp--input-icon {
+  inset-inline-start: 0.75rem;
+  padding: 0;
+  color: var(--color-gray-400);
+}
+
+.dp--main.gc-dp .dp--input-icons {
+  width: 1rem;
+  height: 1rem;
+  padding: 0;
+}
+
+.dp--main.gc-dp .dp--calendar-item {
+  .dp--range-border-start,
+  .dp--range-border-end {
+    &.gc-dp-cell {
+      @apply bg-primary!;
+    }
+  }
+
+  .dp--today .gc-dp-cell {
+    @apply border-primary!;
+  }
+}

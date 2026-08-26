@@ -1,6 +1,7 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import './base/_index.css' layer(base);
+@import './datepicker.css';
 
 /* Class-based dark mode (@nuxtjs/color-mode) */
 @custom-variant dark (&:where(.dark, .dark *));

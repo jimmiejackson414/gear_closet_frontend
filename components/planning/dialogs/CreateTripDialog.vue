@@ -218,12 +218,12 @@
                 :input-attrs="{ name: 'datePicker' }"
                 :model-value="dateRange"
                 placeholder="Start and End Dates"
-                range
+                :range="{ partialRange: false }"
                 :time-config="{ enableTimePicker: false }"
                 :ui="{ calendarCell: 'gc-dp-cell', input: 'gc-dp-input' }"
                 @update:model-value="dateRange = $event">
                 <template #input-icon>
-                  <icon-calendar class="inline-block top-1/2 left-2.5 absolute w-5 h-5 text-foreground text-base -translate-y-1/2 pointer-events-none" />
+                  <icon-calendar class="w-4 h-4 text-gray-400" />
                 </template>
               </vue-date-picker>
             </form-item>
