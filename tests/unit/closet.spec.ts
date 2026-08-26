@@ -699,7 +699,7 @@ describe('Closet Page', async () => {
     beforeEach(async () => {
       wrapper = await mountSuspended(SharePackDialog, {
         attachTo: document.body,
-        global: testMountGlobals(),
+        global: testMountGlobals(closetWithPacks),
       });
     });
 
@@ -716,6 +716,32 @@ describe('Closet Page', async () => {
       await wrapper.vm.$nextTick();
       expect(isDialogRootOpen(wrapper))
         .toBe(true);
+    });
+
+    it('builds a public share link from the selected pack slug', async () => {
+      const store = useClosetStore();
+      store.dialogStates.sharePackDialog = true;
+      await wrapper.vm.$nextTick();
+
+      const input = document.body.querySelector('#url') as HTMLInputElement;
+      expect(input?.value)
+        .toContain(`/p/packs/${store.data.selectedPack?.slug}`);
+      expect(document.body.textContent)
+        .toContain('no account required');
+    });
+
+    it('warns when the selected pack is private', async () => {
+      const store = useClosetStore();
+      if (store.data.selectedPack) {
+        store.data.selectedPack.private = true;
+      }
+      store.dialogStates.sharePackDialog = true;
+      await wrapper.vm.$nextTick();
+
+      expect(document.body.textContent)
+        .toContain('is private');
+      expect(document.body.textContent)
+        .toContain('Turn off Private in pack settings');
     });
 
     it('closes the dialog correctly', async () => {
