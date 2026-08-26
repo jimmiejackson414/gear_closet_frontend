@@ -84,6 +84,9 @@ importers:
       filepond-plugin-image-validate-size:
         specifier: ^1.2.7
         version: 1.2.7(filepond@4.32.12)
+      import-in-the-middle:
+        specifier: ^3.3.3
+        version: 3.3.3
       lodash.round:
         specifier: ^4.0.4
         version: 4.0.4

@@ -496,9 +496,9 @@
                     for="upgrade-payment-checkbox">
                     I accept
                   </label>
-                  <p class="text-muted-foreground text-sm">
+                  <typography variant="muted">
                     By subscribing, future invoices for this plan will be charged to this card.
-                  </p>
+                  </typography>
                 </div>
               </div>
             </template>

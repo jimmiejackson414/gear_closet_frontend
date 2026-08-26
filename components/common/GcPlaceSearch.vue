@@ -2,6 +2,7 @@
   import { onClickOutside, useDebounceFn } from '@vueuse/core';
   import { IconMapPin } from '#components';
   import { GEOAPIFY_ATTRIBUTION, type PlaceSearchResponse, type PlaceSuggestion } from '@/types/places';
+  import { placeShortName } from '@/utils/places';
 
   interface Props {
     disabled?: boolean
@@ -88,9 +89,10 @@
   };
 
   const pickPlace = (place: PlaceSuggestion) => {
-    query.value = place.label;
-    model.value = place.label;
-    pickedLabel.value = place.label;
+    const displayName = placeShortName(place);
+    query.value = displayName;
+    model.value = displayName;
+    pickedLabel.value = displayName;
     places.value = [];
     open.value = false;
     editing.value = false;

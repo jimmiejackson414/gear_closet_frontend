@@ -9,7 +9,7 @@
     IconSun,
   } from '#components';
   import { OPEN_METEO_ATTRIBUTION, type AirQualitySnapshot, type TripWeatherResponse } from '@/types/weather';
-  import { airQualityLabel, tripWeatherWatchKey, weatherIconKind } from '@/utils/tripWeather';
+  import { airQualityLabel, hasTripStartDate, tripWeatherWatchKey, weatherIconKind } from '@/utils/tripWeather';
 
   interface Props {
     tripId?: number | null
@@ -19,7 +19,9 @@
   const $store = usePlanningStore();
 
   const selectedPlaceTrip = computed(() => {
-    return $store.selectedTrip?.id === props.tripId ? $store.selectedTrip : null;
+    if (props.tripId == null) return null;
+    return $store.data.trips.find(trip => trip.id === props.tripId)
+      ?? ($store.selectedTrip?.id === props.tripId ? $store.selectedTrip : null);
   });
 
   const weatherKey = computed(() => tripWeatherWatchKey(props.tripId, selectedPlaceTrip.value));
@@ -28,6 +30,9 @@
     () => `trip-weather-${weatherKey.value}`,
     async () => {
       if (!props.tripId) return null;
+      if (selectedPlaceTrip.value && !hasTripStartDate(selectedPlaceTrip.value.starting_date)) {
+        return { status: 'needs_date' as const };
+      }
       return $fetch<TripWeatherResponse>('/api/weather', {
         query: { tripId: props.tripId },
       });
@@ -96,28 +101,29 @@
     data-testid="trip-weather-widget">
     <div class="justify-start items-center grid grid-cols-[auto_auto_1fr] py-4">
       <icon-sun class="mr-6 w-6 h-6 text-primary" />
-      <p class="font-bold! text-base">
+      <typography class="font-bold!">
         Weather
-      </p>
+      </typography>
     </div>
     <gc-skeleton
       v-if="pending"
       :lines="3" />
-    <div v-else-if="!tripId || weather?.status === 'needs_place'">
-      <typography
-        class="text-muted-foreground"
-        variant="p">
+    <gc-empty-state v-else-if="!tripId || weather?.status === 'needs_place'">
+      <typography>
         Pick a starting or ending point to see weather.
       </typography>
-    </div>
-    <div v-else-if="weather?.status === 'too_far'">
-      <typography
-        class="text-muted-foreground"
-        variant="p">
+    </gc-empty-state>
+    <gc-empty-state v-else-if="weather?.status === 'needs_date'">
+      <typography>
+        Select a starting date for weather information.
+      </typography>
+    </gc-empty-state>
+    <gc-empty-state v-else-if="weather?.status === 'too_far'">
+      <typography>
         Weather will be available within {{ weather.availableWithinDays }} days of
         your scheduled trip.
       </typography>
-    </div>
+    </gc-empty-state>
     <div
       v-else-if="weather?.status === 'forecast'"
       class="space-y-6">

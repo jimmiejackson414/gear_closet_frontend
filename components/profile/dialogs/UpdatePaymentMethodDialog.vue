@@ -134,9 +134,9 @@
               for="accept-checkbox">
               I accept
             </label>
-            <p class="text-muted-foreground text-sm">
+            <typography variant="muted">
               By updating your payment method, all future subscription invoices will be paid using this card.
-            </p>
+            </typography>
           </div>
         </div>
       </div>

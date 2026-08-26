@@ -25,10 +25,8 @@
     <div v-else>
       <gc-drawer />
       <div class="min-h-screen overflow-x-hidden">
-        <div class="py-4 pr-4 lg:pr-9 pl-18">
-          <div class="container">
-            <slot />
-          </div>
+        <div class="container pt-4 pb-20 min-w-0 lg:pl-20">
+          <slot />
         </div>
       </div>
       <gc-footer />

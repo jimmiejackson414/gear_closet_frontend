@@ -26,6 +26,10 @@ export type TripWeatherNeedsPlace = {
   status: 'needs_place'
 };
 
+export type TripWeatherNeedsDate = {
+  status: 'needs_date'
+};
+
 export type WeatherLocationKind = 'origin' | 'destination';
 
 export type TripWeatherPlaceForecast = {
@@ -48,6 +52,7 @@ export type TripWeatherTooFar = {
 
 export type TripWeatherResponse =
   | TripWeatherNeedsPlace
+  | TripWeatherNeedsDate
   | TripWeatherForecast
   | TripWeatherTooFar;
 

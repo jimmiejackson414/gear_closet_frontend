@@ -81,9 +81,9 @@
     <div v-else>
       <div class="flex justify-start items-center mb-4 py-4">
         <icon-calendar-check class="mr-6 w-6 h-6 text-primary dark:text-primary-foreground" />
-        <p class="font-bold! text-base">
+        <typography class="font-bold!">
           Invitations <span class="font-normal text-muted-foreground">({{ pendingInvites.length || 0 }})</span>
-        </p>
+        </typography>
       </div>
       <div>
         <ul

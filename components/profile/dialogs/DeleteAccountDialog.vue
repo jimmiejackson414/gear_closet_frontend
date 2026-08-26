@@ -58,9 +58,11 @@
               for="accept-checkbox">
               I accept
             </label>
-            <p class="text-destructive text-sm">
+            <typography
+              class="text-destructive"
+              variant="small">
               I understand that this action is irreversible.
-            </p>
+            </typography>
           </div>
         </div>
       </div>

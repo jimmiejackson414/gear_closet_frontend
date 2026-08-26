@@ -1,6 +1,7 @@
 import { isForumsConfigured, normalizeForumsUrl } from '@/server/utils/forumsConfig';
 
 export const FORUMS_APP_PATH = '/forums';
+export const FORUMS_COMING_SOON = 'Forums (coming soon)';
 export const FORUMS_UPGRADE_PATH = '/profile?tab=subscription';
 
 export type ForumsRedirectQuery = {

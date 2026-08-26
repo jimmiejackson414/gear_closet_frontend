@@ -210,7 +210,7 @@
           </div>
         </form>
       </div>
-      <dialog-footer>
+      <dialog-footer class="flex-row justify-between items-center gap-x-2">
         <dialog-close
           :disabled="isSubmitting"
           @click="handleClose">

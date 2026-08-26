@@ -72,4 +72,54 @@ describe('GcPlaceSearch', () => {
     expect(wrapper.emitted('commit')?.[0])
       .toEqual(['Hannegan Trailhead']);
   });
+
+  it('fills the field with the short place name when a suggestion is selected', async () => {
+    fetchMock.mockResolvedValue({
+      places: [{
+        name: 'Hannegan Pass',
+        label: 'Hannegan Pass, Whatcom, WA',
+        lat: 48.88,
+        lng: -121.53,
+        placeId: 'pass',
+      }],
+      attribution: 'Powered by Geoapify',
+    });
+
+    const wrapper = await mountSuspended(GcPlaceSearch, {
+      props: {
+        variant: 'inline',
+        modelValue: '',
+        placeholder: 'Starting point',
+      },
+      global: testMountGlobals(),
+    });
+
+    vi.useFakeTimers();
+    await wrapper.get('[data-testid="place-search-trigger"]')
+      .trigger('click');
+    await wrapper.vm.$nextTick();
+
+    await wrapper.get('input')
+      .setValue('Hannegan');
+    await vi.advanceTimersByTimeAsync(350);
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.text())
+      .toContain('Hannegan Pass, Whatcom, WA');
+
+    await wrapper.get('ul button')
+      .trigger('mousedown');
+    await wrapper.vm.$nextTick();
+
+    expect(wrapper.emitted('select')?.[0]?.[0])
+      .toMatchObject({ name: 'Hannegan Pass' });
+    expect(wrapper.emitted('update:modelValue')
+      ?.at(-1))
+      .toEqual(['Hannegan Pass']);
+    expect(wrapper.text())
+      .toContain('Hannegan Pass');
+    expect(wrapper.text())
+      .not
+      .toContain('Whatcom, WA');
+  });
 });

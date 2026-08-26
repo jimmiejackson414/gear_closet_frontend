@@ -4,6 +4,7 @@ import app from '@/app.vue';
 import GcDrawer from '@/components/common/GcDrawer.vue';
 import GcNavbar from '@/components/common/GcNavbar.vue';
 import GcNavbarAlt from '@/components/common/GcNavbarAlt.vue';
+import { useAppStore } from '@/stores/app';
 import { testMountGlobals } from '@/tests/unit/helpers';
 import type { VueWrapper } from '@vue/test-utils';
 
@@ -131,6 +132,32 @@ describe('App', async () => {
       expect(themeToggle?.attributes('aria-label'))
         .toMatch(/Switch to (light|dark) mode/);
     });
+
+    it('toggles the mobile navigation from the hamburger', async () => {
+      const store = useAppStore();
+      expect(store.drawer)
+        .toBe(false);
+
+      await wrapper.get('[data-testid="nav-menu-button"]')
+        .trigger('click');
+      expect(store.drawer)
+        .toBe(true);
+      expect(wrapper.get('[data-testid="nav-menu-button"]')
+        .attributes('aria-label'))
+        .toBe('Close navigation');
+    });
+
+    it('stacks the welcome message below the toolbar on mobile', async () => {
+      const nav = wrapper.get('nav');
+      expect(nav.classes())
+        .toEqual(expect.arrayContaining(['flex-col', 'lg:flex-row']));
+      expect(wrapper.get('[data-testid="page-title"]')
+        .classes())
+        .toEqual(expect.arrayContaining(['lg:order-1']));
+      expect(wrapper.get('[data-testid="nav-toolbar"]')
+        .classes())
+        .toEqual(expect.arrayContaining(['lg:order-2']));
+    });
   });
 
   describe('GcNavbarAlt Component', async () => {
@@ -152,16 +179,63 @@ describe('App', async () => {
         .toBe(true);
     });
 
-    it('routes the locked forums item to Profile subscription', async () => {
+    it('shows forums as coming soon and does not navigate', async () => {
       const wrapper = await mountSuspended(GcDrawer, {
         global: testMountGlobals(),
       });
 
-      const forumsLink = wrapper.get('[aria-label="The forums are only available to paid members. Upgrade in Profile."]');
-      expect(forumsLink.attributes('href'))
-        .toContain('/profile');
-      expect(forumsLink.attributes('href'))
-        .toContain('tab=subscription');
+      const forumsItems = wrapper.findAll('[aria-label="Forums (coming soon)"]');
+      expect(forumsItems.length)
+        .toBe(2);
+      forumsItems.forEach((item) => {
+        expect(item.attributes('aria-disabled'))
+          .toBe('true');
+        expect(item.attributes('href'))
+          .toBeUndefined();
+      });
+      expect(wrapper.get('[data-testid="gc-drawer-mobile"]')
+        .text())
+        .toContain('Forums (coming soon)');
+      expect(wrapper.find('a[href*="/forums"]')
+        .exists())
+        .toBe(false);
+      expect(wrapper.find('[aria-label="The forums are only available to paid members. Upgrade in Profile."]')
+        .exists())
+        .toBe(false);
+    });
+
+    it('sits off-screen on mobile until opened', async () => {
+      const wrapper = await mountSuspended(GcDrawer, {
+        global: testMountGlobals(),
+      });
+      const store = useAppStore();
+      const drawer = wrapper.get('[data-testid="gc-drawer-mobile"]');
+
+      expect(store.drawer)
+        .toBe(false);
+      expect(drawer.classes())
+        .toContain('-translate-x-full');
+
+      store.drawer = true;
+      await wrapper.vm.$nextTick();
+      expect(drawer.classes())
+        .toContain('translate-x-0');
+      expect(wrapper.find('[data-testid="gc-drawer-backdrop"]')
+        .exists())
+        .toBe(true);
+    });
+
+    it('renders a separate desktop icon rail', async () => {
+      const wrapper = await mountSuspended(GcDrawer, {
+        global: testMountGlobals(),
+      });
+
+      expect(wrapper.find('[data-testid="gc-drawer"]')
+        .exists())
+        .toBe(true);
+      expect(wrapper.find('[data-testid="gc-drawer-mobile"]')
+        .exists())
+        .toBe(true);
     });
 
     it('exposes accessible names on navigation and logout controls', async () => {
@@ -169,10 +243,14 @@ describe('App', async () => {
         global: testMountGlobals(),
       });
 
-      const logoutButton = wrapper.find('[data-testid="logout"]');
-      expect(logoutButton.attributes('aria-label'))
-        .toBe('Log out');
-      expect((logoutButton.element as HTMLElement & { _tippy?: { props?: { content?: string } } })._tippy?.props?.content)
+      const logoutButtons = wrapper.findAll('[data-testid="logout"]');
+      expect(logoutButtons.length)
+        .toBe(2);
+      logoutButtons.forEach((button) => {
+        expect(button.attributes('aria-label'))
+          .toBe('Log out');
+      });
+      expect((logoutButtons[1]!.element as HTMLElement & { _tippy?: { props?: { content?: string } } })._tippy?.props?.content)
         .toBe('Log out');
 
       const navLinks = wrapper.findAll('a[aria-label], a[href][aria-label]');

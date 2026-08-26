@@ -43,22 +43,25 @@
             'bg-primary text-white': props.tier.value === SubscriptionLevel.ANNUAL,
             'bg-accent-alt': props.tier.value === SubscriptionLevel.MONTHLY,
           } ]">
-          <p class="font-bold text-white text-base uppercase">
+          <typography class="font-bold text-white uppercase">
             {{ tier?.title }}
-          </p>
+          </typography>
         </div>
         <div>
-          <h4 class="mt-6 font-black text-2xl">
+          <typography
+            class="mt-6 font-black"
+            variant="h3">
             {{ tier?.price }}
-          </h4>
-          <p class="mb-4 text-muted-foreground text-base">
+          </typography>
+          <typography class="mb-4 text-muted-foreground">
             {{ tier?.priceSubtitle }}
-          </p>
-          <p
+          </typography>
+          <typography
             v-if="props.tier.value === SubscriptionLevel.MONTHLY || props.tier.value === SubscriptionLevel.ANNUAL"
-            class="mb-4 text-muted-foreground text-sm">
+            class="mb-4"
+            variant="muted">
             Start on Free — add billing in Profile when you're ready to upgrade.
-          </p>
+          </typography>
         </div>
       </div>
       <hr class="bg-gray-200 border-0 h-px">

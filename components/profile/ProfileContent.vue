@@ -277,8 +277,8 @@
 </script>
 
 <template>
-  <div class="mx-auto py-8 w-full max-w-full lg:max-w-5xl">
-    <div class="gap-6 lg:gap-14 grid grid-cols-1 lg:grid-cols-[25rem_1fr]">
+  <div class="mx-auto py-8 w-full max-w-full min-w-0 lg:max-w-5xl">
+    <div class="gap-6 lg:gap-14 grid grid-cols-1 lg:grid-cols-[minmax(0,25rem)_minmax(0,1fr)]">
       <client-only>
         <lazy-gc-avatar-upload
           :file="profileAvatar"
@@ -286,7 +286,7 @@
           @handle-error="handleFileError"
           @handle-remove-file="newAvatarFile = undefined" />
       </client-only>
-      <div>
+      <div class="min-w-0">
         <div class="mb-6">
           <typography
             v-if="$store.profile?.trail_name"
@@ -310,16 +310,22 @@
         </div>
         <tabs
           v-model="activeTab"
-          class="w-100"
+          class="w-full min-w-0"
           default-value="profile">
-          <tabs-list class="grid grid-cols-3 w-full">
-            <tabs-trigger value="profile">
+          <tabs-list class="grid grid-cols-3 w-full min-w-0">
+            <tabs-trigger
+              class="min-w-0 px-1.5 sm:px-3"
+              value="profile">
               Profile
             </tabs-trigger>
-            <tabs-trigger value="subscription">
+            <tabs-trigger
+              class="min-w-0 px-1.5 sm:px-3"
+              value="subscription">
               Subscription
             </tabs-trigger>
-            <tabs-trigger value="settings">
+            <tabs-trigger
+              class="min-w-0 px-1.5 sm:px-3"
+              value="settings">
               Settings
             </tabs-trigger>
           </tabs-list>

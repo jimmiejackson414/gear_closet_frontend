@@ -25,9 +25,9 @@
   <card class="px-4 sm:px-8 py-4 rounded-3xl">
     <div class="justify-start items-center grid grid-cols-[auto_auto_1fr] py-4">
       <icon-list-todo class="mr-6 w-6 h-6 text-primary" />
-      <p class="font-bold! text-base">
+      <typography class="font-bold!">
         Todos
-      </p>
+      </typography>
       <button-root
         v-if="!$store.pageLoading && $store.data?.todos.length"
         aria-label="Add todo"
@@ -40,9 +40,9 @@
     </div>
     <gc-skeleton v-if="$store.pageLoading" />
     <gc-empty-state v-else-if="!$store.pageLoading && !$store.data?.todos.length">
-      <p class="mb-4 text-base">
+      <typography class="mb-4">
         You haven't added any todos to this trip yet!
-      </p>
+      </typography>
       <button-root
         size="sm"
         variant="outline"
@@ -65,7 +65,9 @@
           </tabs-trigger>
         </tabs-list>
         <tabs-content :value="ResourceType.USER">
-          <div v-if="userTodos.length">
+          <div
+            v-if="userTodos.length"
+            class="overflow-x-auto min-w-0">
             <table-root class="w-full">
               <table-header>
                 <table-row no-hover-effect>
@@ -102,12 +104,14 @@
           </div>
           <typography
             v-else
-            class="text-base text-center">
+            class="text-center">
             No todos found.
           </typography>
         </tabs-content>
         <tabs-content :value="ResourceType.GROUP">
-          <div v-if="groupTodos.length">
+          <div
+            v-if="groupTodos.length"
+            class="overflow-x-auto min-w-0">
             <table-root class="w-full">
               <table-header>
                 <table-row no-hover-effect>
@@ -144,7 +148,7 @@
           </div>
           <typography
             v-else
-            class="text-base text-center">
+            class="text-center">
             No group todos found.
           </typography>
         </tabs-content>

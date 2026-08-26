@@ -3,6 +3,7 @@ import {
   companionPlaceQueries,
   mapGeoapifyAutocomplete,
   normalizePlaceQuery,
+  placeShortName,
   rankPlaceSuggestions,
 } from '@/utils/places';
 
@@ -43,12 +44,14 @@ describe('places', () => {
     }))
       .toEqual([
         {
+          name: 'Hannegan Trailhead',
           label: 'Hannegan Trailhead, Whatcom County, WA',
           lat: 48.9102084,
           lng: -121.5917136,
           placeId: 'abc',
         },
         {
+          name: 'Springer Mountain',
           label: 'Springer Mountain, GA, United States',
           lat: 34.6265,
           lng: -84.1938,
@@ -73,6 +76,7 @@ describe('places', () => {
     }))
       .toEqual([
         {
+          name: 'Hannegan Trailhead',
           label: 'Hannegan Trailhead, Whatcom County, WA',
           lat: 48.9102084,
           lng: -121.5917136,
@@ -107,5 +111,23 @@ describe('places', () => {
         'Hannegan Trailhead, Whatcom County, WA',
         'Hannegan Pass, Whatcom County, WA',
       ]);
+  });
+
+  it('uses the place name without city and state for saved labels', () => {
+    expect(placeShortName({
+      name: 'Hannegan Pass',
+      label: 'Hannegan Pass, Whatcom, WA',
+      lat: 48.88,
+      lng: -121.53,
+      placeId: 'pass',
+    }))
+      .toBe('Hannegan Pass');
+    expect(placeShortName({
+      label: 'Hannegan Pass, Whatcom, WA',
+      lat: 48.88,
+      lng: -121.53,
+      placeId: 'pass',
+    }))
+      .toBe('Hannegan Pass');
   });
 });

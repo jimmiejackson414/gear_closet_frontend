@@ -83,9 +83,19 @@ describe('ForumsWidget', () => {
       .toContain('topics');
     expect(wrapper.text())
       .toContain('Open forums');
-    expect(wrapper.get('a[aria-label="Open General on the forums"]')
-      .attributes('href'))
-      .toContain('/forums?category=general&categoryId=4');
+    expect(wrapper.text())
+      .toContain('Forums (coming soon)');
+    expect(wrapper.get('[data-testid="forums-open-button"]')
+      .classes())
+      .toEqual(expect.arrayContaining(['self-center', 'sm:self-auto']));
+    expect(wrapper.get('[data-testid="forums-open-button"] button')
+      .attributes('disabled'))
+      .toBeDefined();
+    expect(wrapper.find('a[href*="/forums"]')
+      .exists())
+      .toBe(false);
+    expect(wrapper.get('[aria-label="Forums (coming soon)"]').element.tagName)
+      .toBe('DIV');
     expect(wrapper.text())
       .not
       .toContain('Error occurred fetching forum posts.');
@@ -106,6 +116,11 @@ describe('ForumsWidget', () => {
       .toContain('The community is warming up');
     expect(wrapper.text())
       .toContain('Open forums');
+    expect(wrapper.text())
+      .toContain('Forums (coming soon)');
+    expect(wrapper.find('a[href*="/forums"]')
+      .exists())
+      .toBe(false);
     expect(wrapper.text())
       .not
       .toContain('Upgrade in Profile');

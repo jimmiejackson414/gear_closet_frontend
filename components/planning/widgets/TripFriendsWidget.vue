@@ -53,9 +53,9 @@
   <card class="px-4 sm:px-8 py-4 rounded-3xl">
     <div class="justify-start items-center grid grid-cols-[auto_auto_1fr] py-4">
       <icon-users-round class="mr-6 w-6 h-6 text-primary" />
-      <p class="font-bold! text-base">
+      <typography class="font-bold!">
         Friends
-      </p>
+      </typography>
       <button-root
         v-if="canInvite"
         aria-label="Invite friends"
@@ -69,14 +69,15 @@
     </div>
     <gc-skeleton v-if="pageLoading" />
     <gc-empty-state v-else-if="!hasPeople">
-      <p class="mb-4 text-base">
+      <typography class="mb-4">
         {{ $store.canEditSelectedTrip ? "You haven't added any friends to this trip yet!" : 'No friends on this trip yet.' }}
-      </p>
-      <p
+      </typography>
+      <typography
         v-if="$store.canEditSelectedTrip"
-        class="mb-4 text-muted-foreground text-sm">
+        class="mb-4"
+        variant="muted">
         Invite from Friends or by email.
-      </p>
+      </typography>
       <button-root
         v-if="$store.canEditSelectedTrip"
         data-testid="trip-friends-empty-invite"

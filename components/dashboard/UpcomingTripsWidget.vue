@@ -64,17 +64,19 @@
               :to="tripLink(trip)">
               <div class="flex flex-col sm:flex-row sm:items-stretch gap-2 sm:gap-4">
                 <div class="flex-1 min-w-0">
-                  <p class="font-semibold text-base text-muted-foreground truncate">
+                  <typography class="font-semibold text-muted-foreground truncate">
                     {{ trip.name }}
-                  </p>
-                  <p class="text-muted-foreground text-sm truncate">
+                  </typography>
+                  <typography
+                    class="truncate"
+                    variant="muted">
                     {{ trip.description }}
-                  </p>
+                  </typography>
                 </div>
                 <div class="flex justify-between flex-1 flex-col min-w-0">
-                  <p class="font-medium inline-flex items-center text-base text-dark-gray">
+                  <typography class="font-medium inline-flex items-center text-dark-gray">
                     Begins {{ formattedRelativeDate(trip.starting_date) }}
-                  </p>
+                  </typography>
                   <div class="bg-gray-200 h-2.5 rounded-full w-full">
                     <div
                       class="bg-linear-to-r from-accent-light to-accent-alt h-2.5 rounded-full"

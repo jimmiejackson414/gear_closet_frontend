@@ -191,11 +191,12 @@
             placeholder="Where should we go hiking this year?"
             :prepend-icon="IconCircleHelp"
             @update:model-value="validationErrors.question = ''" />
-          <p
+          <typography
             v-if="validationErrors.question"
-            class="text-destructive text-sm">
+            class="text-destructive"
+            variant="small">
             {{ validationErrors.question }}
-          </p>
+          </typography>
         </div>
         <div class="grid grid-cols-1 gap-4">
           <label-root for="answer">
@@ -221,11 +222,12 @@
               <icon-x class="text-destructive" />
             </button-root>
           </div>
-          <p
+          <typography
             v-if="validationErrors.answers"
-            class="text-destructive text-sm">
+            class="text-destructive"
+            variant="small">
             {{ validationErrors.answers }}
-          </p>
+          </typography>
           <button-root
             class="justify-self-start"
             :disabled="localForm.answers.length >= 6"

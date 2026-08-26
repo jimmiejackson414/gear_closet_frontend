@@ -281,6 +281,9 @@ describe('Closet Page', async () => {
       const renderedDetails = wrapper.findAll('[data-testid="pack-summary-detail"]');
       expect(renderedDetails.length)
         .toBe(4);
+      expect(wrapper.find('[data-testid="pack-summary-detail"]')
+        .classes())
+        .toContain('min-w-0');
     });
   });
 

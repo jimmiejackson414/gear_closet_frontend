@@ -32,10 +32,10 @@
     <gc-loading-wrapper v-if="loading" />
     <div v-else>
       <gc-drawer v-if="isLoggedIn" />
-      <div class="min-h-screen overflow-x-hidden pt-5">
+      <div class="min-h-screen overflow-x-hidden">
         <div
-          class="container py-4"
-          :class="!isLoggedIn ? 'px-4' : 'pl-18 pr-4 lg:pl-22.5 lg:pr-0 2xl:pl-0 py-9'">
+          class="container min-w-0"
+          :class="!isLoggedIn ? 'px-4 pt-4 pb-20' : 'pt-4 pb-20 lg:pl-20 lg:pt-9'">
           <gc-navbar v-if="isLoggedIn" />
           <gc-navbar-alt
             v-else

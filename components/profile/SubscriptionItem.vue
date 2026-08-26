@@ -49,12 +49,12 @@
           [SubscriptionLevel.FREE]: 'warning' as const,
           [SubscriptionLevel.LIFE]: 'primary' as const,
         }[plan.value as keyof typeof SubscriptionLevel] || 'primary'" />
-      <p class="mt-4 font-bold! text-base-lg">
+      <typography class="mt-4 font-bold! text-base-lg">
         {{ plan.value === SubscriptionLevel.FREE ? 'Free' : plan.price }}
-      </p>
-      <p class="text-sm">
+      </typography>
+      <typography variant="small">
         {{ plan.priceSubtitle }}
-      </p>
+      </typography>
     </div>
     <hr class="bg-gray-200 my-2 border-0 h-px">
     <div class="flex flex-col px-4 py-2 grow">
@@ -65,9 +65,9 @@
         <icon-check-circle-2
           :color="tailwindConfig.theme.colors.primary.DEFAULT"
           :size="20" />
-        <p class="text-base">
+        <typography>
           {{ item }}
-        </p>
+        </typography>
       </div>
       <button-root
         class="self-center mt-auto"

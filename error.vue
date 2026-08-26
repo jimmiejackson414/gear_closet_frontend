@@ -27,9 +27,9 @@
       <h1 class="font-bold text-foreground text-xl">
         Something went wrong
       </h1>
-      <p class="mt-4 text-muted-foreground">
+      <typography class="mt-4 text-muted-foreground">
         {{ error?.statusMessage || error?.statusText || error?.message || 'Please try again.' }}
-      </p>
+      </typography>
       <button
         class="inline-flex justify-center items-center bg-primary mt-6 px-4 rounded-full h-10 font-semibold text-primary-foreground"
         type="button"

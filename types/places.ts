@@ -1,5 +1,6 @@
 export type PlaceSuggestion = {
   label: string
+  name?: string
   lat: number
   lng: number
   placeId: string | null
