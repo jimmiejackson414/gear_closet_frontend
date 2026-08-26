@@ -7,7 +7,7 @@ export function useDrawerNav () {
   const $store = useUserStore();
   const colorMode = useColorMode();
 
-  const isLightMode = computed(() => colorMode.preference === 'light');
+  const isLightMode = computed(() => colorMode.value === 'light');
   const links = drawerLinks();
 
   const isActiveRoute = (link: LinkItem) => $route.name === link.to;

@@ -1,5 +1,5 @@
 <script lang='ts' setup>
-  definePageMeta({ colorMode: 'light', layout: 'public-layout' });
+  definePageMeta({ layout: 'public-layout' });
 
   useHead({
     meta: [
