@@ -29,7 +29,7 @@
   const attrs = useAttrs();
   const computedClasses = computed(() => {
     const baseClasses =
-      'flex w-full rounded-md border bg-transparent px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
+      'flex w-full rounded-md border bg-transparent px-3 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-gray-400 focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50';
     const heightClass = props.dense ? 'h-8 py-1' : 'h-10 py-2'; // Adjust height and padding for dense variant
     const borderClass = attrs['aria-invalid'] ? 'border-destructive' : 'border-input';
     const prependIconClass = props.prependIcon ? 'ps-9' : '';
@@ -37,10 +37,10 @@
 
     // Apply light or dark mode adjustments based on forceColorMode
     const colorModeClasses = props.forceColorMode === 'dark'
-      ? 'dark:bg-background dark:placeholder:text-muted-foreground'
+      ? 'dark:bg-background dark:placeholder:text-gray-400'
       : props.forceColorMode === 'light'
         ? 'bg-white! text-black! !placeholder:text-gray-500'
-        : 'bg-transparent dark:bg-background placeholder:text-muted-foreground';
+        : 'bg-transparent dark:bg-background placeholder:text-gray-400';
 
     return cn(
       baseClasses,
@@ -67,7 +67,7 @@
   <div class="items-center relative w-full">
     <component
       :is="prependIcon"
-      class="-translate-y-1/2 absolute top-1/2 left-2.5 h-5 inline-block pointer-events-none text-base text-foreground w-5" />
+      class="-translate-y-1/2 absolute top-1/2 left-3 h-4 inline-block pointer-events-none text-gray-400 w-4" />
     <input
       v-bind="$attrs"
       ref="inputRef"

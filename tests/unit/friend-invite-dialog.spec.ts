@@ -65,6 +65,35 @@ describe('FriendInviteDialog', () => {
       .toBeTruthy();
     expect((document.body.querySelector('[data-testid="invite-submit"]') as HTMLButtonElement).disabled)
       .toBe(true);
+    expect((document.body.querySelector('[data-testid="invite-email-add"]') as HTMLButtonElement).disabled)
+      .toBe(true);
+  });
+
+  it('enables Add only for a valid email', async () => {
+    const wrapper = await mountSuspended(FriendInviteDialog, {
+      attachTo: document.body,
+      global: testMountGlobals(),
+      props: { isOpen: true },
+    });
+
+    const addButton = () =>
+      document.body.querySelector('[data-testid="invite-email-add"]') as HTMLButtonElement;
+    const emailInput = document.body.querySelector('input[type="email"]') as HTMLInputElement;
+
+    expect(addButton().disabled)
+      .toBe(true);
+
+    emailInput.value = 'pat@';
+    emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+    await wrapper.vm.$nextTick();
+    expect(addButton().disabled)
+      .toBe(true);
+
+    emailInput.value = 'pat@example.com';
+    emailInput.dispatchEvent(new Event('input', { bubbles: true }));
+    await wrapper.vm.$nextTick();
+    expect(addButton().disabled)
+      .toBe(false);
   });
 
   it('marks existing friends and pending invites as disabled', async () => {

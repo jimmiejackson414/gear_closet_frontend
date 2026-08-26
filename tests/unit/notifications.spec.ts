@@ -7,8 +7,18 @@ describe('notificationRoute', () => {
       .toEqual({ name: 'friends' });
   });
 
+  it('sends accepted friend-request notifications to Friends', () => {
+    expect(notificationRoute(NotificationKind.FRIEND_ACCEPTED))
+      .toEqual({ name: 'friends' });
+  });
+
   it('sends trip-invite notifications to the dashboard', () => {
     expect(notificationRoute(NotificationKind.TRIP_INVITE))
+      .toEqual({ name: 'index' });
+  });
+
+  it('sends accepted trip-invite notifications to the dashboard', () => {
+    expect(notificationRoute(NotificationKind.TRIP_INVITE_ACCEPTED))
       .toEqual({ name: 'index' });
   });
 

@@ -22,7 +22,6 @@ export const useFriendsPage = () => {
   const sharedTripCounts = ref<Map<string, number>>(new Map());
   const crewFilter = ref('');
   const inviteOpen = ref(false);
-  const activeTab = ref<'crew' | 'requests' | 'sent'>('crew');
   const resendingEmail = ref<string | null>(null);
 
   const filteredCrew = computed(() => {
@@ -209,7 +208,6 @@ export const useFriendsPage = () => {
     friendId ? (sharedTripCounts.value.get(friendId) ?? 0) : 0;
 
   return {
-    activeTab,
     closeInvite,
     crewFilter,
     currentFriends,

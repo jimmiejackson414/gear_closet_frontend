@@ -23,7 +23,7 @@
   const newAvatarFile = ref<FilePondFile | undefined>(undefined);
   const profileAvatar = computed(() => {
     if ($store.profile?.image) {
-      return buildImageSrc($store.profile.image, 'xl');
+      return buildImageSrc($store.profile.image, 'xl', { transform: false });
     }
     return undefined;
   });
@@ -232,6 +232,14 @@
   const newPassword = ref('');
   const confirmPassword = ref('');
   const isSubmittingPassword = ref(false);
+  const passwordFieldsKey = ref(0);
+
+  const clearPasswordFields = () => {
+    newPassword.value = '';
+    confirmPassword.value = '';
+    passwordFieldsKey.value += 1;
+  };
+
   const handleUpdatePassword = async () => {
     isSubmittingPassword.value = true;
 
@@ -256,8 +264,7 @@
       if (error) { $appStore.notifyNegative('An error occurred while updating your password.'); }
       else {
         $appStore.notifyPositive('Successfully updated your password!');
-        newPassword.value = '';
-        confirmPassword.value = '';
+        clearPasswordFields();
       }
     } catch {
       $appStore.notifyNegative('An error occurred while updating your password.');
@@ -539,38 +546,37 @@
           <tabs-content value="settings">
             <card class="bg-card p-4 rounded-lg">
               <div class="gap-6 grid grid-cols-1 auto-rows-auto">
-                <form-field
-                  v-slot="{ componentField }"
-                  name="new_password">
+                <form-field name="new_password">
                   <form-item>
                     <form-label>New Password</form-label>
                     <form-control>
                       <input-root
+                        :key="`new-password-${passwordFieldsKey}`"
                         v-model="newPassword"
+                        data-testid="profile-new-password"
                         :disabled="isSubmittingPassword"
                         password-toggle
-                        type="password"
-                        v-bind="componentField" />
+                        type="password" />
                     </form-control>
                   </form-item>
                 </form-field>
-                <form-field
-                  v-slot="{ componentField }"
-                  name="confirm_password">
+                <form-field name="confirm_password">
                   <form-item>
                     <form-label>Confirm Password</form-label>
                     <form-control>
                       <input-root
+                        :key="`confirm-password-${passwordFieldsKey}`"
                         v-model="confirmPassword"
+                        data-testid="profile-confirm-password"
                         :disabled="isSubmittingPassword"
                         password-toggle
-                        type="password"
-                        v-bind="componentField" />
+                        type="password" />
                     </form-control>
                   </form-item>
                 </form-field>
                 <div class="flex justify-end items-center">
                   <button-root
+                    data-testid="profile-update-password"
                     :disabled="isSubmittingPassword"
                     :loading="isSubmittingPassword"
                     @click="handleUpdatePassword">

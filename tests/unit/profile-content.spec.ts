@@ -166,4 +166,28 @@ describe('components/profile/ProfileContent', () => {
       .not
       .toContain('Next Billing Date');
   });
+
+  it('clears password fields after a successful update', async () => {
+    const updateUser = vi.fn()
+      .mockResolvedValue({ data: {}, error: null });
+    Object.assign(supabaseClient.current ?? {}, {
+      auth: { updateUser },
+    });
+
+    const wrapper = await mountSuspended(ProfileContent);
+    const vm = wrapper.vm as any;
+    vm.newPassword = 'newpass123';
+    vm.confirmPassword = 'newpass123';
+
+    await vm.handleUpdatePassword();
+
+    expect(updateUser)
+      .toHaveBeenCalledWith({ password: 'newpass123' });
+    expect(vm.newPassword)
+      .toBe('');
+    expect(vm.confirmPassword)
+      .toBe('');
+    expect(toast)
+      .toHaveBeenCalled();
+  });
 });
