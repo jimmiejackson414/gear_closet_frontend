@@ -31,9 +31,17 @@ ALTER TABLE public.friend_invitations
 
 -- ---------------------------------------------------------------------------
 -- Duplicate indexes (PK already enforces uniqueness on id)
+-- replies.comment_id FK was bound to comments_id_key; reattach to comments_pkey.
 -- ---------------------------------------------------------------------------
+ALTER TABLE public.replies
+  DROP CONSTRAINT IF EXISTS replies_comment_id_fkey;
+
 ALTER TABLE public.comments
   DROP CONSTRAINT IF EXISTS comments_id_key;
+
+ALTER TABLE public.replies
+  ADD CONSTRAINT replies_comment_id_fkey
+  FOREIGN KEY (comment_id) REFERENCES public.comments (id);
 
 ALTER TABLE public.replies
   DROP CONSTRAINT IF EXISTS replies_id_key;
