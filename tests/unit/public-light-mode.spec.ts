@@ -18,6 +18,15 @@ describe('middleware/public-light-mode', () => {
       .toBe('light');
   });
 
+  it('forces light color mode on auth-layout routes', () => {
+    const to = routeStub('auth-layout');
+
+    publicLightMode(to, {} as MiddlewareFrom);
+
+    expect(to.meta.colorMode)
+      .toBe('light');
+  });
+
   it('does not override color mode on other layouts', () => {
     const to = routeStub('default');
 

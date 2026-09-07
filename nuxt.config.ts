@@ -38,7 +38,8 @@ export default defineNuxtConfig({
     classPrefix: '',
     classSuffix: '',
     fallback: 'light',
-    preference: 'system',
+    // Default light; dark only after the user toggles it in the UI (persisted).
+    preference: 'light',
   },
 
   compatibilityDate: "2026-08-11",

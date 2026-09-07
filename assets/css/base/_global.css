@@ -1,5 +1,0 @@
-@layer base {
-  .text-hyperlink {
-    @apply font-sans text-primary text-base hover:text-primary/75 transition-all duration-200 ease-in-out hover:underline underline-offset-4;
-  }
-}

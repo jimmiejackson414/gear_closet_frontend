@@ -1,4 +1,5 @@
 <script lang="ts" setup>
+  import SpinnerIcon from '@/components/icons/SpinnerIcon.vue';
   import {
     destinationAfterAuth,
     isPasswordRecoveryCallback,
@@ -17,6 +18,13 @@
   const handled = ref(false);
 
   const isRecovery = computed(() => isPasswordRecoveryCallback(route.query.type, route.hash));
+
+  const title = computed(() => (failed.value ? 'Sign-in failed' : 'Welcome back'));
+  const subtitle = computed(() => (
+    failed.value
+      ? 'We could not finish signing you in'
+      : 'Just a moment while we get things ready'
+  ));
 
   async function continueAuthenticated (isPasswordRecovery: boolean) {
     if (handled.value) return;
@@ -69,21 +77,26 @@
 </script>
 
 <template>
-  <div class="text-center">
-    <typography v-if="!failed">
-      Signing you in…
-    </typography>
-    <div
-      v-else
-      class="flex flex-col items-center gap-4">
-      <typography>
-        We could not finish signing you in. The link may have expired.
-      </typography>
-      <nuxt-link to="/login">
-        <button-root>
-          Back to login
-        </button-root>
-      </nuxt-link>
+  <auth-form-container
+    :subtitle="subtitle"
+    :title="title">
+    <div class="flex flex-col items-center gap-4 px-2 py-6 text-center">
+      <template v-if="!failed">
+        <spinner-icon class="animate-spin h-8 text-[hsl(204_100%_26.9%)] w-8" />
+        <typography class="text-gray-800">
+          Signing you in…
+        </typography>
+      </template>
+      <template v-else>
+        <typography class="text-gray-800">
+          The link may have expired or the sign-in was cancelled. Try again from the login page.
+        </typography>
+        <nuxt-link to="/login">
+          <button-root>
+            Back to login
+          </button-root>
+        </nuxt-link>
+      </template>
     </div>
-  </div>
+  </auth-form-container>
 </template>
