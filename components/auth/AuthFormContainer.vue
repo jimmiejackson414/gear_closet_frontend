@@ -16,7 +16,7 @@
   <div class="flex flex-col justify-center items-center min-h-screen">
     <div class="flex flex-col bg-white shadow-lg rounded-2xl w-full max-w-xl overflow-hidden">
       <div class="relative flex flex-col justify-center items-center px-4 w-full h-37.5">
-        <div class="top-0 -left-17.5 absolute flex flex-col bg-primary rounded-b-[50%] w-[150%] h-full" />
+        <div class="top-0 -left-17.5 absolute flex flex-col bg-[hsl(204_100%_26.9%)] rounded-b-[50%] w-[150%] h-full" />
         <div class="items-center grid grid-cols-1 auto-rows-auto px-0 pt-4 pb-12 w-full h-full text-center">
           <gc-logo-icon
             fill="#fff"

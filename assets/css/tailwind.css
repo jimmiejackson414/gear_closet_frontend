@@ -1,6 +1,5 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
-@import './base/_index.css' layer(base);
 @import './datepicker.css';
 
 /* Class-based dark mode (@nuxtjs/color-mode) */
@@ -201,5 +200,24 @@
   button:not(:disabled),
   [role='button']:not(:disabled) {
     cursor: pointer;
+  }
+}
+
+/*
+  App link style — components layer beats preflight `a { color: inherit }`
+  and any legacy `.text-hyperlink` rules from older CSS.
+*/
+@layer components {
+  a.text-hyperlink {
+    font-family: var(--font-sans);
+    font-size: 1rem;
+    line-height: 1.625rem;
+    color: hsl(var(--muted-foreground));
+    text-decoration: none;
+    transition: color 200ms cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  a.text-hyperlink:hover {
+    color: hsl(var(--primary));
   }
 }

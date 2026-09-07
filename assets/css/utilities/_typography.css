@@ -1,7 +1,3 @@
-@utility text-hyperlink {
-  @apply text-base text-primary hover:text-primary/75 transition-all;
-}
-
 @utility text-sm {
   /*
   * p tags - 14px
